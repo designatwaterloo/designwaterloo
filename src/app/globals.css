@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+:root {
+  /* Color Primitives */
+  --white: #ffffff;
+  --black: #0e0e0e;
+
+  /* Base Colors */
+  --background: var(--white);
+  --foreground: var(--black);
+
+  font-family: Inter, sans-serif;
+
+  /* Size Scale */
+  --tiniest: 4px;
+  --tinier: 8px;
+  --tiny: 12px;
+  --smallest: 16px;
+  --smaller: 24px;
+  --small: 32px;
+  --big: 48px;
+  --bigger: 64px;
+  --biggest: 96px;
+  --huge: 128px;
+
+  /* Grid System */
+  --gap: var(--tinier);
+  --margin: var(--smallest);
+  --columns: 12;
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: Inter, sans-serif;
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--black);
+    --foreground: var(--white);
+  }
+} */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1, 'ss04' 1, 'ss07' 1;
+  font-weight: 500;
+  letter-spacing: -0.08em;
+  line-height: 100%;
+  font-optical-sizing: auto;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.jumbo {
+  font-size: var(--big);
+}
+
+h1 {
+  font-size: var(--small);
+  line-height: 100%;
+}
+
+/* Container/Grid */
+.container {
+  width: 100vw;
+  max-width: none;
+  padding: var(--big);
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: var(--gap);
+}
+
+
+/* Cards */
+.card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Buttons */
+button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--tinier) var(--smallest);
+  border-radius: 12px;
+  font-size: var(--smaller);
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--black);
+  border: 2px solid var(--black);
+}
+
+.btn-menu {
+  background: #e1e1e1;
+  color: #414141;
+  font-size: var(--smallest);
+  font-weight: 600;
+  letter-spacing: -0.16px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  border: none;
+  width: fit-content;
+  height: fit-content;
+}
+
+/* Section spacing */
+section {
+  width: 100vw;
+  padding: var(--big);
+}
+
+p {
+  font-size: var(--smallest);
+  line-height: 114%;
+  letter-spacing: -0.02em;
+}
