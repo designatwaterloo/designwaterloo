@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
@@ -18,11 +19,11 @@ export default function Home() {
             <div className="flex gap-[11px]">
               <button className="btn-secondary px-4 py-2 gap-[10px]">
                 <span className="text-2xl">📇</span>
-                <span className="text-2xl tracking-[-0.24px]">Join directory</span>
+                <span className="text-2xl">Join directory</span>
               </button>
               <button className="btn-primary px-4 py-2 gap-[10px]">
                 <span className="text-2xl">🔍</span>
-                <span className="text-2xl tracking-[-0.24px]">Find talent</span>
+                <span className="text-2xl">Find talent</span>
               </button>
             </div>
           </div>
@@ -34,8 +35,8 @@ export default function Home() {
 
         {/* Raison d'être Section */}
         <section className="w-screen px-12 pt-[57px] pb-0 flex flex-col gap-[31px]">
-          <div className="border-b-2 border-black/[0.22] pb-[11px]">
-            <p className="text-xl text-black/[0.22] tracking-[-0.4px]">
+          <div className="section-divider">
+            <p className="section-label">
               Raison d&apos;être
             </p>
           </div>
@@ -47,15 +48,15 @@ export default function Home() {
 
         {/* Work Section */}
         <section className="w-screen px-12 py-12 flex flex-col gap-12">
-          <div className="border-b-2 border-black/[0.22] pb-[11px]">
-            <p className="text-xl text-black/[0.22] tracking-[-0.4px]">Work</p>
+          <div className="section-divider">
+            <p className="section-label">Work</p>
           </div>
 
           <div className="flex gap-2 w-full">
             <div className="flex-1">
-              <p className="text-4xl tracking-[-0.72px]">Proof of work.</p>
+              <h1>Proof of work.</h1>
             </div>
-            <p className="flex-1 text-base leading-[1.14] tracking-[-0.32px]">
+            <p className="flex-1">
               Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence in Waterloo, and letting the world know about it.
             </p>
           </div>
@@ -63,9 +64,9 @@ export default function Home() {
           <div className="flex gap-2 w-full">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="card flex-1 flex flex-col gap-4">
-                <p className="text-base tracking-[-0.32px] uppercase">Project {i}</p>
+                <p className="uppercase">Project {i}</p>
                 <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
-                <p className="text-base text-[#7f7f7f] tracking-[-0.32px]">
+                <p className="text-[#7f7f7f]">
                   Project description goes here.
                 </p>
               </div>
@@ -75,15 +76,15 @@ export default function Home() {
 
         {/* Directory Section */}
         <section className="w-screen px-12 py-12 bg-black flex flex-col gap-12">
-          <div className="border-b-2 border-white/70 pb-[11px]">
-            <p className="text-xl text-white/70 tracking-[-0.4px]">Directory</p>
+          <div className="section-divider">
+            <p className="section-label">Directory</p>
           </div>
 
           <div className="flex gap-2 w-full">
             <div className="flex-1">
-              <p className="text-4xl text-white tracking-[-0.72px]">The biggest design family on campus.</p>
+              <h1 className="text-white">The biggest design family on campus.</h1>
             </div>
-            <p className="w-[590px] text-base text-white leading-[1.14] tracking-[-0.32px]">
+            <p className="w-[590px] text-white">
               The Design Waterloo directory highlights the top designers, videographers, and artists in one convenient location. It&apos;s your go-to resource for discovering exceptional creative talent from the Waterloo area.
             </p>
           </div>
@@ -101,17 +102,17 @@ export default function Home() {
 
         {/* Play/Events Section */}
         <section className="w-screen px-12 py-12 flex flex-col gap-12">
-          <div className="border-b-2 border-black/[0.22] pb-[11px]">
-            <p className="text-xl text-black/[0.22] tracking-[-0.4px]">Play</p>
+          <div className="section-divider">
+            <p className="section-label">Play</p>
           </div>
 
           <div className="flex gap-2 w-full">
             <div className="flex-1">
-              <p className="text-4xl tracking-[-0.72px] max-w-[463px]">
+              <h1 className="max-w-[463px]">
                 We host cute events and workshops to grow design at Waterloo
-              </p>
+              </h1>
             </div>
-            <p className="flex-1 text-base leading-[1.14] tracking-[-0.32px]">
+            <p className="flex-1">
               Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence in Waterloo, and letting the world know about it.
             </p>
           </div>
@@ -119,9 +120,9 @@ export default function Home() {
           <div className="flex gap-2 w-full">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="card flex-1 flex flex-col gap-4">
-                <p className="text-base tracking-[-0.32px] uppercase">Event {i}</p>
+                <p className="uppercase">Event {i}</p>
                 <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
-                <p className="text-base text-[#7f7f7f] tracking-[-0.32px]">
+                <p className="text-[#7f7f7f]">
                   Event description goes here.
                 </p>
               </div>
@@ -130,44 +131,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="w-screen px-12 py-12 bg-white flex flex-col gap-12 h-[699px]">
-        <div className="flex gap-3 w-full">
-          {[1, 2, 3, 4].map((col) => (
-            <div key={col} className="flex-1 flex flex-col gap-2">
-              <div className="border-b-2 border-[dimgrey] pb-[10px]">
-                <p className="text-base text-black tracking-[-0.32px]">Section</p>
-              </div>
-              <div className="flex flex-col gap-[10px]">
-                {[1, 2, 3].map((item) => (
-                  <p key={item} className="text-base text-[dimgrey] tracking-[-0.32px]">
-                    Content {item}
-                  </p>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="border-t-2 border-black" />
-
-        <div className="aspect-[930/234] w-full">
-          {/* Logo placeholder */}
-        </div>
-
-        <div className="flex justify-between items-start w-full">
-          <div className="flex gap-4 items-center">
-            <a href="#" className="text-base text-black tracking-[-0.32px]">Instagram</a>
-            <a href="#" className="text-base text-black tracking-[-0.32px]">Twitter</a>
-            <a href="#" className="text-base text-black tracking-[-0.32px]">LinkedIn</a>
-            <p className="text-base text-black tracking-[-0.32px]">Newsletter</p>
-          </div>
-          <div className="flex gap-4">
-            <p className="text-base text-black tracking-[-0.32px]">Privacy Policy</p>
-            <p className="text-base text-black tracking-[-0.32px]">© 2025 Design Waterloo</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

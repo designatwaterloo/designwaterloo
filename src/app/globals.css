@@ -8,6 +8,7 @@
   /* Base Colors */
   --background: var(--white);
   --foreground: var(--black);
+  --muted: rgba(14, 14, 14, 0.22);
 
   font-family: Inter, sans-serif;
 
@@ -27,6 +28,7 @@
   --gap: var(--tinier);
   --margin: var(--smallest);
   --columns: 12;
+  overscroll-behavior-y: none;
 }
 
 @supports (font-variation-settings: normal) {
@@ -54,21 +56,41 @@ body {
   font-family: Inter, sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1, 'ss04' 1, 'ss07' 1;
   font-weight: 500;
-  letter-spacing: -0.08em;
   line-height: 100%;
   font-optical-sizing: auto;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  letter-spacing: -0.05em;
 }
 
 .jumbo {
   font-size: var(--big);
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+
+.project-name {
+  font-size: var(--bigger);
+  font-weight: 600;
+  line-height: 100%;
 }
 
 h1 {
   font-size: var(--small);
   line-height: 100%;
+}
+
+/* Section label */
+.section-label {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+/* Section divider */
+.section-divider {
+  border-bottom: 2px solid var(--muted);
+  padding-bottom: 11px;
 }
 
 /* Container/Grid */
@@ -114,11 +136,10 @@ button {
 }
 
 .btn-menu {
-  background: #e1e1e1;
-  color: #414141;
+  background: var(--white);
+  color: var(--black);
   font-size: var(--smallest);
   font-weight: 600;
-  letter-spacing: -0.16px;
   padding: 10px 10px;
   border-radius: 8px;
   border: none;
@@ -130,10 +151,48 @@ button {
 section {
   width: 100vw;
   padding: var(--big);
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: var(--gap);
 }
 
 p {
   font-size: var(--smallest);
   line-height: 114%;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+/* Dark theme variant */
+.dark {
+  --background: var(--black);
+  --foreground: var(--white);
+  --muted: rgba(255, 255, 255, 0.7);
+}
+
+/* Footer */
+footer {
+  width: 100vw;
+  padding: var(--big);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Header Logos */
+.header-logo {
+  height: calc(var(--small) + 4px);
+  width: auto;
+  position: fixed;
+  top: var(--small);
+  z-index: 50;
+  filter: invert(1);
+  mix-blend-mode: difference;
 }
