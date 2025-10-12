@@ -1,10 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (
     <header className="container py-[var(--small)] px-[var(--big)]">
-      <Image src="/Design Waterloo Wordmark.svg" alt="Design Waterloo" width={200} height={36} className="header-logo col-start-1 left-[var(--big)]" priority />
-      <Image src="/Design Waterloo Logo.svg" alt="Design Waterloo" width={36} height={36} className="header-logo col-start-3 left-[calc(var(--big)+2*(100vw-2*var(--big))/12+2*var(--gap))]" priority />
+      <Link href="/">
+        <Image src="/Design Waterloo Wordmark.svg" alt="Design Waterloo" width={200} height={36} className="header-logo col-start-1 left-[var(--big)] cursor-pointer" priority />
+      </Link>
+      <Link href="/">
+        <Image src="/Design Waterloo Logo.svg" alt="Design Waterloo" width={36} height={36} className="header-logo col-start-3 left-[calc(var(--big)+2*(100vw-2*var(--big))/12+2*var(--gap))] cursor-pointer" priority />
+      </Link>
       <div className="col-span-3 col-start-7">
         <p className="text-[#aeaeae]">
           A collective and directory of student designers* from the University of Waterloo and Wilfrid Laurier University.

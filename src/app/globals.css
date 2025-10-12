@@ -150,6 +150,10 @@ button {
 /* Section spacing */
 section {
   width: 100vw;
+}
+
+/* Grid section - opt-in via class */
+section.grid-section {
   padding: var(--big);
   display: grid;
   grid-template-columns: repeat(var(--columns), 1fr);
