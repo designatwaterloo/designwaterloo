@@ -3,6 +3,7 @@
 .button {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 10px;
   padding: var(--tinier) var(--smallest);
   border-radius: 12px;
@@ -13,6 +14,8 @@
 
 .text {
   font-size: var(--smaller);
+  text-align: left;
+  line-height: 1.2;
 }
 
 .primary {

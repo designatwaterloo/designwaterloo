@@ -31,7 +31,7 @@
   bottom: var(--tiny);
   background-color: white;
   z-index: 70;
-  width: calc(3 * (100vw - 2 * var(--big)) / 12 + 2 * var(--gap) + 2 * var(--big));
+  width: 420px;
   transform: translateX(calc(100% + var(--tiny)));
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 16px;
