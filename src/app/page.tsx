@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Button from "@/components/Button";
 
 export default function Home() {
   return (
@@ -17,14 +18,8 @@ export default function Home() {
             </h1>
 
             <div className="flex gap-[11px]">
-              <button className="btn-secondary px-4 py-2 gap-[10px]">
-                <span className="text-2xl">📇</span>
-                <span className="text-2xl">Join directory</span>
-              </button>
-              <button className="btn-primary px-4 py-2 gap-[10px]">
-                <span className="text-2xl">🔍</span>
-                <span className="text-2xl">Find talent</span>
-              </button>
+              <Button text="Join directory" variant="secondary" />
+              <Button text="Find talent" variant="primary" icon="/Search.svg" iconAlt="Search" />
             </div>
           </div>
 

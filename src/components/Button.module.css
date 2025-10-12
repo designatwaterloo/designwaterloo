@@ -1,0 +1,45 @@
+/* Button Component Styles */
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--tinier) var(--smallest);
+  border-radius: 12px;
+  font-size: var(--smaller);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.text {
+  font-size: var(--smaller);
+}
+
+.primary {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+}
+
+.primary:hover {
+  background: #2a2a2a;
+}
+
+.primary:active {
+  transform: translateY(0);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--black);
+  border: 2px solid var(--black);
+}
+
+.secondary:hover {
+  background: #ececec;
+}
+
+.secondary:active {
+  transform: translateY(0);
+}
+
