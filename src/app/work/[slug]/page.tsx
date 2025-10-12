@@ -70,7 +70,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
             width={1920}
             height={1080}
             className="w-full h-auto bg-gray-200"
-            loading="lazy"
             sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
@@ -79,7 +78,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
             width={1920}
             height={1080}
             className="w-full h-auto bg-gray-200"
-            loading="lazy"
             sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
@@ -88,7 +86,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
             width={1920}
             height={1080}
             className="w-full h-auto bg-gray-200"
-            loading="lazy"
             sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
@@ -97,7 +94,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
             width={1920}
             height={1080}
             className="w-full h-auto bg-gray-200"
-            loading="lazy"
             sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
@@ -106,7 +102,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
             width={1920}
             height={1080}
             className="w-full h-auto bg-gray-200"
-            loading="lazy"
             sizes="(max-width: 768px) 100vw, 66vw"
           />
         </div>
@@ -136,7 +131,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               width={300}
               height={400}
               className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              loading="lazy"
               sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
@@ -151,7 +145,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               width={300}
               height={400}
               className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              loading="lazy"
               sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
@@ -166,7 +159,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               width={300}
               height={400}
               className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              loading="lazy"
               sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
@@ -181,7 +173,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               width={300}
               height={400}
               className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              loading="lazy"
               sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
@@ -196,7 +187,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               width={300}
               height={400}
               className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              loading="lazy"
               sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
@@ -211,7 +201,6 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               width={300}
               height={400}
               className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              loading="lazy"
               sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
