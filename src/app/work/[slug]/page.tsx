@@ -32,8 +32,10 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
           alt="Project showcase"
           width={1920}
           height={1080}
-          className="w-full h-auto max-h-screen object-cover"
+          className="w-full h-auto max-h-screen object-cover bg-gray-200"
           style={{ display: 'block' }}
+          priority
+          sizes="100vw"
         />
       </section>
 
@@ -67,35 +69,45 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
             alt="Project image"
             width={1920}
             height={1080}
-            className="w-full h-auto"
+            className="w-full h-auto bg-gray-200"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
             src="/NYA00500-3.png"
             alt="Project image"
             width={1920}
             height={1080}
-            className="w-full h-auto"
+            className="w-full h-auto bg-gray-200"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
             src="/NYA00500-3.png"
             alt="Project image"
             width={1920}
             height={1080}
-            className="w-full h-auto"
+            className="w-full h-auto bg-gray-200"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
             src="/NYA00500-3.png"
             alt="Project image"
             width={1920}
             height={1080}
-            className="w-full h-auto"
+            className="w-full h-auto bg-gray-200"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, 66vw"
           />
           <Image
             src="/NYA00500-3.png"
             alt="Project image"
             width={1920}
             height={1080}
-            className="w-full h-auto"
+            className="w-full h-auto bg-gray-200"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, 66vw"
           />
         </div>
       </section>
@@ -123,7 +135,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               alt="Sheffield Wong"
               width={300}
               height={400}
-              className="w-full aspect-[3/4] object-cover rounded"
+              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
             <p className="text-[#7f7f7f]">Product Designer</p>
@@ -136,7 +150,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               alt="Sheffield Wong"
               width={300}
               height={400}
-              className="w-full aspect-[3/4] object-cover rounded"
+              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
             <p className="text-[#7f7f7f]">Design</p>
@@ -149,7 +165,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               alt="Sheffield Wong"
               width={300}
               height={400}
-              className="w-full aspect-[3/4] object-cover rounded"
+              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
             <p className="text-[#7f7f7f]">Design</p>
@@ -162,7 +180,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               alt="Sheffield Wong"
               width={300}
               height={400}
-              className="w-full aspect-[3/4] object-cover rounded"
+              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
             <p className="text-[#7f7f7f]">Design</p>
@@ -175,7 +195,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               alt="Sheffield Wong"
               width={300}
               height={400}
-              className="w-full aspect-[3/4] object-cover rounded"
+              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
             <p className="text-[#7f7f7f]">Design</p>
@@ -188,7 +210,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
               alt="Sheffield Wong"
               width={300}
               height={400}
-              className="w-full aspect-[3/4] object-cover rounded"
+              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 12vw"
             />
             <p className="font-semibold">Sheffield Wong</p>
             <p className="text-[#7f7f7f]">Design</p>
