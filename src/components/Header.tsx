@@ -2,14 +2,30 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect } from "react";
 import styles from "./Header.module.css";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Close menu on Esc key press
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const checkbox = document.getElementById("menu-toggle") as HTMLInputElement;
+        if (checkbox?.checked) {
+          checkbox.checked = false;
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
 
   return (
     <>
+      {/* Hidden checkbox for menu state */}
+      <input type="checkbox" id="menu-toggle" className={styles.menuToggle} />
+
       <header className="container py-[var(--small)] px-[var(--big)]">
         <Link href="/" className="header-logo col-start-1 left-[var(--big)] cursor-pointer">
           <Image src="/Design Waterloo Wordmark.svg" alt="Design Waterloo" width={200} height={36} className="h-full w-auto" priority />
@@ -28,71 +44,44 @@ export default function Header() {
             {/* Logo SVG placeholder */}
           </svg>
         </div>
-        <button 
-          onClick={() => setIsMenuOpen(true)}
-          className="btn-menu col-start-12 fixed top-[var(--small)] right-[var(--big)] z-50 [filter:invert(1)] mix-blend-difference bg-white"
+        <label 
+          htmlFor="menu-toggle"
+          className="btn-menu col-start-12 fixed top-[var(--small)] right-[var(--big)] z-50 [filter:invert(1)] mix-blend-difference bg-white cursor-pointer"
         >
           Menu
-        </button>
+        </label>
       </header>
 
       {/* Blurred overlay - full screen */}
-      <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-md z-[60] transition-opacity duration-300 ${
-          isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setIsMenuOpen(false)}
+      <label 
+        htmlFor="menu-toggle"
+        className={styles.overlay}
       />
       
       {/* Sidebar - separate from overlay */}
-      <aside
-        className={`fixed top-0 right-0 h-screen bg-white z-[70] transition-transform duration-300 ease-in-out ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-        style={{ 
-          width: 'calc(3 * (100vw - 2 * var(--big)) / 12 + 2 * var(--gap) + 2 * var(--big))'
-        }}
-      >
-        <div className="flex flex-col h-full">
+      <aside className={styles.sidebar}>
+        <div>
           {/* Close button aligned with menu button */}
-          <button
-            onClick={() => setIsMenuOpen(false)}
-            className="btn-menu fixed top-[var(--small)] right-[var(--big)] z-[80] text-2xl"
+          <label
+            htmlFor="menu-toggle"
+            className={styles.closeButton}
             aria-label="Close menu"
           >
             ✕
-          </button>
-
-          <div className="flex flex-col h-full p-[var(--big)] pt-[calc(var(--small)+var(--big))]">
+          </label>
 
           {/* Navigation Links */}
           <nav className="flex flex-col mb-auto -mx-[var(--big)]">
-            <a
-              href="#work"
-              onClick={() => setIsMenuOpen(false)}
-              className={styles.menuNavItem}
-            >
+            <a href="#work" className={styles.menuNavItem}>
               Work
             </a>
-            <a
-              href="#directory"
-              onClick={() => setIsMenuOpen(false)}
-              className={styles.menuNavItem}
-            >
+            <a href="#directory" className={styles.menuNavItem}>
               Directory
             </a>
-            <a
-              href="#play"
-              onClick={() => setIsMenuOpen(false)}
-              className={styles.menuNavItem}
-            >
+            <a href="#play" className={styles.menuNavItem}>
               Play
             </a>
-            <a
-              href="#about"
-              onClick={() => setIsMenuOpen(false)}
-              className={styles.menuNavItem}
-            >
+            <a href="#about" className={styles.menuNavItem}>
               About
             </a>
           </nav>
@@ -141,7 +130,6 @@ export default function Header() {
             >
               Privacy policy
             </a>
-          </div>
           </div>
         </div>
       </aside>

@@ -1,5 +1,83 @@
 /* Header Component Styles */
 
+/* Hidden checkbox for menu toggle */
+.menuToggle {
+  display: none;
+}
+
+/* Overlay styles */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.169);
+  backdrop-filter: blur(12px);
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  cursor: pointer;
+}
+
+.menuToggle:checked ~ .overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Sidebar styles */
+.sidebar {
+  position: fixed;
+  top: var(--tiny);
+  right: var(--tiny);
+  bottom: var(--tiny);
+  background-color: white;
+  z-index: 70;
+  width: calc(3 * (100vw - 2 * var(--big)) / 12 + 2 * var(--gap) + 2 * var(--big));
+  transform: translateX(calc(100% + var(--tiny)));
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.menuToggle:checked ~ .sidebar {
+  transform: translateX(0);
+}
+
+.sidebar > div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--big);
+  padding-top: calc(var(--bigger) + var(--smaller) + var(--smaller));
+}
+
+/* Close button styling */
+.closeButton {
+  position: absolute;
+  top: var(--smaller);
+  right: var(--smaller);
+  font-size: var(--big);
+  padding: var(--tiny);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--bigger);
+  height: var(--bigger);
+  background: transparent;
+  color: var(--black);
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #f0f0f0;
+}
+
+/* Menu navigation items */
 .menuNavItem {
   display: block;
   padding: var(--smallest) var(--big);
