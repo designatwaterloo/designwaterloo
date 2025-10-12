@@ -42,12 +42,12 @@ export default function Home() {
           </div>
 
           <p className="jumbo">
-            Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <span className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</span> and <span className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence in Waterloo, and letting the world know about it.
+            Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <a href="https://uwaterloo.ca" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</a> and <a href="https://wlu.ca" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</a>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
           </p>
         </section>
 
         {/* Work Section */}
-        <section className="w-screen px-12 py-12 flex flex-col gap-12">
+        <section id="work" className="w-screen px-12 py-12 flex flex-col gap-12">
           <div className="section-divider">
             <p className="section-label">Work</p>
           </div>
@@ -57,7 +57,7 @@ export default function Home() {
               <h1>Proof of work.</h1>
             </div>
             <p className="flex-1">
-              Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence in Waterloo, and letting the world know about it.
+              Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
             </p>
           </div>
 
@@ -75,16 +75,16 @@ export default function Home() {
         </section>
 
         {/* Directory Section */}
-        <section className="w-screen px-12 py-12 bg-black flex flex-col gap-12">
+        <section id="directory" className="w-screen px-12 py-12 flex flex-col gap-12">
           <div className="section-divider">
             <p className="section-label">Directory</p>
           </div>
 
           <div className="flex gap-2 w-full">
             <div className="flex-1">
-              <h1 className="text-white">The biggest design family on campus.</h1>
+              <h1>The biggest design family on campus.</h1>
             </div>
-            <p className="w-[590px] text-white">
+            <p className="w-[590px]">
               The Design Waterloo directory highlights the top designers, videographers, and artists in one convenient location. It&apos;s your go-to resource for discovering exceptional creative talent from the Waterloo area.
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function Home() {
         </section>
 
         {/* Play/Events Section */}
-        <section className="w-screen px-12 py-12 flex flex-col gap-12">
+        <section id="play" className="w-screen px-12 py-12 flex flex-col gap-12">
           <div className="section-divider">
             <p className="section-label">Play</p>
           </div>
@@ -113,7 +113,7 @@ export default function Home() {
               </h1>
             </div>
             <p className="flex-1">
-              Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence in Waterloo, and letting the world know about it.
+              Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
             </p>
           </div>
 

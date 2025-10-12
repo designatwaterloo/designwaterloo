@@ -112,10 +112,28 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
         {/* Sticky Left Sidebar */}
         <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)]">
           <div className="flex flex-col gap-[var(--small)]">
-            <h1>Credits</h1>
-            <div>
-              <p className="uppercase text-[#7f7f7f] mb-2">Design</p>
+            <p className="uppercase text-[#7f7f7f]">Credits</p>
+            
+            <div className="flex flex-col gap-1">
+              <p className=" text-[#7f7f7f]">Design</p>
+              <p>Brayden Petersen</p>
               <p>Sheffield Wong</p>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <p className="text-[#7f7f7f]">Development</p>
+              <p>Brayden Petersen</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[#7f7f7f]">Development</p>
+              <p>Brayden Petersen</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[#7f7f7f]">Development</p>
+              <p>Brayden Petersen</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-[#7f7f7f]">Development</p>
               <p>Brayden Petersen</p>
             </div>
           </div>

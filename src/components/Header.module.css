@@ -1,0 +1,41 @@
+/* Header Component Styles */
+
+.menuNavItem {
+  display: block;
+  padding: var(--smallest) var(--big);
+  font-size: var(--small);
+  line-height: 100%;
+  color: var(--black);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.menuNavItem:first-child {
+  border-top: 1px solid #e0e0e0;
+}
+
+.menuNavItem::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--big);
+  width: calc(100% - 2 * var(--big));
+  height: 1px;
+  background-color: var(--black);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-in-out;
+}
+
+.menuNavItem:hover {
+  background-color: #f0f0f0;
+}
+
+.menuNavItem:hover::after {
+  transform: scaleX(1);
+}
+
