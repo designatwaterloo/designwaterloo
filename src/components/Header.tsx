@@ -61,17 +61,19 @@ export default function Header() {
       {/* Sidebar - separate from overlay */}
       <aside className={styles.sidebar}>
         <div>
-          {/* Close button aligned with menu button */}
-          <label
-            htmlFor="menu-toggle"
-            className={styles.closeButton}
-            aria-label="Close menu"
-          >
-            ✕
-          </label>
+          {/* Close button */}
+          <div className={styles.closeButtonArea}>
+            <label
+              htmlFor="menu-toggle"
+              className={styles.closeButton}
+              aria-label="Close menu"
+            >
+              ✕
+            </label>
+          </div>
 
           {/* Navigation Links */}
-          <nav className="flex flex-col mb-auto -mx-[var(--big)]">
+          <nav className="flex flex-col mb-auto">
             <a href="#work" className={styles.menuNavItem}>
               Work
             </a>
@@ -87,7 +89,7 @@ export default function Header() {
           </nav>
 
           {/* Call to Action Buttons */}
-          <div className="flex gap-[var(--tiny)] mb-[var(--big)]">
+          <div className="flex gap-[var(--tiny)] mb-[var(--big)] px-[var(--big)]">
             <button className="btn-secondary flex-1">
               Join directory →
             </button>
@@ -97,7 +99,7 @@ export default function Header() {
           </div>
 
           {/* Footer Links */}
-          <div className="grid grid-cols-2 gap-x-[var(--big)] gap-y-[var(--tinier)]">
+          <div className="grid grid-cols-2 gap-x-[var(--big)] gap-y-[var(--tinier)] px-[var(--big)]">
             <a
               href="https://instagram.com/designwaterloo"
               target="_blank"

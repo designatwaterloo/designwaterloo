@@ -48,29 +48,32 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: var(--big);
-  padding-top: calc(var(--bigger) + var(--smaller) + var(--smaller));
 }
 
-/* Close button styling */
+/* Close button area */
+.closeButtonArea {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: var(--smallest);
+  width: 100%;
+}
+
+/* Close button X */
 .closeButton {
-  position: absolute;
-  top: var(--smaller);
-  right: var(--smaller);
   font-size: var(--big);
-  padding: var(--tiny);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1;
   cursor: pointer;
+  padding: var(--smallest);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  width: var(--bigger);
+  height: var(--bigger);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--bigger);
-  height: var(--bigger);
-  background: transparent;
-  color: var(--black);
-  font-weight: 600;
-  border-radius: 8px;
-  border: none;
-  transition: background-color 0.2s;
 }
 
 .closeButton:hover {
