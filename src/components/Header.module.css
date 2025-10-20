@@ -5,6 +5,70 @@
   display: none;
 }
 
+/* Header Grid Container - fixed with invert on entire container */
+.headerContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--small) var(--margin);
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: var(--gap);
+  z-index: 40;
+  pointer-events: none;
+  filter: invert(1);
+  mix-blend-mode: difference;
+}
+
+/* Allow pointer events on children */
+.headerContainer > * {
+  pointer-events: auto;
+}
+
+/* Header Logo Styles */
+.headerLogo {
+  height: calc(var(--small) + 4px);
+  width: auto;
+  cursor: pointer;
+}
+
+/* Menu Button */
+.menuButton {
+  background: black;
+  color: white;
+  cursor: pointer;
+  justify-self: end;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.menuButton:hover {
+  background: var(--blue);
+}
+
+/* Menu Icon - two horizontal lines */
+.menuIcon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 20px;
+  height: 12px;
+}
+
+.menuIcon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: white;
+  border-radius: 1px;
+}
+
 /* Overlay styles */
 .overlay {
   position: fixed;
@@ -33,10 +97,17 @@
   z-index: 70;
   width: 420px;
   transform: translateX(calc(100% + var(--tiny)));
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #e0e0e0;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+/* Peek sidebar on menu button hover (without blur) - only when NOT checked */
+.menuToggle:not(:checked) ~ .headerContainer:has(.menuButton:hover) ~ .sidebar {
+  transform: translateX(calc(100% + var(--tiny) - var(--margin) * 0.75));
+  box-shadow: -32px 0 48px rgba(0, 0, 0, 0.25);
 }
 
 .menuToggle:checked ~ .sidebar {
@@ -83,7 +154,7 @@
 /* Menu navigation items */
 .menuNavItem {
   display: block;
-  padding: var(--smallest) var(--big);
+  padding: var(--smallest) var(--margin);
   font-size: var(--small);
   line-height: 100%;
   color: var(--black);
@@ -103,8 +174,8 @@
   content: '';
   position: absolute;
   bottom: 0;
-  left: var(--big);
-  width: calc(100% - 2 * var(--big));
+  left: var(--margin);
+  width: calc(100% - 2 * var(--margin));
   height: 1px;
   background-color: var(--black);
   transform: scaleX(0);

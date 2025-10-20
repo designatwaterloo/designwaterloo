@@ -10,7 +10,7 @@ export default function Home() {
       {/* Main Content */}
       <main>
         {/* Hero Section */}
-        <section className="w-screen px-12 pt-12 pb-0 flex flex-col gap-12">
+        <section className="w-full px-[var(--margin)] pt-[calc(var(--small)*3+calc(var(--small)+4px))] pb-0 flex flex-col gap-12">
           <div className="flex items-end justify-between w-full">
             <h1>
               The home for design talent at Waterloo, <br />
@@ -29,7 +29,7 @@ export default function Home() {
         </section>
 
         {/* Raison d'être Section */}
-        <section className="w-screen px-12 pt-[57px] pb-0 flex flex-col gap-[31px]">
+        <section className="w-full px-[var(--margin)] pt-[57px] pb-0 flex flex-col gap-[31px]">
           <div className="section-divider">
             <p className="section-label">
               Raison d&apos;être
@@ -42,7 +42,7 @@ export default function Home() {
         </section>
 
         {/* Work Section */}
-        <section id="work" className="w-screen px-12 py-12 flex flex-col gap-12">
+        <section id="work" className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
           <div className="section-divider">
             <p className="section-label">Work</p>
           </div>
@@ -70,7 +70,7 @@ export default function Home() {
         </section>
 
         {/* Directory Section */}
-        <section id="directory" className="w-screen px-12 py-12 flex flex-col gap-12">
+        <section id="directory" className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
           <div className="section-divider">
             <p className="section-label">Directory</p>
           </div>
@@ -96,7 +96,7 @@ export default function Home() {
         </section>
 
         {/* Play/Events Section */}
-        <section id="play" className="w-screen px-12 py-12 flex flex-col gap-12">
+        <section id="play" className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
           <div className="section-divider">
             <p className="section-label">Play</p>
           </div>

@@ -1,9 +1,21 @@
 @import "tailwindcss";
 
+/* CSS Reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
 :root {
   /* Color Primitives */
   --white: #ffffff;
   --black: #0e0e0e;
+  --blue: #0000ff;
 
   /* Base Colors */
   --background: var(--white);
@@ -24,9 +36,16 @@
   --biggest: 96px;
   --huge: 128px;
 
+  /* Breakpoints (reference values - actual breakpoints defined in media queries below) */
+  --breakpoint-mobile: 430px;
+  --breakpoint-tablet: 600px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-ultrawide: 1350px;
+  --breakpoint-fluid: 1661px;
+
   /* Grid System */
   --gap: var(--tinier);
-  --margin: var(--smallest);
+  --margin: var(--smallest); /* 16px - base (375-429px) */
   --columns: 12;
   overscroll-behavior-y: none;
 }
@@ -34,6 +53,42 @@
 @supports (font-variation-settings: normal) {
   :root {
     font-family: InterVariable, sans-serif;
+  }
+}
+
+/* Responsive Grid Margins */
+/* Mobile: 430-599px - 16px margin */
+@media (min-width: 430px) {
+  :root {
+    --margin: var(--smallest); /* 16px */
+  }
+}
+
+/* Tablet: 600-1023px - 32px margin */
+@media (min-width: 600px) {
+  :root {
+    --margin: var(--small); /* 32px */
+  }
+}
+
+/* Desktop: 1024-1349px - 48px margin */
+@media (min-width: 1024px) {
+  :root {
+    --margin: var(--big); /* 48px */
+  }
+}
+
+/* Ultrawide: 1350-1660px - 64px margin */
+@media (min-width: 1350px) {
+  :root {
+    --margin: var(--bigger); /* 64px */
+  }
+}
+
+/* Fluid: 1661px+ - 3.855vw margin (scales proportionally) */
+@media (min-width: 1661px) {
+  :root {
+    --margin: 3.855vw;
   }
 }
 
@@ -60,8 +115,10 @@ body {
   font-optical-sizing: auto;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
   letter-spacing: -0.05em;
+  overflow-x: clip;
 }
 
 /* Global focus ring styles */
@@ -102,9 +159,9 @@ h1 {
 
 /* Container/Grid */
 .container {
-  width: 100vw;
-  max-width: none;
-  padding: var(--big);
+  width: 100%;
+  max-width: 100%;
+  padding: var(--margin);
   display: grid;
   grid-template-columns: repeat(var(--columns), 1fr);
   gap: var(--gap);
@@ -128,6 +185,7 @@ button {
   border-radius: 12px;
   font-size: var(--smaller);
   cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .btn-primary {
@@ -136,10 +194,20 @@ button {
   border: none;
 }
 
+.btn-primary:hover {
+  background: var(--blue);
+}
+
 .btn-secondary {
   background: transparent;
   color: var(--black);
   border: 2px solid var(--black);
+}
+
+.btn-secondary:hover {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
 }
 
 .btn-menu {
@@ -156,12 +224,13 @@ button {
 
 /* Section spacing */
 section {
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Grid section - opt-in via class */
 section.grid-section {
-  padding: var(--big);
+  padding: var(--margin);
   display: grid;
   grid-template-columns: repeat(var(--columns), 1fr);
   gap: var(--gap);
@@ -181,7 +250,7 @@ a {
 }
 
 a:hover {
-  color: #0000ff;
+  color: var(--blue);
 }
 
 /* Footer links - no underline */
@@ -200,8 +269,9 @@ footer a {
 
 /* Footer */
 footer {
-  width: 100vw;
-  padding: var(--big);
+  width: 100%;
+  max-width: 100%;
+  padding: var(--margin);
   padding-bottom: var(--small);
   display: flex;
   justify-content: center;
@@ -213,15 +283,4 @@ footer img {
   max-width: 100%;
   height: auto;
   object-fit: contain;
-}
-
-/* Header Logos */
-.header-logo {
-  height: calc(var(--small) + 4px);
-  width: auto;
-  position: fixed;
-  top: var(--small);
-  z-index: 50;
-  filter: invert(1);
-  mix-blend-mode: difference;
 }

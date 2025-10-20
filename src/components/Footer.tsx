@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="w-screen px-12 pt-[var(--big)] pb-[var(--small)] bg-black flex flex-col gap-12">
+    <footer className="w-full px-[var(--margin)] pt-[var(--margin)] pb-[var(--small)] bg-black flex flex-col gap-12">
       <div className="flex gap-3 w-full">
         {[1, 2, 3, 4].map((col) => (
           <div key={col} className="flex-1 flex flex-col gap-2">
