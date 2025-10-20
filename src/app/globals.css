@@ -15,7 +15,6 @@ html {
   /* Color Primitives */
   --white: #ffffff;
   --black: #0e0e0e;
-  --blue: #0000ff;
 
   /* Base Colors */
   --background: var(--white);
@@ -89,6 +88,48 @@ html {
 @media (min-width: 1661px) {
   :root {
     --margin: 3.855vw;
+  }
+}
+
+/* Mobile: 430px and below - Reduced font sizes */
+@media (max-width: 429px) {
+  :root {
+    /* Reduce size scale by ~30% for mobile */
+    --tiniest: 3px;
+    --tinier: 6px;
+    --tiny: 9px;
+    --smallest: 12px;
+    --smaller: 18px;
+    --small: 24px;
+    --big: 36px;
+    --bigger: 48px;
+    --biggest: 72px;
+    --huge: 96px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: var(--smaller);
+  }
+
+  .jumbo {
+    font-size: var(--small);
+  }
+
+  .project-name {
+    font-size: var(--big);
+  }
+
+  .section-label {
+    font-size: 16px;
+  }
+
+  /* Mobile grid overrides */
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
@@ -185,7 +226,6 @@ button {
   border-radius: 12px;
   font-size: var(--smaller);
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .btn-primary {
@@ -194,20 +234,10 @@ button {
   border: none;
 }
 
-.btn-primary:hover {
-  background: var(--blue);
-}
-
 .btn-secondary {
   background: transparent;
   color: var(--black);
   border: 2px solid var(--black);
-}
-
-.btn-secondary:hover {
-  background: var(--blue);
-  color: var(--white);
-  border-color: var(--blue);
 }
 
 .btn-menu {
@@ -250,7 +280,7 @@ a {
 }
 
 a:hover {
-  color: var(--blue);
+  color: #0000ff;
 }
 
 /* Footer links - no underline */

@@ -42,9 +42,9 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
       {/* Sticky Sidebar Section */}
       <section className="grid-section">
         {/* Sticky Left Sidebar */}
-        <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)]">
+        <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)] max-lg:col-span-full max-lg:static max-lg:pr-0 max-lg:mb-[var(--small)]">
           <div className="flex flex-col gap-[var(--small)]">
-            <h1>{params.slug}</h1>
+            <h1 className="max-lg:hidden">{params.slug}</h1>
             <div>
               <p className="uppercase text-[#7f7f7f] mb-2">Year</p>
               <p>20XX</p>
@@ -63,7 +63,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
         </div>
 
         {/* Right Scrollable Images */}
-        <div className="col-span-8 flex flex-col gap-[var(--gap)]">
+        <div className="col-span-8 flex flex-col gap-[var(--gap)] max-lg:col-span-full">
           <Image
             src="/NYA00500-3.png"
             alt="Project image"
@@ -110,7 +110,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
       {/* Credits Section */}
       <section className="grid-section">
         {/* Sticky Left Sidebar */}
-        <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)]">
+        <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)] max-lg:col-span-full max-lg:static max-lg:pr-0 max-lg:mb-[var(--small)]">
           <div className="flex flex-col gap-[var(--small)]">
             <p className="uppercase text-[#7f7f7f]">Credits</p>
             
@@ -140,7 +140,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
         </div>
 
         {/* Right People Grid */}
-        <div className="col-span-8 grid grid-cols-6 gap-[var(--gap)]">
+        <div className="col-span-8 grid grid-cols-6 gap-[var(--gap)] max-lg:col-span-full">
           {/* Person 1 */}
           <div className="flex flex-col gap-2">
             <Image

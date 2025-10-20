@@ -45,11 +45,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.menuButton:hover {
-  background: var(--blue);
 }
 
 /* Menu Icon - two horizontal lines */
@@ -67,6 +62,25 @@
   height: 2px;
   background: white;
   border-radius: 1px;
+}
+
+/* Tablet Responsive - 4 column grid, even padding */
+@media (max-width: 1023px) {
+  .headerContainer {
+    grid-template-columns: repeat(4, 1fr);
+    padding: var(--margin);
+  }
+}
+
+/* Mobile Responsive - Hide icon logo, even padding */
+@media (max-width: 429px) {
+  .headerLogo:nth-child(2) {
+    display: none;
+  }
+  
+  .headerContainer {
+    padding: var(--margin);
+  }
 }
 
 /* Overlay styles */
@@ -97,17 +111,10 @@
   z-index: 70;
   width: 420px;
   transform: translateX(calc(100% + var(--tiny)));
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #e0e0e0;
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-}
-
-/* Peek sidebar on menu button hover (without blur) - only when NOT checked */
-.menuToggle:not(:checked) ~ .headerContainer:has(.menuButton:hover) ~ .sidebar {
-  transform: translateX(calc(100% + var(--tiny) - var(--margin) * 0.75));
-  box-shadow: -32px 0 48px rgba(0, 0, 0, 0.25);
 }
 
 .menuToggle:checked ~ .sidebar {

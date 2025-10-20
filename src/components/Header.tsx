@@ -28,15 +28,15 @@ export default function Header() {
 
       {/* Sticky Header Grid Container */}
       <header className={styles.headerContainer}>
-        <Link href="/" className={`${styles.headerLogo} col-start-1`}>
+        <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2 max-lg:col-span-1`}>
           <Image src="/Design Waterloo Wordmark.svg" alt="Design Waterloo" width={200} height={36} className="h-full w-auto" priority />
         </Link>
-        <Link href="/" className={`${styles.headerLogo} col-start-3`}>
+        <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1 max-lg:col-start-2`}>
           <Image src="/Design Waterloo Logo.svg" alt="Design Waterloo" width={36} height={36} className="h-full w-auto" priority />
         </Link>
         <label 
           htmlFor="menu-toggle"
-          className={`btn-menu col-start-12 ${styles.menuButton}`}
+          className={`btn-menu col-start-12 col-span-1 max-lg:col-start-4 ${styles.menuButton}`}
         >
           <div className={styles.menuIcon}>
             <span></span>
@@ -97,14 +97,14 @@ export default function Header() {
               href="https://instagram.com/designwaterloo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-black hover:text-[var(--blue)] transition-colors no-underline"
+              className="text-black hover:text-[#0000ff] transition-colors no-underline"
               style={{ fontSize: 'var(--smallest)' }}
             >
               Instagram
             </a>
             <a
               href="mailto:hello@designwaterloo.com"
-              className="text-black hover:text-[var(--blue)] transition-colors no-underline"
+              className="text-black hover:text-[#0000ff] transition-colors no-underline"
               style={{ fontSize: 'var(--smallest)' }}
             >
               Contact
@@ -113,14 +113,14 @@ export default function Header() {
               href="https://linkedin.com/company/designwaterloo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-black hover:text-[var(--blue)] transition-colors no-underline"
+              className="text-black hover:text-[#0000ff] transition-colors no-underline"
               style={{ fontSize: 'var(--smallest)' }}
             >
               LinkedIn
             </a>
             <a
               href="/privacy"
-              className="text-black hover:text-[var(--blue)] transition-colors no-underline"
+              className="text-black hover:text-[#0000ff] transition-colors no-underline"
               style={{ fontSize: 'var(--smallest)' }}
             >
               Privacy policy

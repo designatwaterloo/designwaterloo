@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="w-full px-[var(--margin)] pt-[var(--margin)] pb-[var(--small)] bg-black flex flex-col gap-12">
-      <div className="flex gap-3 w-full">
+      <div className="flex gap-3 w-full max-lg:flex-col max-lg:gap-6">
         {[1, 2, 3, 4].map((col) => (
           <div key={col} className="flex-1 flex flex-col gap-2">
             <div className="pb-[10px] ">
@@ -33,7 +33,7 @@ export default function Footer() {
         />
       </div>
 
-      <div className="flex justify-between items-start w-full">
+      <div className="flex justify-between items-start w-full max-lg:flex-col max-lg:gap-4">
         <div className="flex gap-4 items-center">
           <a href="https://www.instagram.com/designwaterloo/" target="_blank" rel="noopener noreferrer">Instagram</a>
           <a href="https://www.twitter.com/designwaterloo/" target="_blank" rel="noopener noreferrer">Twitter</a>

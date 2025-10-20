@@ -11,7 +11,7 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <section className="w-full px-[var(--margin)] pt-[calc(var(--small)*3+calc(var(--small)+4px))] pb-0 flex flex-col gap-12">
-          <div className="flex items-end justify-between w-full">
+          <div className="flex items-end justify-between w-full max-lg:flex-col max-lg:items-start max-lg:gap-6">
             <h1>
               The home for design talent at Waterloo, <br />
               and where to find them.
@@ -47,7 +47,7 @@ export default function Home() {
             <p className="section-label">Work</p>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-2 w-full max-lg:flex-col max-lg:gap-6">
             <div className="flex-1">
               <h1>Proof of work.</h1>
             </div>
@@ -56,9 +56,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="grid grid-cols-6 gap-2 w-full max-lg:grid-cols-4 mobile-grid-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card flex-1 flex flex-col gap-4">
+              <div key={i} className="card flex flex-col gap-4">
                 <p className="uppercase">Project {i}</p>
                 <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
                 <p className="text-[#7f7f7f]">
@@ -75,22 +75,18 @@ export default function Home() {
             <p className="section-label">Directory</p>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-2 w-full max-lg:flex-col max-lg:gap-6">
             <div className="flex-1">
               <h1>The biggest design family on campus.</h1>
             </div>
-            <p className="w-[590px]">
+            <p className="w-[590px] max-lg:w-full">
               The Design Waterloo directory highlights the top designers, videographers, and artists in one convenient location. It&apos;s your go-to resource for discovering exceptional creative talent from the Waterloo area.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 w-full">
-            {[1, 2, 3].map((row) => (
-              <div key={row} className="flex gap-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                  <div key={i} className="flex-1 aspect-[4/5] bg-[#d9d9d9] rounded" />
-                ))}
-              </div>
+          <div className="grid grid-cols-8 gap-2 w-full max-lg:grid-cols-4">
+            {[...Array(24)].map((_, i) => (
+              <div key={i} className="aspect-[4/5] bg-[#d9d9d9] rounded" />
             ))}
           </div>
         </section>
@@ -101,7 +97,7 @@ export default function Home() {
             <p className="section-label">Play</p>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-2 w-full max-lg:flex-col max-lg:gap-6">
             <div className="flex-1">
               <h1 className="max-w-[463px]">
                 We host cute events and workshops to grow design at Waterloo
@@ -112,9 +108,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex gap-2 w-full">
+          <div className="grid grid-cols-6 gap-2 w-full max-lg:grid-cols-4 mobile-grid-2">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card flex-1 flex flex-col gap-4">
+              <div key={i} className="card flex flex-col gap-4">
                 <p className="uppercase">Event {i}</p>
                 <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
                 <p className="text-[#7f7f7f]">
