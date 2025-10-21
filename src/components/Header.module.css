@@ -173,6 +173,14 @@
   }
 }
 
+/* Extra small screens - move icon logo to column 3, align left */
+@media (max-width: 379px) {
+  .headerLogo:nth-child(2) {
+    grid-column: 3 / span 1;
+    justify-self: start;
+  }
+}
+
 /* Overlay styles */
 .overlay {
   position: fixed;
