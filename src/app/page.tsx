@@ -4,33 +4,33 @@ import Button from "@/components/Button";
 
 export default function Home() {
   return (
-    <div>
+    <div className="w-full">
       <Header />
 
       {/* Main Content */}
-      <main>
+      <main className="w-full">
         {/* Hero Section */}
-        <section className="w-full px-[var(--margin)] pt-[calc(var(--small)*3+calc(var(--small)+4px))] max-[429px]:pt-[calc(var(--header-height)+var(--margin))] pb-0 flex flex-col gap-12 max-[429px]:gap-[var(--small)]">
-          <h1 className="max-[429px]:hidden">
+        <section className="w-full px-[var(--margin)] pt-[calc(var(--header-height)+var(--margin))] min-[431px]:pt-[calc(var(--small)*3+calc(var(--small)+4px))] pb-0 flex flex-col gap-[var(--smallest)] min-[431px]:gap-12">
+          <h1 className="hidden min-[431px]:block">
             The home for design talent at Waterloo, and where to find them.
           </h1>
 
-          <div className="w-full aspect-[1191/731] max-[429px]:aspect-square bg-[#d9d9d9] rounded-2xl">
+          <div className="w-full aspect-square min-[431px]:aspect-[1191/731] bg-[#d9d9d9] rounded-2xl">
             {/* Hero Image Placeholder */}
           </div>
 
-          <p className="jumbo min-[430px]:hidden">
+          <p className="jumbo min-[431px]:hidden">
             Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <a href="https://uwaterloo.ca" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</a> and <a href="https://wlu.ca" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</a>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
           </p>
 
-          <div className="flex gap-[var(--gap)] min-[430px]:hidden">
+          <div className="flex gap-[var(--gap)] min-[431px]:hidden">
             <Button text="Join directory" variant="secondary" />
             <Button text="Find talent" variant="primary" icon="/Search.svg" iconAlt="Search" />
           </div>
         </section>
 
         {/* Raison d'être Section */}
-        <section className="w-full px-[var(--margin)] pt-[57px] pb-0 flex flex-col gap-[31px] max-[429px]:hidden">
+        <section className="w-full px-[var(--margin)] pt-[57px] pb-0 flex-col gap-[31px] hidden min-[431px]:flex">
           <div className="section-divider">
             <p className="section-label">
               Raison d&apos;être

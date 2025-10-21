@@ -35,12 +35,12 @@ html {
   --biggest: 96px;
   --huge: 128px;
 
-  /* Breakpoints (reference values - actual breakpoints defined in media queries below) */
-  --breakpoint-mobile: 430px;
-  --breakpoint-tablet: 600px;
-  --breakpoint-desktop: 1024px;
-  --breakpoint-ultrawide: 1350px;
-  --breakpoint-fluid: 1661px;
+  /* Breakpoints - Single Source of Truth */
+  --breakpoint-mobile: 430;
+  --breakpoint-tablet: 600;
+  --breakpoint-desktop: 1024;
+  --breakpoint-ultrawide: 1350;
+  --breakpoint-fluid: 1661;
 
   /* Grid System */
   --gap: var(--tinier);
@@ -56,8 +56,8 @@ html {
 }
 
 /* Responsive Grid Margins */
-/* Mobile: 430-599px - 16px margin */
-@media (min-width: 430px) {
+/* Tablet and up: 431-599px - 16px margin */
+@media (min-width: 431px) and (max-width: 599px) {
   :root {
     --margin: var(--smallest); /* 16px */
   }
@@ -91,8 +91,8 @@ html {
   }
 }
 
-/* Mobile: 430px and below */
-@media (max-width: 429px) {
+/* Mobile: below 431px */
+@media (max-width: 430.98px) {
   :root {
     /* Mobile header height */
     --header-height: 60px;
@@ -257,7 +257,7 @@ a:hover {
 }
 
 /* Mobile typography overrides - must come after global styles */
-@media (max-width: 429px) {
+@media (max-width: 430.98px) {
 
   p {
     font-size: var(--smallest);
