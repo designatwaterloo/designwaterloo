@@ -1,8 +1,9 @@
 import Image from "next/image";
+import styles from "./Footer.module.css";
 
 export default function Footer() {
   return (
-    <footer className="w-full px-[var(--margin)] pt-[var(--margin)] pb-[var(--small)] bg-black flex flex-col gap-12">
+    <footer className={`${styles.footer} bg-black flex flex-col gap-12`}>
       <div className="flex gap-3 w-full max-lg:flex-col max-lg:gap-6">
         {[1, 2, 3, 4].map((col) => (
           <div key={col} className="flex-1 flex flex-col gap-2">
@@ -28,7 +29,15 @@ export default function Footer() {
           alt="Design Waterloo"
           width={930}
           height={234}
-          className="w-full h-auto"
+          className="w-full h-auto max-[429px]:hidden"
+          priority
+        />
+        <Image
+          src="/Design Waterloo Wordmark.svg"
+          alt="Design Waterloo"
+          width={200}
+          height={36}
+          className="w-auto h-auto min-[430px]:hidden"
           priority
         />
       </div>

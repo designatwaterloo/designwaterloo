@@ -91,45 +91,11 @@ html {
   }
 }
 
-/* Mobile: 430px and below - Reduced font sizes */
+/* Mobile: 430px and below */
 @media (max-width: 429px) {
   :root {
-    /* Reduce size scale by ~30% for mobile */
-    --tiniest: 3px;
-    --tinier: 6px;
-    --tiny: 9px;
-    --smallest: 12px;
-    --smaller: 18px;
-    --small: 24px;
-    --big: 36px;
-    --bigger: 48px;
-    --biggest: 72px;
-    --huge: 96px;
-  }
-
-  body {
-    font-size: 14px;
-  }
-
-  h1 {
-    font-size: var(--smaller);
-  }
-
-  .jumbo {
-    font-size: var(--small);
-  }
-
-  .project-name {
-    font-size: var(--big);
-  }
-
-  .section-label {
-    font-size: 16px;
-  }
-
-  /* Mobile grid overrides */
-  .mobile-grid-2 {
-    grid-template-columns: repeat(2, 1fr) !important;
+    /* Mobile header height */
+    --header-height: 60px;
   }
 }
 
@@ -283,13 +249,6 @@ a:hover {
   color: #0000ff;
 }
 
-/* Footer links - no underline */
-footer a {
-  color: var(--white);
-  text-decoration: none;
-  letter-spacing: -0.01em;
-}
-
 /* Dark theme variant */
 .dark {
   --background: var(--black);
@@ -297,20 +256,30 @@ footer a {
   --muted: rgba(255, 255, 255, 0.7);
 }
 
-/* Footer */
-footer {
-  width: 100%;
-  max-width: 100%;
-  padding: var(--margin);
-  padding-bottom: var(--small);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+/* Mobile typography overrides - must come after global styles */
+@media (max-width: 429px) {
 
-footer img {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
+  p {
+    font-size: var(--smallest);
+  }
+
+  h1 {
+    font-size: var(--smaller);
+  }
+
+  .jumbo {
+    font-size: 20px;
+  }
+
+  .project-name {
+    font-size: var(--big);
+  }
+
+  .section-label {
+    font-size: var(--smallest);
+  }
+  /* Mobile grid overrides */
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
