@@ -19,7 +19,7 @@
 }
 
 /* Remove blend mode on mobile for solid background */
-@media (max-width: 430.98px) {
+@media (max-width: 430px) {
   .headerContainer {
     filter: none;
     mix-blend-mode: normal;
@@ -111,7 +111,7 @@
 }
 
 /* Mobile Responsive - Show both logos, fixed height */
-@media (max-width: 430.98px) {
+@media (max-width: 430px) {
   .headerLogo:nth-child(1) {
     grid-column: 1 / span 1;
   }

@@ -9,6 +9,8 @@ html {
   margin: 0;
   padding: 0;
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 :root {
@@ -35,16 +37,19 @@ html {
   --biggest: 96px;
   --huge: 128px;
 
-  /* Breakpoints - Single Source of Truth */
+  /* ===== BREAKPOINTS - SINGLE SOURCE OF TRUTH ===== */
+  /* Mobile: up to 430px (use max-[430px]: in Tailwind) */
+  /* Tablet+: 431px and above (use min-[431px]: in Tailwind) */
+  /* CSS Modules: @media (max-width: 430px) or (min-width: 431px) */
   --breakpoint-mobile: 430;
-  --breakpoint-tablet: 600;
+  --breakpoint-tablet: 431;
   --breakpoint-desktop: 1024;
   --breakpoint-ultrawide: 1350;
   --breakpoint-fluid: 1661;
 
   /* Grid System */
   --gap: var(--tinier);
-  --margin: var(--smallest); /* 16px - base (375-429px) */
+  --margin: var(--smallest); /* 16px - base (up to 430px mobile) */
   --columns: 12;
   overscroll-behavior-y: none;
 }
@@ -91,8 +96,8 @@ html {
   }
 }
 
-/* Mobile: below 431px */
-@media (max-width: 430.98px) {
+/* Mobile: 430px and below */
+@media (max-width: 430px) {
   :root {
     /* Mobile header height */
     --header-height: 60px;
@@ -123,9 +128,10 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   letter-spacing: -0.05em;
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 
 /* Global focus ring styles */
@@ -257,7 +263,7 @@ a:hover {
 }
 
 /* Mobile typography overrides - must come after global styles */
-@media (max-width: 430.98px) {
+@media (max-width: 430px) {
 
   p {
     font-size: var(--smallest);

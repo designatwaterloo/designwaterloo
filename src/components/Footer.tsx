@@ -29,7 +29,7 @@ export default function Footer() {
           alt="Design Waterloo"
           width={930}
           height={234}
-          className="w-full h-auto max-[430.98px]:hidden"
+          className="w-full h-auto hidden min-[431px]:block"
           priority
         />
         <Image
@@ -37,7 +37,7 @@ export default function Footer() {
           alt="Design Waterloo"
           width={200}
           height={36}
-          className="w-auto h-auto min-[431px]:hidden"
+          className="w-auto h-auto block min-[431px]:hidden"
           priority
         />
       </div>
