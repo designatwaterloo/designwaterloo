@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 
 export const metadata: Metadata = {
   title: "Design Waterloo",
@@ -26,6 +27,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Waterloo" />
       </head>
       <body className="antialiased">
+        <ConsoleEasterEgg />
         {children}
       </body>
     </html>

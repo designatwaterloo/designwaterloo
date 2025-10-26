@@ -48,7 +48,7 @@ html {
   --breakpoint-fluid: 1661;
 
   /* Grid System */
-  --gap: var(--tinier);
+  --gap: var(--smallest); /* 16px */
   --margin: var(--smallest); /* 16px - base (up to 430px mobile) */
   --columns: 12;
   overscroll-behavior-y: none;
@@ -61,38 +61,13 @@ html {
 }
 
 /* Responsive Grid Margins */
-/* Tablet and up: 431-599px - 16px margin */
-@media (min-width: 431px) and (max-width: 599px) {
-  :root {
-    --margin: var(--smallest); /* 16px */
-  }
-}
+/* Mobile: up to 599px - 16px margin */
+/* Default is already 16px from :root */
 
-/* Tablet: 600-1023px - 32px margin */
+/* Tablet and up: 600px+ - 32px margin (capped) */
 @media (min-width: 600px) {
   :root {
     --margin: var(--small); /* 32px */
-  }
-}
-
-/* Desktop: 1024-1349px - 48px margin */
-@media (min-width: 1024px) {
-  :root {
-    --margin: var(--big); /* 48px */
-  }
-}
-
-/* Ultrawide: 1350-1660px - 64px margin */
-@media (min-width: 1350px) {
-  :root {
-    --margin: var(--bigger); /* 64px */
-  }
-}
-
-/* Fluid: 1661px+ - 3.855vw margin (scales proportionally) */
-@media (min-width: 1661px) {
-  :root {
-    --margin: 3.855vw;
   }
 }
 
@@ -108,6 +83,13 @@ html {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: Inter, sans-serif;
+
+  /* Custom Breakpoints */
+  --breakpoint-sm: 431px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1350px;
+  --breakpoint-2xl: 1661px;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -132,6 +114,7 @@ body {
   min-height: 100vh;
   letter-spacing: -0.05em;
   overflow-x: hidden;
+  text-wrap: pretty;
 }
 
 /* Global focus ring styles */

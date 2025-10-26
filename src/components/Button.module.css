@@ -5,8 +5,8 @@
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  padding: var(--tinier) var(--smallest);
-  border-radius: 12px;
+  padding: var(--tinier) 20px;
+  border-radius: 9999px;
   font-size: var(--smaller);
   cursor: pointer;
   transition: all 0.2s ease;

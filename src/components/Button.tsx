@@ -9,14 +9,14 @@ interface ButtonProps {
   onClick?: () => void;
 }
 
-export default function Button({ 
-  text, 
-  variant = "primary", 
-  icon, 
-  onClick 
+export default function Button({
+  text,
+  variant = "primary",
+  icon,
+  onClick
 }: ButtonProps) {
   return (
-    <button 
+    <button
       className={`${styles.button} ${variant === "primary" ? styles.primary : styles.secondary}`}
       onClick={onClick}
     >
