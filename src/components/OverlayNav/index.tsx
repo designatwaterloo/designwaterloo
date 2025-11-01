@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import Footer from "./Footer";
+import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 
 interface OverlayNavProps {
