@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
+import Link from "@/components/Link";
 
 export default function Home() {
   return (
@@ -35,6 +36,9 @@ export default function Home() {
           <h1 className="sm:hidden">
             The home for design talent at Waterloo, and where to find them.
           </h1>
+          <Link href={'/work/wtf'}>
+            wdawdawd
+          </Link>
 
           <div className="hidden sm:grid grid-cols-12 gap-[var(--gap)] w-full items-center">
             <h1 className="col-span-6">

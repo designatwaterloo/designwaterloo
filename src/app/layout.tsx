@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
+import SmoothScroll from "@/components/SmoothScroll";
+import { ViewTransitions } from "next-view-transitions";
 
 export const metadata: Metadata = {
   title: "Design Waterloo",
@@ -20,6 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ViewTransitions>
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://rsms.me/" />
@@ -27,9 +30,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Waterloo" />
       </head>
       <body className="antialiased">
-        <ConsoleEasterEgg />
-        {children}
+        <SmoothScroll>
+          <ConsoleEasterEgg />
+          {children}
+        </SmoothScroll>
       </body>
     </html>
+    </ViewTransitions>
   );
 }

@@ -112,7 +112,6 @@ body {
   width: 100%;
   max-width: 100%;
   min-height: 100vh;
-  letter-spacing: -0.05em;
   overflow-x: hidden;
   text-wrap: pretty;
 }
@@ -139,8 +138,14 @@ body {
 h1 {
   font-size: var(--small);
   line-height: 100%;
+  letter-spacing: -0.025em;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
+h1 .char {
+  position: relative;
+  will-change: transform;
+}
 /* Section label */
 .section-label {
   font-size: 20px;
@@ -170,17 +175,6 @@ h1 {
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 4px;
-}
-
-/* Buttons */
-button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: var(--tinier) var(--smallest);
-  border-radius: 12px;
-  font-size: var(--smaller);
-  cursor: pointer;
 }
 
 .btn-primary {
@@ -271,4 +265,29 @@ a:hover {
   .mobile-grid-2 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+}
+
+::view-transition-group(root) {
+  z-index: auto !important;
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate;
+  will-change: transform, opacity, clip-path;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 10000;
+  animation: none !important;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+  animation: none !important;
 }

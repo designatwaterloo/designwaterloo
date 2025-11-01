@@ -10,6 +10,7 @@
   font-size: var(--smaller);
   cursor: pointer;
   transition: all 0.2s ease;
+  letter-spacing: -0.025em;
 }
 
 .text {

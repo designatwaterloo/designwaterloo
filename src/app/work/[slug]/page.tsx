@@ -2,14 +2,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 
-export default function WorkDetail({ params }: { params: { slug: string } }) {
+export default async function WorkDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
   return (
     <div>
       <Header />
 
       <main>
         <section className="grid-section !gap-y-[var(--small)]">
-          <h1 className="project-name col-span-full">{params.slug}</h1>
+          <h1 className="project-name col-span-full">{slug}</h1>
 
           {/* Project Info */}
           <div className="col-span-full grid grid-cols-12 gap-x-[var(--gap)] gap-y-1">
@@ -44,7 +46,7 @@ export default function WorkDetail({ params }: { params: { slug: string } }) {
         {/* Sticky Left Sidebar */}
         <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)] max-lg:col-span-full max-lg:static max-lg:pr-0 max-lg:mb-[var(--small)]">
           <div className="flex flex-col gap-[var(--small)]">
-            <h1 className="max-lg:hidden">{params.slug}</h1>
+            <h1 className="max-lg:hidden">{slug}</h1>
             <div>
               <p className="uppercase text-[#7f7f7f] mb-2">Year</p>
               <p>20XX</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { useState, useEffect } from "react";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
@@ -48,6 +48,10 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   // Gaps: 0.08s, 0.07s, 0.06s, 0.05s, 0.04s
   const columnDelaysClose = [0.3, 0.24, 0.18, 0.12, 0.07, 0.03];
 
+  // Column durations (right to left): each column moves progressively faster
+  // Index 0 (left) appears last and moves fastest, index 5 (right) appears first and moves slowest
+  const columnDurationsOpen = [0.17, 0.19, 0.22, 0.25, 0.30, 0.35];
+
   // Nav item delays: start after columns finish (last column at 0.575s + 0.3s = 0.875s)
   const navItemDelays = [0.65, 0.72, 0.80, 0.89];
 
@@ -64,7 +68,10 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
             style={{
               transitionDelay: isClosing
                 ? `${columnDelaysClose[index]}s`
-                : `${columnDelaysOpen[index]}s`
+                : `${columnDelaysOpen[index]}s`,
+              transitionDuration: isClosing
+                ? '0.2s'
+                : `${columnDurationsOpen[index]}s`
             }}
           />
         ))}

@@ -47,7 +47,8 @@ export default function Footer({ variant = "default" }: FooterProps) {
 
   const bgColor = variant === "menu" ? "bg-[#000000]" : "bg-white";
   const textColor = variant === "menu" ? "text-white" : "text-black";
-  const linkColor = variant === "menu" ? "text-white" : "text-black";
+  const linkColor = variant === "menu" ? "!text-white" : "text-black";
+  const linkHoverColor = variant === "menu" ? "hover:!text-white" : "";
   const topPadding = variant === "menu" ? "pt-0" : "pt-[240px]";
   const sidePadding = variant === "menu" ? "" : "px-[var(--margin)]";
   const wordmarkClass = variant === "menu" ? "invert brightness-0" : "";
@@ -82,9 +83,9 @@ export default function Footer({ variant = "default" }: FooterProps) {
         {/* Follow - Columns 10-11 */}
         <div className="col-span-2 flex flex-col gap-[10px]">
           <p className="text-[#b5b5b5]">Follow</p>
-          <a href="https://www.instagram.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} underline`}>Instagram</a>
-          <a href="https://twitter.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} underline`}>Twitter</a>
-          <a href="https://www.linkedin.com/company/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} underline`}>LinkedIn</a>
+          <a href="https://www.instagram.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Instagram</a>
+          <a href="https://twitter.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Twitter</a>
+          <a href="https://www.linkedin.com/company/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>LinkedIn</a>
         </div>
 
         {/* Logo - Column 12 (hidden in menu variant to match Figma) */}
