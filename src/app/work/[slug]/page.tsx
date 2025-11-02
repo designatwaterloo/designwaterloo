@@ -1,9 +1,35 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
+import { notFound } from "next/navigation";
+import { client } from "@/sanity/lib/client";
+import { urlFor } from "@/sanity/lib/image";
+import { projectBySlugQuery, projectSlugsQuery } from "@/sanity/queries";
+import type { Project } from "@/sanity/types";
+import { PortableText } from "next-sanity";
+
+// Generate static params for all projects
+export async function generateStaticParams() {
+  const projects = await client.fetch<{ slug: string }[]>(projectSlugsQuery);
+  return projects.map((project) => ({
+    slug: project.slug,
+  }));
+}
 
 export default async function WorkDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  // Fetch project data from Sanity
+  const project: Project | null = await client.fetch(projectBySlugQuery, { slug });
+
+  if (!project) {
+    notFound();
+  }
+
+  // Get featured image URL
+  const featuredImageUrl = project.featuredMedia?.image
+    ? urlFor(project.featuredMedia.image).width(1920).height(1080).url()
+    : null;
 
   return (
     <div>
@@ -11,101 +37,93 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
 
       <main>
         <section className="grid-section !gap-y-[var(--small)]">
-          <h1 className="project-name col-span-full">{slug}</h1>
+          <h1 className="project-name col-span-full">{project.title}</h1>
 
           {/* Project Info */}
           <div className="col-span-full grid grid-cols-12 gap-x-[var(--gap)] gap-y-1">
             <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Client</p>
-            <p className="col-span-2 col-start-3">Placeholder Client</p>
+            <p className="col-span-2 col-start-3">{project.client}</p>
 
             <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Date</p>
-            <p className="col-span-2 col-start-3">Spring 2025</p>
+            <p className="col-span-2 col-start-3">{project.yearCompleted}</p>
 
-            <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Category</p>
-            <p className="col-span-2 col-start-3">Design</p>
+            {project.category && (
+              <>
+                <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Category</p>
+                <p className="col-span-2 col-start-3 capitalize">{project.category.replace("-", " ")}</p>
+              </>
+            )}
           </div>
         </section>
       </main>
 
       {/* Full Width Image Section */}
-      <section className="relative max-h-screen overflow-hidden p-0">
-        <Image
-          src="/NYA00500-3.png"
-          alt="Project showcase"
-          width={1920}
-          height={1080}
-          className="w-full h-auto max-h-screen object-cover bg-gray-200"
-          style={{ display: 'block' }}
-          priority
-          sizes="100vw"
-        />
-      </section>
+      {featuredImageUrl && (
+        <section className="relative max-h-screen overflow-hidden p-0">
+          <Image
+            src={featuredImageUrl}
+            alt={project.featuredMedia?.alt || project.title}
+            width={1920}
+            height={1080}
+            className="w-full h-auto max-h-screen object-cover bg-gray-200"
+            style={{ display: 'block' }}
+            priority
+            sizes="100vw"
+          />
+        </section>
+      )}
 
       {/* Sticky Sidebar Section */}
       <section className="grid-section">
         {/* Sticky Left Sidebar */}
         <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)] max-lg:col-span-full max-lg:static max-lg:pr-0 max-lg:mb-[var(--small)]">
           <div className="flex flex-col gap-[var(--small)]">
-            <h1 className="max-lg:hidden">{slug}</h1>
+            <h1 className="max-lg:hidden">{project.title}</h1>
             <div>
               <p className="uppercase text-[#7f7f7f] mb-2">Year</p>
-              <p>20XX</p>
+              <p>{project.yearCompleted}</p>
             </div>
 
-            <div>
-              <p className="uppercase text-[#7f7f7f] mb-2">About</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            </div>
+            {project.description && (
+              <div>
+                <p className="uppercase text-[#7f7f7f] mb-2">About</p>
+                <div className="prose prose-sm">
+                  <PortableText value={project.description} />
+                </div>
+              </div>
+            )}
 
-            <div>
-              <p className="uppercase text-[#7f7f7f] mb-2">Services</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            </div>
+            {project.tools && project.tools.length > 0 && (
+              <div>
+                <p className="uppercase text-[#7f7f7f] mb-2">Tools</p>
+                <p>{project.tools.join(", ")}</p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right Scrollable Images */}
         <div className="col-span-8 flex flex-col gap-[var(--gap)] max-lg:col-span-full">
-          <Image
-            src="/NYA00500-3.png"
-            alt="Project image"
-            width={1920}
-            height={1080}
-            className="w-full h-auto bg-gray-200"
-            sizes="(max-width: 768px) 100vw, 66vw"
-          />
-          <Image
-            src="/NYA00500-3.png"
-            alt="Project image"
-            width={1920}
-            height={1080}
-            className="w-full h-auto bg-gray-200"
-            sizes="(max-width: 768px) 100vw, 66vw"
-          />
-          <Image
-            src="/NYA00500-3.png"
-            alt="Project image"
-            width={1920}
-            height={1080}
-            className="w-full h-auto bg-gray-200"
-            sizes="(max-width: 768px) 100vw, 66vw"
-          />
-          <Image
-            src="/NYA00500-3.png"
-            alt="Project image"
-            width={1920}
-            height={1080}
-            className="w-full h-auto bg-gray-200"
-            sizes="(max-width: 768px) 100vw, 66vw"
-          />
-          <Image
-            src="/NYA00500-3.png"
-            alt="Project image"
-            width={1920}
-            height={1080}
-            className="w-full h-auto bg-gray-200"
-            sizes="(max-width: 768px) 100vw, 66vw"
-          />
+          {project.projectImages && project.projectImages.length > 0 ? (
+            project.projectImages
+              .filter((image) => image?.asset?._ref) // Filter out invalid images
+              .map((image) => {
+                const imageUrl = urlFor(image).width(1920).height(1080).url();
+                return (
+                  <Image
+                    key={image._key}
+                    src={imageUrl}
+                    alt={image.alt || project.title}
+                    width={1920}
+                    height={1080}
+                    className="w-full h-auto bg-gray-200"
+                    sizes="(max-width: 768px) 100vw, 66vw"
+                  />
+                );
+              })
+          ) : (
+            <p className="text-gray-500">No project images yet. Add some in Sanity Studio!</p>
+          )}
         </div>
       </section>
 

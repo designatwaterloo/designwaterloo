@@ -52,6 +52,10 @@ html {
   --margin: var(--smallest); /* 16px - base (up to 430px mobile) */
   --columns: 12;
   overscroll-behavior-y: none;
+
+  /* Header Height - Desktop (25% of viewport height) */
+  --head-padding-vh: 0.25;
+  --header-height: calc(100vh * var(--head-padding-vh));
 }
 
 @supports (font-variation-settings: normal) {
@@ -205,6 +209,11 @@ h1 .char {
 section {
   width: 100%;
   max-width: 100%;
+}
+
+/* First section on any page gets header clearance padding */
+main > section:first-child {
+  padding-top: var(--header-height);
 }
 
 /* Grid section - opt-in via class */

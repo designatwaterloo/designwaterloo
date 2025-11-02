@@ -35,7 +35,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "Work", href: "#work" },
+    { label: "Work", href: "/work" },
     { label: "Directory", href: "#directory" },
     { label: "About", href: "#about" },
   ];

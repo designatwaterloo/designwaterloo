@@ -2,17 +2,19 @@
 
 import NextLink from "next/link";
 import { useTransitionRouter } from "next-view-transitions";
+import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
 
 type LinkProps = ComponentProps<typeof NextLink>;
 
 export default function Link({ href, onClick, ...props }: LinkProps) {
   const router = useTransitionRouter();
+  const pathname = usePathname();
 
   function slideInOut() {
     document.documentElement.animate(
-      [ 
-        { 
+      [
+        {
           opacity: 1,
           transform: "translateY(0)",
         },
@@ -49,6 +51,12 @@ export default function Link({ href, onClick, ...props }: LinkProps) {
 
     // Only intercept internal links (not hash links or external)
     if (typeof href === "string" && href.startsWith("/") && !href.startsWith("/#")) {
+      // Don't trigger transition if already on this page
+      if (href === pathname) {
+        e.preventDefault();
+        return;
+      }
+
       e.preventDefault();
       router.push(href, {
         onTransitionReady: slideInOut,
