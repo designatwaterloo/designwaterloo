@@ -1,9 +1,17 @@
+/* Back button */
+.backButton {
+  display: inline-block;
+  margin: var(--huge) var(--margin);
+  font-size: var(--smaller);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
 .section {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gap);
   padding: var(--margin);
-  min-height: 100vh;
   font-size: var(--smaller);
   line-height: 110%;
 }

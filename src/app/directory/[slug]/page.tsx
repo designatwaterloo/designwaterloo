@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import styles from "./page.module.css";
 import Button from "@/components/Button";
+import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
 import { memberBySlugQuery, memberSlugsQuery } from "@/sanity/queries";
 import { urlFor } from "@/sanity/lib/image";
@@ -28,7 +29,10 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
     <div>
       <Header />
 
-      <main>
+      <main className="w-full">
+        <Link href="/directory" className={styles.backButton}>
+          ← Back to directory
+        </Link>
         <section className={styles.section}>
           <div className={styles.content}>
             <div className={`${styles.infoRow} ${styles.infoRowCentered}`}>
@@ -61,7 +65,7 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
             <div className={styles.rowGroup}>
               <div className={styles.infoRow}>
                 <dt className={styles.label}>Bio</dt>
-                <dd>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.</dd>
+                <dd>{member.bio?.map((block) => block.children.map((child) => child.text)).join('')}</dd>
               </div>
             </div>
             {member.experience && member.experience.length > 0 && (

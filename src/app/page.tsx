@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
-import Link from "@/components/Link";
 
 export default function Home() {
   return (
@@ -42,8 +41,8 @@ export default function Home() {
               The home for design talent at Waterloo, and where to find them.
             </h1>
             <div className="col-span-6 flex gap-[var(--gap)] justify-end">
-              <Button variant="secondary">Join directory</Button>
-              <Button variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
+              <Button href="/directory" variant="secondary">Join directory</Button>
+              <Button href="/directory" variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
             </div>
           </div>
 

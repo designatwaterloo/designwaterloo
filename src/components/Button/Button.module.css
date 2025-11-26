@@ -10,7 +10,9 @@
   font-size: var(--smaller);
   cursor: pointer;
   transition: all 0.2s ease;
+  transition-delay: 0.1s;
   letter-spacing: -0.025em;
+  text-decoration: none;
 }
 
 .text {
@@ -22,15 +24,13 @@
 .primary {
   background: var(--black);
   color: var(--white);
-  border: none;
+  border: 2px solid var(--black);
 }
 
 .primary:hover {
-  background: #2a2a2a;
-}
-
-.primary:active {
-  transform: translateY(0);
+  background: var(--blue);
+  color: var(--white);
+  border: 2px solid var(--blue);
 }
 
 .secondary {
@@ -40,11 +40,9 @@
 }
 
 .secondary:hover {
-  background: #ececec;
-}
-
-.secondary:active {
-  transform: translateY(0);
+  background: var(--muted);
+  color: var(--black);
+  border: 2px solid var(--muted);
 }
 
 /* Mobile styles */

@@ -17,11 +17,13 @@ html {
   /* Color Primitives */
   --white: #ffffff;
   --black: #0e0e0e;
+  --blue: #0000ff;
 
   /* Base Colors */
   --background: var(--white);
   --foreground: var(--black);
   --muted: rgba(14, 14, 14, 0.22);
+  --link-hover: var(--blue);
 
   font-family: Inter, sans-serif;
 
@@ -253,7 +255,7 @@ a {
 }
 
 a:hover {
-  color: #0000ff;
+  color: var(--link-hover);
 }
 
 /* Dark theme variant */
