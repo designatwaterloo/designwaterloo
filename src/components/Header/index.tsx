@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "@/components/Link";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
 
@@ -23,6 +24,12 @@ export default function Header() {
       document.removeEventListener("keydown", handleEscape);
     };
   }, [isNavOpen]);
+
+  // Close menu on route change
+  const pathname = usePathname();
+  useEffect(() => {
+    setIsNavOpen(false);
+  }, [pathname]);
 
   return (
     <>

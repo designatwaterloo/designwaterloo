@@ -5,6 +5,7 @@ import Link from "@/components/Link";
 import { useState, useEffect } from "react";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
+import Curtain from "../Curtain";
 
 interface OverlayNavProps {
   isOpen: boolean;
@@ -13,7 +14,19 @@ interface OverlayNavProps {
 
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 430);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Sync isAnimating with Curtain's state or just use it for content delays
   useEffect(() => {
     if (isOpen) {
       // Trigger animation after component mounts
@@ -36,21 +49,9 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Work", href: "/work" },
-    { label: "Directory", href: "#directory" },
-    { label: "About", href: "#about" },
+    { label: "Directory", href: "/directory" },
+    { label: "About", href: "/about" },
   ];
-
-  // Column delays (right to left): rightmost starts first, gaps get shorter (faster)
-  // Opening gaps: 0.12s, 0.11s, 0.10s, 0.09s, 0.08s
-  const columnDelaysOpen = [0.575, 0.495, 0.405, 0.305, 0.195, 0.075];
-
-  // Closing delays (right to left, same pattern, faster gaps)
-  // Gaps: 0.08s, 0.07s, 0.06s, 0.05s, 0.04s
-  const columnDelaysClose = [0.3, 0.24, 0.18, 0.12, 0.07, 0.03];
-
-  // Column durations (right to left): each column moves progressively faster
-  // Index 0 (left) appears last and moves fastest, index 5 (right) appears first and moves slowest
-  const columnDurationsOpen = [0.17, 0.19, 0.22, 0.25, 0.30, 0.35];
 
   // Nav item delays: start after columns finish (last column at 0.575s + 0.3s = 0.875s)
   const navItemDelays = [0.65, 0.72, 0.80, 0.89];
@@ -59,23 +60,11 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   return (
     <div className={`${styles.overlay} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}>
-      {/* 6 Column Background Animation */}
-      <div className={styles.columnsContainer}>
-        {[0, 1, 2, 3, 4, 5].map((index) => (
-          <div
-            key={index}
-            className={`${styles.column} ${isAnimating && isOpen ? styles.columnOpening : ''} ${isClosing ? styles.columnClosing : ''}`}
-            style={{
-              transitionDelay: isClosing
-                ? `${columnDelaysClose[index]}s`
-                : `${columnDelaysOpen[index]}s`,
-              transitionDuration: isClosing
-                ? '0.2s'
-                : `${columnDurationsOpen[index]}s`
-            }}
-          />
-        ))}
-      </div>
+      {/* Replaced columns with Curtain component */}
+      <Curtain 
+        isOpen={isOpen} 
+        className={styles.curtainOverride}
+      />
 
       {/* Content Layer */}
       <div className={styles.contentLayer}>
@@ -100,7 +89,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   key={item.label}
                   href={item.href}
                   className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                  onClick={onClose}
                   style={{
                     transitionDelay: isClosing
                       ? '0s, 0s, 0s, 0s'

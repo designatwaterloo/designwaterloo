@@ -53,3 +53,34 @@ export interface Project {
   projectImages?: ProjectImage[];
   description?: PortableTextBlock[];
 }
+
+export interface Member {
+  _id: string;
+  _type: "member";
+  firstName: string;
+  lastName: string;
+  slug: {
+    current: string;
+  };
+  profileImage?: SanityImage;
+  school?: "University of Waterloo" | "Wilfred Laurier University";
+  program?: string;
+  graduatingClass?: string;
+  bio?: PortableTextBlock[];
+  experience?: Array<{
+    positionTitle: string;
+    company: string;
+    dateStart: string;
+    isCurrent?: boolean;
+  }>;
+  leadership?: Array<{
+    positionTitle: string;
+    org: string;
+    dateStart: string;
+    isCurrent?: boolean;
+  }>;
+  work?: Array<{
+    _ref: string;
+    _type: "reference";
+  }>;
+}

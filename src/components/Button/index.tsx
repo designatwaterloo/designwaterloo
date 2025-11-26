@@ -1,8 +1,9 @@
 import Image from "next/image";
 import styles from "./Button.module.css";
+import { ReactNode } from "react";
 
 interface ButtonProps {
-  text: string;
+  children: ReactNode;
   variant?: "primary" | "secondary";
   icon?: string;
   iconAlt?: string;
@@ -10,7 +11,7 @@ interface ButtonProps {
 }
 
 export default function Button({
-  text,
+  children,
   variant = "primary",
   icon,
   onClick
@@ -20,7 +21,7 @@ export default function Button({
       className={`${styles.button} ${variant === "primary" ? styles.primary : styles.secondary}`}
       onClick={onClick}
     >
-      <span className={styles.text}>{text}</span>
+      <span className={styles.text}>{children}</span>
       {icon && <Image src={icon} width={24} height={24} alt="" />}
     </button>
   );

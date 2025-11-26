@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import SmoothScroll from "@/components/SmoothScroll";
-import { ViewTransitions } from "next-view-transitions";
+import { TransitionProvider } from "@/context/TransitionContext";
+import PageTransition from "@/components/PageTransition";
 
 export const metadata: Metadata = {
   title: "Design Waterloo",
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ViewTransitions>
+    <TransitionProvider>
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://rsms.me/" />
@@ -32,10 +33,11 @@ export default function RootLayout({
       <body className="antialiased">
         <SmoothScroll>
           <ConsoleEasterEgg />
+          <PageTransition />
           {children}
         </SmoothScroll>
       </body>
     </html>
-    </ViewTransitions>
+    </TransitionProvider>
   );
 }

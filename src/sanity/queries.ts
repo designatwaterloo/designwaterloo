@@ -61,3 +61,66 @@ export const projectSlugsQuery = groq`
     "slug": slug.current
   }
 `;
+
+// Query to get all members (for directory listing page)
+export const membersQuery = groq`
+  *[_type == "member" && defined(slug.current)] | order(firstName asc) {
+    _id,
+    firstName,
+    lastName,
+    slug,
+    profileImage {
+      asset,
+      hotspot,
+      crop
+    },
+    school,
+    program,
+    graduatingClass
+  }
+`;
+
+// Query to get a single member by slug
+export const memberBySlugQuery = groq`
+  *[_type == "member" && slug.current == $slug][0] {
+    _id,
+    firstName,
+    lastName,
+    slug,
+    profileImage {
+      asset,
+      hotspot,
+      crop
+    },
+    school,
+    program,
+    graduatingClass,
+    bio,
+    experience[] {
+      positionTitle,
+      company,
+      dateStart,
+      isCurrent
+    },
+    leadership[] {
+      positionTitle,
+      org,
+      dateStart,
+      isCurrent
+    },
+    work[]-> {
+      _id,
+      title,
+      slug,
+      yearCompleted,
+      client
+    }
+  }
+`;
+
+// Query to get all member slugs (for generateStaticParams)
+export const memberSlugsQuery = groq`
+  *[_type == "member" && defined(slug.current)] {
+    "slug": slug.current
+  }
+`;

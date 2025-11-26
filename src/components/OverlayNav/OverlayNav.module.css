@@ -122,7 +122,6 @@
 
 .navItem {
   font-size: 48px;
-  font-weight: 500;
   color: var(--white);
   text-decoration: none;
   padding: var(--tinier) 0;
@@ -215,4 +214,9 @@
   .navItem {
     font-size: 32px;
   }
+}
+
+.curtainOverride {
+  position: absolute !important;
+  z-index: 1 !important;
 }

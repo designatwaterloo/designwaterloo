@@ -108,7 +108,7 @@ body {
   color: var(--foreground);
   font-family: Inter, sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1, 'ss04' 1, 'ss07' 1;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 100%;
   font-optical-sizing: auto;
   margin: 0;
@@ -130,26 +130,43 @@ body {
 .jumbo {
   font-size: var(--big);
   letter-spacing: -0.025em;
-  font-weight: 500;
-}
-
-.project-name {
-  font-size: var(--bigger);
-  font-weight: 600;
-  line-height: 100%;
 }
 
 h1 {
-  font-size: var(--small);
+  font-size: var(--biggest);
   line-height: 100%;
   letter-spacing: -0.025em;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 110%, 0 110%);
 }
 
 h1 .char {
   position: relative;
   will-change: transform;
 }
+
+h2 {
+  font-size: var(--small);
+  line-height: 100%;
+  letter-spacing: -0.025em;
+  clip-path: polygon(0 0, 100% 0, 100% 110%, 0 110%);
+}
+
+h2 .char {
+  position: relative;
+  will-change: transform;
+}
+
+/* Hero heading - special case for homepage hero */
+.hero-heading {
+  font-size: var(--small);
+}
+
+@media (max-width: 430px) {
+  .hero-heading {
+    font-size: var(--smaller);
+  }
+}
+
 /* Section label */
 .section-label {
   font-size: 20px;
@@ -197,7 +214,6 @@ h1 .char {
   background: var(--white);
   color: var(--black);
   font-size: var(--smallest);
-  font-weight: 600;
   padding: 10px 10px;
   border-radius: 8px;
   border: none;
@@ -228,7 +244,6 @@ p {
   font-size: var(--smallest);
   line-height: 114%;
   letter-spacing: -0.01em;
-  font-weight: 400;
 }
 
 /* Default link styling */
@@ -256,15 +271,15 @@ a:hover {
   }
 
   h1 {
+    font-size: var(--bigger);
+  }
+
+  h2 {
     font-size: var(--smaller);
   }
 
   .jumbo {
     font-size: 20px;
-  }
-
-  .project-name {
-    font-size: var(--big);
   }
 
   .section-label {
@@ -299,4 +314,15 @@ a:hover {
 ::view-transition-old(root) {
   z-index: 1;
   animation: none !important;
+}
+
+/* Blinking colon animation */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.blink-colon {
+  animation: blink 1s infinite;
+  display: inline-block;
 }

@@ -33,17 +33,17 @@ export default function Home() {
           </div>
 
           {/* Mobile: Heading */}
-          <h1 className="sm:hidden">
+          <h1 className="hero-heading sm:hidden">
             The home for design talent at Waterloo, and where to find them.
           </h1>
 
           <div className="hidden sm:grid grid-cols-12 gap-[var(--gap)] w-full items-center">
-            <h1 className="col-span-6">
+            <h1 className="hero-heading col-span-6">
               The home for design talent at Waterloo, and where to find them.
             </h1>
             <div className="col-span-6 flex gap-[var(--gap)] justify-end">
-              <Button text="Join directory" variant="secondary" />
-              <Button text="Find talent" variant="primary" icon="/Search.svg" iconAlt="Search" />
+              <Button variant="secondary">Join directory</Button>
+              <Button variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
             </div>
           </div>
 
@@ -72,7 +72,7 @@ export default function Home() {
 
           <div className="flex gap-[var(--gap)] w-full max-lg:flex-col max-lg:gap-6">
             <div className="flex-1">
-              <h1>Proof of work.</h1>
+              <h2>Proof of work.</h2>
             </div>
             <p className="flex-1">
               Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
@@ -100,7 +100,7 @@ export default function Home() {
 
           <div className="flex gap-[var(--gap)] w-full max-lg:flex-col max-lg:gap-6">
             <div className="flex-1">
-              <h1>The biggest design family on campus.</h1>
+              <h2>The biggest design family on campus.</h2>
             </div>
             <p className="w-[590px] max-lg:w-full">
               The Design Waterloo directory highlights the top designers, videographers, and artists in one convenient location. It&apos;s your go-to resource for discovering exceptional creative talent from the Waterloo area.
@@ -122,9 +122,9 @@ export default function Home() {
 
           <div className="flex gap-[var(--gap)] w-full max-lg:flex-col max-lg:gap-6">
             <div className="flex-1">
-              <h1 className="max-w-[463px]">
+              <h2 className="max-w-[463px]">
                 We host cute events and workshops to grow design at Waterloo
-              </h1>
+              </h2>
             </div>
             <p className="flex-1">
               Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.

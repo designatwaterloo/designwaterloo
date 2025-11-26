@@ -11,24 +11,26 @@ export default async function WorkPage() {
   return (
     <div>
       <Header />
-      <main className="grid-section">
-        <div className="col-span-full">
-          <h1>Work</h1>
+      <main>
+        <section className="grid-section">
+          <div className="col-span-full">
+            <h1>Work</h1>
 
-          {projects.length === 0 ? (
-            <p className="mt-8">No projects found. Add some projects in your Sanity Studio!</p>
-          ) : (
-            <ul className="mt-8 space-y-4">
-              {projects.map((project) => (
-                <li key={project._id}>
-                  <Link href={`/work/${project.slug.current}`} className="text-2xl hover:underline">
-                    {project.title} - {project.client} ({project.yearCompleted})
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+            {projects.length === 0 ? (
+              <p className="mt-8">No projects found. Add some projects in your Sanity Studio!</p>
+            ) : (
+              <ul className="mt-8 space-y-4">
+                {projects.map((project) => (
+                  <li key={project._id}>
+                    <Link href={`/work/${project.slug.current}`} className="text-2xl hover:underline">
+                      {project.title} - {project.client} ({project.yearCompleted})
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

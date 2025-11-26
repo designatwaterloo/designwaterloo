@@ -37,7 +37,7 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
 
       <main>
         <section className="grid-section !gap-y-[var(--small)]">
-          <h1 className="project-name col-span-full">{project.title}</h1>
+          <h1 className="col-span-full">{project.title}</h1>
 
           {/* Project Info */}
           <div className="col-span-full grid grid-cols-12 gap-x-[var(--gap)] gap-y-1">
@@ -78,7 +78,7 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
         {/* Sticky Left Sidebar */}
         <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)] max-lg:col-span-full max-lg:static max-lg:pr-0 max-lg:mb-[var(--small)]">
           <div className="flex flex-col gap-[var(--small)]">
-            <h1 className="max-lg:hidden">{project.title}</h1>
+            <h2 className="max-lg:hidden">{project.title}</h2>
             <div>
               <p className="uppercase text-[#7f7f7f] mb-2">Year</p>
               <p>{project.yearCompleted}</p>

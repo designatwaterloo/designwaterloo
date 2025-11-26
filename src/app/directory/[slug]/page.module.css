@@ -4,35 +4,52 @@
   gap: var(--gap);
   padding: var(--margin);
   min-height: 100vh;
+  font-size: var(--smaller);
+  line-height: 110%;
+}
+
+.section p,
+.section span,
+.section a,
+.section dt,
+.section dd {
+  font-size: inherit;
 }
 
 .content {
   grid-column: span 8;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 100%;
-}
-
-.topContent {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: var(--gap);
+  row-gap: var(--big);
+  font-size: var(--smaller);
+  line-height: 110%;
+  padding-right: var(--smaller);
 }
 
-.topContent > h1 {
+.content p,
+.content span,
+.content a,
+.content dt,
+.content dd {
+  font-size: inherit;
+}
+
+.content > h1 {
   grid-column: span 8;
 }
 
-.bottomContent {
+.rowGroup {
+  grid-column: span 8;
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: var(--gap);
+  grid-template-columns: subgrid;
+  column-gap: var(--gap);
+  row-gap: 8px;
+  align-content: start;
 }
 
 .imageContainer {
   grid-column: span 4;
-  display: flex;
+  display: block;
   justify-content: flex-end;
 }
 
@@ -47,14 +64,118 @@
   grid-column: span 8;
   display: grid;
   grid-template-columns: subgrid;
+  align-items: start;
+}
+
+.infoRowFull {
+  grid-column: span 12;
+}
+
+.infoRowCentered {
+  align-items: center;
 }
 
 .label {
   grid-column: span 2;
-  text-transform: uppercase;
+  color: #7f7f7f;
+  margin: 0;
+  line-height: 1;
+}
+
+.infoRow > dd {
+  grid-column: span 6;
+  margin: 0;
+}
+
+.experienceGroup {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: subgrid;
+  column-gap: var(--gap);
+  row-gap: 8px;
+  margin: 0;
+}
+
+.experienceGroup > dt {
+  grid-column: span 2;
+}
+
+.experienceList {
+  grid-column: span 6;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--gap);
+}
+
+.experienceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--tinier);
+  margin: calc(var(--tinier) * -1);
+  background-color: transparent;
+  color: inherit;
+  transition-property: background-color, color;
+  transition-duration: 0.2s, 0.2s;
+  transition-timing-function: ease, ease;
+  cursor: pointer;
+  border-bottom: 2px solid var(--muted);
+}
+
+.experienceItem:hover {
+  background-color: var(--black);
+  color: var(--white);
+  transition-duration: 0.05s, 0.05s;
+}
+
+.experienceItem:hover .companyName {
+  color: var(--white);
+  opacity: 0.7;
+}
+
+.experienceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.jobTitle {
+  margin: 0;
+}
+
+.companyName {
+  margin: 0;
   color: #7f7f7f;
 }
 
-.infoRow > p:not(.label) {
-  grid-column: span 6;
+.year {
+  text-align: right;
+}
+
+.tradingCard {
+  background-color: var(--black);
+  color: var(--white);
+  padding: var(--gap);
+  font-size: var(--smaller);
+  line-height: 110%;
+}
+
+.tradingCardName {
+  margin: 0 0 var(--gap) 0;
+}
+
+.tradingCardLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tradingCardLinks a {
+  color: var(--color-neutral-300);
+  text-decoration: none;
+}
+
+.tradingCardLinks a:hover {
+  text-decoration: underline;
 }

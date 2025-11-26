@@ -28,6 +28,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
       const timeOptions: Intl.DateTimeFormatOptions = {
         hour: 'numeric',
         minute: '2-digit',
+        second: '2-digit',
         timeZone: 'America/Toronto',
       };
       const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
@@ -59,34 +60,38 @@ export default function Footer({ variant = "default" }: FooterProps) {
       <div className="w-full grid grid-cols-12 gap-[var(--gap)]">
  
         {/* Local Time - Columns 1-3 */}
-        <div className="col-span-3 flex flex-col gap-[10px]">
-          <p className="text-[#b5b5b5]">Local Time</p>
-          <div className="flex flex-col">
-            <p>{currentDate || "Loading..."}</p>
-            <p>{currentTime || "Loading..."} Eastern Time</p>
+        <dl className="col-span-3 flex flex-col gap-[10px] pr-[4px]">
+          <dt className="text-[#b5b5b5]">Local Time</dt>
+          <dd className="flex flex-col m-0">
+            <p suppressHydrationWarning>{currentDate || "Loading..."}</p>
+            <p suppressHydrationWarning className="tabular-nums">
+              {currentTime || "Loading..."} Eastern Time
+            </p>
             <p>Waterloo, ON, Canada</p>
-          </div>
-        </div>
+          </dd>
+        </dl>
 
         {/* About - Columns 4-6 */}
-        <div className="col-span-3 flex flex-col gap-[10px]">
-          <p className="text-[#b5b5b5]">About</p>
-          <p>Design Waterloo is an open collective committed to advancing design excellence in Waterloo, and letting the world know about it.</p>
-        </div>
+        <dl className="col-span-3 flex flex-col gap-[10px] pr-[4px]">
+          <dt className="text-[#b5b5b5]">About</dt>
+          <dd className="m-0">Design Waterloo is an open collective committed to advancing design excellence in Waterloo, and letting the world know about it.</dd>
+        </dl>
 
         {/* Email - Columns 7-9 */}
-        <div className="col-span-3 flex flex-col gap-[10px]">
-          <p className="text-[#b5b5b5]">Email</p>
-          <p>hi@designwaterloo.com</p>
-        </div>
+        <dl className="col-span-3 flex flex-col gap-[10px] pr-[4px]">
+          <dt className="text-[#b5b5b5]">Email</dt>
+          <dd className="m-0">hi@designwaterloo.com</dd>
+        </dl>
 
         {/* Follow - Columns 10-11 */}
-        <div className="col-span-2 flex flex-col gap-[10px]">
-          <p className="text-[#b5b5b5]">Follow</p>
-          <a href="https://www.instagram.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Instagram</a>
-          <a href="https://twitter.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Twitter</a>
-          <a href="https://www.linkedin.com/company/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>LinkedIn</a>
-        </div>
+        <dl className="col-span-2 flex flex-col gap-[10px]">
+          <dt className="text-[#b5b5b5]">Follow</dt>
+          <dd className="m-0 flex flex-col gap-[10px]">
+            <a href="https://www.instagram.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Instagram</a>
+            <a href="https://twitter.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Twitter</a>
+            <a href="https://www.linkedin.com/company/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>LinkedIn</a>
+          </dd>
+        </dl>
 
         {/* Logo - Column 12 (hidden in menu variant to match Figma) */}
         {variant === "default" && (
