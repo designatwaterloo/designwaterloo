@@ -18,10 +18,6 @@ export default function Link({ href, onClick, ...props }: LinkProps) {
     // Only intercept internal links (not hash links or external)
     if (typeof href === "string" && href.startsWith("/") && !href.startsWith("/#")) {
       // Don't trigger transition if already on this page
-      if (href === pathname) {
-        e.preventDefault();
-        return;
-      }
 
       e.preventDefault();
       startTransition(href);

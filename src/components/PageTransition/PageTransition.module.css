@@ -1,5 +1,6 @@
 .transitionCurtain {
     z-index: 2000;
+    pointer-events: auto;
     /* Higher than OverlayNav (1000) to ensure it covers everything during page transition? 
                     Actually OverlayNav is 1000. If we transition *to* a page, we want to cover everything.
                     So 2000 is good. */

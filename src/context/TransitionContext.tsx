@@ -18,58 +18,45 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [stage, setStage] = useState<TransitionStage>("idle");
   const [nextHref, setNextHref] = useState<string | null>(null);
+  const [isWaitingForPush, setIsWaitingForPush] = useState(false);
 
   const startTransition = (href: string) => {
-    if (href === pathname) return;
     setNextHref(href);
     setStage("entering");
+    setIsWaitingForPush(true);
   };
 
-  // Handle stage changes
   useEffect(() => {
     if (stage === "entering") {
-      // Curtain is coming down. Wait for it to cover the screen.
-      // The curtain animation takes about 0.8s to fully cover (last column starts at 0.575s + duration).
-      // Let's give it enough time. 
-      // OverlayNav says: last column finishes at 0.3s delay + 0.2s duration = 0.5s (wait, that was close animation).
-      // Open animation: last column starts at 0.575s, duration 0.35s. Total ~0.925s.
-      // Let's wait 1s to be safe and ensure full coverage.
-      
+      document.body.style.cursor = "wait";
       const timer = setTimeout(() => {
         if (nextHref) {
           router.push(nextHref);
+          setIsWaitingForPush(false);
         }
-      }, 1000); 
+      }, 1200); 
 
       return () => clearTimeout(timer);
     }
   }, [stage, nextHref, router]);
 
-  // Detect route change to start exiting
   useEffect(() => {
-    if (stage === "entering" && pathname === nextHref) {
-      // Route has changed. Now lift the curtain.
-      // Small delay to ensure content is ready/rendered?
-      // Next.js is usually fast but maybe a small tick.
+    if (stage === "entering" && pathname === nextHref && !isWaitingForPush) {
       requestAnimationFrame(() => {
         setStage("exiting");
       });
     } else if (stage === "entering" && nextHref && pathname !== nextHref) {
-        // Still waiting for route change...
     } else if (stage === "idle" && nextHref) {
-        // Reset nextHref if we are idle
         setNextHref(null);
     }
-  }, [pathname, nextHref, stage]);
+  }, [pathname, nextHref, stage, isWaitingForPush]);
 
-  // Cleanup exiting stage
   useEffect(() => {
     if (stage === "exiting") {
-      // Curtain is going up. Wait for animation to finish.
-      // Close animation is faster. Last column delay 0.3s + duration 0.2s = 0.5s.
       const timer = setTimeout(() => {
         setStage("idle");
         setNextHref(null);
+        document.body.style.cursor = "";
       }, 800); 
       return () => clearTimeout(timer);
     }

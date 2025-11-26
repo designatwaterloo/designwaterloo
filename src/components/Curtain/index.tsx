@@ -20,7 +20,7 @@ export default function Curtain({
   onAnimationComplete, 
   className = "",
   showLogo = false,
-  overlayColor = "#000000"
+  overlayColor
 }: CurtainProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -38,7 +38,6 @@ export default function Curtain({
   useEffect(() => {
     if (isOpen) {
       onAnimationStart?.();
-      // Trigger animation after component mounts
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsAnimating(true);
@@ -46,19 +45,16 @@ export default function Curtain({
       });
     } else {
       onAnimationStart?.();
-      // Keep rendering during close animation
       const timer = setTimeout(() => {
         setIsAnimating(false);
         onAnimationComplete?.();
-      }, 500); // Last column finishes at 0.3s delay + 0.2s duration = 0.5s
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isOpen, onAnimationStart, onAnimationComplete]);
 
-  // Mobile (4 columns) or Desktop (6 columns)
   const columnCount = isMobile ? 4 : 6;
 
-  // Column delays (right to left): rightmost starts first, gaps get shorter (faster)
   const columnDelaysOpen = isMobile
     ? [0.405, 0.305, 0.195, 0.075]
     : [0.575, 0.495, 0.405, 0.305, 0.195, 0.075];
@@ -78,7 +74,7 @@ export default function Curtain({
       {/* Background Layer - fades in behind columns */}
       <div 
         className={`${styles.backgroundLayer} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`} 
-        style={{ backgroundColor: overlayColor }}
+        style={overlayColor ? { backgroundColor: overlayColor } : undefined}
       />
       
       {/* Logo Layer - centered */}

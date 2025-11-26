@@ -26,20 +26,17 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Sync isAnimating with Curtain's state or just use it for content delays
   useEffect(() => {
     if (isOpen) {
-      // Trigger animation after component mounts
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsAnimating(true);
         });
       });
     } else {
-      // Keep rendering during close animation
       const timer = setTimeout(() => {
         setIsAnimating(false);
-      }, 500); // Last column finishes at 0.3s delay + 0.2s duration = 0.5s
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -53,7 +50,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
     { label: "About", href: "/about" },
   ];
 
-  // Nav item delays: start after columns finish (last column at 0.575s + 0.3s = 0.875s)
+  // Nav item delays: start after columns finish 
   const navItemDelays = [0.65, 0.72, 0.80, 0.89];
 
   const isClosing = !isOpen;
