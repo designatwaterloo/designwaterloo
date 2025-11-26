@@ -2,14 +2,14 @@
 
 import NextLink from "next/link";
 import { useTransition } from "@/context/TransitionContext";
-import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
 
-type LinkProps = ComponentProps<typeof NextLink>;
+type LinkProps = ComponentProps<typeof NextLink> & {
+  underline?: boolean;
+};
 
-export default function Link({ href, onClick, ...props }: LinkProps) {
+export default function Link({ href, onClick, underline = true, className, style, ...props }: LinkProps) {
   const { startTransition } = useTransition();
-  const pathname = usePathname();
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Call any passed onClick first
@@ -25,5 +25,10 @@ export default function Link({ href, onClick, ...props }: LinkProps) {
     // External links, hash links, and Link objects work normally
   };
 
-  return <NextLink href={href} onClick={handleClick} {...props} />;
+  const linkStyle = {
+    textDecoration: underline ? undefined : 'none',
+    ...style,
+  };
+
+  return <NextLink href={href} onClick={handleClick} className={className} style={linkStyle} {...props} />;
 }

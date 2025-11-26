@@ -1,8 +1,18 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
+import Image from "next/image";
+import Link from "@/components/Link";
+import { client } from "@/sanity/lib/client";
+import { Member } from "@/sanity/types";
+import { membersQuery } from "@/sanity/queries";
+import { urlFor } from "@/sanity/lib/image";
 
-export default function Home() {
+const options = { next: { revalidate: 30 } };
+
+export default async function Home() {
+  const members = await client.fetch<Member[]>(membersQuery, {}, options);
+
   return (
     <div className="w-full">
       <Header />
@@ -107,8 +117,25 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-8 gap-[var(--gap)] w-full max-lg:grid-cols-4">
-            {[...Array(24)].map((_, i) => (
-              <div key={i} className="aspect-[4/5] bg-[#d9d9d9] rounded" />
+            {members.map((member) => (
+              <Link 
+                key={member._id}
+                href={`/directory/${member.slug.current}`}
+                className="group"
+                underline={false}
+              >
+                {member.profileImage ? (
+                  <Image
+                    src={urlFor(member.profileImage).width(400).height(500).url()}
+                    alt={`${member.firstName} ${member.lastName}`}
+                    width={400}
+                    height={500}
+                    className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+                  />
+                ) : (
+                  <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
+                )}
+              </Link>
             ))}
           </div>
         </section>

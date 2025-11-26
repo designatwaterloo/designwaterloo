@@ -158,6 +158,20 @@ h2 .char {
   will-change: transform;
 }
 
+h3 {
+  font-size: var(--smaller);
+  line-height: 110%;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 110%;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
 /* Hero heading - special case for homepage hero */
 .hero-heading {
   font-size: var(--small);
@@ -278,6 +292,10 @@ a:hover {
 
   h2 {
     font-size: var(--smaller);
+  }
+
+  h3 {
+    font-size: 20px;
   }
 
   .jumbo {
