@@ -13,11 +13,23 @@ html {
   overflow-x: hidden;
 }
 
+/* Text Selection */
+::selection {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+::-moz-selection {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
 :root {
   /* Color Primitives */
   --white: #ffffff;
   --black: #0e0e0e;
   --blue: #0000ff;
+  --orange: #ff6600;
 
   /* Base Colors */
   --background: var(--white);
@@ -54,6 +66,12 @@ html {
   --margin: var(--smallest); /* 16px - base (up to 430px mobile) */
   --columns: 12;
   overscroll-behavior-y: none;
+
+  /* Border Radius */
+  --radius-full: 9999px; /* Full pill shape */
+  --radius-large: 8px;
+  --radius-medium: 6px;
+  --radius-small: 4px;
 
   /* Header Height - Desktop (25% of viewport height) */
   --head-padding-vh: 0.25;
@@ -139,6 +157,15 @@ h1 {
   line-height: 100%;
   letter-spacing: -0.025em;
   clip-path: polygon(0 0, 100% 0, 100% 110%, 0 110%);
+  overflow: visible;
+}
+
+h1:has(sup) {
+  clip-path: polygon(0 -20%, 100% -20%, 100% 110%, 0 110%);
+}
+
+h1 sup {
+  color: var(--muted);
 }
 
 h1 .char {

@@ -5,6 +5,23 @@
   width: 100%;
 }
 
+.tableRowWrapper {
+  position: relative;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  padding: var(--tinier);
+  margin: 0 calc(var(--tinier) * -1);
+  border-bottom: 2px solid var(--foreground);
+  align-items: center;
+  line-height: 110%;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
 .tableRow {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -13,7 +30,6 @@
   margin: 0 calc(var(--tinier) * -1);
   border-bottom: 2px solid var(--muted);
   align-items: center;
-  font-size: var(--smaller);
   line-height: 110%;
   color: inherit;
   background-color: transparent;
@@ -41,5 +57,196 @@
 .classColumn {
   grid-column: span 3;
   text-align: right;
+}
+
+.hoverPreview {
+  position: absolute;
+  top: 50%;
+  left: calc((9 / 12) * 100%);
+  width: 200px;
+  z-index: 1000;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.hoverImage {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Search and Filter Styles */
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 240px;
+  padding: var(--tinier) 0;
+  border: none;
+  border-bottom: 2px solid var(--muted);
+  border-radius: 0;
+  font-size: inherit;
+  font-family: inherit;
+  background: transparent;
+  color: var(--foreground);
+  transition: border-color 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-bottom-color: var(--foreground);
+}
+
+.searchInput::placeholder {
+  color: var(--muted);
+}
+
+.filterButtons {
+  display: flex;
+  gap: var(--tinier);
+  align-items: center;
+}
+
+.filterWrapper {
+  position: relative;
+}
+
+.filterButton {
+  padding: var(--tinier) calc(var(--tinier) * 1.5);
+  border: 2px solid var(--muted);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--foreground);
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.filterButton:hover {
+  border-color: var(--foreground);
+}
+
+.filterButtonActive {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+.filterArrow {
+  font-size: 0.7em;
+  transition: transform 0.2s ease;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  border-radius: 6px;
+  min-width: 240px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.popoverHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--tinier);
+  border-bottom: 2px solid var(--muted);
+  font-weight: 600;
+}
+
+.popoverContent {
+  padding: var(--tinier);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+  background-color: var(--muted);
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--foreground);
+}
+
+.count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+.clearButton {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+}
+
+.clearButton:hover {
+  opacity: 0.7;
+}
+
+.clearAllButton {
+  padding: var(--tinier) calc(var(--tinier) * 1.5);
+  border: 2px solid var(--muted);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted);
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.clearAllButton:hover {
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
+.resultsCount {
+  color: var(--muted);
+  font-size: inherit;
 }
 

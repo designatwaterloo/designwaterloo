@@ -14,7 +14,7 @@ export default async function WorkPage() {
       <main>
         <section className="grid-section">
           <div className="col-span-full">
-            <h1>Work</h1>
+            <h1>Work<sup>{projects.length}</sup></h1>
 
             {projects.length === 0 ? (
               <p className="mt-8">No projects found. Add some projects in your Sanity Studio!</p>
