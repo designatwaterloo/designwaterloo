@@ -187,3 +187,32 @@
 .tradingCardLinks a:hover {
   text-decoration: underline;
 }
+
+.emailContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--tinier);
+}
+
+.emailText {
+  flex: 1;
+}
+
+.copyButton {
+  padding: 4px 12px;
+  border: 2px solid var(--muted);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--foreground);
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.copyButton:hover {
+  border-color: var(--foreground);
+  background-color: var(--foreground);
+  color: var(--background);
+}

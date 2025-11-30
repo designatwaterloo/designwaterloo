@@ -9,6 +9,7 @@ import { memberBySlugQuery, memberSlugsQuery } from "@/sanity/queries";
 import { urlFor } from "@/sanity/lib/image";
 import type { Member } from "@/sanity/types";
 import { notFound } from "next/navigation";
+import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 
 export async function generateStaticParams() {
   const members = await client.fetch<{ slug: string }[]>(memberSlugsQuery);
@@ -25,6 +26,9 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
     notFound();
   }
 
+  const nextAvailableTerm = getNextAvailableTerm(member.workSchedule);
+  const allTerms = getTermsWithStatus(member.workSchedule);
+
   return (
     <div>
       <Header />
@@ -35,12 +39,14 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
         </Link>
         <section className={styles.section}>
           <div className={styles.content}>
-            <div className={`${styles.infoRow} ${styles.infoRowCentered}`}>
-              <dt className={styles.label}>Next available</dt>
-              <dd>
-                <Button variant="secondary">Summer 2026 ↗</Button>
-              </dd>
-            </div>
+            {nextAvailableTerm && (
+              <div className={`${styles.infoRow} ${styles.infoRowCentered}`}>
+                <dt className={styles.label}>Next available</dt>
+                <dd>
+                  <Button variant="secondary">{nextAvailableTerm} ↗</Button>
+                </dd>
+              </div>
+            )}
             <h1>{member.firstName} {member.lastName}</h1>
             <div className={styles.rowGroup}>
               {member.school && (
@@ -62,6 +68,48 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
                 </div>
               )}
             </div>
+            {member.specialties && member.specialties.length > 0 && (
+              <div className={styles.rowGroup}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Specialties</dt>
+                  <dd>
+                    <div className="flex flex-wrap gap-2">
+                      {member.specialties.slice(0, 5).map((specialty) => (
+                        <span
+                          key={specialty}
+                          className="px-3 py-1 bg-[var(--foreground)] text-[var(--background)] rounded-full text-sm"
+                        >
+                          {specialty}
+                        </span>
+                      ))}
+                    </div>
+                  </dd>
+                </div>
+              </div>
+            )}
+            {allTerms.length > 0 && (
+              <div className={styles.rowGroup}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Work terms</dt>
+                  <dd>
+                    <div className="flex flex-wrap gap-2">
+                      {allTerms.map((term) => (
+                        <span
+                          key={term.code}
+                          className={`px-3 py-1 border-2 rounded-full text-sm ${
+                            term.isPast
+                              ? 'border-[var(--muted)] text-[var(--muted)] line-through'
+                              : 'border-[var(--foreground)] text-[var(--foreground)]'
+                          }`}
+                        >
+                          {term.displayName}
+                        </span>
+                      ))}
+                    </div>
+                  </dd>
+                </div>
+              </div>
+            )}
             <div className={styles.rowGroup}>
               <div className={styles.infoRow}>
                 <dt className={styles.label}>Bio</dt>
@@ -121,10 +169,29 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
             <div className={styles.tradingCard}>
               <p className={styles.tradingCardName}>{member.firstName} {member.lastName}</p>
               <div className={styles.tradingCardLinks}>
-                <a href="https://braydenpetersen.com" target="_blank" rel="noopener noreferrer">braydenpetersen.com</a>
-                <a href="https://linkedin.com/in/braydenpetersen" target="_blank" rel="noopener noreferrer">linkedin</a>
-                <a href="https://twitter.com/braydenpetersen" target="_blank" rel="noopener noreferrer">twitter</a>
-                <a href="https://instagram.com/braydenpetersen" target="_blank" rel="noopener noreferrer">instagram</a>
+                {member.portfolio && (
+                  <a href={member.portfolio} target="_blank" rel="noopener noreferrer">
+                    {member.portfolio.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                  </a>
+                )}
+                {member.linkedin && (
+                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
+                )}
+                {member.behance && (
+                  <a href={member.behance} target="_blank" rel="noopener noreferrer">behance</a>
+                )}
+                {member.dribbble && (
+                  <a href={member.dribbble} target="_blank" rel="noopener noreferrer">dribbble</a>
+                )}
+                {member.instagram && (
+                  <a href={member.instagram} target="_blank" rel="noopener noreferrer">instagram</a>
+                )}
+                {member.github && (
+                  <a href={member.github} target="_blank" rel="noopener noreferrer">github</a>
+                )}
+                {member.twitter && (
+                  <a href={member.twitter} target="_blank" rel="noopener noreferrer">twitter</a>
+                )}
               </div>
             </div>
           </div>

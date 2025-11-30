@@ -66,6 +66,8 @@ export const projectSlugsQuery = groq`
 export const membersQuery = groq`
   *[_type == "member" && defined(slug.current)] | order(firstName asc) {
     _id,
+    _createdAt,
+    memberId,
     firstName,
     lastName,
     slug,
@@ -76,7 +78,9 @@ export const membersQuery = groq`
     },
     school,
     program,
-    graduatingClass
+    graduatingClass,
+    specialties,
+    workSchedule
   }
 `;
 
@@ -84,6 +88,8 @@ export const membersQuery = groq`
 export const memberBySlugQuery = groq`
   *[_type == "member" && slug.current == $slug][0] {
     _id,
+    _createdAt,
+    memberId,
     firstName,
     lastName,
     slug,
@@ -114,7 +120,18 @@ export const memberBySlugQuery = groq`
       slug,
       yearCompleted,
       client
-    }
+    },
+    publicEmail,
+    schoolEmail,
+    instagram,
+    twitter,
+    linkedin,
+    github,
+    portfolio,
+    behance,
+    dribbble,
+    specialties,
+    workSchedule
   }
 `;
 

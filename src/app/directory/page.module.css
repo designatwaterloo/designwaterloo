@@ -228,21 +228,28 @@
 }
 
 .clearAllButton {
-  padding: var(--tinier) calc(var(--tinier) * 1.5);
+  padding: var(--tinier);
   border: 2px solid var(--muted);
   border-radius: var(--radius-full);
   background: transparent;
   color: var(--muted);
-  font-size: inherit;
+  font-size: 1.2em;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
   white-space: nowrap;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .clearAllButton:hover {
   border-color: var(--foreground);
-  color: var(--foreground);
+  background-color: var(--foreground);
+  color: var(--white);
 }
 
 .resultsCount {

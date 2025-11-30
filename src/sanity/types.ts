@@ -57,6 +57,8 @@ export interface Project {
 export interface Member {
   _id: string;
   _type: "member";
+  _createdAt?: string;
+  memberId?: number;
   firstName: string;
   lastName: string;
   slug: {
@@ -83,4 +85,19 @@ export interface Member {
     _ref: string;
     _type: "reference";
   }>;
+  // Contact
+  publicEmail?: string;
+  schoolEmail?: string;
+  // Social Links
+  instagram?: string;
+  twitter?: string;
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+  behance?: string;
+  dribbble?: string;
+  // Skills
+  specialties?: string[];
+  // Availability
+  workSchedule?: string[];
 }

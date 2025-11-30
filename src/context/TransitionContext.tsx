@@ -53,11 +53,13 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (stage === "exiting") {
+      // Remove cursor wait immediately when curtain starts lifting
+      document.body.style.cursor = "";
+      
       const timer = setTimeout(() => {
         setStage("idle");
         setNextHref(null);
-        document.body.style.cursor = "";
-      }, 800); 
+      }, 550); 
       return () => clearTimeout(timer);
     }
   }, [stage]);
