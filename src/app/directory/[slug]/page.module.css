@@ -29,8 +29,6 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   row-gap: var(--big);
-  font-size: var(--smaller);
-  line-height: 110%;
   padding-right: var(--smaller);
 }
 

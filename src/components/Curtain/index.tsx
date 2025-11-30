@@ -27,7 +27,7 @@ export default function Curtain({
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 430);
+      setIsMobile(window.innerWidth <= 768);
     };
 
     checkMobile();

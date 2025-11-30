@@ -51,15 +51,16 @@ html {
   --biggest: 96px;
   --huge: 128px;
 
-  /* ===== BREAKPOINTS - SINGLE SOURCE OF TRUTH ===== */
-  /* Mobile: up to 430px (use max-[430px]: in Tailwind) */
-  /* Tablet+: 431px and above (use min-[431px]: in Tailwind) */
-  /* CSS Modules: @media (max-width: 430px) or (min-width: 431px) */
-  --breakpoint-mobile: 430;
-  --breakpoint-tablet: 431;
-  --breakpoint-desktop: 1024;
-  --breakpoint-ultrawide: 1350;
-  --breakpoint-fluid: 1661;
+  /* ===== BREAKPOINTS - DOCUMENTATION ===== */
+  /* 
+   * NOTE: CSS variables cannot be used in @media queries!
+   * These are for reference only. Actual breakpoints are hardcoded below.
+   * 
+   * MOBILE:   0-768px      Use: @media (max-width: 768px)
+   * DESKTOP:  769px+       Use: @media (min-width: 769px)
+   * 
+   * Tailwind breakpoints are defined in @theme inline below.
+   */
 
   /* Grid System */
   --gap: var(--smallest); /* 16px */
@@ -85,20 +86,17 @@ html {
 }
 
 /* Responsive Grid Margins */
-/* Mobile: up to 599px - 16px margin */
-/* Default is already 16px from :root */
-
-/* Tablet and up: 600px+ - 32px margin (capped) */
-@media (min-width: 600px) {
+/* Mobile: 0-768px - 16px margin (default) */
+/* Desktop: 769px+ - 32px margin */
+@media (min-width: 769px) {
   :root {
     --margin: var(--small); /* 32px */
   }
 }
 
-/* Mobile: 430px and below */
-@media (max-width: 430px) {
+/* Mobile: Fixed header height (0-768px) */
+@media (max-width: 768px) {
   :root {
-    /* Mobile header height */
     --header-height: 60px;
   }
 }
@@ -108,12 +106,12 @@ html {
   --color-foreground: var(--foreground);
   --font-sans: Inter, sans-serif;
 
-  /* Custom Breakpoints */
-  --breakpoint-sm: 431px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1350px;
-  --breakpoint-2xl: 1661px;
+  /* Tailwind Breakpoints - Must match CSS variable breakpoints above */
+  --breakpoint-sm: 769px;   /* Desktop */
+  --breakpoint-md: 1024px;  /* Desktop landscape */
+  --breakpoint-lg: 1350px;  /* Large desktop */
+  --breakpoint-xl: 1661px;  /* Ultra-wide */
+  --breakpoint-2xl: 1920px; /* Extra large */
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -204,7 +202,8 @@ h4 {
   font-size: var(--small);
 }
 
-@media (max-width: 430px) {
+/* Mobile: Smaller hero heading (0-768px) */
+@media (max-width: 768px) {
   .hero-heading {
     font-size: var(--smaller);
   }
@@ -275,6 +274,13 @@ main > section:first-child {
   padding-top: var(--header-height);
 }
 
+/* Mobile: Generous "forehead" spacing - 25vh (0-768px) */
+@media (max-width: 768px) {
+  main > section:first-child {
+    padding-top: 25vh;
+  }
+}
+
 /* Grid section - opt-in via class */
 section.grid-section {
   padding: var(--margin);
@@ -306,9 +312,8 @@ a:hover {
   --muted: rgba(255, 255, 255, 0.7);
 }
 
-/* Mobile typography overrides - must come after global styles */
-@media (max-width: 430px) {
-
+/* Mobile: Typography and layout overrides (0-768px) */
+@media (max-width: 768px) {
   p {
     font-size: var(--smallest);
   }
@@ -332,7 +337,8 @@ a:hover {
   .section-label {
     font-size: var(--smallest);
   }
-  /* Mobile grid overrides */
+
+  /* Mobile grid: 2 columns */
   .mobile-grid-2 {
     grid-template-columns: repeat(2, 1fr) !important;
   }

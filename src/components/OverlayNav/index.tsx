@@ -14,17 +14,6 @@ interface OverlayNavProps {
 
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 430);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -65,9 +54,9 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
       {/* Content Layer */}
       <div className={styles.contentLayer}>
-        {/* Top Section - 50/50 split */}
+        {/* Top Section - Logo */}
         <div className={styles.topSection}>
-          {/* Left: Logo */}
+          {/* Logo */}
           <div className={styles.logoSection}>
             <Image
               src="/Design Waterloo Logo.svg"
@@ -78,7 +67,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
             />
           </div>
 
-          {/* Right: Nav Items + Close Button */}
+          {/* Desktop: Nav Items + Close Button */}
           <div className={styles.navSection}>
             <nav className={styles.navItems}>
               {navItems.map((item, index) => (
@@ -97,7 +86,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
               ))}
             </nav>
 
-            {/* Close Button */}
+            {/* Close Button - Desktop */}
             <button
               className={styles.closeButton}
               onClick={onClose}
@@ -109,6 +98,17 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
             </button>
           </div>
         </div>
+
+        {/* Mobile: Close Button - Independent positioning */}
+        <button
+          className={`${styles.closeButtonMobile} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}
+          onClick={onClose}
+          aria-label="Close navigation"
+        >
+          <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 10L31 31M31 10L10 31" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
 
         {/* Bottom Section - Footer with menu variant */}
         <div className={`${styles.footerSection} ${isAnimating && isOpen ? styles.footerOpening : ''} ${isClosing ? styles.footerClosing : ''}`}>

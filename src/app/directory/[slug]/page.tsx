@@ -196,13 +196,6 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
             </div>
           </div>
         </section>
-
-        <section className={styles.section}>
-          <div className={`${styles.infoRow} ${styles.infoRowFull}`}>
-            <dt className={styles.label}>Label</dt>
-            <dd>Content goes here</dd>
-          </div>
-        </section>
       </main>
 
       <Footer />

@@ -56,11 +56,11 @@ export default function Footer({ variant = "default" }: FooterProps) {
 
   return (
     <footer className={`w-full ${sidePadding} ${topPadding} pb-[var(--big)] ${bgColor} ${textColor} flex flex-col gap-[var(--big)] items-center`}>
-      {/* 12-column grid with footer sections */}
-      <div className="w-full grid grid-cols-12 gap-[var(--gap)]">
+      {/* Mobile: Stacked layout, Desktop: 12-column grid */}
+      <div className="w-full flex flex-col gap-[var(--big)] sm:grid sm:grid-cols-12 sm:gap-[var(--gap)]">
  
-        {/* Local Time - Columns 1-3 */}
-        <dl className="col-span-3 flex flex-col gap-[10px] pr-[4px]">
+        {/* Local Time - Mobile: full width, Desktop: Columns 1-3 */}
+        <dl className="flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
           <dt className="text-[#b5b5b5]">Local Time</dt>
           <dd className="flex flex-col m-0">
             <p suppressHydrationWarning>{currentDate || "Loading..."}</p>
@@ -71,20 +71,20 @@ export default function Footer({ variant = "default" }: FooterProps) {
           </dd>
         </dl>
 
-        {/* About - Columns 4-6 */}
-        <dl className="col-span-3 flex flex-col gap-[10px] pr-[4px]">
+        {/* About - Hidden on mobile, Desktop: Columns 4-6 */}
+        <dl className="hidden sm:flex sm:flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
           <dt className="text-[#b5b5b5]">About</dt>
           <dd className="m-0">Design Waterloo is an open collective committed to advancing design excellence in Waterloo, and letting the world know about it.</dd>
         </dl>
 
-        {/* Email - Columns 7-9 */}
-        <dl className="col-span-3 flex flex-col gap-[10px] pr-[4px]">
+        {/* Email - Mobile: hidden in menu variant, Desktop: Columns 7-9 */}
+        <dl className={`flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px] ${variant === "menu" ? "max-sm:hidden" : ""}`}>
           <dt className="text-[#b5b5b5]">Email</dt>
           <dd className="m-0">hi@designwaterloo.com</dd>
         </dl>
 
-        {/* Follow - Columns 10-11 */}
-        <dl className="col-span-2 flex flex-col gap-[10px]">
+        {/* Follow - Mobile: hidden in menu variant, Desktop: Columns 10-11 */}
+        <dl className={`flex flex-col gap-[10px] sm:col-span-2 ${variant === "menu" ? "max-sm:hidden" : ""}`}>
           <dt className="text-[#b5b5b5]">Follow</dt>
           <dd className="m-0 flex flex-col gap-[10px]">
             <a href="https://www.instagram.com/designwaterloo/" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Instagram</a>
@@ -93,9 +93,9 @@ export default function Footer({ variant = "default" }: FooterProps) {
           </dd>
         </dl>
 
-        {/* Logo - Column 12 (hidden in menu variant to match Figma) */}
+        {/* Logo - Desktop only for default variant */}
         {variant === "default" && (
-          <div className="col-span-1 flex justify-end">
+          <div className="hidden sm:flex sm:col-span-1 sm:justify-end">
             <Image
               src="/Design Waterloo Logo.svg"
               alt="Design Waterloo"
@@ -107,8 +107,8 @@ export default function Footer({ variant = "default" }: FooterProps) {
         )}
       </div>
 
-      {/* Large horizontal wordmark */}
-      <div className="w-full">
+      {/* Large horizontal wordmark - hidden on mobile in menu variant */}
+      <div className={`w-full ${variant === "menu" ? "max-sm:hidden" : ""}`}>
         <Image
           src="/Design Waterloo Wordmark Horizontal.svg"
           alt="Design Waterloo"

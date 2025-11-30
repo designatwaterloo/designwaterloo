@@ -36,15 +36,16 @@ export default function Header() {
       {/* Sticky Header Grid Container */}
       <header className={styles.headerContainer}>
         <div className={styles.headerInner}>
-          <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2 max-lg:col-span-1`}>
+          {/* Desktop: 12-col grid, wordmark spans 2 cols | Mobile: 4-col grid, each spans 1 col (handled by CSS) */}
+          <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2`}>
             <Image src="/Design Waterloo Wordmark.svg" alt="Design Waterloo" width={200} height={36} className="h-full w-auto" priority />
           </Link>
-          <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1 max-lg:col-start-2`}>
+          <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
             <Image src="/Design Waterloo Logo.svg" alt="Design Waterloo" width={36} height={36} className="h-full w-auto" priority />
           </Link>
           <button
             onClick={() => setIsNavOpen(true)}
-            className={`btn-menu col-start-12 col-span-1 max-lg:col-start-4 ${styles.menuButton}`}
+            className={`btn-menu col-start-12 col-span-1 ${styles.menuButton}`}
             aria-label="Open navigation"
           >
             <div className={styles.menuIcon}>
