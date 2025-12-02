@@ -212,11 +212,74 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
   };
 
   const activeFilterCount = selectedClasses.length + selectedPrograms.length + selectedSchools.length + selectedSpecialties.length + selectedAvailability.length;
+  const hasActiveFilters = searchTerm !== "" || activeFilterCount > 0;
+
+  // Track if component is mounted (client-side only)
+  const [isMounted, setIsMounted] = useState(false);
+  const [randomOrder, setRandomOrder] = useState<Map<string, number>>(new Map());
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Initialize or restore random order
+  useEffect(() => {
+    if (!isMounted || members.length === 0) return;
+
+    // Check if navigating back from a member page
+    const isNavigatingBack = sessionStorage.getItem('directoryNavigated') === 'true';
+    const storedOrder = sessionStorage.getItem('directoryOrder');
+    
+    if (isNavigatingBack && storedOrder) {
+      try {
+        const orderArray = JSON.parse(storedOrder);
+        const order = new Map<string, number>(orderArray);
+        
+        // Verify all current members are in stored order
+        const allMembersPresent = members.every(m => order.has(m._id));
+        
+        if (allMembersPresent) {
+          setRandomOrder(order);
+          sessionStorage.removeItem('directoryNavigated'); // Clear flag
+          return;
+        }
+      } catch {
+        // Invalid stored data, will regenerate below
+      }
+    }
+    
+    // Generate new random order (first load or browser refresh)
+    const order = new Map<string, number>();
+    const shuffled = [...members].sort(() => Math.random() - 0.5);
+    shuffled.forEach((member, index) => {
+      order.set(member._id, index);
+    });
+    
+    // Save to sessionStorage for potential navigation back
+    sessionStorage.setItem('directoryOrder', JSON.stringify(Array.from(order.entries())));
+    setRandomOrder(order);
+  }, [members, isMounted]);
+
+  // Handler for when user clicks on a member
+  const handleMemberClick = () => {
+    sessionStorage.setItem('directoryNavigated', 'true');
+  };
 
   // Sort members
   const sortedMembers = useMemo(() => {
     const sorted = [...filteredMembers];
 
+    // If no filters are active and we're mounted, use random order
+    if (!hasActiveFilters && isMounted && randomOrder.size > 0) {
+      sorted.sort((a, b) => {
+        const orderA = randomOrder.get(a._id) ?? 0;
+        const orderB = randomOrder.get(b._id) ?? 0;
+        return orderA - orderB;
+      });
+      return sorted;
+    }
+
+    // Otherwise use normal sorting
     sorted.sort((a, b) => {
       let comparison = 0;
 
@@ -239,7 +302,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
     });
 
     return sorted;
-  }, [filteredMembers, sortField, sortDirection]);
+  }, [filteredMembers, sortField, sortDirection, hasActiveFilters, isMounted, randomOrder]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -528,6 +591,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                   href={`/directory/${member.slug.current}`}
                   className="flex flex-col gap-4 group"
                   underline={false}
+                  onClick={handleMemberClick}
                 >
                   {member.profileImage ? (
                     <Image
@@ -590,6 +654,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                     href={`/directory/${member.slug.current}`}
                     className={styles.tableRow}
                     underline={false}
+                    onClick={handleMemberClick}
                   >
                     <div className={styles.nameColumn}>
                       {member.firstName} {member.lastName}

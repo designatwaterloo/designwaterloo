@@ -11,7 +11,12 @@ import { urlFor } from "@/sanity/lib/image";
 const options = { next: { revalidate: 30 } };
 
 export default async function Home() {
-  const members = await client.fetch<Member[]>(membersQuery, {}, options);
+  const allMembers = await client.fetch<Member[]>(membersQuery, {}, options);
+  
+  // Show random 24 members (will be different on each build)
+  const members = allMembers
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 24);
 
   return (
     <div className="w-full">

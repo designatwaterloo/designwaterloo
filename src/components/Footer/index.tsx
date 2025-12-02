@@ -73,8 +73,10 @@ export default function Footer({ variant = "default" }: FooterProps) {
 
         {/* About - Hidden on mobile, Desktop: Columns 4-6 */}
         <dl className="hidden sm:flex sm:flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
-          <dt className="text-[#b5b5b5]">About</dt>
-          <dd className="m-0">Design Waterloo is an open collective committed to advancing design excellence in Waterloo, and letting the world know about it.</dd>
+          <dt className="text-[#b5b5b5]">Colophon</dt>
+          <dd className="m-0">
+            <p>Our font is Inter Semibold. We built this site with Next.js/TypeScript, and manage it with Sanity. We designed it in Figma. Made with love for the design community at Waterloo.</p>
+          </dd>
         </dl>
 
         {/* Email - Mobile: hidden in menu variant, Desktop: Columns 7-9 */}
