@@ -7,7 +7,7 @@ import Image from "next/image";
 import Button from "@/components/Button";
 import { Member } from "@/sanity/types";
 import Link from "@/components/Link";
-import { urlFor } from "@/sanity/lib/image";
+import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 import styles from "./page.module.css";
 import { decodeTermCode, isTermPast } from "@/lib/termUtils";
 
@@ -600,6 +600,8 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       width={400}
                       height={400}
                       className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+                      placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
+                      blurDataURL={getBlurDataURL(member.profileImage)}
                     />
                   ) : (
                     <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
@@ -674,6 +676,8 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                         width={300}
                         height={375}
                         className={styles.hoverImage}
+                        placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
+                        blurDataURL={getBlurDataURL(member.profileImage)}
                       />
                     </div>
                   )}

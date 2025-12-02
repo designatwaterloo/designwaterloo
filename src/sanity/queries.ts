@@ -72,7 +72,13 @@ export const membersQuery = groq`
     lastName,
     slug,
     profileImage {
-      asset,
+      asset-> {
+        _id,
+        url,
+        metadata {
+          lqip
+        }
+      },
       hotspot,
       crop
     },
@@ -94,7 +100,13 @@ export const memberBySlugQuery = groq`
     lastName,
     slug,
     profileImage {
-      asset,
+      asset-> {
+        _id,
+        url,
+        metadata {
+          lqip
+        }
+      },
       hotspot,
       crop
     },

@@ -6,7 +6,7 @@ import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
 import { Member } from "@/sanity/types";
 import { membersQuery } from "@/sanity/queries";
-import { urlFor } from "@/sanity/lib/image";
+import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 
 const options = { next: { revalidate: 30 } };
 
@@ -121,6 +121,8 @@ export default async function Home() {
                     width={400}
                     height={500}
                     className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+                    placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
+                    blurDataURL={getBlurDataURL(member.profileImage)}
                   />
                 ) : (
                   <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />

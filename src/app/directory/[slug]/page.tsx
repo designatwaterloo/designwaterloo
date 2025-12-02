@@ -6,7 +6,7 @@ import Button from "@/components/Button";
 import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
 import { memberBySlugQuery, memberSlugsQuery } from "@/sanity/queries";
-import { urlFor } from "@/sanity/lib/image";
+import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 import type { Member } from "@/sanity/types";
 import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
@@ -164,6 +164,8 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
                 height={1067}
                 className= {styles.image}
                 priority
+                placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
+                blurDataURL={getBlurDataURL(member.profileImage)}
               />
             )}
             <div className={styles.tradingCard}>
