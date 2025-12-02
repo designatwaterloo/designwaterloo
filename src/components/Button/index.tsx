@@ -25,7 +25,7 @@ export default function Button({
   const content = (
     <>
       <span className={styles.text}>{children}</span>
-      {icon && <Image src={icon} width={24} height={24} alt="" />}
+      {icon && <span className="hidden sm:inline"><Image src={icon} width={24} height={24} alt="" /></span>}
     </>
   );
 

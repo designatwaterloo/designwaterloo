@@ -48,11 +48,12 @@
 /* Mobile: Smaller button text (0-768px) */
 @media (max-width: 768px) {
   .button {
-    font-size: 20px;
+    font-size: var(--smallest);
+    padding: 6px 12px;
   }
 
   .text {
-    font-size: 20px;
+    font-size: var(--smallest);
   }
 }
 
