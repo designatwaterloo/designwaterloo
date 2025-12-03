@@ -255,21 +255,43 @@
 
 .tradingCardName {
   margin: 0 0 var(--gap) 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tradingCardNameIcon {
+  flex-shrink: 0;
+  filter: invert(1);
 }
 
 .tradingCardLinks {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .tradingCardLinks a {
-  color: var(--color-neutral-300);
-  text-decoration: none;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
 }
 
 .tradingCardLinks a:hover {
-  text-decoration: underline;
+  color: var(--white);
+}
+
+.tradingCardIcon {
+  flex-shrink: 0;
+  filter: invert(1) opacity(0.6);
+}
+
+.tradingCardLinks a:hover .tradingCardIcon {
+  filter: invert(1) opacity(1);
 }
 
 .emailContainer {

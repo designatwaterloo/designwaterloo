@@ -299,6 +299,7 @@ p {
 a {
   color: #7f7f7f;
   text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 a:hover {

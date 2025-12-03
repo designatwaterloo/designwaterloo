@@ -55,7 +55,7 @@ export default async function Home() {
           </div>
 
           <p className="jumbo">
-            Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <a href="https://uwaterloo.ca" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</a> and <a href="https://wlu.ca" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</a>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
+            Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <a href="https://uwaterloo.ca?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</a> and <a href="https://wlu.ca?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</a>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
           </p>
           
         </section>

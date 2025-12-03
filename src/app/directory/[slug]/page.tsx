@@ -81,15 +81,25 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
               />
             )}
             <div className={styles.tradingCard}>
-              <p className={styles.tradingCardName}>{member.firstName} {member.lastName}</p>
+              <p className={styles.tradingCardName}>
+                {member.firstName} {member.lastName}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/Design Waterloo Logo.svg" width={20} height={20} alt="" className={styles.tradingCardNameIcon} />
+              </p>
               <div className={styles.tradingCardLinks}>
                 {member.portfolio && (
                   <a href={member.portfolio} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/globe.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
                     {member.portfolio.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
                   </a>
                 )}
                 {member.linkedin && (
-                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
+                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/linkedin_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
+                    {member.linkedin.match(/\/in\/([^\/\?]+)/)?.[1] ? `in/${member.linkedin.match(/\/in\/([^\/\?]+)/)?.[1]}` : 'linkedin'}
+                  </a>
                 )}
                 {member.behance && (
                   <a href={member.behance} target="_blank" rel="noopener noreferrer">behance</a>
@@ -98,13 +108,25 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
                   <a href={member.dribbble} target="_blank" rel="noopener noreferrer">dribbble</a>
                 )}
                 {member.instagram && (
-                  <a href={member.instagram} target="_blank" rel="noopener noreferrer">instagram</a>
+                  <a href={member.instagram} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/instagram_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
+                    {member.instagram.match(/(?:instagram\.com\/|@)([^\/\?]+)/)?.[1] ? `@${member.instagram.match(/(?:instagram\.com\/|@)([^\/\?]+)/)?.[1]}` : 'instagram'}
+                  </a>
                 )}
                 {member.github && (
-                  <a href={member.github} target="_blank" rel="noopener noreferrer">github</a>
+                  <a href={member.github} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/github_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
+                    {member.github.match(/(?:github\.com\/)([^\/\?]+)/)?.[1] || 'github'}
+                  </a>
                 )}
                 {member.twitter && (
-                  <a href={member.twitter} target="_blank" rel="noopener noreferrer">twitter</a>
+                  <a href={member.twitter} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/twitter_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
+                    {member.twitter.match(/(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/)?.[1] ? `@${member.twitter.match(/(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/)?.[1]}` : 'twitter'}
+                  </a>
                 )}
               </div>
             </div>
