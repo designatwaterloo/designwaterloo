@@ -8,9 +8,11 @@ export const metadata: Metadata = {
   title: "Directory | Design Waterloo",
   openGraph: {
     title: "Directory | Design Waterloo",
+    images: [{ url: '/ogimage.png', width: 1200, height: 630 }],
   },
   twitter: {
     title: "Directory | Design Waterloo",
+    images: ['/ogimage.png'],
   },
 };
 
