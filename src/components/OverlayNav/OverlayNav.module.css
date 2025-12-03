@@ -312,10 +312,10 @@
   transition-delay: 0s;
 }
 
-/* Mobile: Smaller nav text, left-aligned (0-768px) */
+/* Mobile: Nav text, left-aligned (0-768px) */
 @media (max-width: 768px) {
   .navItem {
-    font-size: 32px;
+    font-size: 42px;
     text-align: left;
   }
 }

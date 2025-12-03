@@ -38,16 +38,58 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
           ← Back to directory
         </Link>
         <section className={styles.section}>
-          <div className={styles.content}>
-            {nextAvailableTerm && (
-              <div className={`${styles.infoRow} ${styles.infoRowCentered}`}>
-                <dt className={styles.label}>Next available</dt>
-                <dd>
-                  <Button variant="secondary">{nextAvailableTerm} ↗</Button>
-                </dd>
-              </div>
+          <h1 className={styles.name}>{member.firstName} {member.lastName}</h1>
+          <div className={styles.imageContainer}>
+            {member.profileImage && (
+              <Image
+                src={urlFor(member.profileImage).width(800).height(1067).url()}
+                alt={`${member.firstName} ${member.lastName}`}
+                width={800}
+                height={1067}
+                className={styles.image}
+                priority
+                placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
+                blurDataURL={getBlurDataURL(member.profileImage)}
+              />
             )}
-            <h1>{member.firstName} {member.lastName}</h1>
+            <div className={styles.tradingCard}>
+              <p className={styles.tradingCardName}>{member.firstName} {member.lastName}</p>
+              <div className={styles.tradingCardLinks}>
+                {member.portfolio && (
+                  <a href={member.portfolio} target="_blank" rel="noopener noreferrer">
+                    {member.portfolio.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                  </a>
+                )}
+                {member.linkedin && (
+                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
+                )}
+                {member.behance && (
+                  <a href={member.behance} target="_blank" rel="noopener noreferrer">behance</a>
+                )}
+                {member.dribbble && (
+                  <a href={member.dribbble} target="_blank" rel="noopener noreferrer">dribbble</a>
+                )}
+                {member.instagram && (
+                  <a href={member.instagram} target="_blank" rel="noopener noreferrer">instagram</a>
+                )}
+                {member.github && (
+                  <a href={member.github} target="_blank" rel="noopener noreferrer">github</a>
+                )}
+                {member.twitter && (
+                  <a href={member.twitter} target="_blank" rel="noopener noreferrer">twitter</a>
+                )}
+              </div>
+            </div>
+          </div>
+          {nextAvailableTerm && (
+            <div className={styles.nextAvailable}>
+              <dt className={styles.label}>Next available</dt>
+              <dd>
+                <Button variant="secondary">{nextAvailableTerm} ↗</Button>
+              </dd>
+            </div>
+          )}
+          <div className={styles.content}>
             <div className={styles.rowGroup}>
               {member.school && (
                 <div className={styles.infoRow}>
@@ -154,48 +196,6 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
                 </dd>
               </dl>
             )}
-          </div>
-          <div className={styles.imageContainer}>
-            {member.profileImage && (
-              <Image
-                src={urlFor(member.profileImage).width(800).height(1067).url()}
-                alt={`${member.firstName} ${member.lastName}`}
-                width={800}
-                height={1067}
-                className= {styles.image}
-                priority
-                placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
-                blurDataURL={getBlurDataURL(member.profileImage)}
-              />
-            )}
-            <div className={styles.tradingCard}>
-              <p className={styles.tradingCardName}>{member.firstName} {member.lastName}</p>
-              <div className={styles.tradingCardLinks}>
-                {member.portfolio && (
-                  <a href={member.portfolio} target="_blank" rel="noopener noreferrer">
-                    {member.portfolio.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
-                  </a>
-                )}
-                {member.linkedin && (
-                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
-                )}
-                {member.behance && (
-                  <a href={member.behance} target="_blank" rel="noopener noreferrer">behance</a>
-                )}
-                {member.dribbble && (
-                  <a href={member.dribbble} target="_blank" rel="noopener noreferrer">dribbble</a>
-                )}
-                {member.instagram && (
-                  <a href={member.instagram} target="_blank" rel="noopener noreferrer">instagram</a>
-                )}
-                {member.github && (
-                  <a href={member.github} target="_blank" rel="noopener noreferrer">github</a>
-                )}
-                {member.twitter && (
-                  <a href={member.twitter} target="_blank" rel="noopener noreferrer">twitter</a>
-                )}
-              </div>
-            </div>
           </div>
         </section>
       </main>

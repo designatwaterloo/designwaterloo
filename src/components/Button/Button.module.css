@@ -45,6 +45,25 @@
   border: 2px solid var(--muted);
 }
 
+/* Icon-only variant */
+.icon {
+  background: transparent;
+  border: none;
+  padding: var(--tinier) !important;
+  border-radius: var(--radius-medium);
+  opacity: 0.4;
+}
+
+.icon:hover {
+  background: rgba(0, 0, 0, 0.08);
+  opacity: 0.7;
+}
+
+.icon.active {
+  background: rgba(0, 0, 0, 0.08);
+  opacity: 1;
+}
+
 /* Mobile: Smaller button text (0-768px) */
 @media (max-width: 768px) {
   .button {

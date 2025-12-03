@@ -2,7 +2,7 @@
 .backButton {
   display: inline-block;
   margin: var(--huge) var(--margin);
-  font-size: var(--smaller);
+  font-size: var(--smallest);
   color: var(--foreground);
   text-decoration: none;
 }
@@ -12,7 +12,7 @@
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gap);
   padding: var(--margin);
-  font-size: var(--smaller);
+  font-size: var(--smallest);
   line-height: 110%;
 }
 
@@ -24,8 +24,33 @@
   font-size: inherit;
 }
 
+.name {
+  grid-column: 1 / 9;
+  grid-row: 1;
+  margin-bottom: var(--big);
+}
+
+.nextAvailable {
+  grid-column: 1 / 9;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  align-items: center;
+  margin-bottom: var(--big);
+}
+
+.nextAvailable > dt {
+  grid-column: span 2;
+}
+
+.nextAvailable > dd {
+  grid-column: span 6;
+  margin: 0;
+}
+
 .content {
-  grid-column: span 8;
+  grid-column: 1 / 9;
+  grid-row: 3;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   row-gap: var(--big);
@@ -40,10 +65,6 @@
   font-size: inherit;
 }
 
-.content > h1 {
-  grid-column: span 8;
-}
-
 .rowGroup {
   grid-column: span 8;
   display: grid;
@@ -54,9 +75,55 @@
 }
 
 .imageContainer {
-  grid-column: span 4;
+  grid-column: 9 / 13;
+  grid-row: 1 / 4;
   display: block;
   justify-content: flex-end;
+}
+
+/* Mobile: Stack layout (0-768px) */
+@media (max-width: 768px) {
+  .section {
+    grid-template-columns: 1fr;
+  }
+  
+  .name {
+    grid-column: 1;
+    grid-row: 1;
+    margin-bottom: var(--smaller);
+  }
+  
+  .nextAvailable {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--smaller);
+  }
+  
+  .nextAvailable > dt {
+    grid-column: unset;
+  }
+  
+  .nextAvailable > dd {
+    grid-column: unset;
+  }
+  
+  .imageContainer {
+    grid-column: 1;
+    grid-row: 3;
+    margin-bottom: var(--big);
+  }
+  
+  .content {
+    grid-column: 1;
+    grid-row: 4;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    row-gap: var(--big);
+    padding-right: 0;
+  }
 }
 
 .image {
@@ -163,7 +230,7 @@
   background-color: var(--black);
   color: var(--white);
   padding: var(--gap);
-  font-size: var(--smaller);
+  font-size: var(--smallest);
   line-height: 110%;
 }
 

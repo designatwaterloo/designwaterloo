@@ -340,35 +340,56 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
         <section className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
           <div className="flex justify-between items-center">
             <h1>Directory<sup>{members.length}</sup></h1>
-            <div className="flex gap-2">
+            <div className="hidden sm:flex gap-1">
               <Button 
                 onClick={() => handleViewModeChange("grid")}
-                variant={viewMode === "grid" ? "primary" : "secondary"}
-              >
-                Grid
-              </Button>
+                variant="icon"
+                icon="/grid.svg"
+                iconAlt="Grid view"
+                active={viewMode === "grid"}
+              />
               <Button 
                 onClick={() => handleViewModeChange("table")}
-                variant={viewMode === "table" ? "primary" : "secondary"}
-              >
-                Table
-              </Button>
+                variant="icon"
+                icon="/list.svg"
+                iconAlt="Table view"
+                active={viewMode === "table"}
+              />
             </div>
           </div>
 
           {/* Search and Filters */}
           <div className={styles.filterSection}>
             <div className={styles.filterBar}>
-              <input
-                type="text"
-                placeholder="Search by name, program, or specialty..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.searchInput}
-              />
+              <div className={styles.searchRow}>
+                <input
+                  type="text"
+                  placeholder="Search by name, program, or specialty..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+                <div className={styles.viewToggleMobile}>
+                  <Button 
+                    onClick={() => handleViewModeChange("grid")}
+                    variant="icon"
+                    icon="/grid.svg"
+                    iconAlt="Grid view"
+                    active={viewMode === "grid"}
+                  />
+                  <Button 
+                    onClick={() => handleViewModeChange("table")}
+                    variant="icon"
+                    icon="/list.svg"
+                    iconAlt="Table view"
+                    active={viewMode === "table"}
+                  />
+                </div>
+              </div>
               
-              <div className={styles.filterButtons}>
-                {(activeFilterCount > 0 || searchTerm) && (
+              <div className={styles.filterButtonsWrapper}>
+                <div className={styles.filterButtons}>
+                  {(activeFilterCount > 0 || searchTerm) && (
                   <button onClick={clearFilters} className={styles.clearAllButton} title="Clear all filters">
                     ×
                   </button>
@@ -572,6 +593,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       </div>
                     </div>
                   )}
+                </div>
                 </div>
               </div>
             </div>

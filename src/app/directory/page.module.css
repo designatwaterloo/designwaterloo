@@ -91,9 +91,44 @@
   flex-wrap: wrap;
 }
 
-.searchInput {
+/* Mobile: Stack search and filters (0-768px) */
+@media (max-width: 768px) {
+  .filterBar {
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
   flex: 1;
   min-width: 240px;
+}
+
+.viewToggleMobile {
+  display: none;
+  gap: 4px;
+}
+
+/* Mobile: Show view toggle next to search (0-768px) */
+@media (max-width: 768px) {
+  .searchRow {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .viewToggleMobile {
+    display: flex;
+    flex-shrink: 0;
+  }
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
   padding: var(--tinier) 0;
   border: none;
   border-bottom: 2px solid var(--muted);
@@ -114,10 +149,45 @@
   color: var(--muted);
 }
 
+.filterButtonsWrapper {
+  position: relative;
+}
+
 .filterButtons {
   display: flex;
   gap: var(--tinier);
   align-items: center;
+}
+
+/* Mobile: Horizontal scroll for filters (0-768px) */
+@media (max-width: 768px) {
+  .filterButtonsWrapper {
+    margin-right: calc(var(--margin) * -1);
+  }
+  
+  .filterButtonsWrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 48px;
+    background: linear-gradient(to right, transparent, var(--background));
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .filterButtons {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-right: var(--big);
+  }
+  
+  .filterButtons::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .filterWrapper {
