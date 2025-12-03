@@ -10,12 +10,34 @@ import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 import type { Member } from "@/sanity/types";
 import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
+import type { Metadata } from "next";
 
 export async function generateStaticParams() {
   const members = await client.fetch<{ slug: string }[]>(memberSlugsQuery);
   return members.map((member) => ({
     slug: member.slug,
   }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const member = await client.fetch<Member>(memberBySlugQuery, { slug });
+  
+  if (!member) {
+    return { title: "Member Not Found | Design Waterloo" };
+  }
+  
+  const title = `${member.firstName} ${member.lastName} | Design Waterloo`;
+  
+  return {
+    title,
+    openGraph: {
+      title,
+    },
+    twitter: {
+      title,
+    },
+  };
 }
 
 export default async function PersonDetail({ params }: { params: Promise<{ slug: string }> }) {

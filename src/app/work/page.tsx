@@ -4,6 +4,17 @@ import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
 import { projectsQuery } from "@/sanity/queries";
 import type { Project } from "@/sanity/types";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Work | Design Waterloo",
+  openGraph: {
+    title: "Work | Design Waterloo",
+  },
+  twitter: {
+    title: "Work | Design Waterloo",
+  },
+};
 
 export default async function WorkPage() {
   const projects: Project[] = await client.fetch(projectsQuery);

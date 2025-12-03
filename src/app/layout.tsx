@@ -6,6 +6,7 @@ import { TransitionProvider } from "@/context/TransitionContext";
 import PageTransition from "@/components/PageTransition";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://designwaterloo.com'),
   title: "Design Waterloo",
   description: "Design Waterloo is a collective and directory of student designers, artists, filmmakers, engineers, and creatives from the University of Waterloo and Wilfrid Laurier University.",
   openGraph: {

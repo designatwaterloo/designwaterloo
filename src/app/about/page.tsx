@@ -1,5 +1,16 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About | Design Waterloo",
+  openGraph: {
+    title: "About | Design Waterloo",
+  },
+  twitter: {
+    title: "About | Design Waterloo",
+  },
+};
 
 export default function AboutPage() {
   return (
