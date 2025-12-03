@@ -345,14 +345,14 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
               <Button 
                 onClick={() => handleViewModeChange("grid")}
                 variant="icon"
-                icon="/grid.svg"
+                icon="/Grid.svg"
                 iconAlt="Grid view"
                 active={viewMode === "grid"}
               />
               <Button 
                 onClick={() => handleViewModeChange("table")}
                 variant="icon"
-                icon="/list.svg"
+                icon="/List.svg"
                 iconAlt="Table view"
                 active={viewMode === "table"}
               />
@@ -374,14 +374,14 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                   <Button 
                     onClick={() => handleViewModeChange("grid")}
                     variant="icon"
-                    icon="/grid.svg"
+                    icon="/Grid.svg"
                     iconAlt="Grid view"
                     active={viewMode === "grid"}
                   />
                   <Button 
                     onClick={() => handleViewModeChange("table")}
                     variant="icon"
-                    icon="/list.svg"
+                    icon="/List.svg"
                     iconAlt="Table view"
                     active={viewMode === "table"}
                   />
