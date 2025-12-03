@@ -269,8 +269,9 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
   const sortedMembers = useMemo(() => {
     const sorted = [...filteredMembers];
 
-    // If no filters are active and we're mounted, use random order
-    if (!hasActiveFilters && isMounted && randomOrder.size > 0) {
+    // If no filters are active, no explicit sort selected, and we're mounted, use random order
+    const isDefaultSort = sortField === "memberId" && sortDirection === "asc";
+    if (!hasActiveFilters && isDefaultSort && isMounted && randomOrder.size > 0) {
       sorted.sort((a, b) => {
         const orderA = randomOrder.get(a._id) ?? 0;
         const orderB = randomOrder.get(b._id) ?? 0;

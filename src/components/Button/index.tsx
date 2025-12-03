@@ -34,7 +34,8 @@ export default function Button({
   
   // Icon-only variant
   if (variant === "icon" && icon) {
-    const iconContent = <Image src={icon} width={20} height={20} alt={iconAlt} />;
+    /* eslint-disable-next-line @next/next/no-img-element */
+    const iconContent = <img src={icon} width={20} height={20} alt={iconAlt} />;
     
     if (href) {
       const isExternal = href.startsWith('http') || target === "_blank";

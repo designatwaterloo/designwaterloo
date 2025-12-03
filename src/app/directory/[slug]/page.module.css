@@ -173,6 +173,25 @@
   grid-column: span 2;
 }
 
+/* Mobile: Stack experience/leadership vertically (0-768px) */
+@media (max-width: 768px) {
+  .experienceGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tinier);
+  }
+  
+  .experienceGroup > dt {
+    grid-column: unset;
+    margin-bottom: var(--tinier);
+  }
+  
+  .experienceList {
+    grid-column: unset;
+    width: 100%;
+  }
+}
+
 .experienceList {
   grid-column: span 6;
   margin: 0;
