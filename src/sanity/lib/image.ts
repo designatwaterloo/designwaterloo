@@ -6,7 +6,7 @@ import type { SanityImage } from "../types";
 const builder = imageUrlBuilder(client);
 
 export function urlFor(source: SanityImageSource) {
-  return builder.image(source);
+  return builder.image(source).format('webp');
 }
 
 export function getBlurDataURL(image: SanityImage | null | undefined): string | undefined {

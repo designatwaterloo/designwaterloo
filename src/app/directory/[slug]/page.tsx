@@ -29,13 +29,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   const title = `${member.firstName} ${member.lastName} | Design Waterloo`;
   
+  const ogImage = member.profileImage 
+    ? urlFor(member.profileImage).width(1200).height(630).url()
+    : '/ogimage.png';
+  
   return {
     title,
     openGraph: {
       title,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {
       title,
+      images: [ogImage],
     },
   };
 }
