@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return { title: "Member Not Found | Design Waterloo" };
   }
   
-  const title = `${member.firstName} ${member.lastName}, for Design Waterloo`;
+  const title = `${member.firstName} ${member.lastName} | Design Waterloo`;
   
   const ogImage = member.profileImage 
     ? urlFor(member.profileImage).width(1200).height(630).url()
