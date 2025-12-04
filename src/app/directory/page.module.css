@@ -129,7 +129,7 @@
 /* Desktop Layout Flex */
 .directoryLayout {
   display: flex;
-  gap: var(--big);
+  gap: var(--margin);
   width: 100%;
   align-items: flex-start; /* Ensure items align to start */
 }
@@ -142,7 +142,7 @@
 
 /* Desktop Filter Panel */
 .filterPanelDesktop {
-  width: 240px;
+  width: 280px;
   flex-shrink: 0;
   position: -webkit-sticky; /* Safari support */
   position: sticky;
@@ -152,7 +152,7 @@
 }
 
 .filterPanelSticky {
-  height: calc(100vh - 140px);
+  height: calc(100vh - 120px);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -163,7 +163,7 @@
 
 /* Custom scrollbar */
 .filterPanelSticky::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
 }
 
 .filterPanelSticky::-webkit-scrollbar-track {
@@ -172,7 +172,7 @@
 
 .filterPanelSticky::-webkit-scrollbar-thumb {
   background: var(--muted);
-  border-radius: 2px;
+  border-radius: 999px;
 }
 
 .filterPanelSticky::-webkit-scrollbar-thumb:hover {
