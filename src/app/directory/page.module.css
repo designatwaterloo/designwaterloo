@@ -146,17 +146,16 @@
   flex-shrink: 0;
   position: -webkit-sticky; /* Safari support */
   position: sticky;
-  top: var(--header-height); /* Stick below the header when scrolling */
+  top: 120px; /* Stick below the header when scrolling */
   align-self: flex-start; /* Important for sticky in flex containers */
-  max-height: calc(100vh - var(--header-height)); /* Account for header */
   z-index: 10; /* Ensure it's above other content when stuck */
-  /* Ensure sticky works by not constraining height */
-  height: auto;
 }
 
 .filterPanelSticky {
-  max-height: calc(100vh - var(--header-height));
+  height: calc(100vh - 140px);
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   padding-right: var(--tinier);
   display: flex;
   flex-direction: column;

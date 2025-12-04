@@ -663,7 +663,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
             {/* Desktop Filter Panel */}
             {isMounted && isDesktop && isFilterPanelVisible && (
               <aside className={styles.filterPanelDesktop}>
-              <div className={styles.filterPanelSticky}>
+              <div className={styles.filterPanelSticky} data-lenis-prevent>
                 {/* Clear All Button */}
                   {(activeFilterCount > 0 || searchTerm) && (
                   <button onClick={clearFilters} className={styles.sidebarClearAll}>
@@ -681,9 +681,16 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       Graduating Class
                       {selectedClasses.length > 0 && ` (${selectedClasses.length})`}
                     </span>
-                    <span className={`${styles.accordionArrow} ${openAccordions.has("class") ? styles.accordionArrowOpen : ''}`}>
-                      ▼
-                    </span>
+                    <svg
+                      className={`${styles.accordionArrow} ${openAccordions.has("class") ? styles.accordionArrowOpen : ''}`}
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M20.031 9.53068L12.531 17.0307C12.4614 17.1004 12.3787 17.1557 12.2876 17.1935C12.1966 17.2312 12.099 17.2506 12.0004 17.2506C11.9019 17.2506 11.8043 17.2312 11.7132 17.1935C11.6222 17.1557 11.5394 17.1004 11.4698 17.0307L3.96979 9.53068C3.82906 9.38995 3.75 9.19907 3.75 9.00005C3.75 8.80103 3.82906 8.61016 3.96979 8.46943C4.11052 8.32869 4.30139 8.24963 4.50042 8.24963C4.69944 8.24963 4.89031 8.32869 5.03104 8.46943L12.0004 15.4397L18.9698 8.46943C19.0395 8.39974 19.1222 8.34447 19.2132 8.30676C19.3043 8.26904 19.4019 8.24963 19.5004 8.24963C19.599 8.24963 19.6965 8.26904 19.7876 8.30676C19.8786 8.34447 19.9614 8.39974 20.031 8.46943C20.1007 8.53911 20.156 8.62183 20.1937 8.71288C20.2314 8.80392 20.2508 8.9015 20.2508 9.00005C20.2508 9.0986 20.2314 9.19618 20.1937 9.28722C20.156 9.37827 20.1007 9.46099 20.031 9.53068Z" fill="currentColor"/>
+                    </svg>
                   </button>
                   {openAccordions.has("class") && (
                     <div className={styles.accordionContent}>
@@ -723,9 +730,16 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       Program
                       {selectedPrograms.length > 0 && ` (${selectedPrograms.length})`}
                     </span>
-                    <span className={`${styles.accordionArrow} ${openAccordions.has("program") ? styles.accordionArrowOpen : ''}`}>
-                      ▼
-                    </span>
+                    <svg
+                      className={`${styles.accordionArrow} ${openAccordions.has("program") ? styles.accordionArrowOpen : ''}`}
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M20.031 9.53068L12.531 17.0307C12.4614 17.1004 12.3787 17.1557 12.2876 17.1935C12.1966 17.2312 12.099 17.2506 12.0004 17.2506C11.9019 17.2506 11.8043 17.2312 11.7132 17.1935C11.6222 17.1557 11.5394 17.1004 11.4698 17.0307L3.96979 9.53068C3.82906 9.38995 3.75 9.19907 3.75 9.00005C3.75 8.80103 3.82906 8.61016 3.96979 8.46943C4.11052 8.32869 4.30139 8.24963 4.50042 8.24963C4.69944 8.24963 4.89031 8.32869 5.03104 8.46943L12.0004 15.4397L18.9698 8.46943C19.0395 8.39974 19.1222 8.34447 19.2132 8.30676C19.3043 8.26904 19.4019 8.24963 19.5004 8.24963C19.599 8.24963 19.6965 8.26904 19.7876 8.30676C19.8786 8.34447 19.9614 8.39974 20.031 8.46943C20.1007 8.53911 20.156 8.62183 20.1937 8.71288C20.2314 8.80392 20.2508 8.9015 20.2508 9.00005C20.2508 9.0986 20.2314 9.19618 20.1937 9.28722C20.156 9.37827 20.1007 9.46099 20.031 9.53068Z" fill="currentColor"/>
+                    </svg>
                   </button>
                   {openAccordions.has("program") && (
                     <div className={styles.accordionContent}>
@@ -765,9 +779,16 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       School
                       {selectedSchools.length > 0 && ` (${selectedSchools.length})`}
                     </span>
-                    <span className={`${styles.accordionArrow} ${openAccordions.has("school") ? styles.accordionArrowOpen : ''}`}>
-                      ▼
-                    </span>
+                    <svg
+                      className={`${styles.accordionArrow} ${openAccordions.has("school") ? styles.accordionArrowOpen : ''}`}
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M20.031 9.53068L12.531 17.0307C12.4614 17.1004 12.3787 17.1557 12.2876 17.1935C12.1966 17.2312 12.099 17.2506 12.0004 17.2506C11.9019 17.2506 11.8043 17.2312 11.7132 17.1935C11.6222 17.1557 11.5394 17.1004 11.4698 17.0307L3.96979 9.53068C3.82906 9.38995 3.75 9.19907 3.75 9.00005C3.75 8.80103 3.82906 8.61016 3.96979 8.46943C4.11052 8.32869 4.30139 8.24963 4.50042 8.24963C4.69944 8.24963 4.89031 8.32869 5.03104 8.46943L12.0004 15.4397L18.9698 8.46943C19.0395 8.39974 19.1222 8.34447 19.2132 8.30676C19.3043 8.26904 19.4019 8.24963 19.5004 8.24963C19.599 8.24963 19.6965 8.26904 19.7876 8.30676C19.8786 8.34447 19.9614 8.39974 20.031 8.46943C20.1007 8.53911 20.156 8.62183 20.1937 8.71288C20.2314 8.80392 20.2508 8.9015 20.2508 9.00005C20.2508 9.0986 20.2314 9.19618 20.1937 9.28722C20.156 9.37827 20.1007 9.46099 20.031 9.53068Z" fill="currentColor"/>
+                    </svg>
                   </button>
                   {openAccordions.has("school") && (
                     <div className={styles.accordionContent}>
@@ -807,9 +828,16 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       Specialties
                       {selectedSpecialties.length > 0 && ` (${selectedSpecialties.length})`}
                     </span>
-                    <span className={`${styles.accordionArrow} ${openAccordions.has("specialty") ? styles.accordionArrowOpen : ''}`}>
-                      ▼
-                    </span>
+                    <svg
+                      className={`${styles.accordionArrow} ${openAccordions.has("specialty") ? styles.accordionArrowOpen : ''}`}
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M20.031 9.53068L12.531 17.0307C12.4614 17.1004 12.3787 17.1557 12.2876 17.1935C12.1966 17.2312 12.099 17.2506 12.0004 17.2506C11.9019 17.2506 11.8043 17.2312 11.7132 17.1935C11.6222 17.1557 11.5394 17.1004 11.4698 17.0307L3.96979 9.53068C3.82906 9.38995 3.75 9.19907 3.75 9.00005C3.75 8.80103 3.82906 8.61016 3.96979 8.46943C4.11052 8.32869 4.30139 8.24963 4.50042 8.24963C4.69944 8.24963 4.89031 8.32869 5.03104 8.46943L12.0004 15.4397L18.9698 8.46943C19.0395 8.39974 19.1222 8.34447 19.2132 8.30676C19.3043 8.26904 19.4019 8.24963 19.5004 8.24963C19.599 8.24963 19.6965 8.26904 19.7876 8.30676C19.8786 8.34447 19.9614 8.39974 20.031 8.46943C20.1007 8.53911 20.156 8.62183 20.1937 8.71288C20.2314 8.80392 20.2508 8.9015 20.2508 9.00005C20.2508 9.0986 20.2314 9.19618 20.1937 9.28722C20.156 9.37827 20.1007 9.46099 20.031 9.53068Z" fill="currentColor"/>
+                    </svg>
                   </button>
                   {openAccordions.has("specialty") && (
                     <div className={styles.accordionContent}>
@@ -849,9 +877,16 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                       Availability
                       {selectedAvailability.length > 0 && ` (${selectedAvailability.length})`}
                     </span>
-                    <span className={`${styles.accordionArrow} ${openAccordions.has("availability") ? styles.accordionArrowOpen : ''}`}>
-                      ▼
-                    </span>
+                    <svg
+                      className={`${styles.accordionArrow} ${openAccordions.has("availability") ? styles.accordionArrowOpen : ''}`}
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M20.031 9.53068L12.531 17.0307C12.4614 17.1004 12.3787 17.1557 12.2876 17.1935C12.1966 17.2312 12.099 17.2506 12.0004 17.2506C11.9019 17.2506 11.8043 17.2312 11.7132 17.1935C11.6222 17.1557 11.5394 17.1004 11.4698 17.0307L3.96979 9.53068C3.82906 9.38995 3.75 9.19907 3.75 9.00005C3.75 8.80103 3.82906 8.61016 3.96979 8.46943C4.11052 8.32869 4.30139 8.24963 4.50042 8.24963C4.69944 8.24963 4.89031 8.32869 5.03104 8.46943L12.0004 15.4397L18.9698 8.46943C19.0395 8.39974 19.1222 8.34447 19.2132 8.30676C19.3043 8.26904 19.4019 8.24963 19.5004 8.24963C19.599 8.24963 19.6965 8.26904 19.7876 8.30676C19.8786 8.34447 19.9614 8.39974 20.031 8.46943C20.1007 8.53911 20.156 8.62183 20.1937 8.71288C20.2314 8.80392 20.2508 8.9015 20.2508 9.00005C20.2508 9.0986 20.2314 9.19618 20.1937 9.28722C20.156 9.37827 20.1007 9.46099 20.031 9.53068Z" fill="currentColor"/>
+                    </svg>
                   </button>
                   {openAccordions.has("availability") && (
                     <div className={styles.accordionContent}>
