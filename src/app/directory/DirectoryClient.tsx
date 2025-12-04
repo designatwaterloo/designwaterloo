@@ -31,6 +31,22 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>("memberId");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
+  const [openAccordions, setOpenAccordions] = useState<Set<string>>(new Set());
+  const [isDesktop, setIsDesktop] = useState(true); // Default to desktop for SSR
+
+  // Detect if we're on desktop
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
+    
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Load saved view mode from localStorage after mount to avoid hydration mismatch
   useEffect(() => {
@@ -211,13 +227,25 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
     setSelectedAvailability([]);
   };
 
+  const toggleAccordion = (key: string) => {
+    setOpenAccordions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
+  };
+
   const activeFilterCount = selectedClasses.length + selectedPrograms.length + selectedSchools.length + selectedSpecialties.length + selectedAvailability.length;
   const hasActiveFilters = searchTerm !== "" || activeFilterCount > 0;
 
   // Track if component is mounted (client-side only)
   const [isMounted, setIsMounted] = useState(false);
   const [randomOrder, setRandomOrder] = useState<Map<string, number>>(new Map());
-  
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -342,6 +370,550 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
           <div className="flex justify-between items-center">
             <h1>Directory<sup>{members.length}</sup></h1>
             <div className="hidden sm:flex gap-1">
+              <Button
+                onClick={() => handleViewModeChange("grid")}
+                variant="icon"
+                icon="/Grid.svg"
+                iconAlt="Grid view"
+                active={viewMode === "grid"}
+              />
+              <Button
+                onClick={() => handleViewModeChange("table")}
+                variant="icon"
+                icon="/List.svg"
+                iconAlt="Table view"
+                active={viewMode === "table"}
+              />
+            </div>
+          </div>
+
+          {/* Mobile Only: Sidebar Filter Panel */}
+          <div className={`${styles.filterSidebarMobile} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+            <div className={styles.sidebarHeader}>
+              <h2>Filters</h2>
+              <button 
+                onClick={() => setIsSidebarOpen(false)}
+                className={styles.closeSidebarButton}
+                aria-label="Close filters"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.sidebarContent}>
+              {/* Clear All Button */}
+              {(activeFilterCount > 0 || searchTerm) && (
+                <button onClick={clearFilters} className={styles.sidebarClearAll}>
+                  Clear all filters
+                </button>
+              )}
+
+              {/* Class Filter */}
+              <div className={styles.filterAccordion}>
+                <button 
+                  className={styles.accordionHeader}
+                  onClick={() => toggleAccordion("class")}
+                >
+                  <span className={styles.accordionTitle}>
+                    Graduating Class
+                    {selectedClasses.length > 0 && ` (${selectedClasses.length})`}
+                  </span>
+                  <svg 
+                    className={`${styles.accordionArrow} ${openAccordions.has("class") ? styles.accordionArrowOpen : ''}`} 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 12 12" 
+                    fill="none"
+                  >
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {openAccordions.has("class") && (
+                  <div className={styles.accordionContent}>
+                    {selectedClasses.length > 0 && (
+                      <button 
+                        onClick={() => setSelectedClasses([])}
+                        className={styles.sidebarClearButton}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <div className={styles.sidebarOptions}>
+                      {classes.map((classYear) => (
+                        <label key={classYear} className={styles.sidebarCheckboxLabel}>
+                <input
+                            type="checkbox"
+                            checked={selectedClasses.includes(classYear)}
+                            onChange={() => toggleFilter("class", classYear)}
+                            className={styles.sidebarCheckbox}
+                          />
+                          <span>{classYear}</span>
+                          <span className={styles.sidebarCount}>({getFilterCount("class", classYear)})</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Program Filter */}
+              <div className={styles.filterAccordion}>
+                <button 
+                  className={styles.accordionHeader}
+                  onClick={() => toggleAccordion("program")}
+                >
+                  <span className={styles.accordionTitle}>
+                    Program
+                    {selectedPrograms.length > 0 && ` (${selectedPrograms.length})`}
+                  </span>
+                  <svg 
+                    className={`${styles.accordionArrow} ${openAccordions.has("program") ? styles.accordionArrowOpen : ''}`} 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 12 12" 
+                    fill="none"
+                  >
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {openAccordions.has("program") && (
+                  <div className={styles.accordionContent}>
+                    {selectedPrograms.length > 0 && (
+                      <button 
+                        onClick={() => setSelectedPrograms([])}
+                        className={styles.sidebarClearButton}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <div className={styles.sidebarOptions}>
+                      {programs.map((program) => (
+                        <label key={program} className={styles.sidebarCheckboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={selectedPrograms.includes(program)}
+                            onChange={() => toggleFilter("program", program)}
+                            className={styles.sidebarCheckbox}
+                          />
+                          <span>{program}</span>
+                          <span className={styles.sidebarCount}>({getFilterCount("program", program)})</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* School Filter */}
+              <div className={styles.filterAccordion}>
+                <button 
+                  className={styles.accordionHeader}
+                  onClick={() => toggleAccordion("school")}
+                >
+                  <span className={styles.accordionTitle}>
+                    School
+                    {selectedSchools.length > 0 && ` (${selectedSchools.length})`}
+                  </span>
+                  <svg 
+                    className={`${styles.accordionArrow} ${openAccordions.has("school") ? styles.accordionArrowOpen : ''}`} 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 12 12" 
+                    fill="none"
+                  >
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {openAccordions.has("school") && (
+                  <div className={styles.accordionContent}>
+                    {selectedSchools.length > 0 && (
+                      <button
+                        onClick={() => setSelectedSchools([])}
+                        className={styles.sidebarClearButton}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <div className={styles.sidebarOptions}>
+                      {schools.map((school) => (
+                        <label key={school} className={styles.sidebarCheckboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={selectedSchools.includes(school)}
+                            onChange={() => toggleFilter("school", school)}
+                            className={styles.sidebarCheckbox}
+                          />
+                          <span>{school}</span>
+                          <span className={styles.sidebarCount}>({getFilterCount("school", school)})</span>
+                        </label>
+                      ))}
+                </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Specialties Filter */}
+              <div className={styles.filterAccordion}>
+                <button 
+                  className={styles.accordionHeader}
+                  onClick={() => toggleAccordion("specialty")}
+                >
+                  <span className={styles.accordionTitle}>
+                    Specialties
+                    {selectedSpecialties.length > 0 && ` (${selectedSpecialties.length})`}
+                  </span>
+                  <svg 
+                    className={`${styles.accordionArrow} ${openAccordions.has("specialty") ? styles.accordionArrowOpen : ''}`} 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 12 12" 
+                    fill="none"
+                  >
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {openAccordions.has("specialty") && (
+                  <div className={styles.accordionContent}>
+                    {selectedSpecialties.length > 0 && (
+                      <button
+                        onClick={() => setSelectedSpecialties([])}
+                        className={styles.sidebarClearButton}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <div className={styles.sidebarOptions}>
+                      {specialties.map((specialty) => (
+                        <label key={specialty} className={styles.sidebarCheckboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={selectedSpecialties.includes(specialty)}
+                            onChange={() => toggleFilter("specialty", specialty)}
+                            className={styles.sidebarCheckbox}
+                          />
+                          <span>{specialty}</span>
+                          <span className={styles.sidebarCount}>({getFilterCount("specialty", specialty)})</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Availability Filter */}
+              <div className={styles.filterAccordion}>
+                <button 
+                  className={styles.accordionHeader}
+                  onClick={() => toggleAccordion("availability")}
+                >
+                  <span className={styles.accordionTitle}>
+                    Availability
+                    {selectedAvailability.length > 0 && ` (${selectedAvailability.length})`}
+                  </span>
+                  <svg 
+                    className={`${styles.accordionArrow} ${openAccordions.has("availability") ? styles.accordionArrowOpen : ''}`} 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 12 12" 
+                    fill="none"
+                  >
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {openAccordions.has("availability") && (
+                  <div className={styles.accordionContent}>
+                    {selectedAvailability.length > 0 && (
+                      <button
+                        onClick={() => setSelectedAvailability([])}
+                        className={styles.sidebarClearButton}
+                      >
+                        Clear
+                      </button>
+                    )}
+                    <div className={styles.sidebarOptions}>
+                      {availabilityTerms.map((termCode) => (
+                        <label key={termCode} className={styles.sidebarCheckboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={selectedAvailability.includes(termCode)}
+                            onChange={() => toggleFilter("availability", termCode)}
+                            className={styles.sidebarCheckbox}
+                          />
+                          <span>{decodeTermCode(termCode)}</span>
+                          <span className={styles.sidebarCount}>({getFilterCount("availability", termCode)})</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Overlay for mobile */}
+          {isSidebarOpen && (
+            <div 
+              className={styles.sidebarOverlay}
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
+          {/* Desktop Layout: Filters + Content */}
+          <div className={styles.directoryLayout}>
+            {/* Desktop Filter Panel */}
+            {isMounted && isDesktop && isFilterPanelVisible && (
+              <aside className={styles.filterPanelDesktop}>
+              <div className={styles.filterPanelSticky}>
+                {/* Clear All Button */}
+                  {(activeFilterCount > 0 || searchTerm) && (
+                  <button onClick={clearFilters} className={styles.sidebarClearAll}>
+                    Clear all filters
+                  </button>
+                )}
+                
+                {/* Class Filter */}
+                <div className={styles.filterAccordion}>
+                  <button
+                    className={styles.accordionHeader}
+                    onClick={() => toggleAccordion("class")}
+                  >
+                    <span className={styles.accordionTitle}>
+                      Graduating Class
+                      {selectedClasses.length > 0 && ` (${selectedClasses.length})`}
+                    </span>
+                    <span className={`${styles.accordionArrow} ${openAccordions.has("class") ? styles.accordionArrowOpen : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {openAccordions.has("class") && (
+                    <div className={styles.accordionContent}>
+                        {selectedClasses.length > 0 && (
+                          <button 
+                            onClick={() => setSelectedClasses([])}
+                          className={styles.sidebarClearButton}
+                          >
+                            Clear
+                          </button>
+                        )}
+                      <div className={styles.sidebarOptions}>
+                        {classes.map((classYear) => (
+                          <label key={classYear} className={styles.sidebarCheckboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={selectedClasses.includes(classYear)}
+                              onChange={() => toggleFilter("class", classYear)}
+                              className={styles.sidebarCheckbox}
+                            />
+                            <span>{classYear}</span>
+                            <span className={styles.sidebarCount}>({getFilterCount("class", classYear)})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Program Filter */}
+                <div className={styles.filterAccordion}>
+                  <button
+                    className={styles.accordionHeader}
+                    onClick={() => toggleAccordion("program")}
+                  >
+                    <span className={styles.accordionTitle}>
+                      Program
+                      {selectedPrograms.length > 0 && ` (${selectedPrograms.length})`}
+                    </span>
+                    <span className={`${styles.accordionArrow} ${openAccordions.has("program") ? styles.accordionArrowOpen : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {openAccordions.has("program") && (
+                    <div className={styles.accordionContent}>
+                        {selectedPrograms.length > 0 && (
+                          <button 
+                            onClick={() => setSelectedPrograms([])}
+                          className={styles.sidebarClearButton}
+                          >
+                            Clear
+                          </button>
+                        )}
+                      <div className={styles.sidebarOptions}>
+                        {programs.map((program) => (
+                          <label key={program} className={styles.sidebarCheckboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={selectedPrograms.includes(program)}
+                              onChange={() => toggleFilter("program", program)}
+                              className={styles.sidebarCheckbox}
+                            />
+                            <span>{program}</span>
+                            <span className={styles.sidebarCount}>({getFilterCount("program", program)})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* School Filter */}
+                <div className={styles.filterAccordion}>
+                  <button
+                    className={styles.accordionHeader}
+                    onClick={() => toggleAccordion("school")}
+                  >
+                    <span className={styles.accordionTitle}>
+                      School
+                      {selectedSchools.length > 0 && ` (${selectedSchools.length})`}
+                    </span>
+                    <span className={`${styles.accordionArrow} ${openAccordions.has("school") ? styles.accordionArrowOpen : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {openAccordions.has("school") && (
+                    <div className={styles.accordionContent}>
+                        {selectedSchools.length > 0 && (
+                          <button
+                            onClick={() => setSelectedSchools([])}
+                          className={styles.sidebarClearButton}
+                          >
+                            Clear
+                          </button>
+                        )}
+                      <div className={styles.sidebarOptions}>
+                        {schools.map((school) => (
+                          <label key={school} className={styles.sidebarCheckboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={selectedSchools.includes(school)}
+                              onChange={() => toggleFilter("school", school)}
+                              className={styles.sidebarCheckbox}
+                            />
+                            <span>{school}</span>
+                            <span className={styles.sidebarCount}>({getFilterCount("school", school)})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Specialties Filter */}
+                <div className={styles.filterAccordion}>
+                  <button
+                    className={styles.accordionHeader}
+                    onClick={() => toggleAccordion("specialty")}
+                  >
+                    <span className={styles.accordionTitle}>
+                      Specialties
+                      {selectedSpecialties.length > 0 && ` (${selectedSpecialties.length})`}
+                    </span>
+                    <span className={`${styles.accordionArrow} ${openAccordions.has("specialty") ? styles.accordionArrowOpen : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {openAccordions.has("specialty") && (
+                    <div className={styles.accordionContent}>
+                        {selectedSpecialties.length > 0 && (
+                          <button
+                            onClick={() => setSelectedSpecialties([])}
+                          className={styles.sidebarClearButton}
+                          >
+                            Clear
+                          </button>
+                        )}
+                      <div className={styles.sidebarOptions}>
+                        {specialties.map((specialty) => (
+                          <label key={specialty} className={styles.sidebarCheckboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={selectedSpecialties.includes(specialty)}
+                              onChange={() => toggleFilter("specialty", specialty)}
+                              className={styles.sidebarCheckbox}
+                            />
+                            <span>{specialty}</span>
+                            <span className={styles.sidebarCount}>({getFilterCount("specialty", specialty)})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Availability Filter */}
+                <div className={styles.filterAccordion}>
+                  <button
+                    className={styles.accordionHeader}
+                    onClick={() => toggleAccordion("availability")}
+                  >
+                    <span className={styles.accordionTitle}>
+                      Availability
+                      {selectedAvailability.length > 0 && ` (${selectedAvailability.length})`}
+                    </span>
+                    <span className={`${styles.accordionArrow} ${openAccordions.has("availability") ? styles.accordionArrowOpen : ''}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {openAccordions.has("availability") && (
+                    <div className={styles.accordionContent}>
+                        {selectedAvailability.length > 0 && (
+                          <button
+                            onClick={() => setSelectedAvailability([])}
+                          className={styles.sidebarClearButton}
+                          >
+                            Clear
+                          </button>
+                        )}
+                      <div className={styles.sidebarOptions}>
+                        {availabilityTerms.map((termCode) => (
+                          <label key={termCode} className={styles.sidebarCheckboxLabel}>
+                            <input
+                              type="checkbox"
+                              checked={selectedAvailability.includes(termCode)}
+                              onChange={() => toggleFilter("availability", termCode)}
+                              className={styles.sidebarCheckbox}
+                            />
+                            <span>{decodeTermCode(termCode)}</span>
+                            <span className={styles.sidebarCount}>({getFilterCount("availability", termCode)})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                </div>
+            </aside>
+            )}
+
+            {/* Main Content */}
+            <div className={styles.mainContent}>
+              {/* Search Bar */}
+              <div className={styles.searchSection}>
+            <input
+              type="text"
+              placeholder="Search by name, program, or specialty..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <div className={styles.filterButtonWrapper}>
+              <Button 
+                onClick={() => {
+                  if (isDesktop) {
+                    setIsFilterPanelVisible(!isFilterPanelVisible);
+                  } else {
+                    setIsSidebarOpen(!isSidebarOpen);
+                  }
+                }}
+                variant="secondary"
+              >
+                Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+              </Button>
+              </div>
+            </div>
+
+          {/* Results count and view toggle for mobile */}
+          <div className={styles.mobileControls}>
+            <div className={styles.viewToggleMobile}>
               <Button 
                 onClick={() => handleViewModeChange("grid")}
                 variant="icon"
@@ -357,248 +929,6 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                 active={viewMode === "table"}
               />
             </div>
-          </div>
-
-          {/* Search and Filters */}
-          <div className={styles.filterSection}>
-            <div className={styles.filterBar}>
-              <div className={styles.searchRow}>
-                <input
-                  type="text"
-                  placeholder="Search by name, program, or specialty..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-                <div className={styles.viewToggleMobile}>
-                  <Button 
-                    onClick={() => handleViewModeChange("grid")}
-                    variant="icon"
-                    icon="/Grid.svg"
-                    iconAlt="Grid view"
-                    active={viewMode === "grid"}
-                  />
-                  <Button 
-                    onClick={() => handleViewModeChange("table")}
-                    variant="icon"
-                    icon="/List.svg"
-                    iconAlt="Table view"
-                    active={viewMode === "table"}
-                  />
-                </div>
-              </div>
-              
-              <div className={styles.filterButtonsWrapper}>
-                <div className={styles.filterButtons}>
-                  {(activeFilterCount > 0 || searchTerm) && (
-                  <button onClick={clearFilters} className={styles.clearAllButton} title="Clear all filters">
-                    ×
-                  </button>
-                )}
-                
-                {/* Class Filter */}
-                <div className={styles.filterWrapper} ref={openPopover === "class" ? popoverRef : null}>
-                  <button
-                    className={`${styles.filterButton} ${selectedClasses.length > 0 ? styles.filterButtonActive : ""}`}
-                    onClick={() => setOpenPopover(openPopover === "class" ? null : "class")}
-                  >
-                    Class {selectedClasses.length > 0 && `(${selectedClasses.length})`}
-                    <span className={styles.filterArrow}>▼</span>
-                  </button>
-                  {openPopover === "class" && (
-                    <div className={styles.popover}>
-                      <div className={styles.popoverHeader}>
-                        <span>Graduating Class</span>
-                        {selectedClasses.length > 0 && (
-                          <button 
-                            onClick={() => setSelectedClasses([])}
-                            className={styles.clearButton}
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                      <div className={styles.popoverContent}>
-                        {classes.map((classYear) => (
-                          <label key={classYear} className={styles.checkboxLabel}>
-                            <input
-                              type="checkbox"
-                              checked={selectedClasses.includes(classYear)}
-                              onChange={() => toggleFilter("class", classYear)}
-                              className={styles.checkbox}
-                            />
-                            <span>{classYear}</span>
-                            <span className={styles.count}>({getFilterCount("class", classYear)})</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Program Filter */}
-                <div className={styles.filterWrapper} ref={openPopover === "program" ? popoverRef : null}>
-                  <button
-                    className={`${styles.filterButton} ${selectedPrograms.length > 0 ? styles.filterButtonActive : ""}`}
-                    onClick={() => setOpenPopover(openPopover === "program" ? null : "program")}
-                  >
-                    Program {selectedPrograms.length > 0 && `(${selectedPrograms.length})`}
-                    <span className={styles.filterArrow}>▼</span>
-                  </button>
-                  {openPopover === "program" && (
-                    <div className={styles.popover}>
-                      <div className={styles.popoverHeader}>
-                        <span>Program</span>
-                        {selectedPrograms.length > 0 && (
-                          <button 
-                            onClick={() => setSelectedPrograms([])}
-                            className={styles.clearButton}
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                      <div className={styles.popoverContent}>
-                        {programs.map((program) => (
-                          <label key={program} className={styles.checkboxLabel}>
-                            <input
-                              type="checkbox"
-                              checked={selectedPrograms.includes(program)}
-                              onChange={() => toggleFilter("program", program)}
-                              className={styles.checkbox}
-                            />
-                            <span>{program}</span>
-                            <span className={styles.count}>({getFilterCount("program", program)})</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* School Filter */}
-                <div className={styles.filterWrapper} ref={openPopover === "school" ? popoverRef : null}>
-                  <button
-                    className={`${styles.filterButton} ${selectedSchools.length > 0 ? styles.filterButtonActive : ""}`}
-                    onClick={() => setOpenPopover(openPopover === "school" ? null : "school")}
-                  >
-                    School {selectedSchools.length > 0 && `(${selectedSchools.length})`}
-                    <span className={styles.filterArrow}>▼</span>
-                  </button>
-                  {openPopover === "school" && (
-                    <div className={styles.popover}>
-                      <div className={styles.popoverHeader}>
-                        <span>School</span>
-                        {selectedSchools.length > 0 && (
-                          <button
-                            onClick={() => setSelectedSchools([])}
-                            className={styles.clearButton}
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                      <div className={styles.popoverContent}>
-                        {schools.map((school) => (
-                          <label key={school} className={styles.checkboxLabel}>
-                            <input
-                              type="checkbox"
-                              checked={selectedSchools.includes(school)}
-                              onChange={() => toggleFilter("school", school)}
-                              className={styles.checkbox}
-                            />
-                            <span>{school}</span>
-                            <span className={styles.count}>({getFilterCount("school", school)})</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Specialties Filter */}
-                <div className={styles.filterWrapper} ref={openPopover === "specialty" ? popoverRef : null}>
-                  <button
-                    className={`${styles.filterButton} ${selectedSpecialties.length > 0 ? styles.filterButtonActive : ""}`}
-                    onClick={() => setOpenPopover(openPopover === "specialty" ? null : "specialty")}
-                  >
-                    Specialty {selectedSpecialties.length > 0 && `(${selectedSpecialties.length})`}
-                    <span className={styles.filterArrow}>▼</span>
-                  </button>
-                  {openPopover === "specialty" && (
-                    <div className={styles.popover}>
-                      <div className={styles.popoverHeader}>
-                        <span>Specialties</span>
-                        {selectedSpecialties.length > 0 && (
-                          <button
-                            onClick={() => setSelectedSpecialties([])}
-                            className={styles.clearButton}
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                      <div className={styles.popoverContent}>
-                        {specialties.map((specialty) => (
-                          <label key={specialty} className={styles.checkboxLabel}>
-                            <input
-                              type="checkbox"
-                              checked={selectedSpecialties.includes(specialty)}
-                              onChange={() => toggleFilter("specialty", specialty)}
-                              className={styles.checkbox}
-                            />
-                            <span>{specialty}</span>
-                            <span className={styles.count}>({getFilterCount("specialty", specialty)})</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Availability Filter */}
-                <div className={styles.filterWrapper} ref={openPopover === "availability" ? popoverRef : null}>
-                  <button
-                    className={`${styles.filterButton} ${selectedAvailability.length > 0 ? styles.filterButtonActive : ""}`}
-                    onClick={() => setOpenPopover(openPopover === "availability" ? null : "availability")}
-                  >
-                    Availability {selectedAvailability.length > 0 && `(${selectedAvailability.length})`}
-                    <span className={styles.filterArrow}>▼</span>
-                  </button>
-                  {openPopover === "availability" && (
-                    <div className={styles.popover}>
-                      <div className={styles.popoverHeader}>
-                        <span>Availability</span>
-                        {selectedAvailability.length > 0 && (
-                          <button
-                            onClick={() => setSelectedAvailability([])}
-                            className={styles.clearButton}
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                      <div className={styles.popoverContent}>
-                        {availabilityTerms.map((termCode) => (
-                          <label key={termCode} className={styles.checkboxLabel}>
-                            <input
-                              type="checkbox"
-                              checked={selectedAvailability.includes(termCode)}
-                              onChange={() => toggleFilter("availability", termCode)}
-                              className={styles.checkbox}
-                            />
-                            <span>{decodeTermCode(termCode)}</span>
-                            <span className={styles.count}>({getFilterCount("availability", termCode)})</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                </div>
-              </div>
-            </div>
-
             {(searchTerm || activeFilterCount > 0) && (
               <div className={styles.resultsCount}>
                 Showing {filteredMembers.length} of {members.length} members
@@ -607,7 +937,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
           </div>
           
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-6 gap-[var(--gap)] w-full max-lg:grid-cols-4 mobile-grid-2">
+            <div className={styles.membersGrid}>
               {sortedMembers.map((member) => (
                 <Link
                   key={member._id}
@@ -708,6 +1038,8 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
               ))}
             </div>
           )}
+            </div>
+          </div>
         </section>
       </main>
 

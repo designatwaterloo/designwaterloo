@@ -263,6 +263,12 @@
 .tradingCardNameIcon {
   flex-shrink: 0;
   filter: invert(1);
+  /* Safari rendering optimizations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: filter;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .tradingCardLinks {
@@ -288,6 +294,12 @@
 .tradingCardIcon {
   flex-shrink: 0;
   filter: invert(1) opacity(0.6);
+    /* Safari rendering optimizations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: filter;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .tradingCardLinks a:hover .tradingCardIcon {

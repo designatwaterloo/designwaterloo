@@ -81,11 +81,7 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
               />
             )}
             <div className={styles.tradingCard}>
-              <p className={styles.tradingCardName}>
-                {member.firstName} {member.lastName}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/Design Waterloo Logo.svg" width={20} height={20} alt="" className={styles.tradingCardNameIcon} />
-              </p>
+              <p className={styles.tradingCardName}>{member.firstName} {member.lastName}</p>
               <div className={styles.tradingCardLinks}>
                 {member.portfolio && (
                   <a href={member.portfolio} target="_blank" rel="noopener noreferrer">

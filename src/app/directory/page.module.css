@@ -77,53 +77,14 @@
   border-radius: 4px;
 }
 
-/* Search and Filter Styles */
-.filterSection {
-  display: flex;
-  flex-direction: column;
-  gap: var(--tinier);
-}
+/* Filter Toggle Button - Always visible now */
 
-.filterBar {
+/* Search Section */
+.searchSection {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: var(--gap);
-  flex-wrap: wrap;
-}
-
-/* Mobile: Stack search and filters (0-768px) */
-@media (max-width: 768px) {
-  .filterBar {
-    flex-wrap: nowrap;
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.searchRow {
-  display: flex;
-  align-items: center;
-  gap: var(--gap);
-  flex: 1;
-  min-width: 240px;
-}
-
-.viewToggleMobile {
-  display: none;
-  gap: 4px;
-}
-
-/* Mobile: Show view toggle next to search (0-768px) */
-@media (max-width: 768px) {
-  .searchRow {
-    width: 100%;
-    min-width: unset;
-  }
-  
-  .viewToggleMobile {
-    display: flex;
-    flex-shrink: 0;
-  }
 }
 
 .searchInput {
@@ -140,6 +101,22 @@
   transition: border-color 0.2s ease;
 }
 
+.filterButtonWrapper {
+  flex-shrink: 0;
+}
+
+/* Mobile: Stack search and button */
+@media (max-width: 768px) {
+  .searchSection {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchInput {
+    width: 100%;
+  }
+}
+
 .searchInput:focus {
   outline: none;
   border-bottom-color: var(--foreground);
@@ -149,181 +126,368 @@
   color: var(--muted);
 }
 
-.filterButtonsWrapper {
-  position: relative;
-}
-
-.filterButtons {
+/* Desktop Layout Flex */
+.directoryLayout {
   display: flex;
-  gap: var(--tinier);
-  align-items: center;
+  gap: var(--big);
+  width: 100%;
+  align-items: flex-start; /* Ensure items align to start */
 }
 
-/* Mobile: Horizontal scroll for filters (0-768px) */
 @media (max-width: 768px) {
-  .filterButtonsWrapper {
-    margin-right: calc(var(--margin) * -1);
+  .directoryLayout {
+    display: block;
   }
-  
-  .filterButtonsWrapper::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 48px;
-    background: linear-gradient(to right, transparent, var(--background));
-    pointer-events: none;
-    z-index: 1;
-  }
-  
-  .filterButtons {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-right: var(--big);
-  }
-  
-  .filterButtons::-webkit-scrollbar {
+}
+
+/* Desktop Filter Panel */
+.filterPanelDesktop {
+  width: 240px;
+  flex-shrink: 0;
+  position: -webkit-sticky; /* Safari support */
+  position: sticky;
+  top: var(--header-height); /* Stick below the header when scrolling */
+  align-self: flex-start; /* Important for sticky in flex containers */
+  max-height: calc(100vh - var(--header-height)); /* Account for header */
+  z-index: 10; /* Ensure it's above other content when stuck */
+  /* Ensure sticky works by not constraining height */
+  height: auto;
+}
+
+.filterPanelSticky {
+  max-height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  padding-right: var(--tinier);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar */
+.filterPanelSticky::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filterPanelSticky::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filterPanelSticky::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 2px;
+}
+
+.filterPanelSticky::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Main Content Area */
+.mainContent {
+  flex: 1;
+  min-width: 0;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--big);
+  width: 100%;
+}
+
+/* Mobile Filter Sidebar */
+.filterSidebarMobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--background);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+@media (min-width: 769px) {
+  .filterSidebarMobile {
     display: none;
   }
 }
 
-.filterWrapper {
-  position: relative;
+.filterSidebarMobile.sidebarOpen {
+  transform: translateX(0);
 }
 
-.filterButton {
-  padding: var(--tinier) calc(var(--tinier) * 1.5);
-  border: 2px solid var(--muted);
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--foreground);
-  font-size: inherit;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-  white-space: nowrap;
-}
-
-.filterButton:hover {
-  border-color: var(--foreground);
-}
-
-.filterButtonActive {
-  background: var(--foreground);
-  color: var(--background);
-  border-color: var(--foreground);
-}
-
-.filterArrow {
-  font-size: 0.7em;
-  transition: transform 0.2s ease;
-}
-
-.popover {
-  position: absolute;
-  top: calc(100% + 8px);
+.sidebarOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   right: 0;
-  background: var(--background);
-  border: 2px solid var(--foreground);
-  border-radius: 6px;
-  min-width: 240px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
 }
 
-.popoverHeader {
+.sidebarHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--tinier);
-  border-bottom: 2px solid var(--muted);
+  padding: var(--margin);
+  border-bottom: 2px solid var(--foreground);
+}
+
+.sidebarHeader h2 {
+  font-size: 1.5em;
   font-weight: 600;
+  margin: 0;
 }
 
-.popoverContent {
-  padding: var(--tinier);
-  display: flex;
-  flex-direction: column;
-  gap: var(--tinier);
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.checkboxLabel:hover {
-  background-color: var(--muted);
-}
-
-.checkbox {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--foreground);
-}
-
-.count {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 0.9em;
-}
-
-.clearButton {
+.closeSidebarButton {
   background: none;
   border: none;
+  font-size: 2em;
+  line-height: 1;
+  cursor: pointer;
   color: var(--foreground);
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: inherit;
-  font-family: inherit;
   padding: 0;
-}
-
-.clearButton:hover {
-  opacity: 0.7;
-}
-
-.clearAllButton {
-  padding: var(--tinier);
-  border: 2px solid var(--muted);
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--muted);
-  font-size: 1.2em;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
-  white-space: nowrap;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
 }
 
-.clearAllButton:hover {
+.closeSidebarButton:hover {
+  opacity: 0.7;
+}
+
+.sidebarContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--margin);
+  display: flex;
+  flex-direction: column;
+  gap: var(--big);
+}
+
+.sidebarSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+}
+
+.sidebarSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebarLabel {
+  font-weight: 600;
+  display: block;
+  margin-bottom: var(--tinier);
+}
+
+.sidebarOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebarCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebarCheckboxLabel:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidebarCheckbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--foreground);
+  flex-shrink: 0;
+  background: transparent;
+  border: 2px solid var(--muted);
+  border-radius: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+}
+
+.sidebarCheckbox:checked {
+  background: var(--foreground);
   border-color: var(--foreground);
+}
+
+.sidebarCheckbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--background);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.sidebarCount {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+.sidebarClearButton {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-family: inherit;
+  padding: 0;
+}
+
+.sidebarClearButton:hover {
+  opacity: 0.7;
+}
+
+.sidebarClearAll {
+  width: 100%;
+  padding: var(--tinier);
+  border: 2px solid var(--foreground);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebarClearAll:hover {
   background-color: var(--foreground);
-  color: var(--white);
+  color: var(--background);
+}
+
+/* Mobile Controls */
+.mobileControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap);
+}
+
+.viewToggleMobile {
+  display: none;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .viewToggleMobile {
+    display: flex;
+  }
 }
 
 .resultsCount {
   color: var(--muted);
   font-size: inherit;
 }
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+}
+
+/* Accordion Styles */
+.filterAccordion {
+  border-top: 1px solid var(--muted);
+  padding-top: var(--tinier);
+}
+
+.filterAccordion:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--tinier) 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--foreground);
+  text-align: left;
+}
+
+.accordionTitle {
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.accordionArrow {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--foreground);
+}
+
+.accordionArrowOpen {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  padding: var(--tinier) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+}
+
+/* Members Grid with Container Queries */
+.membersGrid {
+  display: grid;
+  gap: var(--gap);
+  width: 100%;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Container queries for responsive grid */
+@container (min-width: 500px) {
+  .membersGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@container (min-width: 800px) {
+  .membersGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@container (min-width: 1100px) {
+  .membersGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@container (min-width: 1400px) {
+  .membersGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
 
