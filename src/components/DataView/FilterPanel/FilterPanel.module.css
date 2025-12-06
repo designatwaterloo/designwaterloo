@@ -1,0 +1,265 @@
+/* Desktop Filter Panel */
+.panelDesktop {
+  width: 280px;
+  flex-shrink: 0;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 120px;
+  align-self: flex-start;
+  z-index: 10;
+}
+
+.panelSticky {
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding-right: var(--tinier);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar */
+.panelSticky::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panelSticky::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panelSticky::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 999px;
+}
+
+.panelSticky::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Mobile Filter Panel */
+.panelMobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--background);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+@media (min-width: 769px) {
+  .panelMobile {
+    display: none;
+  }
+}
+
+.panelMobile.panelOpen {
+  transform: translateX(0);
+}
+
+.panelOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--margin);
+  border-bottom: 2px solid var(--foreground);
+}
+
+.panelHeader h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2em;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--foreground);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  opacity: 0.7;
+}
+
+.panelContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--margin);
+  display: flex;
+  flex-direction: column;
+  gap: var(--big);
+}
+
+/* Filter Accordion */
+.filterAccordion {
+  border-top: 1px solid var(--muted);
+  padding-top: var(--tinier);
+}
+
+.filterAccordion:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--tinier) 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--foreground);
+  text-align: left;
+}
+
+.accordionTitle {
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.accordionArrow {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--foreground);
+}
+
+.accordionArrowOpen {
+  transform: rotate(180deg);
+}
+
+.accordionContent {
+  padding: var(--tinier) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+}
+
+/* Filter Options */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: transparent;
+  border: 2px solid var(--muted);
+  border-radius: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+}
+
+.checkbox:checked {
+  background: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-color: var(--background);
+  mask-image: url('/check.svg');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url('/check.svg');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+
+.count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+/* Clear Buttons */
+.clearButton {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-family: inherit;
+  padding: 0;
+  text-align: left;
+}
+
+.clearButton:hover {
+  opacity: 0.7;
+}
+
+.clearAllButton {
+  width: 100%;
+  padding: var(--tinier);
+  border: 2px solid var(--foreground);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.clearAllButton:hover {
+  background-color: var(--foreground);
+  color: var(--background);
+}

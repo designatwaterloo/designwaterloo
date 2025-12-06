@@ -1,0 +1,42 @@
+/* Table Row - imported from DataView but need column span definitions */
+.tableRow {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  padding: var(--tinier);
+  margin: 0 calc(var(--tinier) * -1);
+  border-bottom: 2px solid var(--muted);
+  align-items: center;
+  line-height: 110%;
+  color: inherit;
+  background-color: transparent;
+  transition-property: background-color, color;
+  transition-duration: 0.2s, 0.2s;
+  transition-timing-function: ease, ease;
+  cursor: pointer;
+}
+
+.tableRow:hover {
+  background-color: var(--black);
+  color: var(--white);
+  transition-duration: 0.05s, 0.05s;
+}
+
+/* Column Spans for Work Page Table */
+.titleColumn {
+  grid-column: span 3;
+  font-weight: 600;
+}
+
+.clientColumn {
+  grid-column: span 3;
+}
+
+.categoryColumn {
+  grid-column: span 3;
+}
+
+.yearColumn {
+  grid-column: span 3;
+  text-align: right;
+}

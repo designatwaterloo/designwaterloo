@@ -1,0 +1,20 @@
+/* View Mode Toggle Styles */
+.toggleDesktop {
+  display: flex;
+  gap: 4px;
+}
+
+.toggleMobile {
+  display: none;
+  gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .toggleMobile {
+    display: flex;
+  }
+
+  .toggleDesktop {
+    display: none;
+  }
+}

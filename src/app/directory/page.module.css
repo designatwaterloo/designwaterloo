@@ -190,8 +190,8 @@
   width: 100%;
 }
 
-/* Mobile Filter Sidebar */
-.filterSidebarMobile {
+/* Mobile Filter Panel */
+.filterPanelMobile {
   position: fixed;
   top: 0;
   left: 0;
@@ -206,16 +206,16 @@
 }
 
 @media (min-width: 769px) {
-  .filterSidebarMobile {
+  .filterPanelMobile {
     display: none;
   }
 }
 
-.filterSidebarMobile.sidebarOpen {
+.filterPanelMobile.panelOpen {
   transform: translateX(0);
 }
 
-.sidebarOverlay {
+.panelOverlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -225,7 +225,7 @@
   z-index: 999;
 }
 
-.sidebarHeader {
+.panelHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -233,13 +233,13 @@
   border-bottom: 2px solid var(--foreground);
 }
 
-.sidebarHeader h2 {
+.panelHeader h2 {
   font-size: 1.5em;
   font-weight: 600;
   margin: 0;
 }
 
-.closeSidebarButton {
+.closeButton {
   background: none;
   border: none;
   font-size: 2em;
@@ -254,11 +254,11 @@
   justify-content: center;
 }
 
-.closeSidebarButton:hover {
+.closeButton:hover {
   opacity: 0.7;
 }
 
-.sidebarContent {
+.panelContent {
   flex: 1;
   overflow-y: auto;
   padding: var(--margin);
@@ -328,13 +328,20 @@
 .sidebarCheckbox:checked::after {
   content: '';
   position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 4px;
-  height: 8px;
-  border: solid var(--background);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-color: var(--background);
+  mask-image: url('/check.svg');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url('/check.svg');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 
 .sidebarCount {

@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 
 interface ButtonProps {
   children?: ReactNode;
-  variant?: "primary" | "secondary" | "icon";
+  variant?: "primary" | "secondary" | "icon" | "small";
   icon?: string;
   iconAlt?: string;
   active?: boolean;
@@ -24,11 +24,13 @@ export default function Button({
   href,
   target
 }: ButtonProps) {
-  const variantClass = variant === "primary" 
-    ? styles.primary 
-    : variant === "secondary" 
-      ? styles.secondary 
-      : styles.icon;
+  const variantClass = variant === "primary"
+    ? styles.primary
+    : variant === "secondary"
+      ? styles.secondary
+      : variant === "icon"
+        ? styles.icon
+        : styles.small;
   const activeClass = active ? styles.active : "";
   const className = `${styles.button} ${variantClass} ${activeClass}`;
   

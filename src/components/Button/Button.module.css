@@ -45,6 +45,24 @@
   border: 2px solid var(--muted);
 }
 
+.small {
+  background: transparent;
+  color: var(--black);
+  border: 2px solid var(--black);
+  font-size: var(--smallest);
+  padding: 6px 12px;
+}
+
+.small .text {
+  font-size: var(--smallest);
+}
+
+.small:hover {
+  background: var(--muted);
+  color: var(--black);
+  border: 2px solid var(--muted);
+}
+
 /* Icon-only variant */
 .icon {
   background: transparent;
