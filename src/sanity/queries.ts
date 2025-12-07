@@ -64,7 +64,7 @@ export const projectSlugsQuery = groq`
 
 // Query to get all members (for directory listing page)
 export const membersQuery = groq`
-  *[_type == "member" && defined(slug.current)] | order(firstName asc) {
+  *[_type == "member" && defined(slug.current)] | order(memberId asc) {
     _id,
     _createdAt,
     memberId,

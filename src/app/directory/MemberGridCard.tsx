@@ -5,7 +5,6 @@ import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 
 interface MemberGridCardProps {
   member: Member;
-  onClick?: () => void;
 }
 
 /**
@@ -13,13 +12,12 @@ interface MemberGridCardProps {
  *
  * Displays member profile image (4:5 aspect ratio), name, program, and graduating class
  */
-export default function MemberGridCard({ member, onClick }: MemberGridCardProps) {
+export default function MemberGridCard({ member }: MemberGridCardProps) {
   return (
     <Link
       href={`/directory/${member.slug.current}`}
       className="flex flex-col gap-4 group"
       underline={false}
-      onClick={onClick}
     >
       {member.profileImage ? (
         <Image

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Member } from "@/sanity/types";
@@ -21,70 +20,6 @@ interface DirectoryClientProps {
 }
 
 export default function DirectoryClient({ members }: DirectoryClientProps) {
-  const [isMounted, setIsMounted] = useState(false);
-  const [randomOrder, setRandomOrder] = useState<Map<string, number>>(new Map());
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Initialize or restore random order
-  useEffect(() => {
-    if (!isMounted || members.length === 0) return;
-
-    // Check if navigating back from a member page
-    const isNavigatingBack = sessionStorage.getItem("directoryNavigated") === "true";
-    const storedOrder = sessionStorage.getItem("directoryOrder");
-
-    if (isNavigatingBack && storedOrder) {
-      try {
-        const orderArray = JSON.parse(storedOrder);
-        const order = new Map<string, number>(orderArray);
-
-        // Verify all current members are in stored order
-        const allMembersPresent = members.every((m) => order.has(m._id));
-
-        if (allMembersPresent) {
-          setRandomOrder(order);
-          sessionStorage.removeItem("directoryNavigated"); // Clear flag
-          return;
-        }
-      } catch {
-        // Invalid stored data, will regenerate below
-      }
-    }
-
-    // Generate new random order (first load or browser refresh)
-    const order = new Map<string, number>();
-    const shuffled = [...members].sort(() => Math.random() - 0.5);
-    shuffled.forEach((member, index) => {
-      order.set(member._id, index);
-    });
-
-    // Save to sessionStorage for potential navigation back
-    sessionStorage.setItem("directoryOrder", JSON.stringify(Array.from(order.entries())));
-    setRandomOrder(order);
-  }, [members, isMounted]);
-
-  // Handler for when user clicks on a member
-  const handleMemberClick = () => {
-    sessionStorage.setItem("directoryNavigated", "true");
-  };
-
-  // Sort members using random order for default sort
-  const sortedMembers = useMemo(() => {
-    if (!isMounted || randomOrder.size === 0) {
-      return members;
-    }
-
-    // Use random order by default (will be overridden by DataView sorting)
-    return [...members].sort((a, b) => {
-      const orderA = randomOrder.get(a._id) ?? 0;
-      const orderB = randomOrder.get(b._id) ?? 0;
-      return orderA - orderB;
-    });
-  }, [members, isMounted, randomOrder]);
-
   return (
     <div className="w-full">
       <Header />
@@ -98,13 +33,12 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
           </div>
 
           <DataView<Member>
-            items={sortedMembers}
+            items={members}
             getItemKey={(member) => member._id}
             getItemHref={(member) => `/directory/${member.slug.current}`}
             storageKey="directoryViewMode"
-            onItemClick={handleMemberClick}
             renderGridItem={(member) => (
-              <MemberGridCard member={member} onClick={handleMemberClick} />
+              <MemberGridCard member={member} />
             )}
             gridAspectRatio="4/5"
             renderHoverPreview={(member) => <MemberHoverPreview member={member} />}
@@ -207,7 +141,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
               defaultField: "memberId",
               defaultDirection: "asc",
               fields: {
-                memberId: (a, b) => (a.memberId || 999999) - (b.memberId || 999999),
+                memberId: (a, b) => (a.memberId ?? 999999) - (b.memberId ?? 999999),
               },
             }}
             viewModeConfig={{
