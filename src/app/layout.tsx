@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import SmoothScroll from "@/components/SmoothScroll";
 import { TransitionProvider } from "@/context/TransitionContext";
@@ -56,6 +57,7 @@ export default function RootLayout({
           <PageTransition />
           {children}
         </SmoothScroll>
+        <Analytics />
       </body>
     </html>
     </TransitionProvider>
