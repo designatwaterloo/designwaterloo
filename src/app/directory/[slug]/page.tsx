@@ -211,13 +211,15 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
                   {member.experience.map((exp, index) => (
                     <div key={index} className={styles.experienceItem}>
                       <div className={styles.experienceInfo}>
-                        <p className={styles.jobTitle}>{exp.positionTitle}</p>
+                        {exp.positionTitle && <p className={styles.jobTitle}>{exp.positionTitle}</p>}
                         <p className={styles.companyName}>{exp.company}</p>
                       </div>
-                      <span className={styles.year}>
-                        {new Date(exp.dateStart).getFullYear()}
-                        {exp.isCurrent ? ' - Present' : ''}
-                      </span>
+                      {exp.dateStart && (
+                        <span className={styles.year}>
+                          {new Date(exp.dateStart).getFullYear()}
+                          {exp.isCurrent ? ' - Present' : ''}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </dd>
@@ -230,13 +232,15 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
                   {member.leadership.map((lead, index) => (
                     <div key={index} className={styles.experienceItem}>
                       <div className={styles.experienceInfo}>
-                        <p className={styles.jobTitle}>{lead.positionTitle}</p>
+                        {lead.positionTitle && <p className={styles.jobTitle}>{lead.positionTitle}</p>}
                         <p className={styles.companyName}>{lead.org}</p>
                       </div>
-                      <span className={styles.year}>
-                        {new Date(lead.dateStart).getFullYear()}
-                        {lead.isCurrent ? ' - Present' : ''}
-                      </span>
+                      {lead.dateStart && (
+                        <span className={styles.year}>
+                          {new Date(lead.dateStart).getFullYear()}
+                          {lead.isCurrent ? ' - Present' : ''}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </dd>

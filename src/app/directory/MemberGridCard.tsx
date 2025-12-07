@@ -27,7 +27,7 @@ export default function MemberGridCard({ member, onClick }: MemberGridCardProps)
           alt={`${member.firstName} ${member.lastName}`}
           width={400}
           height={400}
-          className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+          className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-all duration-300"
           placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
           blurDataURL={getBlurDataURL(member.profileImage)}
         />

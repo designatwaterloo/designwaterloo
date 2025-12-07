@@ -3,8 +3,10 @@ import type { PortableTextBlock } from "next-sanity";
 export interface SanityImage {
   _type: "image";
   asset: {
-    _ref: string;
-    _type: "reference";
+    // Raw reference (before dereferencing)
+    _ref?: string;
+    _type?: "reference";
+    // Dereferenced fields (after using asset-> in query)
     _id?: string;
     url?: string;
     metadata?: {
@@ -45,7 +47,7 @@ export interface FeaturedMedia {
 
 export interface Project {
   _id: string;
-  _type: "project";
+  _type?: "project"; // Optional since listing queries may not fetch it
   title: string;
   slug: {
     current: string;
@@ -75,20 +77,24 @@ export interface Member {
   graduatingClass?: string;
   bio?: PortableTextBlock[];
   experience?: Array<{
-    positionTitle: string;
+    positionTitle?: string;
     company: string;
-    dateStart: string;
+    dateStart?: string;
     isCurrent?: boolean;
   }>;
   leadership?: Array<{
-    positionTitle: string;
+    positionTitle?: string;
     org: string;
-    dateStart: string;
+    dateStart?: string;
     isCurrent?: boolean;
   }>;
+  // Dereferenced work/projects (query uses work[]->)
   work?: Array<{
-    _ref: string;
-    _type: "reference";
+    _id: string;
+    title: string;
+    slug: { current: string };
+    yearCompleted: number;
+    client: string;
   }>;
   // Contact
   publicEmail?: string;

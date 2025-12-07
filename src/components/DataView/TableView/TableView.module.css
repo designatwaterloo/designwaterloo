@@ -40,10 +40,13 @@
   cursor: pointer;
 }
 
-.tableRow:hover {
-  background-color: var(--black);
-  color: var(--white);
-  transition-duration: 0.05s, 0.05s;
+/* Only apply hover on devices that support it (not touch) */
+@media (hover: hover) {
+  .tableRow:hover {
+    background-color: var(--black);
+    color: var(--white);
+    transition-duration: 0.05s, 0.05s;
+  }
 }
 
 /* Column Spans */
