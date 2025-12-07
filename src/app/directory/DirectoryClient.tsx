@@ -7,7 +7,6 @@ import { Member } from "@/sanity/types";
 import { decodeTermCode } from "@/lib/termUtils";
 import DataView from "@/components/DataView";
 import MemberGridCard from "./MemberGridCard";
-import MemberTableRow from "./MemberTableRow";
 import MemberHoverPreview from "./MemberHoverPreview";
 import {
   extractUniqueClasses,
@@ -101,23 +100,22 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
           <DataView<Member>
             items={sortedMembers}
             getItemKey={(member) => member._id}
+            getItemHref={(member) => `/directory/${member.slug.current}`}
             storageKey="directoryViewMode"
-            // Grid rendering
+            onItemClick={handleMemberClick}
             renderGridItem={(member) => (
               <MemberGridCard member={member} onClick={handleMemberClick} />
             )}
             gridAspectRatio="4/5"
-            // Table rendering
-            renderTableRow={(member) => (
-              <MemberTableRow member={member} onClick={handleMemberClick} />
-            )}
             renderHoverPreview={(member) => <MemberHoverPreview member={member} />}
             columns={[
               {
                 key: "name",
                 label: "Name",
                 span: 3,
+                mobileSpan: 2,
                 sortable: true,
+                className: "font-semibold",
                 render: (member) => `${member.firstName} ${member.lastName}`,
                 sortFn: (a, b) =>
                   `${a.firstName} ${a.lastName}`.localeCompare(
@@ -128,6 +126,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                 key: "program",
                 label: "Program",
                 span: 6,
+                mobileSpan: 2,
                 sortable: true,
                 render: (member) => member.program || "",
                 sortFn: (a, b) => (a.program || "").localeCompare(b.program || ""),
@@ -136,6 +135,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                 key: "class",
                 label: "Class",
                 span: 3,
+                mobileSpan: 2,
                 align: "right",
                 sortable: true,
                 render: (member) => member.graduatingClass || "",
@@ -143,7 +143,6 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                   (a.graduatingClass || "").localeCompare(b.graduatingClass || ""),
               },
             ]}
-            // Search
             searchConfig={{
               placeholder: "Search by name, program, or specialty...",
               searchFn: (member, term) => {
@@ -158,7 +157,6 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                 );
               },
             }}
-            // Filters
             filterConfig={[
               {
                 key: "class",
@@ -205,22 +203,13 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
                 formatValue: (value) => decodeTermCode(value),
               },
             ]}
-            // Sorting
             sortConfig={{
               defaultField: "memberId",
               defaultDirection: "asc",
               fields: {
-                name: (a, b) =>
-                  `${a.firstName} ${a.lastName}`.localeCompare(
-                    `${b.firstName} ${b.lastName}`
-                  ),
-                program: (a, b) => (a.program || "").localeCompare(b.program || ""),
-                class: (a, b) =>
-                  (a.graduatingClass || "").localeCompare(b.graduatingClass || ""),
                 memberId: (a, b) => (a.memberId || 999999) - (b.memberId || 999999),
               },
             }}
-            // View mode
             viewModeConfig={{
               defaultMode: "grid",
               showToggle: true,
@@ -233,3 +222,4 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
     </div>
   );
 }
+

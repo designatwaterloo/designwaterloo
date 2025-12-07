@@ -5,7 +5,6 @@ import Footer from "@/components/Footer";
 import { Project } from "@/sanity/types";
 import DataView from "@/components/DataView";
 import ProjectGridCard from "./ProjectGridCard";
-import ProjectTableRow from "./ProjectTableRow";
 import ProjectHoverPreview from "./ProjectHoverPreview";
 import {
   extractUniqueCategories,
@@ -33,63 +32,52 @@ export default function WorkClient({ projects }: WorkClientProps) {
           <DataView<Project>
             items={projects}
             getItemKey={(project) => project._id}
+            getItemHref={(project) => `/work/${project.slug.current}`}
             storageKey="workViewMode"
-            // Grid rendering
             renderGridItem={(project) => <ProjectGridCard project={project} />}
             gridAspectRatio="4/3"
-            // Table rendering
-            renderTableRow={(project) => <ProjectTableRow project={project} />}
             renderHoverPreview={(project) => <ProjectHoverPreview project={project} />}
             columns={[
               {
                 key: "title",
                 label: "Title",
                 span: 3,
+                mobileSpan: 2,
                 sortable: true,
+                className: "font-semibold",
                 render: (project) => project.title,
                 sortFn: (a, b) => a.title.localeCompare(b.title),
               },
               {
                 key: "client",
                 label: "Client",
-                span: 3,
+                span: 5,
+                mobileSpan: 2,
                 sortable: true,
                 render: (project) => project.client,
                 sortFn: (a, b) => a.client.localeCompare(b.client),
               },
               {
-                key: "category",
-                label: "Category",
-                span: 3,
-                sortable: true,
-                render: (project) => project.category || "—",
-                sortFn: (a, b) =>
-                  (a.category || "").localeCompare(b.category || ""),
-              },
-              {
                 key: "year",
                 label: "Year",
-                span: 3,
+                span: 4,
+                mobileSpan: 2,
                 align: "right",
                 sortable: true,
                 render: (project) => project.yearCompleted.toString(),
                 sortFn: (a, b) => a.yearCompleted - b.yearCompleted,
               },
             ]}
-            // Search
             searchConfig={{
-              placeholder: "Search projects by title, client, or category...",
+              placeholder: "Search projects by title or client...",
               searchFn: (project, term) => {
                 const searchLower = term.toLowerCase();
                 return (
                   project.title.toLowerCase().includes(searchLower) ||
-                  project.client.toLowerCase().includes(searchLower) ||
-                  project.category?.toLowerCase().includes(searchLower) ||
-                  false
+                  project.client.toLowerCase().includes(searchLower)
                 );
               },
             }}
-            // Filters
             filterConfig={[
               {
                 key: "category",
@@ -118,19 +106,11 @@ export default function WorkClient({ projects }: WorkClientProps) {
                   selected.length === 0 || selected.includes(project.client),
               },
             ]}
-            // Sorting
             sortConfig={{
               defaultField: "year",
               defaultDirection: "desc",
-              fields: {
-                title: (a, b) => a.title.localeCompare(b.title),
-                client: (a, b) => a.client.localeCompare(b.client),
-                category: (a, b) =>
-                  (a.category || "").localeCompare(b.category || ""),
-                year: (a, b) => a.yearCompleted - b.yearCompleted,
-              },
+              fields: {},
             }}
-            // View mode
             viewModeConfig={{
               defaultMode: "grid",
               showToggle: true,

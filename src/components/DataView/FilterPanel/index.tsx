@@ -1,4 +1,4 @@
-import { FilterPanelProps } from "../types";
+import { FilterPanelProps, FilterConfig } from "../types";
 import FilterAccordion from "./FilterAccordion";
 import styles from "./FilterPanel.module.css";
 
@@ -32,6 +32,7 @@ export default function FilterPanel<T>({
   onClearAll,
   items,
   searchTerm,
+  searchConfig,
   variant,
   isOpen,
   onClose,
@@ -39,7 +40,7 @@ export default function FilterPanel<T>({
   const hasActiveFilters =
     searchTerm !== "" || Object.values(selectedFilters).some((vals) => vals.length > 0);
 
-  const getFilterCount = (filter: any, optionValue: string) => {
+  const getFilterCount = (filter: FilterConfig<T>, optionValue: string) => {
     if (filter.getCount) {
       return filter.getCount(optionValue, items, searchTerm, selectedFilters);
     }
@@ -48,7 +49,7 @@ export default function FilterPanel<T>({
     return items.filter((item) => {
       // Apply search filter
       const matchesSearch = !searchTerm || (
-        filter.searchConfig?.searchFn(item, searchTerm) ?? true
+        searchConfig?.searchFn(item, searchTerm) ?? true
       );
       if (!matchesSearch) return false;
 

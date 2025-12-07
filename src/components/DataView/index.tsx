@@ -40,8 +40,8 @@ export default function DataView<T>({
   items,
   getItemKey,
   renderGridItem,
-  renderTableRow,
   columns,
+  getItemHref,
   renderHoverPreview,
   searchConfig,
   filterConfig = [],
@@ -71,7 +71,7 @@ export default function DataView<T>({
   // Detect desktop/mobile
   useEffect(() => {
     const checkDesktop = () => {
-      setIsDesktop(window.innerWidth > 768);
+      setIsDesktop(window.innerWidth >= 769);
     };
 
     checkDesktop();
@@ -124,18 +124,28 @@ export default function DataView<T>({
 
   // Sort items
   const sortedItems = useMemo(() => {
-    if (!sortConfig || !sortField) {
+    if (!sortField) {
       return filteredItems;
     }
 
-    const sortFn = sortConfig.fields[sortField];
+    // Try to get sort function from sortConfig.fields first, then fall back to columns
+    let sortFn: ((a: T, b: T) => number) | undefined;
+    
+    if (sortConfig?.fields?.[sortField]) {
+      sortFn = sortConfig.fields[sortField];
+    } else {
+      // Derive from columns
+      const column = columns.find((c) => c.key === sortField);
+      sortFn = column?.sortFn;
+    }
+
     if (!sortFn) {
       return filteredItems;
     }
 
     const sorted = [...filteredItems].sort(sortFn);
     return sortDirection === "desc" ? sorted.reverse() : sorted;
-  }, [filteredItems, sortField, sortDirection, sortConfig]);
+  }, [filteredItems, sortField, sortDirection, sortConfig, columns]);
 
   // Handle sort
   const handleSort = (field: string) => {
@@ -175,6 +185,7 @@ export default function DataView<T>({
           onClearAll={clearAllFilters}
           items={items}
           searchTerm={searchTerm}
+          searchConfig={searchConfig}
           variant="mobile"
           isOpen={isMobileFilterOpen}
           onClose={() => setIsMobileFilterOpen(false)}
@@ -192,6 +203,7 @@ export default function DataView<T>({
             onClearAll={clearAllFilters}
             items={items}
             searchTerm={searchTerm}
+            searchConfig={searchConfig}
             variant="desktop"
           />
         )}
@@ -273,11 +285,11 @@ export default function DataView<T>({
               items={sortedItems}
               columns={columns}
               getItemKey={getItemKey}
+              getItemHref={getItemHref}
               onSort={handleSort}
               sortField={sortField}
               sortDirection={sortDirection}
               onItemClick={onItemClick}
-              renderRow={renderTableRow}
               renderHoverPreview={renderHoverPreview}
             />
           )}

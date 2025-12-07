@@ -10,12 +10,18 @@ export interface ColumnConfig<T> {
   label: string;
   /** Column span in 12-column grid */
   span: number;
+  /** Column span on mobile (6-column grid), defaults to span */
+  mobileSpan?: number;
+  /** Hide this column on mobile */
+  hideOnMobile?: boolean;
   /** Text alignment */
   align?: "left" | "center" | "right";
   /** Whether this column is sortable */
   sortable?: boolean;
   /** Render function for cell content */
   render: (item: T) => ReactNode;
+  /** Optional extra class name for cell styling */
+  className?: string;
   /** Custom sort function (required if sortable is true) */
   sortFn?: (a: T, b: T) => number;
 }
@@ -99,10 +105,10 @@ export interface DataViewProps<T> {
   gridClassName?: string;
 
   // Table rendering
-  /** Render function for table rows */
-  renderTableRow: (item: T, index: number) => ReactNode;
   /** Table column configuration */
   columns: ColumnConfig<T>[];
+  /** Function to get href for each item (for table row links) */
+  getItemHref: (item: T) => string;
   /** Optional render function for hover preview in table view */
   renderHoverPreview?: (item: T) => ReactNode;
 
@@ -144,11 +150,11 @@ export interface TableViewProps<T> {
   items: T[];
   columns: ColumnConfig<T>[];
   getItemKey: (item: T) => string;
+  getItemHref: (item: T) => string;
   onSort?: (field: string) => void;
   sortField?: string;
   sortDirection?: "asc" | "desc";
   onItemClick?: (item: T) => void;
-  renderRow: (item: T, index: number) => ReactNode;
   renderHoverPreview?: (item: T) => ReactNode;
 }
 
@@ -162,6 +168,8 @@ export interface SortableHeaderProps {
   direction: "asc" | "desc";
   onClick: () => void;
   span: number;
+  mobileSpan?: number;
+  hideOnMobile?: boolean;
   align?: "left" | "center" | "right";
 }
 
@@ -175,6 +183,7 @@ export interface FilterPanelProps<T> {
   onClearAll: () => void;
   items: T[];
   searchTerm: string;
+  searchConfig?: SearchConfig<T>;
   variant: "desktop" | "mobile";
   isOpen?: boolean;
   onClose?: () => void;

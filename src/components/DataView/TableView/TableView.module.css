@@ -51,23 +51,66 @@
   font-weight: 600;
 }
 
-.span1 { grid-column: span 1; }
-.span2 { grid-column: span 2; }
-.span3 { grid-column: span 3; }
-.span4 { grid-column: span 4; }
-.span5 { grid-column: span 5; }
-.span6 { grid-column: span 6; }
-.span7 { grid-column: span 7; }
-.span8 { grid-column: span 8; }
-.span9 { grid-column: span 9; }
-.span10 { grid-column: span 10; }
-.span11 { grid-column: span 11; }
-.span12 { grid-column: span 12; }
+.span1 {
+  grid-column: span 1;
+}
+
+.span2 {
+  grid-column: span 2;
+}
+
+.span3 {
+  grid-column: span 3;
+}
+
+.span4 {
+  grid-column: span 4;
+}
+
+.span5 {
+  grid-column: span 5;
+}
+
+.span6 {
+  grid-column: span 6;
+}
+
+.span7 {
+  grid-column: span 7;
+}
+
+.span8 {
+  grid-column: span 8;
+}
+
+.span9 {
+  grid-column: span 9;
+}
+
+.span10 {
+  grid-column: span 10;
+}
+
+.span11 {
+  grid-column: span 11;
+}
+
+.span12 {
+  grid-column: span 12;
+}
 
 /* Text Alignment */
-.alignLeft { text-align: left; }
-.alignCenter { text-align: center; }
-.alignRight { text-align: right; }
+.alignLeft {
+  text-align: left;
+}
+
+.alignCenter {
+  text-align: center;
+}
+
+.alignRight {
+  text-align: right;
+}
 
 /* Hover Preview */
 .hoverPreview {
@@ -86,4 +129,47 @@
   aspect-ratio: 4/5;
   object-fit: cover;
   border-radius: 4px;
+}
+
+/* Mobile: 6-column grid */
+@media (max-width: 768px) {
+
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .hideOnMobile {
+    display: none;
+  }
+
+  /* Mobile Spans - override desktop spans */
+  .mobileSpan1 {
+    grid-column: span 1;
+  }
+
+  .mobileSpan2 {
+    grid-column: span 2;
+  }
+
+  .mobileSpan3 {
+    grid-column: span 3;
+  }
+
+  .mobileSpan4 {
+    grid-column: span 4;
+  }
+
+  .mobileSpan5 {
+    grid-column: span 5;
+  }
+
+  .mobileSpan6 {
+    grid-column: span 6;
+  }
+
+  /* Hide hover preview on mobile */
+  .hoverPreview {
+    display: none;
+  }
 }
