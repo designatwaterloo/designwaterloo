@@ -8,6 +8,9 @@ import { projectBySlugQuery, projectSlugsQuery } from "@/sanity/queries";
 import type { Project } from "@/sanity/types";
 import { PortableText } from "next-sanity";
 
+// Revalidate every 30 seconds
+export const revalidate = 30;
+
 // Generate static params for all projects
 export async function generateStaticParams() {
   const projects = await client.fetch<{ slug: string }[]>(projectSlugsQuery);

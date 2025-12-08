@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 };
 
 export default async function WorkPage() {
-  const projects: Project[] = await client.fetch(projectsQuery);
+  const options = { next: { revalidate: 30 } };
+  const projects: Project[] = await client.fetch(projectsQuery, {}, options);
 
   return <WorkClient projects={projects} />;
 }

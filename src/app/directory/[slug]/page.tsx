@@ -12,6 +12,9 @@ import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import type { Metadata } from "next";
 
+// Revalidate every 30 seconds
+export const revalidate = 30;
+
 export async function generateStaticParams() {
   const members = await client.fetch<{ slug: string }[]>(memberSlugsQuery);
   return members.map((member) => ({
