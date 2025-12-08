@@ -36,6 +36,7 @@ export default function WorkClient({ projects }: WorkClientProps) {
             storageKey="workViewMode"
             renderGridItem={(project) => <ProjectGridCard project={project} />}
             gridAspectRatio="4/3"
+            gridColumns={{ 0: 1, 500: 2, 1100: 3, 1400: 4 }}
             renderHoverPreview={(project) => <ProjectHoverPreview project={project} />}
             columns={[
               {

@@ -10,6 +10,7 @@ import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 import type { Member } from "@/sanity/types";
 import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
+import { ensureHttps } from "@/lib/urlUtils";
 import type { Metadata } from "next";
 
 // Revalidate every 30 seconds
@@ -87,45 +88,45 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
               <p className={styles.tradingCardName}>{member.firstName} {member.lastName}</p>
               <div className={styles.tradingCardLinks}>
                 {member.portfolio && (
-                  <a href={member.portfolio} target="_blank" rel="noopener noreferrer">
+                  <a href={ensureHttps(member.portfolio)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/globe.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
                     {member.portfolio.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
                   </a>
                 )}
                 {member.twitter && (
-                  <a href={member.twitter} target="_blank" rel="noopener noreferrer">
+                  <a href={ensureHttps(member.twitter)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/twitter_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
                     {member.twitter.match(/(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/)?.[1] ? `@${member.twitter.match(/(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/)?.[1]}` : 'twitter'}
                   </a>
                 )}
                 {member.linkedin && (
-                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
+                  <a href={ensureHttps(member.linkedin)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/linkedin_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
                     {member.linkedin.match(/\/in\/([^\/\?]+)/)?.[1] ? `in/${member.linkedin.match(/\/in\/([^\/\?]+)/)?.[1]}` : 'linkedin'}
                   </a>
                 )}
                 {member.instagram && (
-                  <a href={member.instagram} target="_blank" rel="noopener noreferrer">
+                  <a href={ensureHttps(member.instagram)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/instagram_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
                     {member.instagram.match(/(?:instagram\.com\/|@)([^\/\?]+)/)?.[1] ? `@${member.instagram.match(/(?:instagram\.com\/|@)([^\/\?]+)/)?.[1]}` : 'instagram'}
                   </a>
                 )}
                 {member.github && (
-                  <a href={member.github} target="_blank" rel="noopener noreferrer">
+                  <a href={ensureHttps(member.github)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/github_logo.svg" width={20} height={20} alt="" className={styles.tradingCardIcon} />
                     {member.github.match(/(?:github\.com\/)([^\/\?]+)/)?.[1] || 'github'}
                   </a>
                 )}
                 {member.behance && (
-                  <a href={member.behance} target="_blank" rel="noopener noreferrer">behance</a>
+                  <a href={ensureHttps(member.behance)} target="_blank" rel="noopener noreferrer">behance</a>
                 )}
                 {member.dribbble && (
-                  <a href={member.dribbble} target="_blank" rel="noopener noreferrer">dribbble</a>
+                  <a href={ensureHttps(member.dribbble)} target="_blank" rel="noopener noreferrer">dribbble</a>
                 )}
               </div>
             </div>
@@ -211,15 +212,29 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
               <dl className={styles.experienceGroup}>
                 <dt className={styles.label}>Experience</dt>
                 <dd className={styles.experienceList}>
-                  {member.experience.map((exp, index) => (
+                  {[...member.experience]
+                    .sort((a, b) => {
+                      // Current positions first
+                      if (a.isCurrent && !b.isCurrent) return -1;
+                      if (!a.isCurrent && b.isCurrent) return 1;
+                      // Then by year (latest first)
+                      const yearA = a.startYear ? parseInt(a.startYear) : 0;
+                      const yearB = b.startYear ? parseInt(b.startYear) : 0;
+                      if (yearA !== yearB) return yearB - yearA;
+                      // Then by month within year
+                      const monthA = a.startMonth ? parseInt(a.startMonth) : 0;
+                      const monthB = b.startMonth ? parseInt(b.startMonth) : 0;
+                      return monthB - monthA;
+                    })
+                    .map((exp, index) => (
                     <div key={index} className={styles.experienceItem}>
                       <div className={styles.experienceInfo}>
                         {exp.positionTitle && <p className={styles.jobTitle}>{exp.positionTitle}</p>}
                         <p className={styles.companyName}>{exp.company}</p>
                       </div>
-                      {exp.dateStart && (
+                      {exp.startYear && (
                         <span className={styles.year}>
-                          {new Date(exp.dateStart).getFullYear()}
+                          {exp.startYear}
                           {exp.isCurrent ? ' - Present' : ''}
                         </span>
                       )}
@@ -232,15 +247,29 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
               <dl className={styles.experienceGroup}>
                 <dt className={styles.label}>Leadership</dt>
                 <dd className={styles.experienceList}>
-                  {member.leadership.map((lead, index) => (
+                  {[...member.leadership]
+                    .sort((a, b) => {
+                      // Current positions first
+                      if (a.isCurrent && !b.isCurrent) return -1;
+                      if (!a.isCurrent && b.isCurrent) return 1;
+                      // Then by year (latest first)
+                      const yearA = a.startYear ? parseInt(a.startYear) : 0;
+                      const yearB = b.startYear ? parseInt(b.startYear) : 0;
+                      if (yearA !== yearB) return yearB - yearA;
+                      // Then by month within year
+                      const monthA = a.startMonth ? parseInt(a.startMonth) : 0;
+                      const monthB = b.startMonth ? parseInt(b.startMonth) : 0;
+                      return monthB - monthA;
+                    })
+                    .map((lead, index) => (
                     <div key={index} className={styles.experienceItem}>
                       <div className={styles.experienceInfo}>
                         {lead.positionTitle && <p className={styles.jobTitle}>{lead.positionTitle}</p>}
                         <p className={styles.companyName}>{lead.org}</p>
                       </div>
-                      {lead.dateStart && (
+                      {lead.startYear && (
                         <span className={styles.year}>
-                          {new Date(lead.dateStart).getFullYear()}
+                          {lead.startYear}
                           {lead.isCurrent ? ' - Present' : ''}
                         </span>
                       )}

@@ -1,6 +1,15 @@
 import { ReactNode } from "react";
 
 /**
+ * Configuration for responsive grid columns
+ * Keys are container widths in pixels, values are column counts
+ * Use 0 as key for base (smallest) column count
+ */
+export interface GridColumnsConfig {
+  [breakpoint: number]: number;
+}
+
+/**
  * Configuration for a single table column
  */
 export interface ColumnConfig<T> {
@@ -103,6 +112,8 @@ export interface DataViewProps<T> {
   gridAspectRatio?: string;
   /** Optional className for grid container */
   gridClassName?: string;
+  /** Custom grid column breakpoints (overrides default responsive columns) */
+  gridColumns?: GridColumnsConfig;
 
   // Table rendering
   /** Table column configuration */
@@ -141,6 +152,8 @@ export interface GridViewProps<T> {
   aspectRatio?: string;
   className?: string;
   onItemClick?: (item: T) => void;
+  /** Custom grid column breakpoints (overrides default responsive columns) */
+  gridColumns?: GridColumnsConfig;
 }
 
 /**

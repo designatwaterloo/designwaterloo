@@ -49,6 +49,7 @@ export default function DataView<T>({
   viewModeConfig = { defaultMode: "grid", showToggle: true },
   gridAspectRatio,
   gridClassName,
+  gridColumns,
   onItemClick,
   storageKey,
 }: DataViewProps<T>) {
@@ -147,11 +148,19 @@ export default function DataView<T>({
     return sortDirection === "desc" ? sorted.reverse() : sorted;
   }, [filteredItems, sortField, sortDirection, sortConfig, columns]);
 
-  // Handle sort
+  // Handle sort - cycles through: asc → desc → none (default)
   const handleSort = (field: string) => {
     if (sortField === field) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      if (sortDirection === "asc") {
+        // First click was asc, second click goes to desc
+        setSortDirection("desc");
+      } else {
+        // Third click: clear sort, return to default
+        setSortField("");
+        setSortDirection("asc");
+      }
     } else {
+      // New field: start with asc
       setSortField(field);
       setSortDirection("asc");
     }
@@ -279,6 +288,7 @@ export default function DataView<T>({
               aspectRatio={gridAspectRatio}
               className={gridClassName}
               onItemClick={onItemClick}
+              gridColumns={gridColumns}
             />
           ) : (
             <TableView

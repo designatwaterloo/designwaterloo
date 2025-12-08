@@ -3,35 +3,60 @@
   display: grid;
   gap: var(--gap);
   width: 100%;
-  grid-template-columns: repeat(2, 1fr);
+  /* Use custom property if set, otherwise default */
+  grid-template-columns: repeat(var(--grid-cols-base, 2), 1fr);
+}
+
+/* Custom grid - when custom columns are provided, use CSS variables */
+.gridCustom {
+  display: grid;
+  gap: var(--gap);
+  width: 100%;
+  grid-template-columns: repeat(var(--grid-cols-base, 1), 1fr);
 }
 
 /* Container queries for responsive grid */
 @container (min-width: 500px) {
   .grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--grid-cols-500, 3), 1fr);
+  }
+
+  .gridCustom {
+    grid-template-columns: repeat(var(--grid-cols-500, var(--grid-cols-base, 2)), 1fr);
   }
 }
 
 @container (min-width: 800px) {
   .grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(var(--grid-cols-800, 4), 1fr);
+  }
+
+  .gridCustom {
+    grid-template-columns: repeat(var(--grid-cols-800, var(--grid-cols-500, var(--grid-cols-base, 2))), 1fr);
   }
 }
 
 @container (min-width: 1100px) {
   .grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(var(--grid-cols-1100, 5), 1fr);
+  }
+
+  .gridCustom {
+    grid-template-columns: repeat(var(--grid-cols-1100, var(--grid-cols-800, var(--grid-cols-500, var(--grid-cols-base, 3)))), 1fr);
   }
 }
 
 @container (min-width: 1400px) {
   .grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(var(--grid-cols-1400, 6), 1fr);
+  }
+
+  .gridCustom {
+    grid-template-columns: repeat(var(--grid-cols-1400, var(--grid-cols-1100, var(--grid-cols-800, var(--grid-cols-500, var(--grid-cols-base, 3))))), 1fr);
   }
 }
 
 .gridItem {
-  /* Aspect ratio can be set via CSS custom property from parent */
-  /* Individual grid items are rendered via the renderItem prop */
+  /* Items get their styling from renderItem prop */
+  container-type: inline-size;
 }

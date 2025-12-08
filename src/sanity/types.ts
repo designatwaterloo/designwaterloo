@@ -79,13 +79,15 @@ export interface Member {
   experience?: Array<{
     positionTitle?: string;
     company: string;
-    dateStart?: string;
+    startMonth?: string;
+    startYear?: string;
     isCurrent?: boolean;
   }>;
   leadership?: Array<{
     positionTitle?: string;
     org: string;
-    dateStart?: string;
+    startMonth?: string;
+    startYear?: string;
     isCurrent?: boolean;
   }>;
   // Dereferenced work/projects (query uses work[]->)

@@ -117,13 +117,15 @@ export const memberBySlugQuery = groq`
     experience[] {
       positionTitle,
       company,
-      dateStart,
+      startMonth,
+      startYear,
       isCurrent
     },
     leadership[] {
       positionTitle,
-      org,
-      dateStart,
+      "org": organization->name,
+      startMonth,
+      startYear,
       isCurrent
     },
     work[]-> {
