@@ -39,13 +39,14 @@
   margin-bottom: var(--big);
 }
 
-.nextAvailable > dt {
+.nextAvailable>dt {
   grid-column: span 2;
 }
 
-.nextAvailable > dd {
+.nextAvailable>dd {
   grid-column: span 6;
   margin: 0;
+  width: fit-content;
 }
 
 .content {
@@ -86,13 +87,13 @@
   .section {
     grid-template-columns: 1fr;
   }
-  
+
   .name {
     grid-column: 1;
     grid-row: 1;
     margin-bottom: var(--smaller);
   }
-  
+
   .nextAvailable {
     grid-column: 1;
     grid-row: 2;
@@ -101,28 +102,49 @@
     align-items: center;
     margin-bottom: var(--smaller);
   }
-  
-  .nextAvailable > dt {
+
+  .nextAvailable>dt {
     grid-column: unset;
   }
-  
-  .nextAvailable > dd {
+
+  .nextAvailable>dd {
     grid-column: unset;
+    width: fit-content;
   }
-  
+
   .imageContainer {
     grid-column: 1;
     grid-row: 3;
     margin-bottom: var(--big);
   }
-  
+
   .content {
     grid-column: 1;
     grid-row: 4;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    display: flex;
+    flex-direction: column;
     row-gap: var(--big);
     padding-right: 0;
+  }
+
+  .rowGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--smaller);
+  }
+
+  .infoRow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tinier);
+  }
+
+  .infoRow>dd {
+    grid-column: unset;
+  }
+
+  .label {
+    grid-column: unset;
   }
 }
 
@@ -155,7 +177,7 @@
   line-height: 1;
 }
 
-.infoRow > dd {
+.infoRow>dd {
   grid-column: span 6;
   margin: 0;
 }
@@ -169,7 +191,7 @@
   margin: 0;
 }
 
-.experienceGroup > dt {
+.experienceGroup>dt {
   grid-column: span 2;
 }
 
@@ -180,12 +202,12 @@
     flex-direction: column;
     gap: var(--tinier);
   }
-  
-  .experienceGroup > dt {
+
+  .experienceGroup>dt {
     grid-column: unset;
     margin-bottom: var(--tinier);
   }
-  
+
   .experienceList {
     grid-column: unset;
     width: 100%;
@@ -294,7 +316,7 @@
 .tradingCardIcon {
   flex-shrink: 0;
   filter: invert(1) opacity(0.6);
-    /* Safari rendering optimizations */
+  /* Safari rendering optimizations */
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: filter;

@@ -254,18 +254,34 @@ export default function DataView<T>({
 
           {/* Mobile Controls */}
           <div className={styles.mobileControls}>
-            {viewModeConfig.showToggle && (
-              <ViewModeToggle
-                mode={viewMode}
-                onChange={handleViewModeChange}
-                variant="mobile"
-              />
+            {filterConfig.length > 0 && (
+              <Button
+                onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                variant="small"
+                icon="/filter.svg"
+              >
+                Filters{" "}
+                {Object.values(selectedFilters).reduce(
+                  (sum, vals) => sum + vals.length,
+                  0
+                ) > 0 &&
+                  `(${Object.values(selectedFilters).reduce((sum, vals) => sum + vals.length, 0)})`}
+              </Button>
             )}
-            {hasActiveFilters && (
-              <div className={styles.resultsCount}>
-                Showing {filteredItems.length} of {items.length} items
-              </div>
-            )}
+            <div className={styles.mobileRightControls}>
+              {hasActiveFilters && (
+                <div className={styles.resultsCount}>
+                  {filteredItems.length}/{items.length}
+                </div>
+              )}
+              {viewModeConfig.showToggle && (
+                <ViewModeToggle
+                  mode={viewMode}
+                  onChange={handleViewModeChange}
+                  variant="mobile"
+                />
+              )}
+            </div>
           </div>
 
           {/* Desktop View Toggle */}

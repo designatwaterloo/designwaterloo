@@ -131,11 +131,13 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
               </div>
             </div>
           </div>
-          {nextAvailableTerm && (
+          {nextAvailableTerm && member.publicEmail && (
             <div className={styles.nextAvailable}>
               <dt className={styles.label}>Next available</dt>
               <dd>
-                <Button variant="secondary">{nextAvailableTerm} ↗</Button>
+                <Button variant="secondary" href={`mailto:${member.publicEmail}`} icon="/mail.svg">
+                  {nextAvailableTerm}
+                </Button>
               </dd>
             </div>
           )}

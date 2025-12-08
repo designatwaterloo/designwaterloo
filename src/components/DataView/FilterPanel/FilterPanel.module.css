@@ -111,7 +111,7 @@
   padding: var(--margin);
   display: flex;
   flex-direction: column;
-  gap: var(--big);
+  gap: var(--smaller);
 }
 
 /* Filter Accordion */

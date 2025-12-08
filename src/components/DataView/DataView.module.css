@@ -43,7 +43,6 @@
   }
 }
 
-/* Mobile Controls */
 .mobileControls {
   display: flex;
   justify-content: space-between;
@@ -51,8 +50,21 @@
   gap: var(--gap);
 }
 
+.mobileRightControls {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+}
+
 @media (min-width: 769px) {
   .mobileControls {
+    display: none;
+  }
+}
+
+/* Hide filter button wrapper on mobile (shown in mobileControls instead) */
+@media (max-width: 768px) {
+  .filterButtonWrapper {
     display: none;
   }
 }
