@@ -40,7 +40,7 @@ export default function Button({
     const iconContent = <img src={icon} width={20} height={20} alt={iconAlt} />;
     
     if (href) {
-      const isExternal = href.startsWith('http') || target === "_blank";
+      const isExternal = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || target === "_blank";
       if (isExternal) {
         return (
           <a href={href} className={className} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined}>
@@ -62,8 +62,8 @@ export default function Button({
   );
 
   if (href) {
-    // External link or opens in new tab
-    const isExternal = href.startsWith('http') || target === "_blank";
+    // External link, mail/phone protocol, or opens in new tab
+    const isExternal = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || target === "_blank";
     
     if (isExternal) {
       return (
