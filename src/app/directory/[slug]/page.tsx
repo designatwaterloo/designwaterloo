@@ -5,9 +5,9 @@ import styles from "./page.module.css";
 import Button from "@/components/Button";
 import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
-import { memberBySlugQuery, memberSlugsQuery } from "@/sanity/queries";
+import { memberBySlugQuery, memberSlugsQuery, projectsByMemberQuery } from "@/sanity/queries";
 import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
-import type { Member } from "@/sanity/types";
+import type { Member, Project, FeaturedMedia } from "@/sanity/types";
 import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import { ensureHttps } from "@/lib/urlUtils";
@@ -57,6 +57,10 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
   if (!member) {
     notFound();
   }
+
+  // Fetch projects where this member is credited
+  type MemberProject = Pick<Project, '_id' | 'title' | 'slug' | 'yearCompleted' | 'client' | 'featuredMedia'> & { role?: string };
+  const projects = await client.fetch<MemberProject[]>(projectsByMemberQuery, { memberId: member._id });
 
   const nextAvailableTerm = getNextAvailableTerm(member.workSchedule);
   const allTerms = getTermsWithStatus(member.workSchedule);
@@ -282,6 +286,50 @@ export default async function PersonDetail({ params }: { params: Promise<{ slug:
             )}
           </div>
         </section>
+
+        {/* Work Projects Section */}
+        {projects && projects.length > 0 && (
+          <section className="grid-section !pt-0">
+            <div className="col-span-full">
+              <p className="text-[#7f7f7f] mb-[var(--gap)]">Work</p>
+            </div>
+            <div className="col-span-full grid grid-cols-4 gap-[var(--gap)] max-lg:grid-cols-2">
+              {projects.map((project) => {
+                const featuredImage = project.featuredMedia?.image;
+                const imageUrl = featuredImage?.asset?.url;
+                const lqip = featuredImage?.asset?.metadata?.lqip;
+                
+                return (
+                  <Link
+                    key={project._id}
+                    href={`/work/${project.slug?.current}`}
+                    className="flex flex-col gap-4 group"
+                    underline={false}
+                  >
+                    {imageUrl ? (
+                      <Image
+                        src={imageUrl}
+                        alt={project.featuredMedia?.alt || project.title}
+                        width={800}
+                        height={600}
+                        className="w-full aspect-[4/3] object-cover rounded bg-[#d9d9d9]"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        placeholder={lqip ? "blur" : "empty"}
+                        blurDataURL={lqip}
+                      />
+                    ) : (
+                      <div className="w-full aspect-[4/3] rounded bg-[#d9d9d9]" />
+                    )}
+                    <div className="flex flex-col gap-0">
+                      <p className="text-[var(--foreground)]">{project.title}</p>
+                      <p className="text-[#7f7f7f]">{project.role || project.client}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />

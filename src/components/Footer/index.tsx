@@ -75,14 +75,14 @@ export default function Footer({ variant = "default" }: FooterProps) {
         <dl className="hidden sm:flex sm:flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
           <dt className="text-[#b5b5b5]">Colophon</dt>
           <dd className="m-0">
-            <p>Our font is <a href="https://rsms.me/inter/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Inter Semibold</a>. We designed this site in <a href="https://www.figma.com/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Figma</a>, built in <a href="https://nextjs.org/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Next.js</a> alongside our friend <a href="https://claude.ai/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Claude</a>, and manage with <a href="https://www.sanity.io/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Sanity</a>. Made with love for the design community at Waterloo.</p>
+            <p>Our font is <a href="https://rsms.me/inter/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Inter Semibold</a>. We designed this site in <a href="https://www.figma.com/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Figma</a>, built in <a href="https://nextjs.org/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Next.js</a> alongside our friend <a href="https://claude.ai/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Claude</a>, and manage with <a href="https://www.sanity.io/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Sanity</a>. Forever a work in progress.</p>
           </dd>
         </dl>
 
         {/* Email - Mobile: hidden in menu variant, Desktop: Columns 7-9 */}
         <dl className={`flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px] ${variant === "menu" ? "max-sm:hidden" : ""}`}>
           <dt className="text-[#b5b5b5]">Email</dt>
-          <dd className="m-0">hi@designwaterloo.com</dd>
+          <dd className="m-0"><a href="mailto:designatwaterloo@gmail.com">designatwaterloo@gmail.com</a></dd>
         </dl>
 
         {/* Follow - Mobile: hidden in menu variant, Desktop: Columns 10-11 */}

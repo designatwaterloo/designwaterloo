@@ -1,9 +1,11 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Link from "@/components/Link";
 import Image from "next/image";
+import CreditsGrid from "./CreditsGrid";
 import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
-import { urlFor } from "@/sanity/lib/image";
+import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
 import { projectBySlugQuery, projectSlugsQuery } from "@/sanity/queries";
 import type { Project } from "@/sanity/types";
 import { PortableText } from "next-sanity";
@@ -39,22 +41,41 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
       <Header />
 
       <main>
+        <Link href="/work" className="inline-block mx-[var(--margin)] my-[var(--huge)] text-[var(--smallest)] text-[var(--foreground)] no-underline hover:text-blue-500" underline={false}>
+          ← Back to work
+        </Link>
         <section className="grid-section !gap-y-[var(--small)]">
-          <h1 className="col-span-full">{project.title}</h1>
+          {project.liveUrl ? (
+            <a 
+              href={project.liveUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="col-span-full flex items-baseline gap-3 group"
+            >
+              <h1 className="group-hover:underline">{project.title}</h1>
+              <span className="text-[1.5rem] text-[#7f7f7f] group-hover:text-[var(--foreground)] transition-colors">↗</span>
+            </a>
+          ) : (
+            <h1 className="col-span-full">{project.title}</h1>
+          )}
 
           {/* Project Info */}
-          <div className="col-span-full grid grid-cols-12 gap-x-[var(--gap)] gap-y-1">
-            <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Client</p>
-            <p className="col-span-2 col-start-3">{project.client}</p>
+          <div className="col-span-full flex flex-col gap-[var(--gap)]">
+            <div className="flex flex-col gap-1">
+              <p className="text-[#7f7f7f]">Client</p>
+              <p>{project.client}</p>
+            </div>
 
-            <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Date</p>
-            <p className="col-span-2 col-start-3">{project.yearCompleted}</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-[#7f7f7f]">Date</p>
+              <p>{project.yearCompleted}</p>
+            </div>
 
             {project.category && (
-              <>
-                <p className="uppercase text-[#7f7f7f] col-span-2 col-start-1">Category</p>
-                <p className="col-span-2 col-start-3 capitalize">{project.category.replace("-", " ")}</p>
-              </>
+              <div className="flex flex-col gap-1">
+                <p className="text-[#7f7f7f]">Category</p>
+                <p className="capitalize">{project.category.replace("-", " ")}</p>
+              </div>
             )}
           </div>
         </section>
@@ -83,13 +104,13 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
           <div className="flex flex-col gap-[var(--small)]">
             <h2 className="max-lg:hidden">{project.title}</h2>
             <div>
-              <p className="uppercase text-[#7f7f7f] mb-2">Year</p>
+              <p className="text-[#7f7f7f] mb-2">Year</p>
               <p>{project.yearCompleted}</p>
             </div>
 
             {project.description && (
               <div>
-                <p className="uppercase text-[#7f7f7f] mb-2">About</p>
+                <p className="text-[#7f7f7f] mb-2">About</p>
                 <div className="prose prose-sm">
                   <PortableText value={project.description} />
                 </div>
@@ -98,7 +119,7 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
 
             {project.tools && project.tools.length > 0 && (
               <div>
-                <p className="uppercase text-[#7f7f7f] mb-2">Tools</p>
+                <p className="text-[#7f7f7f] mb-2">Tools</p>
                 <p>{project.tools.join(", ")}</p>
               </div>
             )}
@@ -109,18 +130,28 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
         <div className="col-span-8 flex flex-col gap-[var(--gap)] max-lg:col-span-full">
           {project.projectImages && project.projectImages.length > 0 ? (
             project.projectImages
-              .filter((image) => image?.asset?._ref) // Filter out invalid images
+              .filter((image) => image?.asset?._id) // Filter out invalid images (now using _id since dereferenced)
               .map((image) => {
-                const imageUrl = urlFor(image).width(1920).height(1080).url();
+                const dimensions = image.asset?.metadata?.dimensions;
+                const width = dimensions?.width || 1920;
+                const height = dimensions?.height || 1080;
+                const imageUrl = image.asset?.url;
+                
+                if (!imageUrl) return null;
+                
+                const lqip = image.asset?.metadata?.lqip;
+                
                 return (
                   <Image
                     key={image._key}
                     src={imageUrl}
                     alt={image.alt || project.title}
-                    width={1920}
-                    height={1080}
+                    width={width}
+                    height={height}
                     className="w-full h-auto bg-gray-200"
                     sizes="(max-width: 768px) 100vw, 66vw"
+                    placeholder={lqip ? "blur" : "empty"}
+                    blurDataURL={lqip}
                   />
                 );
               })
@@ -130,125 +161,10 @@ export default async function WorkDetail({ params }: { params: Promise<{ slug: s
         </div>
       </section>
 
-      {/* Credits Section */}
-      <section className="grid-section">
-        {/* Sticky Left Sidebar */}
-        <div className="col-span-4 sticky top-[calc(var(--small)*4)] self-start pr-[var(--smaller)] max-lg:col-span-full max-lg:static max-lg:pr-0 max-lg:mb-[var(--small)]">
-          <div className="flex flex-col gap-[var(--small)]">
-            <p className="uppercase text-[#7f7f7f]">Credits</p>
-            
-            <div className="flex flex-col gap-1">
-              <p className=" text-[#7f7f7f]">Design</p>
-              <p>Brayden Petersen</p>
-              <p>Sheffield Wong</p>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <p className="text-[#7f7f7f]">Development</p>
-              <p>Brayden Petersen</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-[#7f7f7f]">Development</p>
-              <p>Brayden Petersen</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-[#7f7f7f]">Development</p>
-              <p>Brayden Petersen</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <p className="text-[#7f7f7f]">Development</p>
-              <p>Brayden Petersen</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right People Grid */}
-        <div className="col-span-8 grid grid-cols-6 gap-[var(--gap)] max-lg:col-span-full">
-          {/* Person 1 */}
-          <div className="flex flex-col gap-2">
-            <Image
-              src="/NYA00500-3.png"
-              alt="Sheffield Wong"
-              width={300}
-              height={400}
-              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              sizes="(max-width: 768px) 50vw, 12vw"
-            />
-            <p className="font-semibold">Sheffield Wong</p>
-            <p className="text-[#7f7f7f]">Product Designer</p>
-          </div>
-
-          {/* Person 2 */}
-          <div className="flex flex-col gap-2">
-            <Image
-              src="/NYA00500-3.png"
-              alt="Sheffield Wong"
-              width={300}
-              height={400}
-              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              sizes="(max-width: 768px) 50vw, 12vw"
-            />
-            <p className="font-semibold">Sheffield Wong</p>
-            <p className="text-[#7f7f7f]">Design</p>
-          </div>
-
-          {/* Person 3 */}
-          <div className="flex flex-col gap-2">
-            <Image
-              src="/NYA00500-3.png"
-              alt="Sheffield Wong"
-              width={300}
-              height={400}
-              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              sizes="(max-width: 768px) 50vw, 12vw"
-            />
-            <p className="font-semibold">Sheffield Wong</p>
-            <p className="text-[#7f7f7f]">Design</p>
-          </div>
-
-          {/* Person 4 */}
-          <div className="flex flex-col gap-2">
-            <Image
-              src="/NYA00500-3.png"
-              alt="Sheffield Wong"
-              width={300}
-              height={400}
-              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              sizes="(max-width: 768px) 50vw, 12vw"
-            />
-            <p className="font-semibold">Sheffield Wong</p>
-            <p className="text-[#7f7f7f]">Design</p>
-          </div>
-
-          {/* Person 5 */}
-          <div className="flex flex-col gap-2">
-            <Image
-              src="/NYA00500-3.png"
-              alt="Sheffield Wong"
-              width={300}
-              height={400}
-              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              sizes="(max-width: 768px) 50vw, 12vw"
-            />
-            <p className="font-semibold">Sheffield Wong</p>
-            <p className="text-[#7f7f7f]">Design</p>
-          </div>
-
-          {/* Person 6 */}
-          <div className="flex flex-col gap-2">
-            <Image
-              src="/NYA00500-3.png"
-              alt="Sheffield Wong"
-              width={300}
-              height={400}
-              className="w-full aspect-[3/4] object-cover rounded bg-gray-200"
-              sizes="(max-width: 768px) 50vw, 12vw"
-            />
-            <p className="font-semibold">Sheffield Wong</p>
-            <p className="text-[#7f7f7f]">Design</p>
-          </div>
-        </div>
-      </section>
+      {/* Credits Section - Only show if project has members */}
+      {project.members && project.members.length > 0 && (
+        <CreditsGrid members={project.members} />
+      )}
 
       <Footer />
     </div>

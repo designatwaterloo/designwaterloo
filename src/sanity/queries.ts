@@ -31,6 +31,7 @@ export const projectBySlugQuery = groq`
     client,
     category,
     tools,
+    liveUrl,
     featuredMedia {
       mediaType,
       image {
@@ -45,13 +46,42 @@ export const projectBySlugQuery = groq`
     },
     projectImages[] {
       _key,
-      asset,
+      asset-> {
+        _id,
+        url,
+        metadata {
+          lqip,
+          dimensions {
+            width,
+            height
+          }
+        }
+      },
       hotspot,
       crop,
       alt,
       caption
     },
-    description
+    description,
+    members[] {
+      role,
+      member-> {
+        _id,
+        firstName,
+        lastName,
+        slug,
+        profileImage {
+          asset-> {
+            _id,
+            url,
+            metadata {
+              lqip
+            }
+          }
+        },
+        specialties
+      }
+    }
   }
 `;
 
@@ -153,5 +183,51 @@ export const memberBySlugQuery = groq`
 export const memberSlugsQuery = groq`
   *[_type == "member" && defined(slug.current)] {
     "slug": slug.current
+  }
+`;
+
+// Query to get projects where a specific member is credited
+export const projectsByMemberQuery = groq`
+  *[_type == "project" && references($memberId)] | order(yearCompleted desc) {
+    _id,
+    title,
+    slug,
+    yearCompleted,
+    client,
+    "role": members[member._ref == $memberId][0].role,
+    featuredMedia {
+      mediaType,
+      image {
+        asset-> {
+          _id,
+          url,
+          metadata {
+            lqip
+          }
+        }
+      },
+      alt
+    }
+  }
+`;
+
+// Query to get all resources (for listing page)
+export const resourcesQuery = groq`
+  *[_type == "resource"] | order(order asc, title asc) {
+    _id,
+    title,
+    description,
+    logo {
+      asset-> {
+        _id,
+        url,
+        metadata {
+          lqip
+        }
+      }
+    },
+    link,
+    price,
+    category
   }
 `;

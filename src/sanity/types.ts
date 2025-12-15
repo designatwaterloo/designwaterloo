@@ -11,6 +11,10 @@ export interface SanityImage {
     url?: string;
     metadata?: {
       lqip?: string;
+      dimensions?: {
+        width: number;
+        height: number;
+      };
     };
   };
   hotspot?: {
@@ -45,6 +49,18 @@ export interface FeaturedMedia {
   alt?: string;
 }
 
+export interface ProjectMember {
+  role: string;
+  member: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    slug: { current: string };
+    profileImage?: SanityImage;
+    specialties?: string[];
+  };
+}
+
 export interface Project {
   _id: string;
   _type?: "project"; // Optional since listing queries may not fetch it
@@ -56,9 +72,11 @@ export interface Project {
   client: string;
   category?: "branding" | "web-design" | "print" | "packaging" | "other";
   tools?: string[];
+  liveUrl?: string;
   featuredMedia?: FeaturedMedia;
   projectImages?: ProjectImage[];
   description?: PortableTextBlock[];
+  members?: ProjectMember[];
 }
 
 export interface Member {
@@ -113,4 +131,15 @@ export interface Member {
   specialties?: string[];
   // Availability
   workSchedule?: string[];
+}
+
+export interface Resource {
+  _id: string;
+  title: string;
+  description?: string;
+  logo?: SanityImage;
+  link: string;
+  price?: string;
+  category?: "design-tools" | "development" | "productivity" | "learning" | "other";
+  order?: number;
 }

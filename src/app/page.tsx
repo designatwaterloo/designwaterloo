@@ -4,19 +4,24 @@ import Button from "@/components/Button";
 import Image from "next/image";
 import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
-import { Member } from "@/sanity/types";
-import { membersQuery } from "@/sanity/queries";
+import { Member, Project } from "@/sanity/types";
+import { membersQuery, projectsQuery } from "@/sanity/queries";
 import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
+import ProjectGridCard from "@/app/work/ProjectGridCard";
 
 const options = { next: { revalidate: 30 } };
 
 export default async function Home() {
   const allMembers = await client.fetch<Member[]>(membersQuery, {}, options);
+  const allProjects = await client.fetch<Project[]>(projectsQuery, {}, options);
   
   // Show random 24 members (will be different on each build)
   const members = allMembers
     .sort(() => Math.random() - 0.5)
     .slice(0, 24);
+  
+  // Show first 6 projects (already sorted by yearCompleted desc in query)
+  const projects = allProjects.slice(0, 6);
 
   return (
     <div className="w-full">
@@ -63,7 +68,7 @@ export default async function Home() {
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
               referrerPolicy="strict-origin-when-cross-origin"
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
               title="BYODP | Design Waterloo & Figma"
             />
           </div>
@@ -88,20 +93,18 @@ export default async function Home() {
               <h2>Proof of work.</h2>
             </div>
             <p className="flex-1">
-              Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
+              Our members have created meaningful work—from branding and product design to motion and web experiences. Here&apos;s a look at what we&apos;ve been building.
             </p>
           </div>
 
           <div className="grid grid-cols-6 gap-[var(--gap)] w-full max-lg:grid-cols-4 mobile-grid-2">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card flex flex-col gap-4">
-                <p className="uppercase">Project {i}</p>
-                <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
-                <p className="text-[#7f7f7f]">
-                  Project description goes here.
-                </p>
-              </div>
+            {projects.map((project) => (
+              <ProjectGridCard key={project._id} project={project} />
             ))}
+          </div>
+
+          <div className="flex justify-center">
+            <Button href="/work" variant="secondary">View all work</Button>
           </div>
         </section>
 
@@ -115,8 +118,8 @@ export default async function Home() {
             <div className="flex-1">
               <h2>The biggest design family on campus.</h2>
             </div>
-            <p className="w-[590px] max-lg:w-full">
-              The Design Waterloo directory highlights the top designers, videographers, and artists in one convenient location. It&apos;s your go-to resource for discovering exceptional creative talent from the Waterloo area.
+            <p className="flex-1">
+              Browse our directory to discover exceptional designers, developers, and creatives. Find talent for your next project or connect with fellow designers in the Waterloo community.
             </p>
           </div>
 
@@ -144,37 +147,12 @@ export default async function Home() {
               </Link>
             ))}
           </div>
-        </section>
 
-        {/* Play/Events Section */}
-        <section id="play" className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
-          <div className="section-divider">
-            <p className="section-label">Play</p>
-          </div>
-
-          <div className="flex gap-[var(--gap)] w-full max-lg:flex-col max-lg:gap-6">
-            <div className="flex-1">
-              <h2 className="max-w-[463px]">
-                We host cute events and workshops to grow design at Waterloo
-              </h2>
-            </div>
-            <p className="flex-1">
-              Design Waterloo is a vibrant community dedicated to nurturing exceptional designers, artists, filmmakers, engineers, and creatives from the <span className="underline">University of Waterloo</span> and <span className="underline">Wilfrid Laurier University</span>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-6 gap-[var(--gap)] w-full max-lg:grid-cols-4 mobile-grid-2">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="card flex flex-col gap-4">
-                <p className="uppercase">Event {i}</p>
-                <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
-                <p className="text-[#7f7f7f]">
-                  Event description goes here.
-                </p>
-              </div>
-            ))}
+          <div className="flex justify-center">
+            <Button href="/directory" variant="secondary">View directory</Button>
           </div>
         </section>
+
       </main>
 
       <Footer />

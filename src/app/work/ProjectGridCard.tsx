@@ -31,7 +31,7 @@ export default function ProjectGridCard({ project, onClick }: ProjectGridCardPro
           alt={project.featuredMedia?.alt || project.title}
           width={800}
           height={600}
-          className="aspect-[4/3] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+          className="aspect-[4/3] w-full object-cover rounded"
           placeholder={getBlurDataURL(featuredImage) ? "blur" : "empty"}
           blurDataURL={getBlurDataURL(featuredImage)}
         />
@@ -39,7 +39,7 @@ export default function ProjectGridCard({ project, onClick }: ProjectGridCardPro
         <div className="aspect-[4/3] bg-[#d9d9d9] rounded" />
       )}
       <div className="flex flex-col gap-0">
-        <p className="text-[var(--foreground)] font-semibold">{project.title}</p>
+        <p className="text-[var(--foreground)]">{project.title}</p>
         <p>{project.client}</p>
         <p className="py-2">{project.yearCompleted}</p>
       </div>
