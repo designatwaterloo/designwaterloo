@@ -31,6 +31,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       document.body.style.cursor = "wait";
       const timer = setTimeout(() => {
         if (nextHref) {
+          // Scroll to top regardless of whether it's same-page or different page
+          window.scrollTo(0, 0);
           router.push(nextHref);
           setIsWaitingForPush(false);
         }

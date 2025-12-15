@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "@/components/Link";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 import Curtain from "../Curtain";
@@ -13,6 +14,7 @@ interface OverlayNavProps {
 }
 
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
+  const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,13 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   const isClosing = !isOpen;
 
+  // Only close menu if navigating to the same page
+  const handleNavClick = (href: string) => {
+    if (pathname === href) {
+      onClose();
+    }
+  };
+
   return (
     <div className={`${styles.overlay} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}>
       {/* Replaced columns with Curtain component */}
@@ -74,6 +83,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                 <Link
                   key={item.label}
                   href={item.href}
+                  onClick={() => handleNavClick(item.href)}
                   className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                   style={{
                     transitionDelay: isClosing
