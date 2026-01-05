@@ -36,13 +36,12 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "Work", href: "/work" },
     { label: "Directory", href: "/directory" },
     { label: "About", href: "/about" },
   ];
 
-  // Nav item delays: start after columns finish 
-  const navItemDelays = [0.65, 0.72, 0.80, 0.89];
+  // Nav item delays: start after columns finish
+  const navItemDelays = [0.65, 0.72, 0.80];
 
   const isClosing = !isOpen;
 

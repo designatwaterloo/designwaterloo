@@ -4,24 +4,19 @@ import Button from "@/components/Button";
 import Image from "next/image";
 import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
-import { Member, Project } from "@/sanity/types";
-import { membersQuery, projectsQuery } from "@/sanity/queries";
+import { Member } from "@/sanity/types";
+import { membersQuery } from "@/sanity/queries";
 import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
-import ProjectGridCard from "@/app/work/ProjectGridCard";
 
 const options = { next: { revalidate: 30 } };
 
 export default async function Home() {
   const allMembers = await client.fetch<Member[]>(membersQuery, {}, options);
-  const allProjects = await client.fetch<Project[]>(projectsQuery, {}, options);
-  
+
   // Show random 24 members (will be different on each build)
   const members = allMembers
     .sort(() => Math.random() - 0.5)
     .slice(0, 24);
-  
-  // Show first 6 projects (already sorted by yearCompleted desc in query)
-  const projects = allProjects.slice(0, 6);
 
   return (
     <div className="w-full">
@@ -81,32 +76,6 @@ export default async function Home() {
 
         {/* Description Section - Desktop Only Spacing */}
         <section className="w-full px-[var(--margin)] py-[120px] pb-0 hidden sm:block"></section>
-
-        {/* Work Section */}
-        <section id="work" className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
-          <div className="section-divider">
-            <p className="section-label">Work</p>
-          </div>
-
-          <div className="flex gap-[var(--gap)] w-full max-lg:flex-col max-lg:gap-6">
-            <div className="flex-1">
-              <h2>Proof of work.</h2>
-            </div>
-            <p className="flex-1">
-              Our members have created meaningful work—from branding and product design to motion and web experiences. Here&apos;s a look at what we&apos;ve been building.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-6 gap-[var(--gap)] w-full max-lg:grid-cols-4 mobile-grid-2">
-            {projects.map((project) => (
-              <ProjectGridCard key={project._id} project={project} />
-            ))}
-          </div>
-
-          <div className="flex justify-center">
-            <Button href="/work" variant="secondary">View all work</Button>
-          </div>
-        </section>
 
         {/* Directory Section */}
         <section id="directory" className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
