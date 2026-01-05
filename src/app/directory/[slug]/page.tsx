@@ -7,7 +7,7 @@ import Link from "@/components/Link";
 import { client } from "@/sanity/lib/client";
 import { memberBySlugQuery, memberSlugsQuery } from "@/sanity/queries";
 import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
-import type { Member, FeaturedMedia } from "@/sanity/types";
+import type { Member } from "@/sanity/types";
 import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import { ensureHttps } from "@/lib/urlUtils";
