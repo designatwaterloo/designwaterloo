@@ -45,7 +45,7 @@ export default async function Home() {
               The home for design talent at Waterloo, and where to find them.
             </h1>
             <div className="flex flex-row-reverse sm:flex-row gap-[var(--tinier)] sm:gap-[var(--gap)] justify-start sm:col-span-6 sm:justify-end">
-              <Button href="/directory" variant="secondary">Get involved</Button>
+              <Button href="https://docs.google.com/forms/d/e/1FAIpQLSe39IpLj1jdWg54ZTnOlKrcDbitAfCq3G1Y7r7YPoFL1vyJCw/viewform?usp=sharing&ouid=111313787204079300834" variant="secondary" target="_blank">Get involved</Button>
               <Button href="/directory" variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
             </div>
           </div>
