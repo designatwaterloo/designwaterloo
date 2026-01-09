@@ -40,9 +40,9 @@
 }
 
 .secondary:hover {
-  background: var(--muted);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--black);
-  border: 2px solid var(--muted);
+  border: 2px solid var(--black);
 }
 
 .small {
@@ -58,9 +58,9 @@
 }
 
 .small:hover {
-  background: var(--muted);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--black);
-  border: 2px solid var(--muted);
+  border: 2px solid var(--black);
 }
 
 /* Icon-only variant */

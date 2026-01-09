@@ -79,10 +79,10 @@ export default function Footer({ variant = "default" }: FooterProps) {
           </dd>
         </dl>
 
-        {/* Email - Mobile: hidden in menu variant, Desktop: Columns 7-9 */}
+        {/* Contact - Mobile: hidden in menu variant, Desktop: Columns 7-9 */}
         <dl className={`flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px] ${variant === "menu" ? "max-sm:hidden" : ""}`}>
-          <dt className="text-[#b5b5b5]">Email</dt>
-          <dd className="m-0"><a href="mailto:designatwaterloo@gmail.com">designatwaterloo@gmail.com</a></dd>
+          <dt className="text-[#b5b5b5]">Contact</dt>
+          <dd className="m-0">Send us an email <a href="mailto:designatwaterloo@gmail.com" className={`${linkColor} ${linkHoverColor} underline`}>here</a>.</dd>
         </dl>
 
         {/* Follow - Mobile: hidden in menu variant, Desktop: Columns 10-11 */}

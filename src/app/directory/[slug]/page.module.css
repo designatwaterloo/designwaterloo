@@ -1,7 +1,8 @@
 /* Back button */
 .backButton {
   display: inline-block;
-  margin: var(--huge) var(--margin);
+  margin: 100px var(--smaller) 100px var(--smaller);
+  padding: 36px 48px 36px 6px;
   font-size: var(--smallest);
   color: var(--foreground);
   text-decoration: none;

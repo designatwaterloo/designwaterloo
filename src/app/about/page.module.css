@@ -1,0 +1,32 @@
+.article p {
+  font-size: var(--smaller);
+  line-height: 114%;
+}
+
+.article li {
+  font-size: var(--smaller);
+  line-height: 114%;
+}
+
+.article h2 {
+  font-size: var(--big);
+}
+
+.extraSpacing {
+  margin-top: var(--big);
+}
+
+/* Mobile: Slightly smaller font size and reduced spacing (0-768px) */
+@media (max-width: 768px) {
+  .article {
+    gap: 20px;
+  }
+
+  .article p {
+    font-size: 20px;
+  }
+
+  .article li {
+    font-size: 20px;
+  }
+}
