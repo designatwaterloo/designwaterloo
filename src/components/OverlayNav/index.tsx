@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 import Curtain from "../Curtain";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface OverlayNavProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface OverlayNavProps {
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
+  const { user, member, signOut } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -40,8 +42,24 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
     { label: "About", href: "/about" },
   ];
 
+  // Build user navigation items based on auth state
+  const userNavItems: { label: string; href?: string; onClick?: () => void }[] = [];
+  if (user && member) {
+    userNavItems.push({ label: "Edit Profile", href: "/profile/edit" });
+    userNavItems.push({
+      label: "Sign Out",
+      onClick: () => {
+        signOut();
+        onClose();
+      },
+    });
+  } else if (!user) {
+    userNavItems.push({ label: "Sign In", href: "/sign-in" });
+  }
+
   // Nav item delays: start after columns finish
   const navItemDelays = [0.65, 0.72, 0.80];
+  const userNavItemDelays = [0.88, 0.96];
 
   const isClosing = !isOpen;
 
@@ -92,6 +110,37 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                 >
                   {item.label}
                 </Link>
+              ))}
+              {/* User Navigation Items */}
+              {userNavItems.map((item, index) => (
+                item.href ? (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => handleNavClick(item.href!)}
+                    className={`${styles.navItem} ${styles.userNavItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                    style={{
+                      transitionDelay: isClosing
+                        ? '0s, 0s, 0s, 0s'
+                        : `${userNavItemDelays[index]}s, ${userNavItemDelays[index]}s, 0s, 0s`
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <button
+                    key={item.label}
+                    onClick={item.onClick}
+                    className={`${styles.navItem} ${styles.userNavItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                    style={{
+                      transitionDelay: isClosing
+                        ? '0s, 0s, 0s, 0s'
+                        : `${userNavItemDelays[index]}s, ${userNavItemDelays[index]}s, 0s, 0s`
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                )
               ))}
             </nav>
 

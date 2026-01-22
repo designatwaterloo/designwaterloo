@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.sanity.io',
         pathname: '/images/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'skalyworwmxcofolgnjs.supabase.co',
+        pathname: '/storage/**',
+      },
     ],
   },
 };

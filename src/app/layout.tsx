@@ -5,6 +5,7 @@ import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import SmoothScroll from "@/components/SmoothScroll";
 import { TransitionProvider } from "@/context/TransitionContext";
 import PageTransition from "@/components/PageTransition";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://designwaterloo.com'),
@@ -44,7 +45,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <TransitionProvider>
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://rsms.me/" />
@@ -52,14 +52,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Waterloo" />
       </head>
       <body className="antialiased">
-        <SmoothScroll>
-          <ConsoleEasterEgg />
-          <PageTransition />
-          {children}
-        </SmoothScroll>
+        <AuthProvider>
+          <TransitionProvider>
+            <SmoothScroll>
+              <ConsoleEasterEgg />
+              <PageTransition />
+              {children}
+            </SmoothScroll>
+          </TransitionProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
-    </TransitionProvider>
   );
 }

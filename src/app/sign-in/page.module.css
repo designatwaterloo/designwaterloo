@@ -1,0 +1,61 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--smaller);
+  text-align: center;
+  max-width: 480px;
+}
+
+.title {
+  font-size: 48px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.description {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: var(--tinier) var(--smallest);
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.microsoftButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tinier);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  padding: var(--tiny) var(--smaller);
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  margin-top: var(--tinier);
+}
+
+.microsoftButton:hover {
+  opacity: 0.9;
+}
+
+.microsoftButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+}

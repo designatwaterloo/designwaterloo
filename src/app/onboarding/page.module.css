@@ -1,0 +1,201 @@
+.header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  font-size: 48px;
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--tinier) 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.progress {
+  display: flex;
+  justify-content: center;
+  gap: var(--smaller);
+  padding: var(--smaller) 0;
+  border-bottom: 1px solid var(--muted);
+}
+
+.step {
+  color: var(--muted);
+  font-size: 14px;
+  padding: var(--tinier) var(--smallest);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.step.active {
+  color: var(--foreground);
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+}
+
+.error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: var(--tinier) var(--smallest);
+  border-radius: 8px;
+  font-size: 14px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form {
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--smaller);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tiniest);
+}
+
+.field label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.field input,
+.field textarea {
+  padding: var(--tiny) var(--tinier);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--foreground);
+}
+
+.field input:disabled {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--muted);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.specialtiesInput {
+  display: flex;
+  gap: var(--tinier);
+}
+
+.specialtiesInput input {
+  flex: 1;
+}
+
+.addButton {
+  padding: var(--tiny) var(--smallest);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.addButton:hover {
+  opacity: 0.9;
+}
+
+.specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tinier);
+  margin-top: var(--tinier);
+}
+
+.specialty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tiniest);
+  padding: var(--tiniest) var(--tinier);
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.specialty button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--muted);
+  padding: 0;
+}
+
+.specialty button:hover {
+  color: var(--foreground);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--tinier);
+  margin-top: var(--smaller);
+}
+
+.primaryButton {
+  padding: var(--tiny) var(--smaller);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.primaryButton:hover {
+  opacity: 0.9;
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: var(--tiny) var(--smaller);
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  border-color: var(--foreground);
+}
