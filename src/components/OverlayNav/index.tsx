@@ -17,7 +17,7 @@ interface OverlayNavProps {
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
-  const { user, member, signOut } = useAuth();
+  const { user, member, loading, signOut } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -44,8 +44,18 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   // Build user navigation items based on auth state
   const userNavItems: { label: string; href?: string; onClick?: () => void }[] = [];
-  if (user && member) {
-    userNavItems.push({ label: "Edit Profile", href: "/profile/edit" });
+
+  if (loading) {
+    // Still loading - don't show auth items yet to avoid flicker
+  } else if (user) {
+    // User is logged in
+    if (member?.is_admin) {
+      userNavItems.push({ label: "Admin", href: "/admin" });
+    }
+    if (member) {
+      userNavItems.push({ label: "Edit Profile", href: "/profile/edit" });
+    }
+    // Always show sign out if user is logged in
     userNavItems.push({
       label: "Sign Out",
       onClick: () => {
@@ -53,13 +63,13 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
         onClose();
       },
     });
-  } else if (!user) {
+  } else {
+    // Not logged in
     userNavItems.push({ label: "Sign In", href: "/sign-in" });
   }
 
   // Nav item delays: start after columns finish
-  const navItemDelays = [0.65, 0.72, 0.80];
-  const userNavItemDelays = [0.88, 0.96];
+  const allNavItemDelays = [0.65, 0.72, 0.80, 0.88, 0.96, 1.04, 1.12];
 
   const isClosing = !isOpen;
 
@@ -105,24 +115,25 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   style={{
                     transitionDelay: isClosing
                       ? '0s, 0s, 0s, 0s'
-                      : `${navItemDelays[index]}s, ${navItemDelays[index]}s, 0s, 0s`
+                      : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
                   }}
                 >
                   {item.label}
                 </Link>
               ))}
               {/* User Navigation Items */}
-              {userNavItems.map((item, index) => (
-                item.href ? (
+              {userNavItems.map((item, index) => {
+                const delayIndex = navItems.length + index;
+                return item.href ? (
                   <Link
                     key={item.label}
                     href={item.href}
                     onClick={() => handleNavClick(item.href!)}
-                    className={`${styles.navItem} ${styles.userNavItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                    className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                     style={{
                       transitionDelay: isClosing
                         ? '0s, 0s, 0s, 0s'
-                        : `${userNavItemDelays[index]}s, ${userNavItemDelays[index]}s, 0s, 0s`
+                        : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
                   >
                     {item.label}
@@ -131,17 +142,17 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   <button
                     key={item.label}
                     onClick={item.onClick}
-                    className={`${styles.navItem} ${styles.userNavItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                    className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                     style={{
                       transitionDelay: isClosing
                         ? '0s, 0s, 0s, 0s'
-                        : `${userNavItemDelays[index]}s, ${userNavItemDelays[index]}s, 0s, 0s`
+                        : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
                   >
                     {item.label}
                   </button>
-                )
-              ))}
+                );
+              })}
             </nav>
 
             {/* Close Button - Desktop */}

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ImageUpload from "@/components/ImageUpload";
 import styles from "./page.module.css";
 
 export default function OnboardingPage() {
@@ -31,6 +32,7 @@ export default function OnboardingPage() {
   const [github, setGithub] = useState("");
   const [specialties, setSpecialties] = useState<string[]>([]);
   const [newSpecialty, setNewSpecialty] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -90,7 +92,9 @@ export default function OnboardingPage() {
           instagram: instagram || null,
           github: github || null,
           specialties: specialties,
+          profile_image_url: profileImageUrl,
           onboarding_completed: true,
+          is_approved: false,
         } as never)
         .select()
         .single();
@@ -103,7 +107,7 @@ export default function OnboardingPage() {
       }
 
       await refreshMember();
-      router.push(`/directory/${finalSlug}`);
+      router.push("/pending-approval");
     } catch (err) {
       console.error("Error:", err);
       setError("Something went wrong. Please try again.");
@@ -159,6 +163,14 @@ export default function OnboardingPage() {
           <div className={styles.form}>
             {step === 1 && (
               <div className={styles.stepContent}>
+                <div className={styles.field}>
+                  <label>Profile Photo</label>
+                  <ImageUpload
+                    currentImageUrl={profileImageUrl}
+                    onImageUploaded={setProfileImageUrl}
+                  />
+                </div>
+
                 <div className={styles.field}>
                   <label htmlFor="firstName">First Name *</label>
                   <input

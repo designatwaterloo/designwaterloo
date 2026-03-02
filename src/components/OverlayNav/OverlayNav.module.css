@@ -325,23 +325,6 @@
   z-index: 1 !important;
 }
 
-/* User Navigation Items - Secondary styling */
-.userNavItem {
-  font-size: 24px;
-  opacity: 0.7;
-  margin-top: var(--tinier);
-}
-
-.userNavItem:first-of-type {
-  margin-top: var(--smaller);
-  padding-top: var(--smaller);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.userNavItem:hover {
-  opacity: 1;
-}
-
 /* Style for button nav items */
 .navButton {
   background: none;
@@ -349,11 +332,4 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-}
-
-/* Mobile: Smaller user nav items */
-@media (max-width: 768px) {
-  .userNavItem {
-    font-size: 20px;
-  }
 }

@@ -1,0 +1,134 @@
+.section {
+  padding: var(--margin);
+  max-width: 1000px;
+}
+
+.section h1 {
+  margin-bottom: var(--tinier);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: var(--big);
+}
+
+.card {
+  border: 1px solid var(--border);
+  padding: var(--gap);
+  margin-bottom: var(--gap);
+}
+
+.card h2 {
+  font-size: var(--small);
+  margin-bottom: var(--gap);
+}
+
+.empty {
+  color: var(--muted);
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.memberItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--smaller);
+  border: 1px solid var(--border);
+  gap: var(--gap);
+}
+
+@media (max-width: 768px) {
+  .memberItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memberName {
+  font-weight: 500;
+  margin: 0;
+}
+
+.memberEmail {
+  color: var(--muted);
+  font-size: var(--smallest);
+  margin: 0;
+}
+
+.memberSchool {
+  font-size: var(--smallest);
+  margin: 0;
+}
+
+.memberProgram {
+  font-size: var(--smallest);
+  color: var(--muted);
+  margin: 0;
+}
+
+.memberActions {
+  display: flex;
+  gap: var(--tinier);
+  flex-shrink: 0;
+}
+
+.previewLink {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  font-size: var(--smallest);
+}
+
+.previewLink:hover {
+  border-color: var(--foreground);
+}
+
+.approveButton {
+  padding: 8px 16px;
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  cursor: pointer;
+  font-size: var(--smallest);
+  font-family: inherit;
+}
+
+.approveButton:hover {
+  opacity: 0.8;
+}
+
+.approveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rejectButton {
+  padding: 8px 16px;
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  cursor: pointer;
+  font-size: var(--smallest);
+  font-family: inherit;
+}
+
+.rejectButton:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.rejectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

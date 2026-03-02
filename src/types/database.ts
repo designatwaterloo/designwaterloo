@@ -30,6 +30,8 @@ export interface Database {
           specialties: string[];
           work_schedule: string[];
           onboarding_completed: boolean;
+          is_approved: boolean;
+          is_admin: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -60,6 +62,8 @@ export interface Database {
           specialties?: string[];
           work_schedule?: string[];
           onboarding_completed?: boolean;
+          is_approved?: boolean;
+          is_admin?: boolean;
         };
         Update: {
           id?: string;
@@ -88,6 +92,8 @@ export interface Database {
           specialties?: string[];
           work_schedule?: string[];
           onboarding_completed?: boolean;
+          is_approved?: boolean;
+          is_admin?: boolean;
         };
       };
       member_experiences: {

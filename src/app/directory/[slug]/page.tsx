@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import { ensureHttps } from "@/lib/urlUtils";
 import type { Metadata } from "next";
+import EditProfileButton from "./EditProfileButton";
 
 export const revalidate = 30;
 
@@ -28,7 +29,8 @@ export async function generateStaticParams() {
   const { data: members } = await supabase
     .from("members")
     .select("slug")
-    .eq("onboarding_completed", true);
+    .eq("onboarding_completed", true)
+    .eq("is_approved", true);
 
   return ((members || []) as { slug: string }[]).map((member) => ({
     slug: member.slug,
@@ -95,6 +97,24 @@ export default async function PersonDetail({
     notFound();
   }
 
+  // Only allow the member themselves or an admin to view unapproved profiles
+  if (!member.is_approved) {
+    const { data: { user } } = await supabase.auth.getUser();
+    const isOwner = user && member.auth_user_id === user.id;
+    let isAdmin = false;
+    if (user && !isOwner) {
+      const { data: viewer } = (await supabase
+        .from("members")
+        .select("is_admin")
+        .eq("auth_user_id", user.id)
+        .maybeSingle()) as { data: { is_admin: boolean } | null };
+      isAdmin = viewer?.is_admin ?? false;
+    }
+    if (!isOwner && !isAdmin) {
+      notFound();
+    }
+  }
+
   const nextAvailableTerm = getNextAvailableTerm(member.work_schedule);
   const allTerms = getTermsWithStatus(member.work_schedule);
 
@@ -124,9 +144,12 @@ export default async function PersonDetail({
           ← Back to directory
         </Link>
         <section className={styles.section}>
-          <h1 className={styles.name}>
-            {member.first_name} {member.last_name}
-          </h1>
+          <div className={styles.nameRow}>
+            <h1 className={styles.name}>
+              {member.first_name} {member.last_name}
+            </h1>
+            <EditProfileButton memberSlug={member.slug} />
+          </div>
           <div className={styles.imageContainer}>
             {member.profile_image_url && (
               <Image

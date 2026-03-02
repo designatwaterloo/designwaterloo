@@ -97,8 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
     setMember(null);
+    // Redirect to server-side sign-out route to clear both server and client cookies
+    window.location.href = "/auth/sign-out";
   };
 
   const refreshMember = async () => {

@@ -25,6 +25,7 @@ export default async function DirectoryPage() {
     .from("members")
     .select("*")
     .eq("onboarding_completed", true)
+    .eq("is_approved", true)
     .order("member_id", { ascending: true });
 
   const supabaseMembers = (data || []) as SupabaseMember[];

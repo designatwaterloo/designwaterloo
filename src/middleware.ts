@@ -2,7 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
 
-const PROTECTED_PATHS = ["/onboarding", "/profile"];
+const PROTECTED_PATHS = ["/onboarding", "/profile", "/pending-approval"];
+const ADMIN_PATHS = ["/admin"];
 const AUTH_PATHS = ["/sign-in"];
 
 export async function middleware(request: NextRequest) {
@@ -34,31 +35,14 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
-  // Check if path is protected
   const isProtectedPath = PROTECTED_PATHS.some((path) =>
     pathname.startsWith(path)
   );
+  const isAdminPath = ADMIN_PATHS.some((path) => pathname.startsWith(path));
   const isAuthPath = AUTH_PATHS.some((path) => pathname.startsWith(path));
 
-  // Redirect authenticated users away from auth pages
-  if (isAuthPath && user) {
-    // Check if they have completed onboarding
-    const { data: member } = await supabase
-      .from("members")
-      .select("onboarding_completed, slug")
-      .eq("auth_user_id", user.id)
-      .single();
-
-    if (!member || !member.onboarding_completed) {
-      return NextResponse.redirect(new URL("/onboarding", request.url));
-    }
-    return NextResponse.redirect(
-      new URL(`/directory/${member.slug}`, request.url)
-    );
-  }
-
-  // Redirect unauthenticated users from protected routes
-  if (isProtectedPath && !user) {
+  // Redirect unauthenticated users from protected or admin routes
+  if ((isProtectedPath || isAdminPath) && !user) {
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
     return NextResponse.redirect(redirectUrl);
@@ -72,14 +56,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Fetch member data once for all subsequent checks
+  let member: { slug: string; onboarding_completed: boolean; is_admin: boolean } | null = null;
+  if (user && (isAuthPath || isAdminPath || isProtectedPath)) {
+    const { data } = await supabase
+      .from("members")
+      .select("slug, onboarding_completed, is_admin")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+    member = data;
+  }
+
+  // Redirect authenticated users away from auth pages
+  if (isAuthPath && user) {
+    if (!member || !member.onboarding_completed) {
+      return NextResponse.redirect(new URL("/onboarding", request.url));
+    }
+    return NextResponse.redirect(
+      new URL(`/directory/${member.slug}`, request.url)
+    );
+  }
+
+  // Check admin access
+  if (isAdminPath && !member?.is_admin) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // Redirect to onboarding if user hasn't completed it
   if (user && isProtectedPath && pathname !== "/onboarding") {
-    const { data: member } = await supabase
-      .from("members")
-      .select("onboarding_completed")
-      .eq("auth_user_id", user.id)
-      .single();
-
     if (!member || !member.onboarding_completed) {
       return NextResponse.redirect(new URL("/onboarding", request.url));
     }

@@ -6,6 +6,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ImageUpload from "@/components/ImageUpload";
 import styles from "./page.module.css";
 
 export default function EditProfilePage() {
@@ -33,6 +34,7 @@ export default function EditProfilePage() {
   const [dribbble, setDribbble] = useState("");
   const [specialties, setSpecialties] = useState<string[]>([]);
   const [newSpecialty, setNewSpecialty] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function EditProfilePage() {
       setBehance(member.behance || "");
       setDribbble(member.dribbble || "");
       setSpecialties(member.specialties || []);
+      setProfileImageUrl(member.profile_image_url || null);
     }
   }, [member]);
 
@@ -97,6 +100,7 @@ export default function EditProfilePage() {
         behance: behance || null,
         dribbble: dribbble || null,
         specialties: specialties,
+        profile_image_url: profileImageUrl,
       } as never)
       .eq("id", member.id);
 
@@ -156,6 +160,14 @@ export default function EditProfilePage() {
           )}
 
           <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Profile Photo</h2>
+              <ImageUpload
+                currentImageUrl={profileImageUrl}
+                onImageUploaded={setProfileImageUrl}
+              />
+            </div>
+
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Basic Info</h2>
 
