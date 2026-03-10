@@ -5,6 +5,14 @@ export function isValidStudentEmail(email: string): boolean {
   return ALLOWED_EMAIL_DOMAINS.includes(domain);
 }
 
+export function isLaurierEmail(email: string): boolean {
+  return email.split("@")[1]?.toLowerCase() === "mylaurier.ca";
+}
+
+export function isWaterlooEmail(email: string): boolean {
+  return email.split("@")[1]?.toLowerCase() === "uwaterloo.ca";
+}
+
 export function getSchoolFromEmail(
   email: string
 ): "University of Waterloo" | "Wilfrid Laurier University" | null {

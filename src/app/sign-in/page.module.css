@@ -55,6 +55,129 @@
   cursor: not-allowed;
 }
 
+.divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--smaller);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.laurierButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: var(--tiny) var(--smaller);
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.laurierButton:hover {
+  background: var(--surface);
+}
+
+.otpFlow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--tinier);
+  width: 100%;
+}
+
+.otpHint {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.emailInput {
+  width: 100%;
+  padding: var(--tiny) var(--smallest);
+  font-size: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  text-align: center;
+}
+
+.emailInput:focus {
+  outline: none;
+  border-color: var(--foreground);
+}
+
+.otpInput {
+  width: 100%;
+  padding: var(--tiny) var(--smallest);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  text-align: center;
+}
+
+.otpInput:focus {
+  outline: none;
+  border-color: var(--foreground);
+}
+
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  padding: var(--tiny) var(--smaller);
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  width: 100%;
+}
+
+.sendButton:hover {
+  opacity: 0.9;
+}
+
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.backLink {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.backLink:hover {
+  color: var(--foreground);
+}
+
 .hint {
   color: var(--muted);
   font-size: 14px;

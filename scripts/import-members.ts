@@ -424,7 +424,7 @@ async function main() {
         if (doc[k] === undefined) delete doc[k];
       }
 
-      const result = await client.create(doc);
+      const result = await client.create(doc as Record<string, any> & { _type: string });
       console.log(`    ✓ Created (${result._id})`);
       created++;
       nextId++;

@@ -10,6 +10,7 @@ import {
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isLaurierEmail } from "@/lib/supabase/auth-utils";
 import type { User, Session } from "@supabase/supabase-js";
 import type { Member } from "@/types/database";
 
@@ -19,6 +20,8 @@ interface AuthContextType {
   member: Member | null;
   loading: boolean;
   signInWithMicrosoft: () => Promise<void>;
+  signInWithLaurierOtp: (email: string) => Promise<{ error: string | null }>;
+  verifyLaurierOtp: (email: string, token: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshMember: () => Promise<void>;
 }
@@ -96,6 +99,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const signInWithLaurierOtp = async (email: string): Promise<{ error: string | null }> => {
+    if (!isLaurierEmail(email)) {
+      return { error: "Please use a @mylaurier.ca email address." };
+    }
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) {
+      return { error: error.message };
+    }
+    return { error: null };
+  };
+
+  const verifyLaurierOtp = async (email: string, token: string): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+    if (error) {
+      return { error: error.message };
+    }
+    return { error: null };
+  };
+
   const signOut = async () => {
     setMember(null);
     // Redirect to server-side sign-out route to clear both server and client cookies
@@ -116,6 +138,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         member,
         loading,
         signInWithMicrosoft,
+        signInWithLaurierOtp,
+        verifyLaurierOtp,
         signOut,
         refreshMember,
       }}
