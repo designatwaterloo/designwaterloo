@@ -58,11 +58,11 @@ function SignInContent() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data: member } = await supabase
+      const { data: member } = (await supabase
         .from("members")
         .select("slug, onboarding_completed")
         .eq("auth_user_id", user.id)
-        .maybeSingle();
+        .maybeSingle()) as { data: { slug: string; onboarding_completed: boolean } | null };
 
       if (member?.onboarding_completed) {
         router.push(`/directory/${member.slug}`);
@@ -70,11 +70,11 @@ function SignInContent() {
       }
 
       // Check for migrated profile by email
-      const { data: existingByEmail } = await supabase
+      const { data: existingByEmail } = (await supabase
         .from("members")
         .select("id, slug, auth_user_id, onboarding_completed")
         .eq("school_email", user.email!)
-        .maybeSingle();
+        .maybeSingle()) as { data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null };
 
       if (existingByEmail && !existingByEmail.auth_user_id) {
         await supabase
