@@ -154,6 +154,91 @@
   margin-top: var(--tinier);
 }
 
+.specialtiesDropdown {
+  position: relative;
+  width: 100%;
+  margin-top: var(--tiniest);
+}
+
+.specialtiesDropdownTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--tiny) var(--tinier);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.specialtyDropdownCaret {
+  transition: transform 0.15s ease;
+  font-size: 12px;
+}
+
+.specialtyDropdownCaretOpen {
+  transform: rotate(180deg);
+}
+
+.specialtiesDropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px 0;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+  z-index: 10;
+}
+
+.specialtiesDropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.specialtiesDropdownItem:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.specialtiesDropdownLabel {
+  text-align: left;
+}
+
+.specialtyCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #d4d4d8; /* neutral gray border */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.specialtyCheckboxChecked {
+  background: #000000;
+  border-color: #000000;
+}
+
+.specialtyCheckboxIcon {
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1;
+}
+
 .specialty {
   display: inline-flex;
   align-items: center;

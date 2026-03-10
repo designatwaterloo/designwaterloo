@@ -7,6 +7,22 @@ import ImageUpload from "@/components/ImageUpload";
 import directoryStyles from "./page.module.css";
 import editStyles from "@/app/profile/edit/page.module.css";
 
+const ALL_SPECIALTIES = [
+  "UI design",
+  "UX design",
+  "Product design",
+  "Interaction design",
+  "Visual design",
+  "Design systems",
+  "Prototyping",
+  "UX research",
+  "Content design",
+  "Brand design",
+  "Motion design",
+  "Information architecture",
+  "Service design",
+];
+
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -33,8 +49,8 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
   const [behance, setBehance] = useState("");
   const [dribbble, setDribbble] = useState("");
   const [specialties, setSpecialties] = useState<string[]>([]);
-  const [newSpecialty, setNewSpecialty] = useState("");
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [isSpecialtyDropdownOpen, setIsSpecialtyDropdownOpen] = useState(false);
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -68,11 +84,17 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
     setSaving(false);
   }, [isOpen, member]);
 
-  const handleAddSpecialty = () => {
-    if (newSpecialty.trim() && !specialties.includes(newSpecialty.trim())) {
-      setSpecialties([...specialties, newSpecialty.trim()]);
-      setNewSpecialty("");
-    }
+  const toggleSpecialty = (specialty: string) => {
+    setSpecialties((prev) => {
+      const isSelected = prev.includes(specialty);
+      if (isSelected) {
+        return prev.filter((s) => s !== specialty);
+      }
+      if (prev.length >= 5) {
+        return prev;
+      }
+      return [...prev, specialty];
+    });
   };
 
   const handleRemoveSpecialty = (specialty: string) => {
@@ -336,28 +358,56 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
             <h2 className={editStyles.sectionTitle}>Specialties</h2>
 
             <div className={editStyles.field}>
-              <label>Add Skills</label>
-              <div className={editStyles.specialtiesInput}>
-                <input
-                  type="text"
-                  value={newSpecialty}
-                  onChange={(e) => setNewSpecialty(e.target.value)}
-                  placeholder="Add a skill (e.g., UI Design)"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddSpecialty();
-                    }
-                  }}
-                />
+              <label>Specializations</label>
+              <div className={editStyles.specialtiesDropdown}>
                 <button
                   type="button"
-                  onClick={handleAddSpecialty}
-                  className={editStyles.addButton}
+                  className={editStyles.specialtiesDropdownTrigger}
+                  onClick={() => setIsSpecialtyDropdownOpen((open) => !open)}
                 >
-                  Add
+                  <span>
+                    {specialties.length === 0
+                      ? "Select up to five specializations"
+                      : `${specialties.length} selected`}
+                  </span>
+                  <span
+                    className={`${editStyles.specialtyDropdownCaret} ${
+                      isSpecialtyDropdownOpen ? editStyles.specialtyDropdownCaretOpen : ""
+                    }`}
+                  >
+                    ▾
+                  </span>
                 </button>
+                {isSpecialtyDropdownOpen && (
+                  <div className={editStyles.specialtiesDropdownMenu}>
+                    {ALL_SPECIALTIES.map((specialty) => {
+                      const isSelected = specialties.includes(specialty);
+                      return (
+                        <button
+                          key={specialty}
+                          type="button"
+                          className={editStyles.specialtiesDropdownItem}
+                          onClick={() => toggleSpecialty(specialty)}
+                        >
+                          <span className={editStyles.specialtiesDropdownLabel}>
+                            {specialty}
+                          </span>
+                          <span
+                            className={`${editStyles.specialtyCheckbox} ${
+                              isSelected ? editStyles.specialtyCheckboxChecked : ""
+                            }`}
+                          >
+                            {isSelected && (
+                              <span className={editStyles.specialtyCheckboxIcon}>✓</span>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
+              <span className={editStyles.hint}>Select up to five specializations.</span>
               {specialties.length > 0 && (
                 <div className={editStyles.specialties}>
                   {specialties.map((s) => (
