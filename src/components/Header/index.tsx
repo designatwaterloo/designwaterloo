@@ -7,10 +7,14 @@ import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
 import { useAuth } from "@/components/auth/AuthProvider";
+import Button from "@/components/Button";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const { user, member } = useAuth();
+  const { user, member, signOut } = useAuth();
+  const hasProfile = !!(user && member);
+  const avatarSrc =
+    hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
 
   // Close menu on Esc key press
   useEffect(() => {
@@ -64,12 +68,30 @@ export default function Header() {
           </Link>
           <div className={`${styles.headerActions} col-start-11 col-span-2`}>
             <Link
-              href={{ pathname: user && member ? "/profile/edit" : "/sign-in" }}
+              href={
+                hasProfile
+                  ? { pathname: `/directory/${member!.slug}` }
+                  : { pathname: "/sign-in" }
+              }
               className={`btn-menu ${styles.primaryButton}`}
-              aria-label={user && member ? "Edit profile" : "Sign in"}
+              aria-label={hasProfile ? "View your profile" : "Sign in"}
             >
-              <Image src="/person.svg" alt="Sign in" width={24} height={24} />
+              <Image
+                src={avatarSrc}
+                alt={hasProfile ? "Your profile" : "Sign in"}
+                width={24}
+                height={24}
+              />
             </Link>
+            {hasProfile ? (
+              <Button variant="small" onClick={signOut}>
+                Sign out
+              </Button>
+            ) : (
+              <Button variant="small" href="/sign-in">
+                Sign in
+              </Button>
+            )}
             <button
               onClick={() => setIsNavOpen(true)}
               className={`btn-menu ${styles.menuButton}`}

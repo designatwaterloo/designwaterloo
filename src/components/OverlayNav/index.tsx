@@ -17,7 +17,7 @@ interface OverlayNavProps {
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
-  const { user, member, loading, signOut } = useAuth();
+  const { user, member, loading } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -52,17 +52,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
     if (member?.is_admin) {
       userNavItems.push({ label: "Admin", href: "/admin" });
     }
-    if (member) {
-      userNavItems.push({ label: "Edit Profile", href: "/profile/edit" });
-    }
-    // Always show sign out if user is logged in
-    userNavItems.push({
-      label: "Sign Out",
-      onClick: () => {
-        signOut();
-        onClose();
-      },
-    });
   } else {
     // Not logged in
     userNavItems.push({ label: "Sign In", href: "/sign-in" });

@@ -16,7 +16,6 @@ import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import { ensureHttps } from "@/lib/urlUtils";
 import type { Metadata } from "next";
 import EditProfileButton from "./EditProfileButton";
-import EditSocialLinksButton from "./EditSocialLinksButton";
 
 export const revalidate = 30;
 
@@ -164,19 +163,7 @@ export default async function PersonDetail({
             )}
             <div className={styles.tradingCard}>
               <p className={styles.tradingCardName}>
-                <span>
-                  {member.first_name} {member.last_name}
-                </span>
-                <EditSocialLinksButton
-                  memberSlug={member.slug}
-                  linkedin={member.linkedin}
-                  portfolio={member.portfolio}
-                  instagram={member.instagram}
-                  twitter={member.twitter}
-                  github={member.github}
-                  behance={member.behance}
-                  dribbble={member.dribbble}
-                />
+                {member.first_name} {member.last_name}
               </p>
               <div className={styles.tradingCardLinks}>
                 {member.portfolio && (
