@@ -378,7 +378,7 @@ async function main() {
         console.log(`    ⚠ Image failed: ${imgErr.message}`);
       }
 
-      const doc: Record<string, any> = {
+      const doc: Record<string, any> & { _type: string } = {
         _type: "member",
         memberId: nextId,
         firstName: m.firstName,
