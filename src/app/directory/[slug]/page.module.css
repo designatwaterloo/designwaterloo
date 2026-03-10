@@ -341,6 +341,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow: hidden;
 }
 
 .profileEditModal {
@@ -353,6 +354,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .profileEditHeader {

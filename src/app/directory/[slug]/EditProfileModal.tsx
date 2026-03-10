@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLenis } from "lenis/react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import ImageUpload from "@/components/ImageUpload";
@@ -31,6 +32,7 @@ interface EditProfileModalProps {
 export default function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const { user, member, refreshMember } = useAuth();
   const supabase = createClient();
+  const lenis = useLenis();
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,15 +54,14 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [isSpecialtyDropdownOpen, setIsSpecialtyDropdownOpen] = useState(false);
 
-  // Lock body scroll while modal is open
+  // Stop Lenis smooth scroll while modal is open
   useEffect(() => {
-    if (!isOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (!isOpen || !lenis) return;
+    lenis.stop();
     return () => {
-      document.body.style.overflow = previousOverflow;
+      lenis.start();
     };
-  }, [isOpen]);
+  }, [isOpen, lenis]);
 
   // Populate form with existing data when modal opens
   useEffect(() => {
@@ -154,7 +155,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
 
   return (
     <div className={directoryStyles.profileEditOverlay} role="dialog" aria-modal="true">
-      <div className={directoryStyles.profileEditModal}>
+      <div className={directoryStyles.profileEditModal} data-lenis-prevent>
         <div className={directoryStyles.profileEditHeader}>
           <h2 className={directoryStyles.profileEditTitle}>Edit Profile</h2>
           <button
