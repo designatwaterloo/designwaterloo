@@ -43,6 +43,51 @@
   cursor: pointer;
 }
 
+/* Right-side header actions (sign-in + menu) */
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Primary action button (e.g., sign-in) */
+.primaryButton {
+  background: transparent;
+  color: var(--black);
+  cursor: pointer;
+  justify-self: end;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryButton :global(img),
+.primaryButton img {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+/* Auth button (Sign in / Sign out) */
+.authButton {
+  background: var(--white);
+  color: var(--black);
+  border: 2px solid var(--black);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: var(--tiniest);
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
 /* Menu Button */
 .menuButton {
   background: black;
@@ -53,6 +98,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Make sign-in + menu match the same outer box */
+.headerActions .primaryButton,
+.headerActions .menuButton {
+  width: 40px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
 }
 
 /* Menu Icon - two horizontal lines */
@@ -104,8 +158,12 @@
     height: 28px;
   }
 
-  .menuButton {
+  .headerActions {
     grid-column: 4 / span 1;
+    justify-self: end;
+  }
+
+  .menuButton {
     background: transparent;
     padding: var(--tinier);
   }

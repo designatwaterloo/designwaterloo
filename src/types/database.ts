@@ -1,5 +1,9 @@
 export interface Database {
   public: {
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
     Tables: {
       members: {
         Row: {
@@ -95,6 +99,7 @@ export interface Database {
           is_approved?: boolean;
           is_admin?: boolean;
         };
+        Relationships: [];
       };
       member_experiences: {
         Row: {
@@ -125,6 +130,7 @@ export interface Database {
           start_year?: string | null;
           is_current?: boolean;
         };
+        Relationships: [];
       };
       member_leadership: {
         Row: {
@@ -155,6 +161,7 @@ export interface Database {
           start_year?: string | null;
           is_current?: boolean;
         };
+        Relationships: [];
       };
     };
   };

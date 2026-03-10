@@ -6,9 +6,15 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
+import { useAuth } from "@/components/auth/AuthProvider";
+import Button from "@/components/Button";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const { user, member, signOut } = useAuth();
+  const hasProfile = !!(user && member);
+  const avatarSrc =
+    hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
 
   // Close menu on Esc key press
   useEffect(() => {
@@ -38,21 +44,65 @@ export default function Header() {
         <div className={styles.headerInner}>
           {/* Desktop: 12-col grid, wordmark spans 2 cols | Mobile: 4-col grid, each spans 1 col (handled by CSS) */}
           <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2`}>
-            <Image src="/Design Waterloo Wordmark.svg" alt="Design Waterloo" width={200} height={36} className="h-full w-auto" priority />
+            <Image
+              src="/Design Waterloo Wordmark.svg"
+              alt="Design Waterloo"
+              width={200}
+              height={36}
+              className="h-full w-auto"
+              priority
+            />
           </Link>
-          <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
-            <Image src="/Design Waterloo Logo.svg" alt="Design Waterloo" width={36} height={36} className="h-full w-auto" priority />
-          </Link>
-          <button
-            onClick={() => setIsNavOpen(true)}
-            className={`btn-menu col-start-12 col-span-1 ${styles.menuButton}`}
-            aria-label="Open navigation"
+          <Link
+            href="/"
+            className={`${styles.headerLogo} col-start-3 col-span-1`}
           >
-            <div className={styles.menuIcon}>
-              <span></span>
-              <span></span>
-            </div>
-          </button>
+            <Image
+              src="/Design Waterloo Logo.svg"
+              alt="Design Waterloo"
+              width={36}
+              height={36}
+              className="h-full w-auto"
+              priority
+            />
+          </Link>
+          <div className={`${styles.headerActions} col-start-11 col-span-2`}>
+            <Link
+              href={
+                hasProfile
+                  ? { pathname: `/directory/${member!.slug}` }
+                  : { pathname: "/sign-in" }
+              }
+              className={`btn-menu ${styles.primaryButton}`}
+              aria-label={hasProfile ? "View your profile" : "Sign in"}
+            >
+              <Image
+                src={avatarSrc}
+                alt={hasProfile ? "Your profile" : "Sign in"}
+                width={24}
+                height={24}
+              />
+            </Link>
+            {hasProfile ? (
+              <Button variant="small" onClick={signOut}>
+                Sign out
+              </Button>
+            ) : (
+              <Button variant="small" href="/sign-in">
+                Sign in
+              </Button>
+            )}
+            <button
+              onClick={() => setIsNavOpen(true)}
+              className={`btn-menu ${styles.menuButton}`}
+              aria-label="Open navigation"
+            >
+              <div className={styles.menuIcon}>
+                <span></span>
+                <span></span>
+              </div>
+            </button>
+          </div>
         </div>
       </header>
 

@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) {
         console.error("[Auth] Error fetching member:", error);
       }
-      setMember(data);
+      setMember(data as Member | null);
     },
     [supabase]
   );

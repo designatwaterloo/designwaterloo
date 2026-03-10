@@ -297,17 +297,6 @@
   align-items: center;
 }
 
-.tradingCardNameIcon {
-  flex-shrink: 0;
-  filter: invert(1);
-  /* Safari rendering optimizations */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: filter;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .tradingCardLinks {
   display: flex;
   flex-direction: column;
@@ -343,31 +332,3 @@
   filter: invert(1) opacity(1);
 }
 
-.emailContainer {
-  display: flex;
-  align-items: center;
-  gap: var(--tinier);
-}
-
-.emailText {
-  flex: 1;
-}
-
-.copyButton {
-  padding: 4px 12px;
-  border: 2px solid var(--muted);
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--foreground);
-  font-size: inherit;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-  white-space: nowrap;
-}
-
-.copyButton:hover {
-  border-color: var(--foreground);
-  background-color: var(--foreground);
-  color: var(--background);
-}

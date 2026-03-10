@@ -110,6 +110,17 @@ export default function EditProfilePage() {
       return;
     }
 
+    // Bust Next's cached directory/profile pages so the new image shows immediately
+    try {
+      await fetch("/api/revalidate-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: member.slug }),
+      });
+    } catch {
+      // Ignore revalidation failures; profile is still saved in the DB
+    }
+
     await refreshMember();
     setSuccess(true);
     setSaving(false);

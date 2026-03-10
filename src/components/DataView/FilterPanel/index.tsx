@@ -107,9 +107,6 @@ export default function FilterPanel<T>({
           </div>
           <div className={styles.panelContent}>{content}</div>
         </div>
-        {isOpen && (
-          <div className={styles.panelOverlay} onClick={onClose} />
-        )}
       </>
     );
   }
