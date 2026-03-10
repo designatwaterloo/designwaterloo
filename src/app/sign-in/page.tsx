@@ -77,10 +77,16 @@ function SignInContent() {
         .maybeSingle()) as { data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null };
 
       if (existingByEmail && !existingByEmail.auth_user_id) {
-        await supabase
+        const { error: linkError } = await supabase
           .from("members")
           .update({ auth_user_id: user.id } as never)
           .eq("id", existingByEmail.id);
+        if (linkError) {
+          console.error("Failed to link migrated profile:", linkError);
+          setLaurierError("Failed to link your profile. Please try again or contact support.");
+          setVerifyingOtp(false);
+          return;
+        }
         router.push(`/directory/${existingByEmail.slug}`);
         return;
       }
