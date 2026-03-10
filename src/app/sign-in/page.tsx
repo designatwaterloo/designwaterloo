@@ -3,7 +3,8 @@
 import { Suspense, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { isLaurierEmail } from "@/lib/supabase/auth-utils";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
@@ -37,6 +38,8 @@ function SignInContent() {
     setOtpSent(true);
   };
 
+  const router = useRouter();
+
   const handleVerifyOtp = async () => {
     setLaurierError(null);
     if (otpCode.length !== 6) {
@@ -45,10 +48,45 @@ function SignInContent() {
     }
     setVerifyingOtp(true);
     const { error } = await verifyLaurierOtp(laurierEmail, otpCode);
-    setVerifyingOtp(false);
     if (error) {
+      setVerifyingOtp(false);
       setLaurierError(error);
+      return;
     }
+
+    // OTP verified — route the user the same way OAuth callback does
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: member } = await supabase
+        .from("members")
+        .select("slug, onboarding_completed")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (member?.onboarding_completed) {
+        router.push(`/directory/${member.slug}`);
+        return;
+      }
+
+      // Check for migrated profile by email
+      const { data: existingByEmail } = await supabase
+        .from("members")
+        .select("id, slug, auth_user_id, onboarding_completed")
+        .eq("school_email", user.email!)
+        .maybeSingle();
+
+      if (existingByEmail && !existingByEmail.auth_user_id) {
+        await supabase
+          .from("members")
+          .update({ auth_user_id: user.id } as never)
+          .eq("id", existingByEmail.id);
+        router.push(`/directory/${existingByEmail.slug}`);
+        return;
+      }
+    }
+
+    router.push("/onboarding");
   };
 
   return (
