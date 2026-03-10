@@ -18,7 +18,7 @@ import styles from "./DataView.module.css";
  * - Search functionality
  * - Multi-select filtering
  * - Sortable columns
- * - localStorage persistence for view mode
+ * - localStorage persistence for view mode and filters (when storageKey provided)
  * - Responsive design with mobile/desktop variants
  *
  * @example
@@ -81,12 +81,34 @@ export default function DataView<T>({
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Load view mode from localStorage
+  // Load view mode and filters from localStorage
   useEffect(() => {
-    if (storageKey) {
+    if (storageKey && typeof window !== "undefined") {
       const savedView = localStorage.getItem(storageKey);
       if (savedView === "grid" || savedView === "table") {
         setViewMode(savedView);
+      }
+      try {
+        const savedFilters = localStorage.getItem(`${storageKey}.filters`);
+        if (savedFilters) {
+          const parsed = JSON.parse(savedFilters) as {
+            searchTerm?: string;
+            selectedFilters?: Record<string, string[]>;
+            filterPanelOpen?: boolean;
+          };
+          if (typeof parsed.searchTerm === "string") {
+            setSearchTerm(parsed.searchTerm);
+          }
+          if (parsed.selectedFilters && typeof parsed.selectedFilters === "object") {
+            setSelectedFilters(parsed.selectedFilters);
+          }
+          if (parsed.filterPanelOpen === true) {
+            setIsFilterPanelVisible(true);
+            setIsMobileFilterOpen(true);
+          }
+        }
+      } catch {
+        // Ignore parse errors
       }
     }
   }, [storageKey]);
@@ -98,6 +120,28 @@ export default function DataView<T>({
       localStorage.setItem(storageKey, mode);
     }
   };
+
+  // Persist filters and filter panel state to localStorage when they change
+  useEffect(() => {
+    if (storageKey && typeof window !== "undefined") {
+      const hasFilters =
+        searchTerm !== "" ||
+        Object.values(selectedFilters).some((vals) => vals.length > 0);
+      const filterPanelOpen = isFilterPanelVisible || isMobileFilterOpen;
+      if (hasFilters || filterPanelOpen) {
+        localStorage.setItem(
+          `${storageKey}.filters`,
+          JSON.stringify({
+            searchTerm,
+            selectedFilters,
+            filterPanelOpen,
+          })
+        );
+      } else {
+        localStorage.removeItem(`${storageKey}.filters`);
+      }
+    }
+  }, [storageKey, searchTerm, selectedFilters, isFilterPanelVisible, isMobileFilterOpen]);
 
   // Filter items
   const filteredItems = useMemo(() => {
