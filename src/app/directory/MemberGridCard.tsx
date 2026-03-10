@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "@/components/Link";
+import SkeletonImage from "@/components/SkeletonImage";
 import { Member } from "@/sanity/types";
-import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
+import { urlFor } from "@/sanity/lib/image";
 
 interface MemberGridCardProps {
   member: Member;
@@ -20,14 +20,12 @@ export default function MemberGridCard({ member }: MemberGridCardProps) {
       underline={false}
     >
       {member.profileImage ? (
-        <Image
+        <SkeletonImage
           src={urlFor(member.profileImage).width(400).height(500).url()}
           alt={`${member.firstName} ${member.lastName}`}
           width={400}
           height={400}
           className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-all duration-300"
-          placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
-          blurDataURL={getBlurDataURL(member.profileImage)}
         />
       ) : (
         <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />

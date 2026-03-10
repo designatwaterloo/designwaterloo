@@ -1,9 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Image from "next/image";
-import styles from "./page.module.css";
-import Button from "@/components/Button";
 import Link from "@/components/Link";
+import styles from "./page.module.css";
 import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
 import type {
@@ -13,9 +11,9 @@ import type {
 } from "@/types/database";
 import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
-import { ensureHttps } from "@/lib/urlUtils";
 import type { Metadata } from "next";
-import EditProfileButton from "./EditProfileButton";
+import ProfileContent from "./ProfileContent";
+import type { EditableFields, ExperienceEntry, LeadershipEntry } from "@/components/InlineEdit";
 
 export const revalidate = 30;
 
@@ -118,8 +116,37 @@ export default async function PersonDetail({
   const nextAvailableTerm = getNextAvailableTerm(member.work_schedule);
   const allTerms = getTermsWithStatus(member.work_schedule);
 
-  // Map experience and leadership to expected format
-  const experience = member.member_experiences.map((exp) => ({
+  // Fetch distinct programs for autocomplete suggestions
+  const { data: programRows } = (await supabase
+    .from("members")
+    .select("program")
+    .not("program", "is", null)
+    .eq("onboarding_completed", true)) as { data: { program: string }[] | null };
+
+  const programSuggestions = [
+    ...new Set((programRows || []).map((r) => r.program).filter(Boolean)),
+  ].sort();
+
+  // Map to inline-edit shapes
+  const initialFields: EditableFields = {
+    program: member.program,
+    graduating_class: member.graduating_class,
+    bio: member.bio,
+    public_email: member.public_email,
+    specialties: member.specialties ?? [],
+    work_schedule: member.work_schedule ?? [],
+    profile_image_url: member.profile_image_url,
+    linkedin: member.linkedin,
+    portfolio: member.portfolio,
+    instagram: member.instagram,
+    twitter: member.twitter,
+    github: member.github,
+    behance: member.behance,
+    dribbble: member.dribbble,
+  };
+
+  const initialExperiences: ExperienceEntry[] = member.member_experiences.map((exp) => ({
+    id: exp.id,
     positionTitle: exp.position_title,
     company: exp.company,
     startMonth: exp.start_month,
@@ -127,7 +154,8 @@ export default async function PersonDetail({
     isCurrent: exp.is_current,
   }));
 
-  const leadership = member.member_leadership.map((lead) => ({
+  const initialLeadership: LeadershipEntry[] = member.member_leadership.map((lead) => ({
+    id: lead.id,
     positionTitle: lead.position_title,
     org: lead.organization,
     startMonth: lead.start_month,
@@ -143,303 +171,19 @@ export default async function PersonDetail({
         <Link href="/directory" className={styles.backButton}>
           ← Back to directory
         </Link>
-        <section className={styles.section}>
-          <div className={styles.nameRow}>
-            <h1 className={styles.name}>
-              {member.first_name} {member.last_name}
-            </h1>
-            <EditProfileButton memberSlug={member.slug} />
-          </div>
-          <div className={styles.imageContainer}>
-            {member.profile_image_url && (
-              <Image
-                src={member.profile_image_url}
-                alt={`${member.first_name} ${member.last_name}`}
-                width={800}
-                height={1067}
-                className={styles.image}
-                priority
-              />
-            )}
-            <div className={styles.tradingCard}>
-              <p className={styles.tradingCardName}>
-                {member.first_name} {member.last_name}
-              </p>
-              <div className={styles.tradingCardLinks}>
-                {member.portfolio && (
-                  <a
-                    href={ensureHttps(member.portfolio)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/globe.svg"
-                      width={20}
-                      height={20}
-                      alt=""
-                      className={styles.tradingCardIcon}
-                    />
-                    {member.portfolio
-                      .replace(/^https?:\/\/(www\.)?/, "")
-                      .replace(/\/$/, "")}
-                  </a>
-                )}
-                {member.twitter && (
-                  <a
-                    href={ensureHttps(member.twitter)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/twitter_logo.svg"
-                      width={20}
-                      height={20}
-                      alt=""
-                      className={styles.tradingCardIcon}
-                    />
-                    {member.twitter.match(
-                      /(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/
-                    )?.[1]
-                      ? `@${member.twitter.match(/(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/)?.[1]}`
-                      : "twitter"}
-                  </a>
-                )}
-                {member.linkedin && (
-                  <a
-                    href={ensureHttps(member.linkedin)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/linkedin_logo.svg"
-                      width={20}
-                      height={20}
-                      alt=""
-                      className={styles.tradingCardIcon}
-                    />
-                    {member.linkedin.match(/\/in\/([^\/\?]+)/)?.[1]
-                      ? `in/${member.linkedin.match(/\/in\/([^\/\?]+)/)?.[1]}`
-                      : "linkedin"}
-                  </a>
-                )}
-                {member.instagram && (
-                  <a
-                    href={ensureHttps(member.instagram)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/instagram_logo.svg"
-                      width={20}
-                      height={20}
-                      alt=""
-                      className={styles.tradingCardIcon}
-                    />
-                    {member.instagram.match(
-                      /(?:instagram\.com\/|@)([^\/\?]+)/
-                    )?.[1]
-                      ? `@${member.instagram.match(/(?:instagram\.com\/|@)([^\/\?]+)/)?.[1]}`
-                      : "instagram"}
-                  </a>
-                )}
-                {member.github && (
-                  <a
-                    href={ensureHttps(member.github)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/github_logo.svg"
-                      width={20}
-                      height={20}
-                      alt=""
-                      className={styles.tradingCardIcon}
-                    />
-                    {member.github.match(/(?:github\.com\/)([^\/\?]+)/)?.[1] ||
-                      "github"}
-                  </a>
-                )}
-                {member.behance && (
-                  <a
-                    href={ensureHttps(member.behance)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    behance
-                  </a>
-                )}
-                {member.dribbble && (
-                  <a
-                    href={ensureHttps(member.dribbble)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    dribbble
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-          {nextAvailableTerm && member.public_email && (
-            <div className={styles.nextAvailable}>
-              <dt className={styles.label}>Next available</dt>
-              <dd>
-                <Button
-                  variant="secondary"
-                  href={`mailto:${member.public_email}`}
-                  icon="/mail.svg"
-                >
-                  {nextAvailableTerm}
-                </Button>
-              </dd>
-            </div>
-          )}
-          <div className={styles.content}>
-            <div className={styles.rowGroup}>
-              {member.school && (
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>School</dt>
-                  <dd>{member.school}</dd>
-                </div>
-              )}
-              {member.program && (
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>Program</dt>
-                  <dd>{member.program}</dd>
-                </div>
-              )}
-              {member.graduating_class && (
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>Class</dt>
-                  <dd>{member.graduating_class}</dd>
-                </div>
-              )}
-            </div>
-            {member.specialties && member.specialties.length > 0 && (
-              <div className={styles.rowGroup}>
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>Specialties</dt>
-                  <dd>
-                    <div className="flex flex-wrap gap-2">
-                      {member.specialties.slice(0, 5).map((specialty) => (
-                        <span
-                          key={specialty}
-                          className="px-3 py-1 bg-[var(--foreground)] text-[var(--background)] rounded-full text-sm"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
-                    </div>
-                  </dd>
-                </div>
-              </div>
-            )}
-            {allTerms.length > 0 && (
-              <div className={styles.rowGroup}>
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>Work terms</dt>
-                  <dd>
-                    <div className="flex flex-wrap gap-2">
-                      {allTerms.map((term) => (
-                        <span
-                          key={term.code}
-                          className={`px-3 py-1 border-2 rounded-full text-sm ${
-                            term.isPast
-                              ? "border-[var(--muted)] text-[var(--muted)] line-through"
-                              : "border-[var(--foreground)] text-[var(--foreground)]"
-                          }`}
-                        >
-                          {term.displayName}
-                        </span>
-                      ))}
-                    </div>
-                  </dd>
-                </div>
-              </div>
-            )}
-            {member.bio && (
-              <div className={styles.rowGroup}>
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>Bio</dt>
-                  <dd>{member.bio}</dd>
-                </div>
-              </div>
-            )}
-            {experience.length > 0 && (
-              <dl className={styles.experienceGroup}>
-                <dt className={styles.label}>Experience</dt>
-                <dd className={styles.experienceList}>
-                  {[...experience]
-                    .sort((a, b) => {
-                      if (a.isCurrent && !b.isCurrent) return -1;
-                      if (!a.isCurrent && b.isCurrent) return 1;
-                      const yearA = a.startYear ? parseInt(a.startYear) : 0;
-                      const yearB = b.startYear ? parseInt(b.startYear) : 0;
-                      if (yearA !== yearB) return yearB - yearA;
-                      const monthA = a.startMonth ? parseInt(a.startMonth) : 0;
-                      const monthB = b.startMonth ? parseInt(b.startMonth) : 0;
-                      return monthB - monthA;
-                    })
-                    .map((exp, index) => (
-                      <div key={index} className={styles.experienceItem}>
-                        <div className={styles.experienceInfo}>
-                          {exp.positionTitle && (
-                            <p className={styles.jobTitle}>{exp.positionTitle}</p>
-                          )}
-                          <p className={styles.companyName}>{exp.company}</p>
-                        </div>
-                        {exp.startYear && (
-                          <span className={styles.year}>
-                            {exp.startYear}
-                            {exp.isCurrent ? " - Present" : ""}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                </dd>
-              </dl>
-            )}
-            {leadership.length > 0 && (
-              <dl className={styles.experienceGroup}>
-                <dt className={styles.label}>Leadership</dt>
-                <dd className={styles.experienceList}>
-                  {[...leadership]
-                    .sort((a, b) => {
-                      if (a.isCurrent && !b.isCurrent) return -1;
-                      if (!a.isCurrent && b.isCurrent) return 1;
-                      const yearA = a.startYear ? parseInt(a.startYear) : 0;
-                      const yearB = b.startYear ? parseInt(b.startYear) : 0;
-                      if (yearA !== yearB) return yearB - yearA;
-                      const monthA = a.startMonth ? parseInt(a.startMonth) : 0;
-                      const monthB = b.startMonth ? parseInt(b.startMonth) : 0;
-                      return monthB - monthA;
-                    })
-                    .map((lead, index) => (
-                      <div key={index} className={styles.experienceItem}>
-                        <div className={styles.experienceInfo}>
-                          {lead.positionTitle && (
-                            <p className={styles.jobTitle}>{lead.positionTitle}</p>
-                          )}
-                          <p className={styles.companyName}>{lead.org}</p>
-                        </div>
-                        {lead.startYear && (
-                          <span className={styles.year}>
-                            {lead.startYear}
-                            {lead.isCurrent ? " - Present" : ""}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                </dd>
-              </dl>
-            )}
-          </div>
-        </section>
+        <ProfileContent
+          memberSlug={member.slug}
+          firstName={member.first_name}
+          lastName={member.last_name}
+          school={member.school}
+          publicEmail={member.public_email}
+          nextAvailableTerm={nextAvailableTerm}
+          allTerms={allTerms}
+          initialFields={initialFields}
+          initialExperiences={initialExperiences}
+          initialLeadership={initialLeadership}
+          programSuggestions={programSuggestions}
+        />
       </main>
 
       <Footer />
