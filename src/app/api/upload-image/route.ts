@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@/lib/supabase/server";
 import { createClient } from "@sanity/client";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,6 +85,35 @@ export async function POST(request: NextRequest) {
     const format = idParts.pop(); // Get the format (jpg, png, etc.)
     const hashAndDimensions = idParts.join("-");
     const imageUrl = `https://cdn.sanity.io/images/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/${hashAndDimensions}.${format}`;
+
+    // Persist the new image URL directly on the authenticated member
+    let slug: string | null = null;
+    try {
+      const { data: updatedMember, error: updateError } = await supabase
+        .from("members")
+        .update({ profile_image_url: imageUrl })
+        .eq("auth_user_id", user.id)
+        .select("slug")
+        .maybeSingle();
+
+      if (updateError) {
+        console.error("Failed to update member profile_image_url:", updateError);
+      } else {
+        slug = updatedMember?.slug ?? null;
+      }
+    } catch (err) {
+      console.error("Unexpected error updating member profile_image_url:", err);
+    }
+
+    // If we know the slug, revalidate the profile + directory so the new image shows up immediately
+    if (slug) {
+      try {
+        revalidatePath(`/directory/${slug}`);
+        revalidatePath("/directory");
+      } catch (err) {
+        console.error("Error revalidating profile paths:", err);
+      }
+    }
 
     return NextResponse.json({
       success: true,

@@ -43,6 +43,33 @@
   cursor: pointer;
 }
 
+/* Right-side header actions (sign-in + menu) */
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Primary action button (e.g., sign-in) */
+.primaryButton {
+  background: transparent;
+  color: var(--black);
+  cursor: pointer;
+  justify-self: end;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryButton :global(img),
+.primaryButton img {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+
 /* Menu Button */
 .menuButton {
   background: black;
@@ -53,6 +80,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Make sign-in + menu match the same outer box */
+.headerActions .primaryButton,
+.headerActions .menuButton {
+  width: 40px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
 }
 
 /* Menu Icon - two horizontal lines */
@@ -104,8 +140,12 @@
     height: 28px;
   }
 
-  .menuButton {
+  .headerActions {
     grid-column: 4 / span 1;
+    justify-self: end;
+  }
+
+  .menuButton {
     background: transparent;
     padding: var(--tinier);
   }
