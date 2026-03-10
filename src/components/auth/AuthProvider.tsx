@@ -21,7 +21,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithMicrosoft: () => Promise<void>;
   signInWithLaurierOtp: (email: string) => Promise<{ error: string | null }>;
-  verifyLaurierOtp: (email: string, token: string) => Promise<{ error: string | null }>;
+  verifyLaurierOtp: (email: string, token: string) => Promise<{ error: string | null; user: User | null }>;
   signOut: () => Promise<void>;
   refreshMember: () => Promise<void>;
 }
@@ -110,17 +110,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  const verifyLaurierOtp = async (email: string, token: string): Promise<{ error: string | null }> => {
-    const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+  const verifyLaurierOtp = async (email: string, token: string): Promise<{ error: string | null; user: User | null }> => {
+    const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
     if (error) {
-      return { error: error.message };
+      return { error: error.message, user: null };
     }
-    return { error: null };
+    return { error: null, user: data.user };
   };
 
   const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("[Auth] Client sign-out error:", err);
+    }
+    setUser(null);
+    setSession(null);
     setMember(null);
-    // Redirect to server-side sign-out route to clear both server and client cookies
+    // Redirect to server route to clear server-side cookies too
     window.location.href = "/auth/sign-out";
   };
 

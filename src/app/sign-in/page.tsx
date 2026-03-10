@@ -4,7 +4,6 @@ import { Suspense, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { isLaurierEmail } from "@/lib/supabase/auth-utils";
 import { useSearchParams, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
@@ -47,49 +46,54 @@ function SignInContent() {
       return;
     }
     setVerifyingOtp(true);
-    const { error } = await verifyLaurierOtp(laurierEmail, otpCode);
+    const { error, user } = await verifyLaurierOtp(laurierEmail, otpCode);
     if (error) {
       setVerifyingOtp(false);
       setLaurierError(error);
       return;
     }
 
+    if (!user) {
+      setVerifyingOtp(false);
+      setLaurierError("Authentication failed. Please try again.");
+      return;
+    }
+
     // OTP verified — route the user the same way OAuth callback does
+    const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: member } = (await supabase
-        .from("members")
-        .select("slug, onboarding_completed")
-        .eq("auth_user_id", user.id)
-        .maybeSingle()) as { data: { slug: string; onboarding_completed: boolean } | null };
 
-      if (member?.onboarding_completed) {
-        router.push(`/directory/${member.slug}`);
+    const { data: member } = (await supabase
+      .from("members")
+      .select("slug, onboarding_completed")
+      .eq("auth_user_id", user.id)
+      .maybeSingle()) as { data: { slug: string; onboarding_completed: boolean } | null };
+
+    if (member?.onboarding_completed) {
+      router.push(`/directory/${member.slug}`);
+      return;
+    }
+
+    // Check for migrated profile by email
+    const { data: existingByEmail } = (await supabase
+      .from("members")
+      .select("id, slug, auth_user_id, onboarding_completed")
+      .eq("school_email", user.email!)
+      .maybeSingle()) as { data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null };
+
+    if (existingByEmail && !existingByEmail.auth_user_id) {
+      const { error: linkError } = await supabase
+        .from("members")
+        .update({ auth_user_id: user.id } as never)
+        .eq("id", existingByEmail.id);
+      if (linkError) {
+        console.error("Failed to link migrated profile:", linkError);
+        setLaurierError("Failed to link your profile. Please try again or contact support.");
+        setVerifyingOtp(false);
         return;
       }
-
-      // Check for migrated profile by email
-      const { data: existingByEmail } = (await supabase
-        .from("members")
-        .select("id, slug, auth_user_id, onboarding_completed")
-        .eq("school_email", user.email!)
-        .maybeSingle()) as { data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null };
-
-      if (existingByEmail && !existingByEmail.auth_user_id) {
-        const { error: linkError } = await supabase
-          .from("members")
-          .update({ auth_user_id: user.id } as never)
-          .eq("id", existingByEmail.id);
-        if (linkError) {
-          console.error("Failed to link migrated profile:", linkError);
-          setLaurierError("Failed to link your profile. Please try again or contact support.");
-          setVerifyingOtp(false);
-          return;
-        }
-        router.push(`/directory/${existingByEmail.slug}`);
-        return;
-      }
+      router.push(`/directory/${existingByEmail.slug}`);
+      return;
     }
 
     router.push("/onboarding");

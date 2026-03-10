@@ -58,7 +58,9 @@ export async function GET(request: Request) {
           .update({ auth_user_id: data.user.id } as never)
           .eq("id", existingByEmail.id);
 
-        if (!updateError) {
+        if (updateError) {
+          console.error("[Auth Callback] Failed to link migrated profile:", updateError);
+        } else {
           return NextResponse.redirect(
             `${origin}/directory/${existingByEmail.slug}`
           );
