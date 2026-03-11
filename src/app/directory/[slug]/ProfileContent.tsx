@@ -94,6 +94,35 @@ export default function ProfileContent(props: ProfileContentProps) {
   );
 }
 
+/** Wrapper that adds full-width hover highlight + click-to-edit for owner rows */
+function EditableRow({
+  isOwner,
+  children,
+}: {
+  isOwner: boolean;
+  children: React.ReactNode;
+}) {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // If the click target is already an input/button, let it handle itself
+    const target = e.target as HTMLElement;
+    if (target.closest("input, textarea, button, [role='button']")) return;
+
+    // Find and click the editable span or focus the input inside
+    const editable = e.currentTarget.querySelector<HTMLElement>(
+      "[role='button'], input, textarea"
+    );
+    editable?.click();
+  };
+
+  if (!isOwner) return <>{children}</>;
+
+  return (
+    <div className={editStyles.editableRow} onClick={handleClick}>
+      {children}
+    </div>
+  );
+}
+
 function ProfileContentInner({
   firstName,
   lastName,
@@ -259,92 +288,104 @@ function ProfileContentInner({
               </div>
             )}
             {(program || isOwner) && (
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>Program</dt>
-                <dd>
-                  <EditableText
-                    field="program"
-                    placeholder="Click to add program..."
-                    suggestions={programSuggestions}
-                  />
-                </dd>
-              </div>
+              <EditableRow isOwner={isOwner}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Program</dt>
+                  <dd>
+                    <EditableText
+                      field="program"
+                      placeholder="Click to add program..."
+                      suggestions={programSuggestions}
+                    />
+                  </dd>
+                </div>
+              </EditableRow>
             )}
             {(graduatingClass || isOwner) && (
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>Class</dt>
-                <dd>
-                  <EditableText
-                    field="graduating_class"
-                    placeholder="Click to add year..."
-                  />
-                </dd>
-              </div>
+              <EditableRow isOwner={isOwner}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Class</dt>
+                  <dd>
+                    <EditableText
+                      field="graduating_class"
+                      placeholder="Click to add year..."
+                    />
+                  </dd>
+                </div>
+              </EditableRow>
             )}
           </div>
 
           {/* Specialties */}
           {(specialties.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>Specialties</dt>
-                <dd>
-                  <PillInput
-                    field="specialties"
-                    suggestions={ALL_SPECIALTIES}
-                    maxItems={5}
-                    placeholder="Type to add a specialty..."
-                  />
-                </dd>
-              </div>
+              <EditableRow isOwner={isOwner}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Specialties</dt>
+                  <dd>
+                    <PillInput
+                      field="specialties"
+                      suggestions={ALL_SPECIALTIES}
+                      maxItems={5}
+                      placeholder="Type to add a specialty..."
+                    />
+                  </dd>
+                </div>
+              </EditableRow>
             </div>
           )}
 
           {/* Work Terms */}
           {(workSchedule.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>Work terms</dt>
-                <dd>
-                  <PillInput
-                    field="work_schedule"
-                    suggestions={TERM_SUGGESTIONS}
-                    placeholder="Type to add a term..."
-                    renderPill={decodeTermCode}
-                  />
-                </dd>
-              </div>
+              <EditableRow isOwner={isOwner}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Work terms</dt>
+                  <dd>
+                    <PillInput
+                      field="work_schedule"
+                      suggestions={TERM_SUGGESTIONS}
+                      placeholder="Type to add a term..."
+                      renderPill={decodeTermCode}
+                    />
+                  </dd>
+                </div>
+              </EditableRow>
             </div>
           )}
 
           {/* Bio */}
           {(bio || isOwner) && (
             <div className={styles.rowGroup}>
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>Bio</dt>
-                <dd>
-                  <EditableText
-                    field="bio"
-                    placeholder="Click to add bio..."
-                    multiline
-                  />
-                </dd>
-              </div>
+              <EditableRow isOwner={isOwner}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Bio</dt>
+                  <dd>
+                    <EditableText
+                      field="bio"
+                      placeholder="Click to add bio..."
+                      multiline
+                    />
+                  </dd>
+                </div>
+              </EditableRow>
             </div>
           )}
 
           {/* Public Email (owner only when empty) */}
           {(publicEmail || isOwner) && (
             <div className={styles.rowGroup}>
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>Contact</dt>
-                <dd>
-                  <EditableText
-                    field="public_email"
-                    placeholder="Click to add contact email..."
-                  />
-                </dd>
-              </div>
+              <EditableRow isOwner={isOwner}>
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>Contact</dt>
+                  <dd>
+                    <EditableText
+                      field="public_email"
+                      placeholder="Click to add contact email..."
+                    />
+                  </dd>
+                </div>
+              </EditableRow>
             </div>
           )}
 

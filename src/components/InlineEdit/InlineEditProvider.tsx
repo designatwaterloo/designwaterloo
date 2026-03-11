@@ -6,6 +6,7 @@ import {
   useCallback,
   useState,
   useRef,
+  useEffect,
   ReactNode,
 } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -60,6 +61,8 @@ interface InlineEditContextType {
   isDirty: boolean;
   /** Whether a save is in-flight */
   saving: boolean;
+  /** True for a few seconds after a successful save */
+  savedRecently: boolean;
   /** Update a flat field */
   setField: <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => void;
   /** Replace the entire experiences list */
@@ -105,6 +108,15 @@ export function InlineEditProvider({
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([...initialExperiences]);
   const [leadership, setLeadership] = useState<LeadershipEntry[]>([...initialLeadership]);
   const [saving, setSaving] = useState(false);
+  const [savedRecently, setSavedRecently] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Auto-clear savedRecently after 3 seconds
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
 
   // Dirty check — deep compare current vs saved
   const isDirty =
@@ -214,6 +226,11 @@ export function InlineEditProvider({
       savedLeadership.current = [...leadership];
 
       await refreshMember();
+
+      // 6. Show "Saved" confirmation
+      setSavedRecently(true);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSavedRecently(false), 3000);
     } catch (err) {
       console.error("Failed to save profile:", err);
     } finally {
@@ -230,6 +247,7 @@ export function InlineEditProvider({
         leadership,
         isDirty,
         saving,
+        savedRecently,
         setField,
         setExperiences,
         setLeadership,

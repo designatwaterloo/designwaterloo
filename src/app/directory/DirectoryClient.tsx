@@ -37,8 +37,8 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
             getItemKey={(member) => member._id}
             getItemHref={(member) => `/directory/${member.slug.current}`}
             storageKey="directoryViewMode"
-            renderGridItem={(member) => (
-              <MemberGridCard member={member} />
+            renderGridItem={(member, index) => (
+              <MemberGridCard member={member} index={index} />
             )}
             gridAspectRatio="4/5"
             renderHoverPreview={(member) => <MemberHoverPreview member={member} />}

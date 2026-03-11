@@ -30,9 +30,14 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Supabase fetch can be aborted during dev HMR or redirects — safe to ignore
+    return supabaseResponse;
+  }
   const pathname = request.nextUrl.pathname;
 
   const isProtectedPath = PROTECTED_PATHS.some((path) =>
