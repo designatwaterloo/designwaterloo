@@ -81,6 +81,7 @@ function EntryForm({
           value={entry.startMonth ?? ""}
           onChange={(e) => onChange({ ...entry, startMonth: e.target.value || null })}
           className={styles.entrySelect}
+          disabled={!!entry.isIncoming}
         >
           {MONTHS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -99,9 +100,17 @@ function EntryForm({
           <input
             type="checkbox"
             checked={entry.isCurrent}
-            onChange={(e) => onChange({ ...entry, isCurrent: e.target.checked })}
+            onChange={(e) => onChange({ ...entry, isCurrent: e.target.checked, isIncoming: false })}
           />
           Current
+        </label>
+        <label className={styles.entryCheckbox}>
+          <input
+            type="checkbox"
+            checked={!!entry.isIncoming}
+            onChange={(e) => onChange({ ...entry, isIncoming: e.target.checked, isCurrent: false, startMonth: null })}
+          />
+          Incoming
         </label>
         <button
           type="button"
@@ -151,7 +160,15 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
     setEditingIndex(null);
   };
 
+  const isEntryComplete = (entry: Entry) => {
+    const org = getOrg(entry);
+    return !!entry.positionTitle?.trim() && !!org.trim();
+  };
+
+  const canAdd = entries.every(isEntryComplete);
+
   const addEntry = () => {
+    if (!canAdd) return;
     const blank: Entry =
       type === "experience"
         ? { positionTitle: null, company: "", startMonth: null, startYear: null, isCurrent: false }
@@ -173,10 +190,10 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
                 {entry.positionTitle && <p className={pageStyles.jobTitle}>{entry.positionTitle}</p>}
                 <p className={pageStyles.companyName}>{getOrg(entry)}</p>
               </div>
-              {entry.startYear && (
+              {(entry.isIncoming || entry.startYear) && (
                 <span className={pageStyles.year}>
-                  {entry.startYear}
-                  {entry.isCurrent ? " - Present" : ""}
+                  {entry.isIncoming ? `Incoming ${entry.startYear ?? ""}`.trim() : entry.startYear}
+                  {!entry.isIncoming && entry.isCurrent ? " - Present" : ""}
                 </span>
               )}
             </div>
@@ -193,11 +210,11 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
         {sorted.length === 0 && (
           <span
             className={styles.editablePlaceholder}
-            onClick={addEntry}
+            onClick={canAdd ? addEntry : undefined}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === "Enter") addEntry();
+              if (e.key === "Enter" && canAdd) addEntry();
             }}
           >
             Click to add {label.toLowerCase()}...
@@ -216,16 +233,17 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
             <div
               key={i}
               className={`${pageStyles.experienceItem} ${styles.editableField}`}
+              style={sorted[i + 1]?.originalIndex === editingIndex ? { borderBottom: "none" } : undefined}
               onClick={() => setEditingIndex(originalIndex)}
             >
               <div className={pageStyles.experienceInfo}>
                 {entry.positionTitle && <p className={pageStyles.jobTitle}>{entry.positionTitle}</p>}
                 <p className={pageStyles.companyName}>{getOrg(entry)}</p>
               </div>
-              {entry.startYear && (
+              {(entry.isIncoming || entry.startYear) && (
                 <span className={pageStyles.year}>
-                  {entry.startYear}
-                  {entry.isCurrent ? " - Present" : ""}
+                  {entry.isIncoming ? `Incoming ${entry.startYear ?? ""}`.trim() : entry.startYear}
+                  {!entry.isIncoming && entry.isCurrent ? " - Present" : ""}
                 </span>
               )}
             </div>
@@ -234,6 +252,7 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
         <button
           type="button"
           onClick={addEntry}
+          disabled={!canAdd}
           className={styles.addEntryButton}
         >
           + Add {label.toLowerCase()}

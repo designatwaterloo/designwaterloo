@@ -359,6 +359,9 @@
 .editMode .rowGroup {
   row-gap: 12px;
   padding-bottom: var(--big);
-  border-bottom: 1px solid var(--muted);
+}
+
+.editMode .experienceGroup {
+  padding-bottom: var(--big);
 }
 

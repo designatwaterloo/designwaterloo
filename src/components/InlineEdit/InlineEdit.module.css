@@ -585,6 +585,11 @@
   opacity: 0.7;
 }
 
+.addEntryButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 /* ===== Trading Card Edit Trigger ===== */
 
 .tradingCardEditable {

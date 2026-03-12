@@ -21,6 +21,7 @@ export interface ExperienceEntry {
   startMonth: string | null;
   startYear: string | null;
   isCurrent: boolean;
+  isIncoming?: boolean;
 }
 
 export interface LeadershipEntry {
@@ -30,6 +31,7 @@ export interface LeadershipEntry {
   startMonth: string | null;
   startYear: string | null;
   isCurrent: boolean;
+  isIncoming?: boolean;
 }
 
 /** Flat member fields that can be edited inline. */
