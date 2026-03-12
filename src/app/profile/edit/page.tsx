@@ -83,47 +83,52 @@ export default function EditProfilePage() {
     setError(null);
     setSuccess(false);
 
-    const { error: updateError } = await supabase
-      .from("members")
-      .update({
-        first_name: firstName,
-        last_name: lastName,
-        program: program || null,
-        graduating_class: graduatingClass || null,
-        bio: bio || null,
-        public_email: publicEmail || null,
-        linkedin: linkedin || null,
-        portfolio: portfolio || null,
-        instagram: instagram || null,
-        twitter: twitter || null,
-        github: github || null,
-        behance: behance || null,
-        dribbble: dribbble || null,
-        specialties: specialties,
-        profile_image_url: profileImageUrl,
-      } as never)
-      .eq("id", member.id);
-
-    if (updateError) {
-      setError(`Failed to update profile: ${updateError.message}`);
-      setSaving(false);
-      return;
-    }
-
-    // Bust Next's cached directory/profile pages so the new image shows immediately
     try {
-      await fetch("/api/revalidate-profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: member.slug }),
-      });
-    } catch {
-      // Ignore revalidation failures; profile is still saved in the DB
-    }
+      const { error: updateError } = await supabase
+        .from("members")
+        .update({
+          first_name: firstName,
+          last_name: lastName,
+          program: program || null,
+          graduating_class: graduatingClass || null,
+          bio: bio || null,
+          public_email: publicEmail || null,
+          linkedin: linkedin || null,
+          portfolio: portfolio || null,
+          instagram: instagram || null,
+          twitter: twitter || null,
+          github: github || null,
+          behance: behance || null,
+          dribbble: dribbble || null,
+          specialties: specialties,
+          profile_image_url: profileImageUrl,
+        } as never)
+        .eq("id", member.id);
 
-    await refreshMember();
-    setSuccess(true);
-    setSaving(false);
+      if (updateError) {
+        setError(`Failed to update profile: ${updateError.message}`);
+        return;
+      }
+
+      // Bust Next's cached directory/profile pages so the new image shows immediately
+      try {
+        await fetch("/api/revalidate-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: member.slug }),
+        });
+      } catch {
+        // Ignore revalidation failures; profile is still saved in the DB
+      }
+
+      await refreshMember();
+      setSuccess(true);
+    } catch (err) {
+      console.error("[EditProfile] Save failed:", err);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (authLoading) {

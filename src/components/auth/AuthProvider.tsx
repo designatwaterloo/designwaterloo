@@ -146,11 +146,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = "/auth/sign-out";
   };
 
-  const refreshMember = async () => {
+  const refreshMember = useCallback(async () => {
     if (user) {
       await fetchMember(user.id);
     }
-  };
+  }, [user, fetchMember]);
 
   return (
     <AuthContext.Provider

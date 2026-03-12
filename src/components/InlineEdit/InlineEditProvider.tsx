@@ -115,6 +115,7 @@ export function InlineEditProvider({
   const [saving, setSaving] = useState(false);
   const [savedRecently, setSavedRecently] = useState(false);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const savingRef = useRef(false);
 
   // Auto-clear savedRecently after 3 seconds
   useEffect(() => {
@@ -148,6 +149,9 @@ export function InlineEditProvider({
       console.error("[InlineEdit] save aborted: isOwner=", isOwner, "member=", member);
       return;
     }
+    // Synchronous concurrency guard — prevents rapid double-clicks
+    if (savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
 
     try {
@@ -168,69 +172,71 @@ export function InlineEditProvider({
         behance: fields.behance,
         dribbble: fields.dribbble,
       };
-      console.log("[InlineEdit] Saving member fields:", updatePayload);
-      console.log("[InlineEdit] member.id:", member.id);
 
-      const { error: memberError, data: updateData } = await supabase
+      const { error: memberError } = await supabase
         .from("members")
         .update(updatePayload as never)
         .eq("id", member.id)
         .select();
 
-      console.log("[InlineEdit] Update result:", { error: memberError, data: updateData });
-
       if (memberError) throw memberError;
 
-      // 2. Sync experiences — delete all then re-insert
-      await supabase
-        .from("member_experiences")
-        .delete()
-        .eq("member_id", member.id);
+      // 2. Sync experiences and leadership in parallel (independent tables)
+      await Promise.all([
+        (async () => {
+          const { error: delExpError } = await supabase
+            .from("member_experiences")
+            .delete()
+            .eq("member_id", member.id);
+          if (delExpError) throw delExpError;
 
-      if (experiences.length > 0) {
-        const { error: expError } = await supabase
-          .from("member_experiences")
-          .insert(
-            experiences.map((e) => ({
-              member_id: member.id,
-              position_title: e.positionTitle,
-              company: e.company,
-              start_month: e.startMonth,
-              start_year: e.startYear,
-              is_current: e.isCurrent,
-            })) as never[]
-          );
-        if (expError) throw expError;
-      }
+          if (experiences.length > 0) {
+            const { error: expError } = await supabase
+              .from("member_experiences")
+              .insert(
+                experiences.map((e) => ({
+                  member_id: member.id,
+                  position_title: e.positionTitle,
+                  company: e.company,
+                  start_month: e.startMonth,
+                  start_year: e.startYear,
+                  is_current: e.isCurrent,
+                })) as never[]
+              );
+            if (expError) throw expError;
+          }
+        })(),
+        (async () => {
+          const { error: delLeadError } = await supabase
+            .from("member_leadership")
+            .delete()
+            .eq("member_id", member.id);
+          if (delLeadError) throw delLeadError;
 
-      // 3. Sync leadership
-      await supabase
-        .from("member_leadership")
-        .delete()
-        .eq("member_id", member.id);
+          if (leadership.length > 0) {
+            const { error: leadError } = await supabase
+              .from("member_leadership")
+              .insert(
+                leadership.map((l) => ({
+                  member_id: member.id,
+                  position_title: l.positionTitle,
+                  organization: l.org,
+                  start_month: l.startMonth,
+                  start_year: l.startYear,
+                  is_current: l.isCurrent,
+                })) as never[]
+              );
+            if (leadError) throw leadError;
+          }
+        })(),
+      ]);
 
-      if (leadership.length > 0) {
-        const { error: leadError } = await supabase
-          .from("member_leadership")
-          .insert(
-            leadership.map((l) => ({
-              member_id: member.id,
-              position_title: l.positionTitle,
-              organization: l.org,
-              start_month: l.startMonth,
-              start_year: l.startYear,
-              is_current: l.isCurrent,
-            })) as never[]
-          );
-        if (leadError) throw leadError;
-      }
-
-      // 4. Update saved snapshots
+      // 3. Update saved snapshots
       savedFields.current = { ...fields };
       savedExperiences.current = [...experiences];
       savedLeadership.current = [...leadership];
 
-      // 5. Exit edit mode and show "Saved" confirmation
+      // 4. Exit edit mode and show "Saved" confirmation
       setEditMode(false);
       setSavedRecently(true);
       if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
@@ -238,6 +244,7 @@ export function InlineEditProvider({
     } catch (err) {
       console.error("Failed to save profile:", err);
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
 
