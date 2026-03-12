@@ -248,17 +248,20 @@ export default function DataView<T>({
       {/* Main Layout */}
       <div className={styles.container}>
         {/* Desktop Filter Panel */}
-        {isDesktop && isFilterPanelVisible && filterConfig.length > 0 && (
-          <FilterPanel
-            filters={filterConfig}
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChange}
-            onClearAll={clearAllFilters}
-            items={items}
-            searchTerm={searchTerm}
-            searchConfig={searchConfig}
-            variant="desktop"
-          />
+        {isDesktop && filterConfig.length > 0 && (
+          <div className={`${styles.filterPanelWrapper} ${isFilterPanelVisible ? styles.filterPanelWrapperOpen : ""}`}>
+            <FilterPanel
+              filters={filterConfig}
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              onClearAll={clearAllFilters}
+              items={items}
+              searchTerm={searchTerm}
+              searchConfig={searchConfig}
+              variant="desktop"
+              isOpen={isFilterPanelVisible}
+            />
+          </div>
         )}
 
         {/* Main Content */}

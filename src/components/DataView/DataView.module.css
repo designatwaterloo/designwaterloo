@@ -1,7 +1,6 @@
 /* Main Layout Container */
 .container {
   display: flex;
-  gap: var(--margin);
   width: 100%;
   align-items: flex-start;
 }
@@ -33,6 +32,21 @@
 
 .filterButtonWrapper {
   flex-shrink: 0;
+}
+
+/* Desktop filter panel wrapper — animates open/close */
+.filterPanelWrapper {
+  width: 0;
+  margin-right: 0;
+  flex-shrink: 0;
+  overflow: clip; /* clips visually without breaking position:sticky inside */
+  align-self: flex-start;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filterPanelWrapperOpen {
+  width: 280px;
+  margin-right: var(--margin);
 }
 
 /* Mobile: Stack search and button */

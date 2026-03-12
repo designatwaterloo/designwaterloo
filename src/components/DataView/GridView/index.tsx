@@ -1,5 +1,27 @@
-import { GridViewProps } from "../types";
+import { useRef, useEffect, useState } from "react";
+import { GridViewProps, GridColumnsConfig } from "../types";
 import styles from "./GridView.module.css";
+
+const DEFAULT_BREAKPOINTS = [0, 500, 800, 1100, 1400] as const;
+const DEFAULT_COLS = [2, 3, 4, 5, 6];
+
+function getColCount(width: number, gridColumns?: GridColumnsConfig): number {
+  if (gridColumns) {
+    const sortedBps = Object.keys(gridColumns)
+      .map(Number)
+      .sort((a, b) => a - b);
+    let result = gridColumns[sortedBps[0]] ?? 1;
+    for (const bp of sortedBps) {
+      if (width >= bp) result = gridColumns[bp];
+    }
+    return result;
+  }
+  let result = DEFAULT_COLS[0];
+  for (let i = 0; i < DEFAULT_BREAKPOINTS.length; i++) {
+    if (width >= DEFAULT_BREAKPOINTS[i]) result = DEFAULT_COLS[i];
+  }
+  return result;
+}
 
 /**
  * GridView component - Renders items in a responsive grid layout
@@ -34,6 +56,38 @@ export default function GridView<T>({
   onItemClick,
   gridColumns,
 }: GridViewProps<T>) {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const prevColCount = useRef<number | null>(null);
+  const [isReflowing, setIsReflowing] = useState(false);
+  const reflowTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      const newCount = getColCount(width, gridColumns);
+      if (prevColCount.current !== null && prevColCount.current !== newCount) {
+        // Cancel any pending reset, then trigger the reflow animation
+        if (reflowTimeout.current) clearTimeout(reflowTimeout.current);
+        setIsReflowing(false);
+        // Minimal timeout to force a style recalc so animation restarts
+        reflowTimeout.current = setTimeout(() => {
+          setIsReflowing(true);
+          reflowTimeout.current = setTimeout(() => setIsReflowing(false), 400);
+        }, 0);
+      }
+      prevColCount.current = newCount;
+    });
+
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      if (reflowTimeout.current) clearTimeout(reflowTimeout.current);
+    };
+  }, [gridColumns]);
+
   // Build CSS custom properties for custom grid columns
   const gridStyle: Record<string, string | number> = {};
 
@@ -68,11 +122,12 @@ export default function GridView<T>({
     : `${styles.grid} ${className || ""}`;
 
   return (
-    <div className={gridClass} style={gridStyle}>
+    <div ref={gridRef} className={gridClass} style={gridStyle}>
       {items.map((item, index) => (
         <div
           key={getItemKey(item)}
-          className={styles.gridItem}
+          className={`${styles.gridItem}${isReflowing ? ` ${styles.gridItemReflowing}` : ""}`}
+          style={isReflowing ? { animationDelay: `${index * 12}ms` } : undefined}
           onClick={() => onItemClick?.(item)}
         >
           {renderItem(item, index)}
