@@ -94,27 +94,25 @@ export default function ProfileContent(props: ProfileContentProps) {
   );
 }
 
-/** Wrapper that adds full-width hover highlight + click-to-edit for owner rows */
+/** Wrapper that adds full-width hover highlight + click-to-edit for editable rows */
 function EditableRow({
-  isOwner,
+  active,
   children,
 }: {
-  isOwner: boolean;
+  active: boolean;
   children: React.ReactNode;
 }) {
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // If the click target is already an input/button, let it handle itself
     const target = e.target as HTMLElement;
     if (target.closest("input, textarea, button, [role='button']")) return;
 
-    // Find and click the editable span or focus the input inside
     const editable = e.currentTarget.querySelector<HTMLElement>(
       "[role='button'], input, textarea"
     );
     editable?.click();
   };
 
-  if (!isOwner) return <>{children}</>;
+  if (!active) return <>{children}</>;
 
   return (
     <div className={editStyles.editableRow} onClick={handleClick}>
@@ -131,7 +129,7 @@ function ProfileContentInner({
   nextAvailableTerm,
   programSuggestions,
 }: ProfileContentProps) {
-  const { isOwner, fields } = useInlineEdit();
+  const { isOwner, editMode, setEditMode, fields } = useInlineEdit();
   const [socialModalOpen, setSocialModalOpen] = useState(false);
 
   // For non-owners, derive values from initial; for owners, from live fields
@@ -156,26 +154,34 @@ function ProfileContentInner({
 
   return (
     <>
-      <section className={styles.section}>
+      <section className={`${styles.section} ${editMode ? styles.editMode : ""}`}>
         {/* Name Row */}
         <div className={styles.nameRow}>
           <h1 className={styles.name}>
             {firstName} {lastName}
           </h1>
+          {isOwner && !editMode && (
+            <Button
+              variant="small"
+              onClick={() => setEditMode(true)}
+            >
+              Edit profile
+            </Button>
+          )}
         </div>
 
         {/* Image + Trading Card */}
         <div className={styles.imageContainer}>
           <ProfileImageEdit />
 
-          {/* Trading Card — clickable for owners to open social links modal */}
+          {/* Trading Card — clickable in edit mode to open social links modal */}
           <div
-            className={`${styles.tradingCard} ${isOwner ? editStyles.tradingCardEditable : ""}`}
-            onClick={isOwner ? () => setSocialModalOpen(true) : undefined}
-            role={isOwner ? "button" : undefined}
-            tabIndex={isOwner ? 0 : undefined}
+            className={`${styles.tradingCard} ${editMode ? editStyles.tradingCardEditable : ""}`}
+            onClick={editMode ? () => setSocialModalOpen(true) : undefined}
+            role={editMode ? "button" : undefined}
+            tabIndex={editMode ? 0 : undefined}
             onKeyDown={
-              isOwner
+              editMode
                 ? (e) => {
                     if (e.key === "Enter" || e.key === " ") setSocialModalOpen(true);
                   }
@@ -184,7 +190,7 @@ function ProfileContentInner({
           >
             <p className={styles.tradingCardName}>
               {firstName} {lastName}
-              {isOwner && !hasSocialLinks && (
+              {editMode && !hasSocialLinks && (
                 <span style={{ color: "rgba(255,255,255,0.4)", fontStyle: "italic", fontSize: "13px" }}>
                   Click to add links
                 </span>
@@ -196,7 +202,7 @@ function ProfileContentInner({
                   href={ensureHttps(socialLinks.portfolio)}
                   icon="/globe.svg"
                   label={socialLinks.portfolio.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
               {socialLinks.twitter && (
@@ -208,7 +214,7 @@ function ProfileContentInner({
                       ? `@${socialLinks.twitter.match(/(?:twitter\.com\/|x\.com\/|@)([^\/\?]+)/)?.[1]}`
                       : "twitter"
                   }
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
               {socialLinks.linkedin && (
@@ -220,7 +226,7 @@ function ProfileContentInner({
                       ? `in/${socialLinks.linkedin.match(/\/in\/([^\/\?]+)/)?.[1]}`
                       : "linkedin"
                   }
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
               {socialLinks.instagram && (
@@ -232,7 +238,7 @@ function ProfileContentInner({
                       ? `@${socialLinks.instagram.match(/(?:instagram\.com\/|@)([^\/\?]+)/)?.[1]}`
                       : "instagram"
                   }
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
               {socialLinks.github && (
@@ -240,21 +246,21 @@ function ProfileContentInner({
                   href={ensureHttps(socialLinks.github)}
                   icon="/github_logo.svg"
                   label={socialLinks.github.match(/(?:github\.com\/)([^\/\?]+)/)?.[1] || "github"}
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
               {socialLinks.behance && (
                 <TradingCardLink
                   href={ensureHttps(socialLinks.behance)}
                   label="behance"
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
               {socialLinks.dribbble && (
                 <TradingCardLink
                   href={ensureHttps(socialLinks.dribbble)}
                   label="dribbble"
-                  isOwner={isOwner}
+                  preventNav={editMode}
                 />
               )}
             </div>
@@ -282,13 +288,22 @@ function ProfileContentInner({
           {/* Basic Info */}
           <div className={styles.rowGroup}>
             {(school || isOwner) && (
-              <div className={styles.infoRow}>
-                <dt className={styles.label}>School</dt>
-                <dd>{school ?? "—"}</dd>
-              </div>
+              editMode ? (
+                <div className={editStyles.disabledRow}>
+                  <div className={styles.infoRow}>
+                    <dt className={styles.label}>School</dt>
+                    <dd>{school ?? "—"}</dd>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.infoRow}>
+                  <dt className={styles.label}>School</dt>
+                  <dd>{school ?? "—"}</dd>
+                </div>
+              )
             )}
             {(program || isOwner) && (
-              <EditableRow isOwner={isOwner}>
+              <EditableRow active={editMode}>
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Program</dt>
                   <dd>
@@ -302,7 +317,7 @@ function ProfileContentInner({
               </EditableRow>
             )}
             {(graduatingClass || isOwner) && (
-              <EditableRow isOwner={isOwner}>
+              <EditableRow active={editMode}>
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Class</dt>
                   <dd>
@@ -319,7 +334,7 @@ function ProfileContentInner({
           {/* Specialties */}
           {(specialties.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
-              <EditableRow isOwner={isOwner}>
+              <EditableRow active={editMode}>
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Specialties</dt>
                   <dd>
@@ -338,7 +353,7 @@ function ProfileContentInner({
           {/* Work Terms */}
           {(workSchedule.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
-              <EditableRow isOwner={isOwner}>
+              <EditableRow active={editMode}>
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Work terms</dt>
                   <dd>
@@ -357,7 +372,7 @@ function ProfileContentInner({
           {/* Bio */}
           {(bio || isOwner) && (
             <div className={styles.rowGroup}>
-              <EditableRow isOwner={isOwner}>
+              <EditableRow active={editMode}>
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Bio</dt>
                   <dd>
@@ -375,7 +390,7 @@ function ProfileContentInner({
           {/* Public Email (owner only when empty) */}
           {(publicEmail || isOwner) && (
             <div className={styles.rowGroup}>
-              <EditableRow isOwner={isOwner}>
+              <EditableRow active={editMode}>
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Contact</dt>
                   <dd>
@@ -397,7 +412,7 @@ function ProfileContentInner({
         </div>
       </section>
 
-      {/* Social Links Modal */}
+      {/* Social Links Modal + Toast (owner only) */}
       {isOwner && (
         <>
           <SocialLinksModal
@@ -417,16 +432,15 @@ function TradingCardLink({
   href,
   icon,
   label,
-  isOwner,
+  preventNav,
 }: {
   href: string;
   icon?: string;
   label: string;
-  isOwner: boolean;
+  preventNav: boolean;
 }) {
-  // When owner, prevent navigation (the whole card opens the modal)
   const handleClick = (e: React.MouseEvent) => {
-    if (isOwner) e.preventDefault();
+    if (preventNav) e.preventDefault();
   };
 
   return (

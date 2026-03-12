@@ -31,6 +31,31 @@
   }
 }
 
+.disabledRow {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: subgrid;
+  cursor: not-allowed;
+  padding: 10px 8px;
+  margin: -10px -8px;
+  border-radius: var(--radius-small);
+}
+
+.disabledRow:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 768px) {
+  .disabledRow {
+    display: block;
+  }
+
+  .disabledRow > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 /* ===== Editable Field (inline, no hover — row handles it) ===== */
 
 .editableField {
