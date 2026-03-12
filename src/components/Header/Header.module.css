@@ -103,7 +103,7 @@
 /* Make sign-in + menu match the same outer box */
 .headerActions .primaryButton,
 .headerActions .menuButton {
-  width: 40px;
+  width: 32px;
   height: 32px;
   padding: 0;
   border-radius: 8px;
