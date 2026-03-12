@@ -10,6 +10,7 @@ interface PillInputProps {
   suggestions?: string[];
   maxItems?: number;
   placeholder?: string;
+  addLabel?: string;
   /** Render function for custom pill display (e.g. decoded term names) */
   renderPill?: (value: string) => string;
   className?: string;
@@ -20,6 +21,7 @@ export default function PillInput({
   suggestions = [],
   maxItems,
   placeholder = "Type to add...",
+  addLabel = "Add skill",
   renderPill,
   className,
 }: PillInputProps) {
@@ -38,6 +40,7 @@ export default function PillInput({
     const handleClick = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setFocused(false);
+        setInputValue("");
       }
     };
     document.addEventListener("mousedown", handleClick);
@@ -54,6 +57,11 @@ export default function PillInput({
 
   const removeItem = (value: string) => {
     setField(field, items.filter((i) => i !== value) as EditableFields[typeof field]);
+  };
+
+  const handleAddSkillClick = () => {
+    setFocused(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   // Non-owner: just show the pills (or nothing)
@@ -73,9 +81,10 @@ export default function PillInput({
     );
   }
 
+  const lowerItems = items.map((i) => i.toLowerCase());
   const filtered = suggestions.filter(
     (s) =>
-      !items.includes(s) &&
+      !lowerItems.includes(s.toLowerCase()) &&
       s.toLowerCase().includes(inputValue.toLowerCase())
   );
 
@@ -96,11 +105,11 @@ export default function PillInput({
               onClick={() => removeItem(item)}
               aria-label={`Remove ${item}`}
             >
-              x
+              ×
             </button>
           </span>
         ))}
-        {!atMax && (
+        {!atMax && focused && (
           <input
             ref={inputRef}
             type="text"
@@ -117,12 +126,25 @@ export default function PillInput({
               }
               if (e.key === "Escape") {
                 setFocused(false);
+                setInputValue("");
                 inputRef.current?.blur();
               }
             }}
-            placeholder={items.length === 0 ? placeholder : ""}
+            placeholder={placeholder}
             className={styles.pillInput}
           />
+        )}
+        {!atMax && !focused && (
+          <button
+            type="button"
+            className={styles.addSkillPill}
+            onClick={handleAddSkillClick}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            {addLabel}
+          </button>
         )}
       </div>
       {showDropdown && (

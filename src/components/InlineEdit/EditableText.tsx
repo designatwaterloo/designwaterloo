@@ -34,8 +34,23 @@ export default function EditableText({
       // Place cursor at end
       const len = inputRef.current.value.length;
       inputRef.current.setSelectionRange(len, len);
+      // Auto-size textarea to content
+      if (multiline) {
+        const el = inputRef.current;
+        el.style.height = "auto";
+        el.style.height = `${el.scrollHeight}px`;
+      }
     }
-  }, [editing]);
+  }, [editing, multiline]);
+
+  // Auto-resize textarea as content changes
+  useEffect(() => {
+    if (editing && multiline && inputRef.current) {
+      const el = inputRef.current;
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  }, [value, editing, multiline]);
 
   // Close suggestions on click outside
   useEffect(() => {
@@ -120,7 +135,7 @@ export default function EditableText({
           onKeyDown={handleKeyDown}
           className={`${styles.editableInput} ${styles.editableTextarea} ${className ?? ""}`}
           placeholder={placeholder}
-          rows={4}
+          rows={1}
         />
       ) : (
         <input

@@ -9,7 +9,7 @@
 }
 
 .editableField:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: transparent;
 }
 
 .editablePlaceholder {
@@ -23,7 +23,7 @@
 }
 
 .editablePlaceholder:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: transparent;
 }
 
 /* ===== Inline Input ===== */
@@ -41,15 +41,15 @@
   line-height: inherit;
   color: inherit;
   background: transparent;
-  border: 2px solid var(--blue);
+  border: 2px solid var(--foreground);
   border-radius: var(--radius-small);
   outline: none;
   transition: border-color 0.15s ease;
 }
 
 .editableTextarea {
-  resize: vertical;
-  min-height: 60px;
+  resize: none;
+  overflow: hidden;
 }
 
 /* ===== Suggestions Dropdown ===== */
@@ -177,6 +177,26 @@
   margin-top: 4px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.addSkillPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  background: var(--background);
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  animation: pillIn 0.2s ease;
+}
+
+.addSkillPill:hover {
+  background-color: rgba(0, 0, 255, 0.05);
 }
 
 /* ===== Dynamic Island Toast ===== */
@@ -390,7 +410,7 @@
 }
 
 .socialInput:focus {
-  border-color: var(--blue);
+  border-color: var(--foreground);
 }
 
 .socialFooter {
@@ -424,7 +444,7 @@
   gap: 8px;
   padding: var(--tinier);
   margin: calc(var(--tinier) * -1);
-  border: 2px solid var(--blue);
+  border: 2px solid var(--foreground);
   border-radius: var(--radius-large);
   animation: fadeSlideIn 0.15s ease;
 }
@@ -451,7 +471,7 @@
 }
 
 .entryInput:focus {
-  border-color: var(--blue);
+  border-color: var(--foreground);
 }
 
 .entryInputSmall {
@@ -471,7 +491,7 @@
 }
 
 .entrySelect:focus {
-  border-color: var(--blue);
+  border-color: var(--foreground);
 }
 
 .entryCheckbox {
@@ -533,7 +553,7 @@
 }
 
 .tradingCardEditable:hover {
-  outline-color: var(--blue);
+  outline-color: var(--foreground);
 }
 
 /* ===== Animations ===== */

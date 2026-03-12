@@ -105,6 +105,14 @@ function ProfileContentInner({
   const { isOwner, fields } = useInlineEdit();
   const [socialModalOpen, setSocialModalOpen] = useState(false);
 
+  // Delegate row clicks to the first interactive editable element inside.
+  // This lets clicking the label area also activate editing.
+  const delegateRowClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('button, input, textarea, [role="button"]')) return;
+    const interactive = e.currentTarget.querySelector<HTMLElement>('[role="button"], button:not([aria-label^="Remove"])');
+    interactive?.click();
+  };
+
   // For non-owners, derive values from initial; for owners, from live fields
   const program = fields.program;
   const graduatingClass = fields.graduating_class;
@@ -259,7 +267,7 @@ function ProfileContentInner({
               </div>
             )}
             {(program || isOwner) && (
-              <div className={styles.infoRow}>
+              <div className={`${styles.infoRow} ${isOwner ? styles.infoRowEditable : ""}`} onClick={isOwner ? delegateRowClick : undefined}>
                 <dt className={styles.label}>Program</dt>
                 <dd>
                   <EditableText
@@ -271,7 +279,7 @@ function ProfileContentInner({
               </div>
             )}
             {(graduatingClass || isOwner) && (
-              <div className={styles.infoRow}>
+              <div className={`${styles.infoRow} ${isOwner ? styles.infoRowEditable : ""}`} onClick={isOwner ? delegateRowClick : undefined}>
                 <dt className={styles.label}>Class</dt>
                 <dd>
                   <EditableText
@@ -310,6 +318,7 @@ function ProfileContentInner({
                     field="work_schedule"
                     suggestions={TERM_SUGGESTIONS}
                     placeholder="Type to add a term..."
+                    addLabel="Add work term"
                     renderPill={decodeTermCode}
                   />
                 </dd>
@@ -320,7 +329,7 @@ function ProfileContentInner({
           {/* Bio */}
           {(bio || isOwner) && (
             <div className={styles.rowGroup}>
-              <div className={styles.infoRow}>
+              <div className={`${styles.infoRow} ${isOwner ? styles.infoRowEditable : ""}`} onClick={isOwner ? delegateRowClick : undefined}>
                 <dt className={styles.label}>Bio</dt>
                 <dd>
                   <EditableText
@@ -336,7 +345,7 @@ function ProfileContentInner({
           {/* Public Email (owner only when empty) */}
           {(publicEmail || isOwner) && (
             <div className={styles.rowGroup}>
-              <div className={styles.infoRow}>
+              <div className={`${styles.infoRow} ${isOwner ? styles.infoRowEditable : ""}`} onClick={isOwner ? delegateRowClick : undefined}>
                 <dt className={styles.label}>Contact</dt>
                 <dd>
                   <EditableText

@@ -177,6 +177,19 @@
   align-items: start;
 }
 
+.infoRowEditable {
+  padding: 8px 10px;
+  margin: 0 -10px;
+  border-radius: var(--radius-large);
+  cursor: pointer;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.infoRowEditable:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
 .infoRowFull {
   grid-column: span 12;
 }
@@ -245,17 +258,18 @@
   margin: calc(var(--tinier) * -1);
   background-color: transparent;
   color: inherit;
-  transition-property: background-color, color;
-  transition-duration: 0.2s, 0.2s;
-  transition-timing-function: ease, ease;
+  transition-property: background-color, color, border-color;
+  transition-duration: 0.2s, 0.2s, 0.2s;
+  transition-timing-function: ease, ease, ease;
   cursor: pointer;
-  border-bottom: 2px solid var(--muted);
+  border-bottom: 2px solid var(--foreground);
 }
 
 .experienceItem:hover {
   background-color: var(--black);
   color: var(--white);
-  transition-duration: 0.05s, 0.05s;
+  border-color: var(--background);
+  transition-duration: 0.05s, 0.05s, 0.05s;
 }
 
 .experienceItem:hover .companyName {
