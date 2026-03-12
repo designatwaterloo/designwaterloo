@@ -7,7 +7,7 @@ import styles from "./InlineEdit.module.css";
 import pageStyles from "@/app/directory/[slug]/page.module.css";
 
 export default function ProfileImageEdit() {
-  const { isOwner, fields, setField } = useInlineEdit();
+  const { isOwner, editMode, fields, setField } = useInlineEdit();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export default function ProfileImageEdit() {
     }
   };
 
-  if (!isOwner) {
+  if (!isOwner || !editMode) {
     if (!imageUrl) return null;
     return (
       <Image

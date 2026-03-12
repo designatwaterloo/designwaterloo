@@ -53,8 +53,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
       userNavItems.push({ label: "Admin", href: "/admin" });
     }
   } else {
-    // Not logged in
-    userNavItems.push({ label: "Sign In", href: "/sign-in" });
+    // Not logged in - sign in handled via header icon
   }
 
   // Nav item delays: start after columns finish

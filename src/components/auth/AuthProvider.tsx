@@ -52,20 +52,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
     const getInitialSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      setSession(session);
-      setUser(session?.user ?? null);
+        if (!mounted) return;
 
-      if (session?.user) {
-        await fetchMember(session.user.id);
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await fetchMember(session.user.id);
+        }
+      } catch (err) {
+        // Ignore AbortErrors from Strict Mode double-mounting
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        console.error("[Auth] Error getting session:", err);
       }
 
-      setLoading(false);
+      if (mounted) setLoading(false);
     };
 
     getInitialSession();
@@ -73,7 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -86,7 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase.auth, fetchMember]);
 
   const signInWithMicrosoft = async () => {

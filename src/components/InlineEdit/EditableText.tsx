@@ -20,7 +20,7 @@ export default function EditableText({
   multiline = false,
   className,
 }: EditableTextProps) {
-  const { isOwner, fields, setField } = useInlineEdit();
+  const { isOwner, editMode, fields, setField } = useInlineEdit();
   const [editing, setEditing] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -64,7 +64,7 @@ export default function EditableText({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showSuggestions]);
 
-  if (!isOwner) {
+  if (!isOwner || !editMode) {
     if (!value) return null;
     return <span className={className}>{value}</span>;
   }

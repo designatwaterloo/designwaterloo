@@ -7,11 +7,10 @@ import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
 import { useAuth } from "@/components/auth/AuthProvider";
-import Button from "@/components/Button";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const { user, member, signOut } = useAuth();
+  const { user, member } = useAuth();
   const hasProfile = !!(user && member);
   const avatarSrc =
     hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
@@ -79,19 +78,10 @@ export default function Header() {
               <Image
                 src={avatarSrc}
                 alt={hasProfile ? "Your profile" : "Sign in"}
-                width={24}
-                height={24}
+                width={20}
+                height={20}
               />
             </Link>
-            {hasProfile ? (
-              <Button variant="small" onClick={signOut}>
-                Sign out
-              </Button>
-            ) : (
-              <Button variant="small" href="/sign-in">
-                Sign in
-              </Button>
-            )}
             <button
               onClick={() => setIsNavOpen(true)}
               className={`btn-menu ${styles.menuButton}`}

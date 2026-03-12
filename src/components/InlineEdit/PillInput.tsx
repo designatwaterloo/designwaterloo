@@ -25,7 +25,7 @@ export default function PillInput({
   renderPill,
   className,
 }: PillInputProps) {
-  const { isOwner, fields, setField } = useInlineEdit();
+  const { isOwner, editMode, fields, setField } = useInlineEdit();
   const [inputValue, setInputValue] = useState("");
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,8 +64,8 @@ export default function PillInput({
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  // Non-owner: just show the pills (or nothing)
-  if (!isOwner) {
+  // Non-owner or not in edit mode: just show the pills (or nothing)
+  if (!isOwner || !editMode) {
     if (items.length === 0) return null;
     return (
       <div className={`flex flex-wrap gap-2 ${className ?? ""}`}>

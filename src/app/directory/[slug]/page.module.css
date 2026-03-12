@@ -65,6 +65,7 @@
   grid-template-columns: repeat(8, 1fr);
   row-gap: var(--big);
   padding-right: var(--smaller);
+  transition: row-gap 0.4s ease;
 }
 
 .content p,
@@ -82,6 +83,9 @@
   column-gap: var(--gap);
   row-gap: 8px;
   align-content: start;
+  padding-bottom: 0;
+  border-bottom: 0px solid transparent;
+  transition: row-gap 0.4s ease, padding-bottom 0.4s ease, border-bottom 0.4s ease;
 }
 
 .imageContainer {
@@ -344,5 +348,17 @@
 
 .tradingCardLinks a:hover .tradingCardIcon {
   filter: invert(1) opacity(1);
+}
+
+/* ===== Edit Mode: expanded layout with dividers ===== */
+
+.editMode .content {
+  row-gap: 0;
+}
+
+.editMode .rowGroup {
+  row-gap: 12px;
+  padding-bottom: var(--big);
+  border-bottom: 1px solid var(--muted);
 }
 

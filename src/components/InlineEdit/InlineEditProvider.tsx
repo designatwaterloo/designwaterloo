@@ -6,6 +6,7 @@ import {
   useCallback,
   useState,
   useRef,
+  useEffect,
   ReactNode,
 } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -52,6 +53,10 @@ export type EditableFields = {
 
 interface InlineEditContextType {
   isOwner: boolean;
+  /** Whether the user has opted into edit mode */
+  editMode: boolean;
+  /** Toggle edit mode on/off */
+  setEditMode: (on: boolean) => void;
   /** Current working values (reflect unsaved edits) */
   fields: EditableFields;
   experiences: ExperienceEntry[];
@@ -60,6 +65,8 @@ interface InlineEditContextType {
   isDirty: boolean;
   /** Whether a save is in-flight */
   saving: boolean;
+  /** True for a few seconds after a successful save */
+  savedRecently: boolean;
   /** Update a flat field */
   setField: <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => void;
   /** Replace the entire experiences list */
@@ -104,7 +111,17 @@ export function InlineEditProvider({
   const [fields, setFields] = useState<EditableFields>({ ...initialFields });
   const [experiences, setExperiences] = useState<ExperienceEntry[]>([...initialExperiences]);
   const [leadership, setLeadership] = useState<LeadershipEntry[]>([...initialLeadership]);
+  const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savedRecently, setSavedRecently] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Auto-clear savedRecently after 3 seconds
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
 
   // Dirty check — deep compare current vs saved
   const isDirty =
@@ -123,33 +140,44 @@ export function InlineEditProvider({
     setFields({ ...savedFields.current });
     setExperiences([...savedExperiences.current]);
     setLeadership([...savedLeadership.current]);
+    setEditMode(false);
   }, []);
 
   const save = useCallback(async () => {
-    if (!isOwner || !member) return;
+    if (!isOwner || !member) {
+      console.error("[InlineEdit] save aborted: isOwner=", isOwner, "member=", member);
+      return;
+    }
     setSaving(true);
 
     try {
       // 1. Update flat member fields
-      const { error: memberError } = await supabase
+      const updatePayload = {
+        program: fields.program,
+        graduating_class: fields.graduating_class,
+        bio: fields.bio,
+        public_email: fields.public_email,
+        specialties: fields.specialties,
+        work_schedule: fields.work_schedule,
+        profile_image_url: fields.profile_image_url,
+        linkedin: fields.linkedin,
+        portfolio: fields.portfolio,
+        instagram: fields.instagram,
+        twitter: fields.twitter,
+        github: fields.github,
+        behance: fields.behance,
+        dribbble: fields.dribbble,
+      };
+      console.log("[InlineEdit] Saving member fields:", updatePayload);
+      console.log("[InlineEdit] member.id:", member.id);
+
+      const { error: memberError, data: updateData } = await supabase
         .from("members")
-        .update({
-          program: fields.program,
-          graduating_class: fields.graduating_class,
-          bio: fields.bio,
-          public_email: fields.public_email,
-          specialties: fields.specialties,
-          work_schedule: fields.work_schedule,
-          profile_image_url: fields.profile_image_url,
-          linkedin: fields.linkedin,
-          portfolio: fields.portfolio,
-          instagram: fields.instagram,
-          twitter: fields.twitter,
-          github: fields.github,
-          behance: fields.behance,
-          dribbble: fields.dribbble,
-        } as never)
-        .eq("id", member.id);
+        .update(updatePayload as never)
+        .eq("id", member.id)
+        .select();
+
+      console.log("[InlineEdit] Update result:", { error: memberError, data: updateData });
 
       if (memberError) throw memberError;
 
@@ -197,39 +225,43 @@ export function InlineEditProvider({
         if (leadError) throw leadError;
       }
 
-      // 4. Revalidate
-      try {
-        await fetch("/api/revalidate-profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slug: memberSlug }),
-        });
-      } catch {
-        // non-critical
-      }
-
-      // 5. Update saved snapshots
+      // 4. Update saved snapshots
       savedFields.current = { ...fields };
       savedExperiences.current = [...experiences];
       savedLeadership.current = [...leadership];
 
-      await refreshMember();
+      // 5. Exit edit mode and show "Saved" confirmation
+      setEditMode(false);
+      setSavedRecently(true);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSavedRecently(false), 3000);
     } catch (err) {
       console.error("Failed to save profile:", err);
     } finally {
       setSaving(false);
     }
+
+    // Non-critical post-save work (don't block UI)
+    refreshMember().catch(() => {});
+    fetch("/api/revalidate-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: memberSlug }),
+    }).catch(() => {});
   }, [isOwner, member, fields, experiences, leadership, memberSlug, supabase, refreshMember]);
 
   return (
     <InlineEditContext.Provider
       value={{
         isOwner,
+        editMode,
+        setEditMode,
         fields,
         experiences,
         leadership,
         isDirty,
         saving,
+        savedRecently,
         setField,
         setExperiences,
         setLeadership,

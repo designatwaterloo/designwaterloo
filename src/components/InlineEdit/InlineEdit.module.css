@@ -1,29 +1,71 @@
-/* ===== Editable Field Hover ===== */
+/* ===== Editable Row Hover (full-width highlight) ===== */
+
+.editableRow {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: subgrid;
+  cursor: pointer;
+  padding: 10px 8px;
+  margin: -10px -8px;
+  border-radius: var(--radius-small);
+}
+
+.editableRow > * {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.editableRow:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 768px) {
+  .editableRow {
+    display: block;
+  }
+
+  .editableRow > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.disabledRow {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: subgrid;
+  cursor: not-allowed;
+  padding: 10px 8px;
+  margin: -10px -8px;
+  border-radius: var(--radius-small);
+}
+
+.disabledRow:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 768px) {
+  .disabledRow {
+    display: block;
+  }
+
+  .disabledRow > * {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* ===== Editable Field (inline, no hover — row handles it) ===== */
 
 .editableField {
   cursor: pointer;
-  padding: 2px 6px;
-  margin: -2px -6px;
-  border-radius: var(--radius-small);
-  transition: background-color 0.15s ease;
-}
-
-.editableField:hover {
-  background-color: transparent;
 }
 
 .editablePlaceholder {
   color: var(--muted);
   font-style: italic;
   cursor: pointer;
-  padding: 2px 6px;
-  margin: -2px -6px;
-  border-radius: var(--radius-small);
-  transition: background-color 0.15s ease;
-}
-
-.editablePlaceholder:hover {
-  background-color: transparent;
 }
 
 /* ===== Inline Input ===== */

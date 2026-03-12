@@ -119,7 +119,7 @@ function EntryForm({
 }
 
 export default function InlineExperienceForm({ type, label }: InlineExperienceFormProps) {
-  const { isOwner, experiences, leadership, setExperiences, setLeadership } = useInlineEdit();
+  const { isOwner, editMode, experiences, leadership, setExperiences, setLeadership } = useInlineEdit();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const entries = type === "experience" ? experiences : leadership;
@@ -160,8 +160,8 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
     setEditingIndex(entries.length);
   };
 
-  // Non-owner: show read-only list or nothing
-  if (!isOwner) {
+  // Non-owner or not in edit mode: show read-only list or nothing
+  if (!isOwner || !editMode) {
     if (entries.length === 0) return null;
     return (
       <dl className={pageStyles.experienceGroup}>
