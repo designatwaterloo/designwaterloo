@@ -1,4 +1,4 @@
-import SkeletonImage from "@/components/SkeletonImage";
+import Image from "next/image";
 import { Member } from "@/sanity/types";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -17,7 +17,7 @@ export default function MemberHoverPreview({ member }: MemberHoverPreviewProps) 
   }
 
   return (
-    <SkeletonImage
+    <Image
       src={urlFor(member.profileImage).width(300).height(375).url()}
       alt={`${member.firstName} ${member.lastName}`}
       width={300}

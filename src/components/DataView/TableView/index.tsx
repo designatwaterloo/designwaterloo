@@ -101,9 +101,9 @@ export default function TableView<T>({
               ))}
             </Link>
 
-            {/* Hover Preview */}
-            {isHovered && renderHoverPreview && (
-              <div className={styles.hoverPreview}>
+            {/* Hover Preview - always rendered so images preload, shown/hidden via CSS */}
+            {renderHoverPreview && (
+              <div className={`${styles.hoverPreview} ${isHovered ? styles.hoverPreviewVisible : ""}`}>
                 {renderHoverPreview(item)}
               </div>
             )}

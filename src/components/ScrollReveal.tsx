@@ -2,6 +2,25 @@
 
 import { useRef, useEffect, useState, ReactNode } from "react";
 
+// Batch items that intersect within the same frame, then reveal in index order
+let pendingReveals: Array<{ index: number; reveal: () => void }> = [];
+let batchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleReveal(index: number, reveal: () => void, staggerMs: number) {
+  pendingReveals.push({ index, reveal });
+
+  if (batchTimeout !== null) clearTimeout(batchTimeout);
+  batchTimeout = setTimeout(() => {
+    const batch = [...pendingReveals].sort((a, b) => a.index - b.index);
+    pendingReveals = [];
+    batchTimeout = null;
+
+    batch.forEach((item, i) => {
+      setTimeout(() => item.reveal(), i * staggerMs);
+    });
+  }, 16);
+}
+
 interface ScrollRevealProps {
   children: ReactNode;
   index?: number;
@@ -17,6 +36,10 @@ export default function ScrollReveal({
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const indexRef = useRef(index);
+  const staggerRef = useRef(staggerMs);
+  indexRef.current = index;
+  staggerRef.current = staggerMs;
 
   useEffect(() => {
     const el = ref.current;
@@ -25,7 +48,7 @@ export default function ScrollReveal({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setVisible(true);
+          scheduleReveal(indexRef.current, () => setVisible(true), staggerRef.current);
           observer.unobserve(el);
         }
       },
@@ -36,9 +59,6 @@ export default function ScrollReveal({
     return () => observer.disconnect();
   }, []);
 
-  // Stagger within rows (max 6 columns), so delay resets per row
-  const delay = (index % 6) * staggerMs;
-
   return (
     <div
       ref={ref}
@@ -46,7 +66,7 @@ export default function ScrollReveal({
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(16px)",
-        transition: `opacity 400ms ease-out ${delay}ms, transform 400ms ease-out ${delay}ms`,
+        transition: "opacity 400ms ease-out, transform 400ms ease-out",
       }}
     >
       {children}
