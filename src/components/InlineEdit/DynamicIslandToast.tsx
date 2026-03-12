@@ -4,9 +4,9 @@ import { useInlineEdit } from "./InlineEditProvider";
 import styles from "./InlineEdit.module.css";
 
 export default function DynamicIslandToast() {
-  const { isDirty, saving, savedRecently, save, discard } = useInlineEdit();
+  const { editMode, setEditMode, isDirty, saving, savedRecently, save, discard } = useInlineEdit();
 
-  const visible = isDirty || savedRecently;
+  const visible = editMode || savedRecently;
 
   return (
     <div
@@ -14,7 +14,7 @@ export default function DynamicIslandToast() {
       role="status"
       aria-live="polite"
     >
-      {savedRecently && !isDirty ? (
+      {savedRecently && !isDirty && !editMode ? (
         <>
           <svg
             width="16"
@@ -34,7 +34,7 @@ export default function DynamicIslandToast() {
           </svg>
           <span className={styles.toastLabel}>Changes saved</span>
         </>
-      ) : (
+      ) : isDirty ? (
         <>
           <span className={styles.toastLabel}>
             {saving ? "Saving..." : "Unsaved changes"}
@@ -55,6 +55,19 @@ export default function DynamicIslandToast() {
               disabled={saving}
             >
               {saving ? "Saving..." : "Save changes"}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <span className={styles.toastLabel}>Editing profile</span>
+          <div className={styles.toastActions}>
+            <button
+              type="button"
+              className={styles.toastSave}
+              onClick={() => setEditMode(false)}
+            >
+              Done
             </button>
           </div>
         </>

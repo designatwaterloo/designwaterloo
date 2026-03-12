@@ -160,7 +160,7 @@
   color: var(--background);
   border-radius: var(--radius-full);
   font-size: 14px;
-  line-height: 1.2;
+  line-height: 1.25rem;
   animation: pillIn 0.2s ease;
 }
 
