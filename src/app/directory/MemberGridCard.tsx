@@ -26,7 +26,7 @@ export default function MemberGridCard({ member, index = 0 }: MemberGridCardProp
             className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300"
           />
         ) : (
-          <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
+          <div className="aspect-[4/5] bg-skeleton rounded" />
         )}
         <div className="flex flex-col gap-0">
           <p className="text-[var(--foreground)]">

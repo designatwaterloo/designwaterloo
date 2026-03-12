@@ -18,7 +18,7 @@
   .headerContainer {
     filter: none;
     mix-blend-mode: normal;
-    background: white;
+    background: var(--background);
   }
 }
 
@@ -90,8 +90,8 @@
 
 /* Menu Button */
 .menuButton {
-  background: black;
-  color: white;
+  background: var(--foreground);
+  color: var(--background);
   cursor: pointer;
   justify-self: end;
   align-self: center;
@@ -169,6 +169,6 @@
   }
 
   .menuIcon span {
-    background: black;
+    background: var(--foreground);
   }
 }

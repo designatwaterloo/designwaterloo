@@ -17,7 +17,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #000000;
+  background: var(--black);
   opacity: 0;
   z-index: 0;
   transition: opacity 0.47s ease;
@@ -49,7 +49,7 @@
 /* Individual Column */
 .column {
   flex: 1;
-  background: #000000;
+  background: var(--black);
   transform: translateY(-100%);
   transition: transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
 }

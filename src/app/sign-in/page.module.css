@@ -20,9 +20,9 @@
 }
 
 .error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error);
   padding: var(--tinier) var(--smallest);
   border-radius: 8px;
   font-size: 14px;

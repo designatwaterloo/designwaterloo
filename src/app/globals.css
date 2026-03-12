@@ -28,7 +28,7 @@ html {
   /* Color Primitives */
   --white: #ffffff;
   --black: #0e0e0e;
-  --blue: #0000ff;
+  --blue: #002fff;
   --orange: #ff6600;
 
   /* Base Colors */
@@ -36,6 +36,23 @@ html {
   --foreground: var(--black);
   --muted: rgba(14, 14, 14, 0.22);
   --link-hover: var(--blue);
+
+  /* Semantic tokens */
+  --border: rgba(14, 14, 14, 0.15);
+  --surface: rgba(14, 14, 14, 0.03);
+  --muted-text: #7f7f7f;
+  --muted-light: #b5b5b5;
+  --hover-bg: rgba(14, 14, 14, 0.05);
+  --focus-ring: var(--orange);
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --skeleton: #e0e0e0;
+  --shadow-md: 0 8px 24px rgba(14, 14, 14, 0.12);
+  --shadow-lg: 0 20px 60px rgba(14, 14, 14, 0.25);
 
   font-family: Inter, sans-serif;
 
@@ -104,6 +121,14 @@ html {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--blue);
+  --color-muted-text: var(--muted-text);
+  --color-muted-light: var(--muted-light);
+  --color-border: var(--border);
+  --color-surface: var(--surface);
+  --color-skeleton: var(--skeleton);
+  --color-error: var(--error);
+  --color-success: var(--success);
   --font-sans: Inter, sans-serif;
 
   /* Tailwind Breakpoints - Must match CSS variable breakpoints above */
@@ -140,7 +165,7 @@ body {
 
 /* Global focus ring styles */
 *:focus-visible {
-  outline: 3px solid #ff6b35;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 4px;
   border-radius: 4px;
 }
@@ -297,7 +322,7 @@ p {
 
 /* Default link styling */
 a {
-  color: #7f7f7f;
+  color: var(--muted-text);
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
@@ -311,6 +336,18 @@ a:hover {
   --background: var(--black);
   --foreground: var(--white);
   --muted: rgba(255, 255, 255, 0.7);
+  --border: rgba(255, 255, 255, 0.2);
+  --surface: rgba(255, 255, 255, 0.05);
+  --muted-text: rgba(255, 255, 255, 0.5);
+  --muted-light: rgba(255, 255, 255, 0.35);
+  --hover-bg: rgba(255, 255, 255, 0.08);
+  --error-bg: rgba(220, 38, 38, 0.15);
+  --error-border: rgba(220, 38, 38, 0.3);
+  --success-bg: rgba(22, 163, 74, 0.15);
+  --success-border: rgba(22, 163, 74, 0.3);
+  --skeleton: #2a2a2a;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* Mobile: Typography and layout overrides (0-768px) */

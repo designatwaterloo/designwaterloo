@@ -116,15 +116,15 @@
 .rejectButton {
   padding: 8px 16px;
   background: transparent;
-  color: #dc2626;
-  border: 1px solid #dc2626;
+  color: var(--error);
+  border: 1px solid var(--error);
   cursor: pointer;
   font-size: var(--smallest);
   font-family: inherit;
 }
 
 .rejectButton:hover {
-  background: #dc2626;
+  background: var(--error);
   color: white;
 }
 

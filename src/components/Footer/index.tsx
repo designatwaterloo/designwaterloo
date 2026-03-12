@@ -46,7 +46,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const bgColor = variant === "menu" ? "bg-[#000000]" : "bg-white";
+  const bgColor = variant === "menu" ? "bg-[var(--black)]" : "bg-white";
   const textColor = variant === "menu" ? "text-white" : "text-black";
   const linkColor = variant === "menu" ? "!text-white" : "text-black";
   const linkHoverColor = variant === "menu" ? "hover:!text-white" : "";
@@ -61,7 +61,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
  
         {/* Local Time - Mobile: full width, Desktop: Columns 1-3 */}
         <dl className="flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
-          <dt className="text-[#b5b5b5]">Local Time</dt>
+          <dt className="text-muted-light">Local Time</dt>
           <dd className="flex flex-col m-0">
             <p suppressHydrationWarning>{currentDate || "Loading..."}</p>
             <p suppressHydrationWarning className="tabular-nums">
@@ -73,7 +73,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
 
         {/* About - Hidden on mobile, Desktop: Columns 4-6 */}
         <dl className="hidden sm:flex sm:flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
-          <dt className="text-[#b5b5b5]">Colophon</dt>
+          <dt className="text-muted-light">Colophon</dt>
           <dd className="m-0">
             <p>Our font is <a href="https://rsms.me/inter/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Inter Semibold</a>. We designed this site in <a href="https://www.figma.com/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Figma</a>, built in <a href="https://nextjs.org/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Next.js</a> alongside our friend <a href="https://claude.ai/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Claude</a>, and manage with <a href="https://www.sanity.io/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Sanity</a>. Forever a work in progress.</p>
           </dd>
@@ -81,13 +81,13 @@ export default function Footer({ variant = "default" }: FooterProps) {
 
         {/* Contact - Mobile: hidden in menu variant, Desktop: Columns 7-9 */}
         <dl className={`flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px] ${variant === "menu" ? "max-sm:hidden" : ""}`}>
-          <dt className="text-[#b5b5b5]">Contact</dt>
+          <dt className="text-muted-light">Contact</dt>
           <dd className="m-0">Send us an email <a href="mailto:designatwaterloo@gmail.com" className={`${linkColor} ${linkHoverColor} underline`}>here</a>.</dd>
         </dl>
 
         {/* Follow - Mobile: hidden in menu variant, Desktop: Columns 10-11 */}
         <dl className={`flex flex-col gap-[10px] sm:col-span-2 ${variant === "menu" ? "max-sm:hidden" : ""}`}>
-          <dt className="text-[#b5b5b5]">Follow</dt>
+          <dt className="text-muted-light">Follow</dt>
           <dd className="m-0 flex flex-col gap-[10px]">
             <a href="https://www.instagram.com/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Instagram</a>
             <a href="https://twitter.com/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Twitter</a>

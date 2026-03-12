@@ -27,7 +27,7 @@ export default function SkeletonImage({
     <div className="relative" style={{ aspectRatio }}>
       {!loaded && (
         <div
-          className={`absolute inset-0 animate-pulse rounded ${skeletonClassName ?? "bg-[#e0e0e0] dark:bg-[#2a2a2a]"}`}
+          className={`absolute inset-0 animate-pulse rounded ${skeletonClassName ?? "bg-skeleton"}`}
         />
       )}
       <Image

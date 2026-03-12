@@ -51,7 +51,7 @@ export default async function Home() {
           </div>
 
           <div 
-            className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative bg-[#1a1a1a]"
+            className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative bg-[var(--black)]"
             style={{
               backgroundImage: 'url(https://vumbnail.com/1146446016.jpg)',
               backgroundSize: 'cover',
@@ -109,7 +109,7 @@ export default async function Home() {
                     className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
                   />
                 ) : (
-                  <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
+                  <div className="aspect-[4/5] bg-skeleton rounded" />
                 )}
               </Link>
             ))}

@@ -40,7 +40,7 @@
 }
 
 .secondary:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--hover-bg);
   color: var(--black);
   border: 2px solid var(--black);
 }
@@ -58,7 +58,7 @@
 }
 
 .small:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--hover-bg);
   color: var(--black);
   border: 2px solid var(--black);
 }
@@ -73,12 +73,12 @@
 }
 
 .icon:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--hover-bg);
   opacity: 0.7;
 }
 
 .icon.active {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--hover-bg);
   opacity: 1;
 }
 

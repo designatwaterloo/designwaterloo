@@ -17,7 +17,7 @@
 }
 
 .editableRow:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: var(--hover-bg);
 }
 
 @media (max-width: 768px) {
@@ -42,7 +42,7 @@
 }
 
 .disabledRow:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--surface);
 }
 
 @media (max-width: 768px) {
@@ -105,7 +105,7 @@
   background: var(--background);
   border: 1px solid var(--muted);
   border-radius: var(--radius-large);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-md);
   margin-top: 4px;
   max-height: 200px;
   overflow-y: auto;
@@ -127,7 +127,7 @@
 }
 
 .suggestionItem:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: var(--hover-bg);
 }
 
 .suggestionCreate {
@@ -238,7 +238,7 @@
 }
 
 .addSkillPill:hover {
-  background-color: rgba(0, 0, 255, 0.05);
+  background-color: color-mix(in srgb, var(--blue) 8%, transparent);
 }
 
 /* ===== Dynamic Island Toast ===== */
@@ -388,7 +388,7 @@
   max-height: calc(100vh - 64px);
   border-radius: 12px;
   padding: var(--smaller);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: fadeSlideIn 0.2s ease;
@@ -564,7 +564,7 @@
 }
 
 .entryRemove:hover {
-  color: #dc2626;
+  color: var(--error);
   background-color: rgba(220, 38, 38, 0.08);
 }
 
