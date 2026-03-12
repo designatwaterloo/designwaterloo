@@ -381,6 +381,7 @@ function ProfileContentInner({
                       field="bio"
                       placeholder="Click to add bio..."
                       multiline
+                      maxLength={2000}
                     />
                   </dd>
                 </div>
@@ -388,24 +389,7 @@ function ProfileContentInner({
             </div>
           )}
 
-          {/* Public Email (owner only when empty) */}
-          {(publicEmail || isOwner) && (
-            <div className={styles.rowGroup}>
-              <EditableRow active={editMode}>
-                <div className={styles.infoRow}>
-                  <dt className={styles.label}>Contact</dt>
-                  <dd>
-                    <EditableText
-                      field="public_email"
-                      placeholder="Click to add contact email..."
-                    />
-                  </dd>
-                </div>
-              </EditableRow>
-            </div>
-          )}
-
-          {/* Experience */}
+{/* Experience */}
           <InlineExperienceForm type="experience" label="Experience" />
 
           {/* Leadership */}

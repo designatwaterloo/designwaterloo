@@ -10,6 +10,7 @@ interface EditableTextProps {
   placeholder?: string;
   suggestions?: string[];
   multiline?: boolean;
+  maxLength?: number;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export default function EditableText({
   placeholder = "Click to add...",
   suggestions,
   multiline = false,
+  maxLength,
   className,
 }: EditableTextProps) {
   const { isOwner, editMode, fields, setField } = useInlineEdit();
@@ -91,6 +93,7 @@ export default function EditableText({
   }
 
   const handleChange = (val: string) => {
+    if (maxLength && val.length > maxLength) return;
     setField(field, val || null);
     if (suggestions && val.length > 0) {
       setShowSuggestions(true);
@@ -127,16 +130,23 @@ export default function EditableText({
   return (
     <div className={styles.editableInputWrapper} ref={containerRef}>
       {multiline ? (
-        <textarea
-          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-          value={value}
-          onChange={(e) => handleChange(e.target.value)}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          className={`${styles.editableInput} ${styles.editableTextarea} ${className ?? ""}`}
-          placeholder={placeholder}
-          rows={1}
-        />
+        <>
+          <textarea
+            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+            value={value}
+            onChange={(e) => handleChange(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className={`${styles.editableInput} ${styles.editableTextarea} ${className ?? ""}`}
+            placeholder={placeholder}
+            rows={1}
+          />
+          {maxLength && (
+            <span className={styles.pillHint} style={{ textAlign: "right" }}>
+              {value.length}/{maxLength}
+            </span>
+          )}
+        </>
       ) : (
         <input
           ref={inputRef as React.RefObject<HTMLInputElement>}
