@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,7 +11,7 @@ import styles from "./page.module.css";
 
 export default function EditProfilePage() {
   const { user, member, loading: authLoading, refreshMember } = useAuth();
-  const router = useRouter();
+  const { startTransition } = useTransition();
   const supabase = createClient();
 
   const [saving, setSaving] = useState(false);
@@ -39,9 +39,9 @@ export default function EditProfilePage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/sign-in");
+      startTransition("/sign-in");
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, startTransition]);
 
   // Populate form with existing data
   useEffect(() => {

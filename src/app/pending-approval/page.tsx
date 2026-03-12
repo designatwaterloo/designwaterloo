@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export default function PendingApprovalPage() {
   const { member, loading } = useAuth();
-  const router = useRouter();
+  const { startTransition } = useTransition();
 
   useEffect(() => {
     // If member is approved, redirect to their profile
     if (!loading && member?.is_approved) {
-      router.push(`/directory/${member.slug}`);
+      startTransition(`/directory/${member.slug}`);
     }
-  }, [loading, member, router]);
+  }, [loading, member, startTransition]);
 
   if (loading) {
     return (

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import Header from "@/components/Header";
@@ -12,7 +12,7 @@ import styles from "./page.module.css";
 
 export default function OnboardingPage() {
   const { user, loading: authLoading, refreshMember } = useAuth();
-  const router = useRouter();
+  const { startTransition } = useTransition();
   const supabase = createClient();
 
   const [step, setStep] = useState(1);
@@ -37,9 +37,9 @@ export default function OnboardingPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/sign-in");
+      startTransition("/sign-in");
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, startTransition]);
 
   const school = user?.email ? getSchoolFromEmail(user.email) : null;
 
@@ -107,7 +107,7 @@ export default function OnboardingPage() {
       }
 
       await refreshMember();
-      router.push("/pending-approval");
+      startTransition("/pending-approval");
     } catch (err) {
       console.error("Error:", err);
       setError("Something went wrong. Please try again.");

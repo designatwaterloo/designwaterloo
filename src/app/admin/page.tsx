@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -12,7 +12,7 @@ import styles from "./page.module.css";
 
 export default function AdminPage() {
   const { member, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const { startTransition } = useTransition();
   const supabase = createClient();
 
   const [pendingMembers, setPendingMembers] = useState<Member[]>([]);
@@ -21,9 +21,9 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authLoading && (!member || !member.is_admin)) {
-      router.push("/");
+      startTransition("/");
     }
-  }, [authLoading, member, router]);
+  }, [authLoading, member, startTransition]);
 
   useEffect(() => {
     const fetchPendingMembers = async () => {

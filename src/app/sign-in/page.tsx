@@ -3,7 +3,8 @@
 import { Suspense, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { isLaurierEmail } from "@/lib/supabase/auth-utils";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTransition } from "@/context/TransitionContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
@@ -37,7 +38,7 @@ function SignInContent() {
     setOtpSent(true);
   };
 
-  const router = useRouter();
+  const { startTransition } = useTransition();
 
   const handleVerifyOtp = async () => {
     setLaurierError(null);
@@ -70,7 +71,7 @@ function SignInContent() {
       .maybeSingle()) as { data: { slug: string; onboarding_completed: boolean } | null };
 
     if (member?.onboarding_completed) {
-      router.push(`/directory/${member.slug}`);
+      startTransition(`/directory/${member.slug}`);
       return;
     }
 
@@ -92,11 +93,11 @@ function SignInContent() {
         setVerifyingOtp(false);
         return;
       }
-      router.push(`/directory/${existingByEmail.slug}`);
+      startTransition(`/directory/${existingByEmail.slug}`);
       return;
     }
 
-    router.push("/onboarding");
+    startTransition("/onboarding");
   };
 
   return (

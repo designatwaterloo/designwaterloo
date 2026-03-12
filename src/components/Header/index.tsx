@@ -69,8 +69,8 @@ export default function Header() {
             <Link
               href={
                 hasProfile
-                  ? { pathname: `/directory/${member!.slug}` }
-                  : { pathname: "/sign-in" }
+                  ? `/directory/${member!.slug}`
+                  : "/sign-in"
               }
               className={`btn-menu ${styles.primaryButton}`}
               aria-label={hasProfile ? "View your profile" : "Sign in"}

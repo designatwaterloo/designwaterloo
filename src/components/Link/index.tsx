@@ -16,11 +16,10 @@ export default function Link({ href, onClick, underline = true, className, style
     onClick?.(e);
 
     // Only intercept internal links (not hash links or external)
-    if (typeof href === "string" && href.startsWith("/") && !href.startsWith("/#")) {
-      // Don't trigger transition if already on this page
-
+    const path = typeof href === "string" ? href : href?.pathname ?? null;
+    if (typeof path === "string" && path.startsWith("/") && !path.startsWith("/#")) {
       e.preventDefault();
-      startTransition(href);
+      startTransition(path);
     }
     // External links, hash links, and Link objects work normally
   };
