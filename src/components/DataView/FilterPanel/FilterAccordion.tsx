@@ -56,7 +56,7 @@ export default function FilterAccordion<T>({
           />
         </svg>
       </button>
-      {isOpen && (
+      <div className={`${styles.accordionCollapse} ${isOpen ? styles.accordionCollapseOpen : ''}`}>
         <div className={styles.accordionContent}>
           {selectedValues.length > 0 && (
             <button onClick={clearFilter} className={styles.clearButton}>
@@ -85,7 +85,7 @@ export default function FilterAccordion<T>({
             })}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

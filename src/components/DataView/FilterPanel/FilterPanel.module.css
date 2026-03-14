@@ -156,6 +156,27 @@
   transform: rotate(180deg);
 }
 
+/* Collapsible wrapper — uses grid for smooth height animation */
+.accordionCollapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.35s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 0.25s ease;
+}
+
+.accordionCollapseOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 0.3s ease 0.05s;
+}
+
+.accordionCollapse > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
 .accordionContent {
   padding: var(--tinier) 0;
   display: flex;

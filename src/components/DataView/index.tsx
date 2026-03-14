@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { DataViewProps } from "./types";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { DataViewProps, GridColumnsConfig } from "./types";
 import GridView from "./GridView";
 import TableView from "./TableView";
 import FilterPanel from "./FilterPanel";
@@ -9,6 +9,27 @@ import SearchBar from "./SearchBar";
 import ViewModeToggle from "./ViewModeToggle";
 import Button from "@/components/Button";
 import styles from "./DataView.module.css";
+
+const BREAKPOINTS = [0, 500, 800, 1100, 1400];
+const DEFAULT_COLS = [2, 3, 4, 5, 6];
+
+function getColCountForWidth(width: number, gridColumns?: GridColumnsConfig): number {
+  if (gridColumns) {
+    const sortedBps = Object.keys(gridColumns)
+      .map(Number)
+      .sort((a, b) => a - b);
+    let result = gridColumns[sortedBps[0]] ?? 1;
+    for (const bp of sortedBps) {
+      if (width >= bp) result = gridColumns[bp];
+    }
+    return result;
+  }
+  let result = DEFAULT_COLS[0];
+  for (let i = 0; i < BREAKPOINTS.length; i++) {
+    if (width >= BREAKPOINTS[i]) result = DEFAULT_COLS[i];
+  }
+  return result;
+}
 
 /**
  * DataView - Generic data view component with grid/table layouts and filtering
@@ -58,6 +79,9 @@ export default function DataView<T>({
   const [isDesktop, setIsDesktop] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
+
+  const mainContentRef = useRef<HTMLDivElement>(null);
+  const overrideTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState("");
@@ -224,6 +248,33 @@ export default function DataView<T>({
     setSelectedFilters({});
   };
 
+  // Lock grid columns during filter panel animation to prevent jarring reflow
+  const handleFilterToggle = useCallback(() => {
+    const el = mainContentRef.current;
+    if (el && isDesktop && viewMode === "grid") {
+      const currentWidth = el.offsetWidth;
+      // Filter panel is 280px + --margin (32px on desktop)
+      const delta = 280 + 32;
+      const targetWidth = isFilterPanelVisible
+        ? currentWidth + delta  // closing: content grows
+        : currentWidth - delta; // opening: content shrinks
+
+      const targetCols = getColCountForWidth(Math.max(0, targetWidth), gridColumns);
+      el.style.setProperty("--grid-cols-override", String(targetCols));
+
+      // Clear any existing timer
+      if (overrideTimerRef.current) clearTimeout(overrideTimerRef.current);
+
+      // Remove override after animation completes
+      overrideTimerRef.current = setTimeout(() => {
+        el.style.removeProperty("--grid-cols-override");
+        overrideTimerRef.current = null;
+      }, 450);
+    }
+
+    setIsFilterPanelVisible((prev) => !prev);
+  }, [isDesktop, isFilterPanelVisible, viewMode, gridColumns]);
+
   const hasActiveFilters =
     searchTerm !== "" || Object.values(selectedFilters).some((vals) => vals.length > 0);
 
@@ -265,7 +316,7 @@ export default function DataView<T>({
         )}
 
         {/* Main Content */}
-        <div className={styles.mainContent}>
+        <div ref={mainContentRef} className={styles.mainContent}>
           {/* Search Section */}
           <div className={styles.searchSection}>
             {searchConfig && (
@@ -280,7 +331,7 @@ export default function DataView<T>({
                 <Button
                   onClick={() => {
                     if (isDesktop) {
-                      setIsFilterPanelVisible(!isFilterPanelVisible);
+                      handleFilterToggle();
                     } else {
                       setIsMobileFilterOpen(!isMobileFilterOpen);
                     }

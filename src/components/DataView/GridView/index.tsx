@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import { GridViewProps, GridColumnsConfig } from "../types";
 import styles from "./GridView.module.css";
 
@@ -57,36 +57,6 @@ export default function GridView<T>({
   gridColumns,
 }: GridViewProps<T>) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const prevColCount = useRef<number | null>(null);
-  const [isReflowing, setIsReflowing] = useState(false);
-  const reflowTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const el = gridRef.current;
-    if (!el) return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      const width = entry.contentRect.width;
-      const newCount = getColCount(width, gridColumns);
-      if (prevColCount.current !== null && prevColCount.current !== newCount) {
-        // Cancel any pending reset, then trigger the reflow animation
-        if (reflowTimeout.current) clearTimeout(reflowTimeout.current);
-        setIsReflowing(false);
-        // Minimal timeout to force a style recalc so animation restarts
-        reflowTimeout.current = setTimeout(() => {
-          setIsReflowing(true);
-          reflowTimeout.current = setTimeout(() => setIsReflowing(false), 400);
-        }, 0);
-      }
-      prevColCount.current = newCount;
-    });
-
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      if (reflowTimeout.current) clearTimeout(reflowTimeout.current);
-    };
-  }, [gridColumns]);
 
   // Build CSS custom properties for custom grid columns
   const gridStyle: Record<string, string | number> = {};
@@ -126,8 +96,7 @@ export default function GridView<T>({
       {items.map((item, index) => (
         <div
           key={getItemKey(item)}
-          className={`${styles.gridItem}${isReflowing ? ` ${styles.gridItemReflowing}` : ""}`}
-          style={isReflowing ? { animationDelay: `${index * 12}ms` } : undefined}
+          className={styles.gridItem}
           onClick={() => onItemClick?.(item)}
         >
           {renderItem(item, index)}

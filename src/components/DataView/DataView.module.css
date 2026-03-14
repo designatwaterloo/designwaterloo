@@ -39,8 +39,8 @@
   width: 0;
   margin-right: 0;
   flex-shrink: 0;
+  align-self: stretch;
   overflow: clip; /* clips visually without breaking position:sticky inside */
-  align-self: flex-start;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
