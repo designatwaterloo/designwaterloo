@@ -129,7 +129,6 @@ export default function DataView<T>({
           }
           if (parsed.filterPanelOpen === true) {
             setIsFilterPanelVisible(true);
-            setIsMobileFilterOpen(true);
           }
         }
       } catch {

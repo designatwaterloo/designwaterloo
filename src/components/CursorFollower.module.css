@@ -23,6 +23,12 @@
   white-space: nowrap;
 }
 
+@media (pointer: coarse) {
+  .cursor {
+    display: none;
+  }
+}
+
 .label {
   color: black;
   font-size: 12px;

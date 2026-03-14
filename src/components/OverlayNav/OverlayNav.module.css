@@ -117,7 +117,7 @@
 
 .logo {
   width: auto;
-  height: 36px;
+  height: 28px;
   filter: invert(1) brightness(100);
   opacity: 0;
   transition: opacity 0.3s ease;
