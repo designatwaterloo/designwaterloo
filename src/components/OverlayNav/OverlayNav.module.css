@@ -74,11 +74,11 @@
   height: 100%;
 }
 
-/* Mobile: Remove padding, let fixed elements position themselves (0-768px) */
+/* Mobile: use dvh for Safari dynamic viewport (0-768px) */
 @media (max-width: 768px) {
   .contentLayer {
-    padding: var(--margin);
-    justify-content: flex-start;
+    padding: 0 var(--margin);
+    height: 100dvh;
   }
 }
 
@@ -90,11 +90,13 @@
   flex: 0 1 auto;
 }
 
-/* Mobile: Just logo at top left (0-768px) */
+/* Mobile: fixed height matching header (0-768px) */
 @media (max-width: 768px) {
   .topSection {
+    flex: 0 0 var(--header-height);
     flex-direction: row;
     width: 100%;
+    align-items: center;
   }
 }
 
@@ -130,24 +132,36 @@
   transition-delay: 0s;
 }
 
-/* Right side - Nav Items + Close Button */
+/* Nav Section - shared base */
 .navSection {
-  flex: 1;
   display: flex;
-  gap: var(--margin);
+  flex-direction: column;
 }
 
-/* Mobile: Position nav section for centering (0-768px) */
+/* Desktop: sits beside logo in topSection */
+.navSectionDesktop {
+  flex: 1;
+  flex-direction: row;
+  gap: var(--margin);
+  padding-right: 90px;
+}
+
+/* Hide desktop nav on mobile, hide mobile nav on desktop */
 @media (max-width: 768px) {
-  .navSection {
-    position: fixed;
-    top: 50%;
-    left: var(--margin);
-    right: var(--margin);
-    transform: translateY(-50%);
-    flex-direction: column;
-    gap: 0;
-    width: auto;
+  .navSectionDesktop {
+    display: none;
+  }
+}
+
+.navSectionMobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .navSectionMobile {
+    display: flex;
+    flex: 1;
+    padding-top: var(--margin);
   }
 }
 
@@ -205,81 +219,6 @@
   transition-delay: 0s, 0s, 0s, 0s;
 }
 
-/* Close Button - Desktop */
-.closeButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 41px;
-  height: 41px;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* Mobile: Hide desktop close button (0-768px) */
-@media (max-width: 768px) {
-  .closeButton {
-    display: none;
-  }
-}
-
-/* Close Button - Mobile only */
-.closeButtonMobile {
-  display: none;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 41px;
-  height: 41px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* Mobile: Show and position in top right (0-768px) */
-@media (max-width: 768px) {
-  .closeButtonMobile {
-    display: block;
-    position: fixed;
-    top: var(--margin);
-    right: var(--margin);
-    z-index: 30;
-  }
-}
-
-/* Mobile close button animations */
-.opening .closeButtonMobile {
-  opacity: 1;
-  transition-delay: 0.225s;
-}
-
-.closing .closeButtonMobile {
-  opacity: 0;
-  transition-delay: 0s;
-}
-
-.opening .closeButtonMobile:hover {
-  opacity: 0.7;
-  transition-delay: 0s;
-}
-
-.opening .closeButton {
-  opacity: 1;
-  transition-delay: 0.225s;
-}
-
-.closing .closeButton {
-  opacity: 0;
-  transition-delay: 0s;
-}
-
-.opening .closeButton:hover {
-  opacity: 0.7;
-  transition-delay: 0s;
-}
-
 /* Footer Section */
 .footerSection {
   flex: 0 0 auto;
@@ -289,14 +228,11 @@
   transition-delay: 0.9s;
 }
 
-/* Mobile: Show footer at bottom (0-768px) */
+/* Mobile: footer pinned to bottom (0-768px) */
 @media (max-width: 768px) {
   .footerSection {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: var(--margin);
+    flex: 0 0 auto;
+    padding-bottom: var(--margin);
   }
 }
 

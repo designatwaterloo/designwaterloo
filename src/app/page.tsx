@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Button from "@/components/Button";
 import Link from "@/components/Link";
 import SkeletonImage from "@/components/SkeletonImage";
+import ScrollReveal from "@/components/ScrollReveal";
 import { client } from "@/sanity/lib/client";
 import { Member } from "@/sanity/types";
 import { membersQuery } from "@/sanity/queries";
@@ -93,25 +94,26 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-8 gap-[var(--gap)] w-full max-lg:grid-cols-4">
-            {members.map((member) => (
-              <Link 
-                key={member._id}
-                href={`/directory/${member.slug.current}`}
-                className="group"
-                underline={false}
-              >
-                {member.profileImage ? (
-                  <SkeletonImage
-                    src={urlFor(member.profileImage).width(400).height(500).url()}
-                    alt={`${member.firstName} ${member.lastName}`}
-                    width={400}
-                    height={500}
-                    className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
-                  />
-                ) : (
-                  <div className="aspect-[4/5] bg-skeleton rounded" />
-                )}
-              </Link>
+            {members.map((member, index) => (
+              <ScrollReveal key={member._id} index={index}>
+                <Link
+                  href={`/directory/${member.slug.current}`}
+                  className="group"
+                  underline={false}
+                >
+                  {member.profileImage ? (
+                    <SkeletonImage
+                      src={urlFor(member.profileImage).width(400).height(500).url()}
+                      alt={`${member.firstName} ${member.lastName}`}
+                      width={400}
+                      height={500}
+                      className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+                    />
+                  ) : (
+                    <div className="aspect-[4/5] bg-skeleton rounded" />
+                  )}
+                </Link>
+              </ScrollReveal>
             ))}
           </div>
 

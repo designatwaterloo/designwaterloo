@@ -52,10 +52,7 @@ export default function Header() {
               priority
             />
           </Link>
-          <Link
-            href="/"
-            className={`${styles.headerLogo} col-start-3 col-span-1`}
-          >
+          <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
             <Image
               src="/Design Waterloo Logo.svg"
               alt="Design Waterloo"
@@ -65,36 +62,39 @@ export default function Header() {
               priority
             />
           </Link>
-          <div className={`${styles.headerActions} col-start-11 col-span-2`}>
-            <Link
-              href={
-                hasProfile
-                  ? `/directory/${member!.slug}`
-                  : "/sign-in"
-              }
-              className={`btn-menu ${styles.primaryButton}`}
-              aria-label={hasProfile ? "View your profile" : "Sign in"}
-            >
-              <Image
-                src={avatarSrc}
-                alt={hasProfile ? "Your profile" : "Sign in"}
-                width={20}
-                height={20}
-              />
-            </Link>
-            <button
-              onClick={() => setIsNavOpen(true)}
-              className={`btn-menu ${styles.menuButton}`}
-              aria-label="Open navigation"
-            >
-              <div className={styles.menuIcon}>
-                <span></span>
-                <span></span>
-              </div>
-            </button>
-          </div>
         </div>
       </header>
+
+      {/* Action buttons — outside the filter context so they layer above the overlay */}
+      <div className={`${styles.actionBar} ${isNavOpen ? styles.actionBarOpen : ''}`}>
+        <Link
+          href={
+            hasProfile
+              ? `/directory/${member!.slug}`
+              : "/sign-in"
+          }
+          className={styles.primaryButton}
+          aria-label={hasProfile ? "View your profile" : "Sign in"}
+        >
+          <Image
+            src={avatarSrc}
+            alt={hasProfile ? "Your profile" : "Sign in"}
+            width={20}
+            height={20}
+          />
+        </Link>
+        <button
+          onClick={() => setIsNavOpen(!isNavOpen)}
+          className={styles.menuButton}
+          aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
+        >
+          <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
+            <span></span>
+            <span className={styles.menuIconMiddle}></span>
+            <span></span>
+          </div>
+        </button>
+      </div>
 
       {/* Full-screen Overlay Navigation */}
       <OverlayNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />

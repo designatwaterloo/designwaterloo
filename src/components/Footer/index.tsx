@@ -54,11 +54,15 @@ export default function Footer({ variant = "default" }: FooterProps) {
   const sidePadding = variant === "menu" ? "" : "px-[var(--margin)]";
   const wordmarkClass = variant === "menu" ? "invert brightness-0" : "";
 
+  const mobileGap = variant === "menu" ? "gap-[var(--smaller)]" : "gap-[var(--big)]";
+  const mobileBottomPad = variant === "menu" ? "pb-[var(--smaller)]" : "pb-[var(--small)]";
+  const mobileMb = variant === "menu" ? "mb-[var(--smaller)]" : "mb-[var(--big)]";
+
   return (
-    <footer className={`w-full ${sidePadding} ${topPadding} pb-[var(--small)] ${bgColor} ${textColor} flex flex-col gap-[var(--big)] sm:gap-0 items-center`}>
+    <footer className={`w-full ${sidePadding} ${topPadding} ${mobileBottomPad} ${bgColor} ${textColor} flex flex-col ${mobileGap} sm:gap-0 items-center`}>
       {/* Mobile: Stacked layout, Desktop: 12-column grid */}
-      <div className="w-full flex flex-col gap-[var(--big)] sm:grid sm:grid-cols-12 sm:gap-[var(--gap)] mb-[var(--big)]">
- 
+      <div className={`w-full flex flex-col ${mobileGap} sm:grid sm:grid-cols-12 sm:gap-[var(--gap)] ${mobileMb}`}>
+
         {/* Local Time - Mobile: full width, Desktop: Columns 1-3 */}
         <dl className="flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
           <dt className="text-muted-light">Local Time</dt>

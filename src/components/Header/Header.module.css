@@ -11,6 +11,7 @@
   z-index: 40;
   filter: invert(1);
   mix-blend-mode: difference;
+  pointer-events: none;
 }
 
 /* Mobile: Remove blend mode for solid background (0-768px) */
@@ -38,29 +39,46 @@
 
 /* Header Logo Styles */
 .headerLogo {
+  display: inline-flex;
+  justify-self: start;
   height: calc(var(--small) + 4px);
   width: auto;
   cursor: pointer;
 }
 
-/* Right-side header actions (sign-in + menu) */
-.headerActions {
+/* ─── Action Bar ─── */
+/* Floats outside the header's filter context so it layers above the overlay */
+.actionBar {
+  position: fixed;
+  top: var(--margin);
+  right: var(--margin);
+  z-index: 1001;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 
-/* Primary action button (e.g., sign-in) */
+/* Mobile: vertically center within header-height */
+@media (max-width: 768px) {
+  .actionBar {
+    top: 0;
+    height: var(--header-height);
+  }
+}
+
+/* ─── Primary / Profile Button ─── */
 .primaryButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
   background: transparent;
-  color: var(--black);
   cursor: pointer;
-  justify-self: end;
-  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
+  overflow: hidden;
 }
 
 .primaryButton :global(img),
@@ -71,51 +89,24 @@
   object-fit: cover;
 }
 
-/* Auth button (Sign in / Sign out) */
-.authButton {
-  background: var(--white);
-  color: var(--black);
-  border: 2px solid var(--black);
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: var(--tiniest);
-  font-family: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-/* Menu Button */
+/* ─── Menu / Close Button ─── */
 .menuButton {
-  background: var(--foreground);
-  color: var(--background);
+  width: auto;
+  height: auto;
+  padding: 10px;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  justify-self: end;
-  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: -10px;
 }
 
-/* Make sign-in + menu match the same outer box */
-.headerActions .primaryButton,
-.headerActions .menuButton {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border-radius: 8px;
-}
-
-/* Menu Icon - two horizontal lines */
+/* ─── Menu Icon — hamburger ↔ X morph ─── */
 .menuIcon {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 20px;
-  height: 12px;
+  width: 36px;
+  height: 14px;
   position: relative;
 }
 
@@ -123,17 +114,50 @@
   display: block;
   width: 100%;
   height: 2px;
-  background: white;
+  background: var(--foreground);
   border-radius: 1px;
   position: absolute;
+  left: 0;
+  transition: transform 0.35s cubic-bezier(0.215, 0.61, 0.355, 1),
+              top 0.35s cubic-bezier(0.215, 0.61, 0.355, 1),
+              bottom 0.35s cubic-bezier(0.215, 0.61, 0.355, 1),
+              opacity 0.25s ease,
+              background 0.35s ease;
+  transform-origin: center;
 }
 
 .menuIcon span:first-child {
   top: 0;
 }
 
+/* Middle line — desktop only */
+.menuIconMiddle {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .menuIcon span:last-child {
   bottom: 0;
+}
+
+/* Open state — morph to X (white on dark overlay) */
+.menuIconOpen span {
+  background: var(--white);
+}
+
+/* Middle line fades out */
+.menuIconOpen .menuIconMiddle {
+  opacity: 0;
+}
+
+.menuIconOpen span:first-child {
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+.menuIconOpen span:last-child {
+  bottom: 6px;
+  transform: rotate(-45deg);
 }
 
 /* Mobile: 4 column grid, show both logos, fixed height (0-768px) */
@@ -151,24 +175,37 @@
 
   .headerLogo:nth-child(2) {
     grid-column: 2 / span 1;
-    justify-self: start;
   }
 
   .headerLogo {
     height: 28px;
   }
 
-  .headerActions {
-    grid-column: 4 / span 1;
-    justify-self: end;
-  }
-
   .menuButton {
-    background: transparent;
-    padding: var(--tinier);
+    padding: 6px;
+    margin-right: -6px;
   }
 
-  .menuIcon span {
-    background: var(--foreground);
+  .menuIcon {
+    width: 20px;
+    height: 10px;
+  }
+
+  /* Hide middle line on mobile */
+  .menuIconMiddle {
+    display: none;
+  }
+
+  .menuIconOpen span:first-child {
+    top: 4px;
+  }
+
+  .menuIconOpen span:last-child {
+    bottom: 4px;
+  }
+
+  /* Open state on mobile — X is white on dark overlay */
+  .actionBarOpen .menuIcon span {
+    background: var(--white);
   }
 }
