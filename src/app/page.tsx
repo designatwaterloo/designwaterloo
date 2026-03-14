@@ -4,15 +4,21 @@ import Button from "@/components/Button";
 import Link from "@/components/Link";
 import SkeletonImage from "@/components/SkeletonImage";
 import ScrollReveal from "@/components/ScrollReveal";
-import { client } from "@/sanity/lib/client";
-import { Member } from "@/sanity/types";
-import { membersQuery } from "@/sanity/queries";
-import { urlFor } from "@/sanity/lib/image";
+import { createClient } from "@/lib/supabase/server";
+import { Member } from "@/types/database";
 
-const options = { next: { revalidate: 30 } };
+export const revalidate = 30;
 
 export default async function Home() {
-  const allMembers = await client.fetch<Member[]>(membersQuery, {}, options);
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("members")
+    .select("id, member_id, first_name, last_name, slug, profile_image_url")
+    .eq("onboarding_completed", true)
+    .eq("is_approved", true);
+
+  const allMembers = (data || []) as Pick<Member, "id" | "member_id" | "first_name" | "last_name" | "slug" | "profile_image_url">[];
 
   // Show random 24 members (will be different on each build)
   const members = allMembers
@@ -95,18 +101,18 @@ export default async function Home() {
 
           <div className="grid grid-cols-8 gap-[var(--gap)] w-full max-lg:grid-cols-4">
             {members.map((member, index) => (
-              <ScrollReveal key={member._id} index={index}>
+              <ScrollReveal key={member.id} index={index}>
                 <Link
-                  href={`/directory/${member.slug.current}`}
+                  href={`/directory/${member.slug}`}
                   className="group"
                   underline={false}
                   data-cursor="internal-link"
-                  data-cursor-label={`${member.firstName} ${member.lastName} →`}
+                  data-cursor-label={`${member.first_name} ${member.last_name} →`}
                 >
-                  {member.profileImage ? (
+                  {member.profile_image_url ? (
                     <SkeletonImage
-                      src={urlFor(member.profileImage).width(400).height(500).url()}
-                      alt={`${member.firstName} ${member.lastName}`}
+                      src={member.profile_image_url}
+                      alt={`${member.first_name} ${member.last_name}`}
                       width={400}
                       height={500}
                       className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300"

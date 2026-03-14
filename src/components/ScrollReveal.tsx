@@ -2,9 +2,11 @@
 
 import { useRef, useEffect, useState, ReactNode } from "react";
 
-// Batch items that intersect within the same frame, then reveal in index order
+// Batch items that intersect within the same frame, then reveal in index order.
+// Track when the last scheduled reveal finishes so new batches queue after it.
 let pendingReveals: Array<{ index: number; reveal: () => void }> = [];
 let batchTimeout: ReturnType<typeof setTimeout> | null = null;
+let nextAvailableTime = 0;
 
 function scheduleReveal(index: number, reveal: () => void, staggerMs: number) {
   pendingReveals.push({ index, reveal });
@@ -15,9 +17,15 @@ function scheduleReveal(index: number, reveal: () => void, staggerMs: number) {
     pendingReveals = [];
     batchTimeout = null;
 
+    const now = performance.now();
+    const startTime = Math.max(now, nextAvailableTime);
+
     batch.forEach((item, i) => {
-      setTimeout(() => item.reveal(), i * staggerMs);
+      const delay = startTime - now + i * staggerMs;
+      setTimeout(() => item.reveal(), delay);
     });
+
+    nextAvailableTime = startTime + batch.length * staggerMs;
   }, 16);
 }
 
@@ -26,13 +34,15 @@ interface ScrollRevealProps {
   index?: number;
   staggerMs?: number;
   className?: string;
+  direction?: "up" | "left";
 }
 
 export default function ScrollReveal({
   children,
   index = 0,
-  staggerMs = 75,
+  staggerMs = 50,
   className = "",
+  direction = "up",
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -65,7 +75,11 @@ export default function ScrollReveal({
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(16px)",
+        transform: visible
+          ? "translate(0, 0)"
+          : direction === "left"
+            ? "translateX(16px)"
+            : "translateY(16px)",
         transition: "opacity 400ms ease-out, transform 400ms ease-out",
       }}
     >

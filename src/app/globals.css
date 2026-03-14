@@ -423,3 +423,13 @@ a:hover {
   animation: blink 1s infinite;
   display: inline-block;
 }
+
+/* Image wipe reveal — black overlay slides down to reveal image */
+@keyframes wipeReveal {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import SkeletonImage from "@/components/SkeletonImage";
 import { useInlineEdit } from "./InlineEditProvider";
 import styles from "./InlineEdit.module.css";
 import pageStyles from "@/app/directory/[slug]/page.module.css";
@@ -46,16 +47,23 @@ export default function ProfileImageEdit() {
   };
 
   if (!isOwner || !editMode) {
-    if (!imageUrl) return null;
     return (
-      <Image
-        src={imageUrl}
-        alt="Profile"
-        width={800}
-        height={1067}
-        className={pageStyles.image}
-        priority
-      />
+      <div className={pageStyles.imageWrapper}>
+        {imageUrl ? (
+          <SkeletonImage
+            src={imageUrl}
+            alt="Profile"
+            width={800}
+            height={1000}
+            className={pageStyles.image}
+            wrapperClassName="w-full h-full"
+            style={{ aspectRatio: "4 / 5" }}
+            priority
+          />
+        ) : (
+          <div className="w-full h-full bg-skeleton animate-pulse rounded" />
+        )}
+      </div>
     );
   }
 
@@ -75,14 +83,16 @@ export default function ProfileImageEdit() {
         className={styles.imageEditButton}
       >
         {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt="Profile"
-            width={800}
-            height={1067}
-            className={pageStyles.image}
-            priority
-          />
+          <div className={pageStyles.imageWrapper}>
+            <Image
+              src={imageUrl}
+              alt="Profile"
+              width={800}
+              height={1000}
+              className={pageStyles.image}
+              priority
+            />
+          </div>
         ) : (
           <div className={styles.imagePlaceholder}>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

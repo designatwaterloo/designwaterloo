@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TableViewProps } from "../types";
 import SortableHeader from "./SortableHeader";
 import Link from "@/components/Link";
+import ScrollReveal from "@/components/ScrollReveal";
 import styles from "./TableView.module.css";
 
 /**
@@ -68,48 +69,49 @@ export default function TableView<T>({
       </div>
 
       {/* Table Rows - Auto-generated from columns config */}
-      {items.map((item) => {
+      {items.map((item, index) => {
         const itemId = getItemKey(item);
         const isHovered = hoveredItemId === itemId;
 
         return (
-          <div
-            key={itemId}
-            className={styles.tableRowWrapper}
-            onMouseEnter={() => setHoveredItemId(itemId)}
-            onMouseLeave={() => setHoveredItemId(null)}
-            onClick={() => onItemClick?.(item)}
-            {...(getCursorLabel ? { "data-cursor": "grid-item", "data-cursor-label": getCursorLabel(item) } : {})}
-          >
-            <Link
-              href={getItemHref(item)}
-              className={styles.tableRow}
-              underline={false}
+          <ScrollReveal key={itemId} index={index} direction="left">
+            <div
+              className={styles.tableRowWrapper}
+              onMouseEnter={() => setHoveredItemId(itemId)}
+              onMouseLeave={() => setHoveredItemId(null)}
+              onClick={() => onItemClick?.(item)}
+              {...(getCursorLabel ? { "data-cursor": "grid-item", "data-cursor-label": getCursorLabel(item) } : {})}
             >
-              {columns.map((column) => (
-                <div
-                  key={column.key}
-                  className={`
-                    ${styles[`span${column.span}`]}
-                    ${column.mobileSpan ? styles[`mobileSpan${column.mobileSpan}`] : ""}
-                    ${column.hideOnMobile ? styles.hideOnMobile : ""}
-                    ${getAlignClass(column.align)}
-                    ${column.className || ""}
-                  `.trim()}
-                  data-column={column.key}
-                >
-                  {column.render(item)}
-                </div>
-              ))}
-            </Link>
+              <Link
+                href={getItemHref(item)}
+                className={styles.tableRow}
+                underline={false}
+              >
+                {columns.map((column) => (
+                  <div
+                    key={column.key}
+                    className={`
+                      ${styles[`span${column.span}`]}
+                      ${column.mobileSpan ? styles[`mobileSpan${column.mobileSpan}`] : ""}
+                      ${column.hideOnMobile ? styles.hideOnMobile : ""}
+                      ${getAlignClass(column.align)}
+                      ${column.className || ""}
+                    `.trim()}
+                    data-column={column.key}
+                  >
+                    {column.render(item)}
+                  </div>
+                ))}
+              </Link>
 
-            {/* Hover Preview - always rendered so images preload, shown/hidden via CSS */}
-            {renderHoverPreview && (
-              <div className={`${styles.hoverPreview} ${isHovered ? styles.hoverPreviewVisible : ""}`}>
-                {renderHoverPreview(item)}
-              </div>
-            )}
-          </div>
+              {/* Hover Preview - always rendered so images preload, shown/hidden via CSS */}
+              {renderHoverPreview && (
+                <div className={`${styles.hoverPreview} ${isHovered ? styles.hoverPreviewVisible : ""}`}>
+                  {renderHoverPreview(item)}
+                </div>
+              )}
+            </div>
+          </ScrollReveal>
         );
       })}
     </div>
