@@ -46,23 +46,22 @@
   cursor: pointer;
 }
 
-/* ─── Action Bar ─── */
-/* Floats outside the header's filter context so it layers above the overlay */
-.actionBar {
+/* ─── Profile Bar ─── */
+.profileBar {
   position: fixed;
   top: var(--margin);
-  right: var(--margin);
+  right: calc(var(--margin) + 56px);
   z-index: 1001;
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
 /* Mobile: vertically center within header-height */
 @media (max-width: 768px) {
-  .actionBar {
+  .profileBar {
     top: 0;
     height: var(--header-height);
+    right: calc(var(--margin) + 42px);
   }
 }
 
@@ -90,17 +89,27 @@
 }
 
 /* ─── Menu / Close Button ─── */
+/* Fixed-positioned independently so blend mode composites against the page */
 .menuButton {
-  width: auto;
-  height: auto;
+  position: fixed;
+  top: var(--margin);
+  right: var(--margin);
+  z-index: 1001;
   padding: 10px;
+  margin: 0;
+  margin-right: -10px;
   border: none;
   background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: -10px;
+  mix-blend-mode: difference;
+}
+
+/* When overlay is open, disable blend mode so X renders normally on dark bg */
+.menuButtonOpen {
+  mix-blend-mode: normal;
 }
 
 /* ─── Menu Icon — hamburger ↔ X morph ─── */
@@ -114,14 +123,14 @@
   display: block;
   width: 100%;
   height: 2px;
-  background: var(--foreground);
+  background: var(--white);
   border-radius: 1px;
   position: absolute;
   left: 0;
-  transition: transform 0.35s cubic-bezier(0.215, 0.61, 0.355, 1),
-              top 0.35s cubic-bezier(0.215, 0.61, 0.355, 1),
-              bottom 0.35s cubic-bezier(0.215, 0.61, 0.355, 1),
-              opacity 0.25s ease,
+  transition: transform 0.5s cubic-bezier(0.215, 0.61, 0.355, 1),
+              top 0.45s cubic-bezier(0.215, 0.61, 0.355, 1),
+              bottom 0.45s cubic-bezier(0.215, 0.61, 0.355, 1),
+              opacity 0.3s ease,
               background 0.35s ease;
   transform-origin: center;
 }
@@ -140,24 +149,23 @@
   bottom: 0;
 }
 
-/* Open state — morph to X (white on dark overlay) */
-.menuIconOpen span {
-  background: var(--white);
-}
-
-/* Middle line fades out */
+/* Middle line merges into top — same rotation, moves to center */
 .menuIconOpen .menuIconMiddle {
+  top: 6px;
+  transform: rotate(225deg);
   opacity: 0;
 }
 
+/* Top line — moves to center, half spin + 45deg = 225deg */
 .menuIconOpen span:first-child {
   top: 6px;
-  transform: rotate(45deg);
+  transform: rotate(225deg);
 }
 
+/* Bottom line — moves to center, half spin + 135deg = 315deg */
 .menuIconOpen span:last-child {
   bottom: 6px;
-  transform: rotate(-45deg);
+  transform: rotate(315deg);
 }
 
 /* Mobile: 4 column grid, show both logos, fixed height (0-768px) */
@@ -182,13 +190,25 @@
   }
 
   .menuButton {
+    top: 0;
+    height: var(--header-height);
     padding: 6px;
     margin-right: -6px;
+    mix-blend-mode: normal;
   }
 
   .menuIcon {
-    width: 20px;
-    height: 10px;
+    width: 26px;
+    height: 12px;
+  }
+
+  .menuIcon span {
+    background: var(--foreground);
+  }
+
+  /* When overlay is open on mobile, X is white */
+  .menuButtonOpen .menuIcon span {
+    background: var(--white);
   }
 
   /* Hide middle line on mobile */
@@ -197,15 +217,13 @@
   }
 
   .menuIconOpen span:first-child {
-    top: 4px;
+    top: 5px;
+    transform: rotate(225deg);
   }
 
   .menuIconOpen span:last-child {
-    bottom: 4px;
+    bottom: 5px;
+    transform: rotate(315deg);
   }
 
-  /* Open state on mobile — X is white on dark overlay */
-  .actionBarOpen .menuIcon span {
-    background: var(--white);
-  }
 }

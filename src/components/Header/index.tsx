@@ -65,8 +65,8 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Action buttons — outside the filter context so they layer above the overlay */}
-      <div className={`${styles.actionBar} ${isNavOpen ? styles.actionBarOpen : ''}`}>
+      {/* Profile button — no blend mode, renders photo normally */}
+      <div className={`${styles.profileBar} ${isNavOpen ? styles.actionBarOpen : ''}`}>
         <Link
           href={
             hasProfile
@@ -83,18 +83,20 @@ export default function Header() {
             height={20}
           />
         </Link>
-        <button
-          onClick={() => setIsNavOpen(!isNavOpen)}
-          className={styles.menuButton}
-          aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
-        >
-          <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
-            <span></span>
-            <span className={styles.menuIconMiddle}></span>
-            <span></span>
-          </div>
-        </button>
       </div>
+
+      {/* Menu button — separate element so blend mode composites against the page */}
+      <button
+        onClick={() => setIsNavOpen(!isNavOpen)}
+        className={`${styles.menuButton} ${isNavOpen ? styles.menuButtonOpen : ''}`}
+        aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
+      >
+        <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
+          <span></span>
+          <span className={styles.menuIconMiddle}></span>
+          <span></span>
+        </div>
+      </button>
 
       {/* Full-screen Overlay Navigation */}
       <OverlayNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />

@@ -82,17 +82,19 @@
   }
 }
 
-/* Top Section - 50/50 split on desktop */
+/* Top Section - equal 50/50 columns on desktop */
 .topSection {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--gap);
   align-items: flex-start;
   flex: 0 1 auto;
 }
 
-/* Mobile: fixed height matching header (0-768px) */
+/* Mobile: single row, fixed header height (0-768px) */
 @media (max-width: 768px) {
   .topSection {
+    display: flex;
     flex: 0 0 var(--header-height);
     flex-direction: row;
     width: 100%;
@@ -102,7 +104,6 @@
 
 /* Left side - Logo */
 .logoSection {
-  flex: 1;
   display: flex;
   align-items: flex-start;
 }
@@ -138,12 +139,10 @@
   flex-direction: column;
 }
 
-/* Desktop: sits beside logo in topSection */
+/* Desktop: sits in right column of topSection, reserve space for action bar */
 .navSectionDesktop {
-  flex: 1;
-  flex-direction: row;
-  gap: var(--margin);
-  padding-right: 90px;
+  flex-direction: column;
+  padding-right: 110px;
 }
 
 /* Hide desktop nav on mobile, hide mobile nav on desktop */
@@ -161,7 +160,7 @@
   .navSectionMobile {
     display: flex;
     flex: 1;
-    padding-top: var(--margin);
+    padding-top: var(--small);
   }
 }
 
