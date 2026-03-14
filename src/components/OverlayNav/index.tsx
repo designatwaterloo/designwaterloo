@@ -103,6 +103,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       ? '0s, 0s, 0s, 0s'
                       : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
                   }}
+                  data-cursor="nav"
+                  data-cursor-label={item.label}
                 >
                   {item.label}
                 </Link>
@@ -120,6 +122,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                         ? '0s, 0s, 0s, 0s'
                         : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
+                    data-cursor="nav"
+                    data-cursor-label={item.label}
                   >
                     {item.label}
                   </Link>
@@ -133,6 +137,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                         ? '0s, 0s, 0s, 0s'
                         : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
+                    data-cursor="nav"
+                    data-cursor-label={item.label}
                   >
                     {item.label}
                   </button>
@@ -156,6 +162,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     ? '0s, 0s, 0s, 0s'
                     : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
                 }}
+                data-cursor="nav"
+                data-cursor-label={item.label}
               >
                 {item.label}
               </Link>
@@ -173,6 +181,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       ? '0s, 0s, 0s, 0s'
                       : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                   }}
+                  data-cursor="nav"
+                  data-cursor-label={item.label}
                 >
                   {item.label}
                 </Link>
@@ -186,6 +196,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       ? '0s, 0s, 0s, 0s'
                       : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
+                  data-cursor="nav"
+                  data-cursor-label={item.label}
                 >
                   {item.label}
                 </button>

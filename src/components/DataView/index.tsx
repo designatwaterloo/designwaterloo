@@ -73,6 +73,7 @@ export default function DataView<T>({
   gridColumns,
   onItemClick,
   storageKey,
+  getCursorLabel,
 }: DataViewProps<T>) {
   // View mode state
   const [viewMode, setViewMode] = useState<"grid" | "table">(viewModeConfig.defaultMode);
@@ -403,6 +404,7 @@ export default function DataView<T>({
               className={gridClassName}
               onItemClick={onItemClick}
               gridColumns={gridColumns}
+              getCursorLabel={getCursorLabel}
             />
           ) : (
             <TableView
@@ -415,6 +417,7 @@ export default function DataView<T>({
               sortDirection={sortDirection}
               onItemClick={onItemClick}
               renderHoverPreview={renderHoverPreview}
+              getCursorLabel={getCursorLabel}
             />
           )}
         </div>

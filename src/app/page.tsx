@@ -100,6 +100,8 @@ export default async function Home() {
                   href={`/directory/${member.slug.current}`}
                   className="group"
                   underline={false}
+                  data-cursor="internal-link"
+                  data-cursor-label={`${member.firstName} ${member.lastName} →`}
                 >
                   {member.profileImage ? (
                     <SkeletonImage
@@ -107,7 +109,7 @@ export default async function Home() {
                       alt={`${member.firstName} ${member.lastName}`}
                       width={400}
                       height={500}
-                      className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
+                      className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300"
                     />
                   ) : (
                     <div className="aspect-[4/5] bg-skeleton rounded" />

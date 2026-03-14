@@ -1,0 +1,82 @@
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: white;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  opacity: 0;
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    width 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    height 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    border-radius 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.label {
+  color: black;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  padding: 0 10px;
+}
+
+.labelVisible {
+  opacity: 1;
+}
+
+/* External link pill */
+.externalLink {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Internal link pill */
+.internalLink {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Menu pill */
+.menu {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Nav pill */
+.nav {
+  height: 32px;
+  border-radius: 999px;
+}
+
+/* Button expand */
+.button {
+  width: 32px;
+  height: 32px;
+}
+
+/* Grid/table item pill */
+.gridItem {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Text input cursor */
+.text {
+  width: 2px !important;
+  height: 20px;
+  border-radius: 1px;
+}
