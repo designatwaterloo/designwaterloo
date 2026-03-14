@@ -272,7 +272,7 @@
   transition-duration: 0.2s, 0.2s, 0.2s;
   transition-timing-function: ease, ease, ease;
   cursor: pointer;
-  border-bottom: 2px solid var(--foreground);
+  border-bottom: 2px solid var(--muted);
 }
 
 .experienceItem:hover {

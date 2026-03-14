@@ -164,6 +164,11 @@
   animation: pillIn 0.2s ease;
 }
 
+.pillPast {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
 @keyframes pillIn {
   from {
     opacity: 0;

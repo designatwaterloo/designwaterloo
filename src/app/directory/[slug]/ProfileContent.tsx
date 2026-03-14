@@ -18,7 +18,7 @@ import type {
   LeadershipEntry,
 } from "@/components/InlineEdit";
 import { ensureHttps } from "@/lib/urlUtils";
-import { decodeTermCode } from "@/lib/termUtils";
+import { decodeTermCode, getCurrentTermCode } from "@/lib/termUtils";
 import styles from "./page.module.css";
 import editStyles from "@/components/InlineEdit/InlineEdit.module.css";
 
@@ -363,6 +363,7 @@ function ProfileContentInner({
                       placeholder="Type to add a term..."
                       addLabel="Add work term"
                       renderPill={decodeTermCode}
+                      isPast={(code) => code <= getCurrentTermCode()}
                     />
                   </dd>
                 </div>

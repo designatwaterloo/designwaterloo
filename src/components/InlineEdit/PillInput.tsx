@@ -13,6 +13,8 @@ interface PillInputProps {
   addLabel?: string;
   /** Render function for custom pill display (e.g. decoded term names) */
   renderPill?: (value: string) => string;
+  /** Return true if a pill value represents a past/current item (will be grayed out + strikethrough) */
+  isPast?: (value: string) => boolean;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export default function PillInput({
   placeholder = "Type to add...",
   addLabel = "Add skill",
   renderPill,
+  isPast,
   className,
 }: PillInputProps) {
   const { isOwner, editMode, fields, setField } = useInlineEdit();
@@ -69,14 +72,21 @@ export default function PillInput({
     if (items.length === 0) return null;
     return (
       <div className={`flex flex-wrap gap-2 ${className ?? ""}`}>
-        {items.map((item) => (
-          <span
-            key={item}
-            className="px-3 py-1 bg-[var(--foreground)] text-[var(--background)] rounded-full text-sm"
-          >
-            {renderPill ? renderPill(item) : item}
-          </span>
-        ))}
+        {items.map((item) => {
+          const past = isPast?.(item);
+          return (
+            <span
+              key={item}
+              className={`px-3 py-1 rounded-full text-sm ${
+                past
+                  ? "bg-[var(--foreground)]/20 text-[var(--foreground)]/40 line-through"
+                  : "bg-[var(--foreground)] text-[var(--background)]"
+              }`}
+            >
+              {renderPill ? renderPill(item) : item}
+            </span>
+          );
+        })}
       </div>
     );
   }
@@ -97,7 +107,7 @@ export default function PillInput({
     >
       <div className={styles.pillList}>
         {items.map((item) => (
-          <span key={item} className={styles.pill}>
+          <span key={item} className={`${styles.pill} ${isPast?.(item) ? styles.pillPast : ""}`}>
             {renderPill ? renderPill(item) : item}
             <button
               type="button"
