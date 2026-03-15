@@ -1,3 +1,65 @@
+/* ===== Staged Loader ===== */
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--smaller);
+  text-align: center;
+  padding: var(--margin);
+}
+
+.loaderLine {
+  margin: 0;
+  font-size: 36px;
+  letter-spacing: -0.025em;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+@media (max-width: 768px) {
+  .loaderLine {
+    font-size: 24px;
+  }
+}
+
+.loaderLineVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loaderLineVisible:first-child {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--foreground) 40%,
+    var(--muted) 80%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Stop shimmer once later lines appear */
+.loaderLineVisible:first-child:not(:last-of-type) {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.loaderLineVisible:last-of-type {
+  color: var(--foreground);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== Form ===== */
+
 .header {
   text-align: center;
   max-width: 600px;

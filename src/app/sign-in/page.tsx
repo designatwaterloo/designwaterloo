@@ -15,17 +15,19 @@ function SignInContent() {
   const error = searchParams.get("error");
 
   const [showLaurierFlow, setShowLaurierFlow] = useState(false);
-  const [laurierEmail, setLaurierEmail] = useState("");
+  const [laurierUsername, setLaurierUsername] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [laurierError, setLaurierError] = useState<string | null>(null);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
+  const laurierEmail = laurierUsername ? `${laurierUsername}@mylaurier.ca` : "";
+
   const handleSendOtp = async () => {
     setLaurierError(null);
-    if (!isLaurierEmail(laurierEmail)) {
-      setLaurierError("Please enter a valid @mylaurier.ca email address.");
+    if (!laurierUsername.trim()) {
+      setLaurierError("Please enter your Laurier username.");
       return;
     }
     setSendingOtp(true);
@@ -97,7 +99,7 @@ function SignInContent() {
       return;
     }
 
-    startTransition("/onboarding");
+    startTransition("/profile/edit");
   };
 
   return (
@@ -152,14 +154,18 @@ function SignInContent() {
         </button>
       ) : !otpSent ? (
         <div className={styles.otpFlow}>
-          <input
-            type="email"
-            className={styles.emailInput}
-            placeholder="you@mylaurier.ca"
-            value={laurierEmail}
-            onChange={(e) => setLaurierEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
-          />
+          <div className={styles.emailInputGroup}>
+            <input
+              type="text"
+              className={styles.emailInput}
+              placeholder="username"
+              value={laurierUsername}
+              onChange={(e) => setLaurierUsername(e.target.value.replace(/[@\s]/g, ""))}
+              onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
+              autoComplete="username"
+            />
+            <span className={styles.emailDomain}>@mylaurier.ca</span>
+          </div>
           {laurierError && <div className={styles.error}>{laurierError}</div>}
           <button
             className={styles.sendButton}
@@ -196,6 +202,7 @@ function SignInContent() {
             onClick={() => {
               setOtpSent(false);
               setOtpCode("");
+              setLaurierUsername("");
               setLaurierError(null);
             }}
           >

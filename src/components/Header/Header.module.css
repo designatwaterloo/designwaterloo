@@ -65,6 +65,20 @@
   }
 }
 
+/* Blend mode only when showing the default icon (no profile image) */
+.profileBarBlend {
+  mix-blend-mode: difference;
+  filter: invert(1);
+}
+
+/* Mobile: no blend mode on profile bar */
+@media (max-width: 768px) {
+  .profileBarBlend {
+    mix-blend-mode: normal;
+    filter: none;
+  }
+}
+
 /* ─── Primary / Profile Button ─── */
 .primaryButton {
   width: 32px;

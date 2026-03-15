@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import type { Metadata } from "next";
 import ProfileContent from "./ProfileContent";
+import AdminReviewBar from "@/components/AdminReviewBar";
 import type { EditableFields, ExperienceEntry, LeadershipEntry } from "@/components/InlineEdit";
 
 export const revalidate = 30;
@@ -96,6 +97,7 @@ export default async function PersonDetail({
   }
 
   // Only allow the member themselves or an admin to view unapproved profiles
+  let isAdminPreview = false;
   if (!member.is_approved) {
     const { data: { user } } = await supabase.auth.getUser();
     const isOwner = user && member.auth_user_id === user.id;
@@ -111,6 +113,7 @@ export default async function PersonDetail({
     if (!isOwner && !isAdmin) {
       notFound();
     }
+    isAdminPreview = isAdmin;
   }
 
   const nextAvailableTerm = getNextAvailableTerm(member.work_schedule);
@@ -168,15 +171,18 @@ export default async function PersonDetail({
       <Header />
 
       <main className="w-full">
-        <Link href="/directory" className={styles.backButton}>
-          ← Back to directory
-        </Link>
+        {member.is_approved && (
+          <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton}>
+            ← Back to {isAdminPreview ? "admin" : "directory"}
+          </Link>
+        )}
         <ProfileContent
           memberSlug={member.slug}
           firstName={member.first_name}
           lastName={member.last_name}
           school={member.school}
           publicEmail={member.public_email}
+          isApproved={member.is_approved}
           nextAvailableTerm={nextAvailableTerm}
           allTerms={allTerms}
           initialFields={initialFields}
@@ -187,6 +193,13 @@ export default async function PersonDetail({
       </main>
 
       <Footer />
+
+      {isAdminPreview && (
+        <AdminReviewBar
+          memberId={member.id}
+          memberName={`${member.first_name} ${member.last_name}`}
+        />
+      )}
     </div>
   );
 }

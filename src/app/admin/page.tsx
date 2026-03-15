@@ -17,7 +17,6 @@ export default function AdminPage() {
 
   const [pendingMembers, setPendingMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!member || !member.is_admin)) {
@@ -42,36 +41,6 @@ export default function AdminPage() {
       fetchPendingMembers();
     }
   }, [member, supabase]);
-
-  const handleApprove = async (memberId: string) => {
-    setActionLoading(memberId);
-    const { error } = await supabase
-      .from("members")
-      .update({ is_approved: true } as never)
-      .eq("id", memberId);
-
-    if (!error) {
-      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
-    }
-    setActionLoading(null);
-  };
-
-  const handleReject = async (memberId: string) => {
-    if (!confirm("Are you sure you want to reject and delete this member?")) {
-      return;
-    }
-
-    setActionLoading(memberId);
-    const { error } = await supabase
-      .from("members")
-      .delete()
-      .eq("id", memberId);
-
-    if (!error) {
-      setPendingMembers((prev) => prev.filter((m) => m.id !== memberId));
-    }
-    setActionLoading(null);
-  };
 
   if (authLoading || !member?.is_admin) {
     return (
@@ -122,20 +91,6 @@ export default function AdminPage() {
                       >
                         Preview
                       </Link>
-                      <button
-                        onClick={() => handleApprove(m.id)}
-                        disabled={actionLoading === m.id}
-                        className={styles.approveButton}
-                      >
-                        {actionLoading === m.id ? "..." : "Approve"}
-                      </button>
-                      <button
-                        onClick={() => handleReject(m.id)}
-                        disabled={actionLoading === m.id}
-                        className={styles.rejectButton}
-                      >
-                        {actionLoading === m.id ? "..." : "Reject"}
-                      </button>
                     </div>
                   </div>
                 ))}

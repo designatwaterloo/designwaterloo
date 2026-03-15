@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
+import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ImageUpload from "@/components/ImageUpload";
 import styles from "./page.module.css";
 
 export default function EditProfilePage() {
@@ -16,25 +16,21 @@ export default function EditProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+
+  // Loader state — starts visible immediately, plays once
+  const [loaderPhase, setLoaderPhase] = useState(1); // 1 = first line visible immediately, 5 = done
+  const loaderStarted = useRef(false);
+  const rowCreated = useRef(false);
 
   // Form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [program, setProgram] = useState("");
   const [graduatingClass, setGraduatingClass] = useState("");
-  const [bio, setBio] = useState("");
-  const [publicEmail, setPublicEmail] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [portfolio, setPortfolio] = useState("");
-  const [instagram, setInstagram] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [github, setGithub] = useState("");
-  const [behance, setBehance] = useState("");
-  const [dribbble, setDribbble] = useState("");
-  const [specialties, setSpecialties] = useState<string[]>([]);
-  const [newSpecialty, setNewSpecialty] = useState("");
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  // Derived
+  const school = user?.email ? getSchoolFromEmail(user.email) : null;
+  const fullName = (user?.user_metadata?.full_name as string) || null;
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -43,112 +39,272 @@ export default function EditProfilePage() {
     }
   }, [authLoading, user, startTransition]);
 
-  // Populate form with existing data
+  // If member exists AND onboarding is completed, redirect to profile
   useEffect(() => {
-    if (member) {
+    if (!authLoading && member?.onboarding_completed) {
+      startTransition(`/directory/${member.slug}`);
+    }
+  }, [authLoading, member, startTransition]);
+
+  // Pre-fill form from OAuth metadata or existing draft member
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (member && !member.onboarding_completed) {
+      // Draft row exists — populate form from it
       setFirstName(member.first_name || "");
       setLastName(member.last_name || "");
       setProgram(member.program || "");
       setGraduatingClass(member.graduating_class || "");
-      setBio(member.bio || "");
-      setPublicEmail(member.public_email || "");
-      setLinkedin(member.linkedin || "");
-      setPortfolio(member.portfolio || "");
-      setInstagram(member.instagram || "");
-      setTwitter(member.twitter || "");
-      setGithub(member.github || "");
-      setBehance(member.behance || "");
-      setDribbble(member.dribbble || "");
-      setSpecialties(member.specialties || []);
-      setProfileImageUrl(member.profile_image_url || null);
+    } else if (user && !member && fullName) {
+      // No member yet — pre-fill from OAuth
+      const parts = fullName.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        setFirstName(parts[0]);
+        setLastName(parts.slice(1).join(" "));
+      } else if (parts.length === 1) {
+        setFirstName(parts[0]);
+      }
     }
-  }, [member]);
+  }, [authLoading, user, member, fullName]);
 
-  const handleAddSpecialty = () => {
-    if (newSpecialty.trim() && !specialties.includes(newSpecialty.trim())) {
-      setSpecialties([...specialties, newSpecialty.trim()]);
-      setNewSpecialty("");
+  // Create draft member row during loader
+  const createDraftRow = useCallback(async () => {
+    if (!user?.email || rowCreated.current) return;
+    rowCreated.current = true;
+
+    // Check if a draft row already exists for this user
+    const { data: existingMember } = await supabase
+      .from("members")
+      .select("id")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+
+    if (existingMember) {
+      // Draft already exists — just make sure AuthProvider has it
+      await refreshMember();
+      return;
     }
-  };
 
-  const handleRemoveSpecialty = (specialty: string) => {
-    setSpecialties(specialties.filter((s) => s !== specialty));
-  };
+    const nameFromOAuth = fullName?.trim().split(/\s+/) || [];
+    const draftFirst = nameFromOAuth[0] || "";
+    const draftLast = nameFromOAuth.length >= 2 ? nameFromOAuth.slice(1).join(" ") : "";
+
+    // Need at least a first name to generate a slug
+    if (!draftFirst) return;
+
+    const slug = generateSlug(draftFirst, draftLast || "member");
+
+    const { data: existingSlug } = await supabase
+      .from("members")
+      .select("slug")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    const finalSlug = existingSlug
+      ? `${slug}-${Date.now().toString(36)}`
+      : slug;
+
+    const { error: insertError } = await supabase
+      .from("members")
+      .insert({
+        auth_user_id: user.id,
+        first_name: draftFirst,
+        last_name: draftLast,
+        slug: finalSlug,
+        school_email: user.email,
+        school: school,
+        onboarding_completed: false,
+        is_approved: false,
+      } as never);
+
+    if (insertError) {
+      console.error("[Onboarding] Failed to create draft row:", insertError);
+      return;
+    }
+
+    await refreshMember();
+  }, [user, fullName, school, supabase, refreshMember]);
+
+  // If member appears while loader is playing, skip to form
+  useEffect(() => {
+    if (member && loaderPhase > 0 && loaderPhase < 5) {
+      setLoaderPhase(5);
+    }
+  }, [member, loaderPhase]);
+
+  // Run loader sequence once when auth is ready
+  useEffect(() => {
+    if (authLoading || loaderStarted.current) return;
+    // Skip loader if member already exists (returning to this page)
+    if (member) {
+      setLoaderPhase(5);
+      return;
+    }
+
+    loaderStarted.current = true;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    // Phase 1 is already visible immediately
+    timers.push(setTimeout(() => setLoaderPhase(2), 1200));
+    timers.push(setTimeout(() => setLoaderPhase(3), 2400));
+
+    // Create the draft row while the loader is playing
+    timers.push(setTimeout(() => {
+      createDraftRow();
+    }, 1200));
+
+    timers.push(setTimeout(() => setLoaderPhase(4), 3600));
+    timers.push(setTimeout(() => setLoaderPhase(5), 4800));
+
+    return () => timers.forEach(clearTimeout);
+  }, [authLoading, member, createDraftRow]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!member) return;
+    console.log("[Onboarding] handleSubmit called, user:", user?.email, "member:", member?.id, "firstName:", firstName, "lastName:", lastName);
+    if (!user?.email) {
+      console.log("[Onboarding] No user email, bailing");
+      return;
+    }
 
     setSaving(true);
     setError(null);
-    setSuccess(false);
 
     try {
-      const { error: updateError } = await supabase
-        .from("members")
-        .update({
-          first_name: firstName,
-          last_name: lastName,
-          program: program || null,
-          graduating_class: graduatingClass || null,
-          bio: bio || null,
-          public_email: publicEmail || null,
-          linkedin: linkedin || null,
-          portfolio: portfolio || null,
-          instagram: instagram || null,
-          twitter: twitter || null,
-          github: github || null,
-          behance: behance || null,
-          dribbble: dribbble || null,
-          specialties: specialties,
-          profile_image_url: profileImageUrl,
-        } as never)
-        .eq("id", member.id);
+      const newSlug = generateSlug(firstName, lastName);
+      console.log("[Onboarding] Generated slug:", newSlug, "member exists:", !!member);
 
-      if (updateError) {
-        setError(`Failed to update profile: ${updateError.message}`);
-        return;
+      if (member) {
+        // Draft row exists — update it
+        let finalSlug = member.slug;
+
+        if (newSlug !== member.slug) {
+          const { data: existingSlug } = await supabase
+            .from("members")
+            .select("slug")
+            .eq("slug", newSlug)
+            .neq("id", member.id)
+            .maybeSingle();
+
+          finalSlug = existingSlug
+            ? `${newSlug}-${Date.now().toString(36)}`
+            : newSlug;
+        }
+
+        console.log("[Onboarding] Updating member", member.id, "with slug:", finalSlug);
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/members?id=eq.${member.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+              Authorization: `Bearer ${session?.access_token}`,
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify({
+              first_name: firstName,
+              last_name: lastName,
+              slug: finalSlug,
+              program: program || null,
+              graduating_class: graduatingClass || null,
+              onboarding_completed: true,
+            }),
+          }
+        );
+        console.log("[Onboarding] Update result, status:", res.status);
+
+        if (!res.ok) {
+          const text = await res.text();
+          setError(`Failed to save: ${text}`);
+          setSaving(false);
+          return;
+        }
+
+        await refreshMember();
+        window.location.href = `/directory/${finalSlug}`;
+      } else {
+        // No draft row — create fresh
+        console.log("[Onboarding] Checking slug availability...");
+        const { data: existingSlug } = await supabase
+          .from("members")
+          .select("slug")
+          .eq("slug", newSlug)
+          .maybeSingle();
+        console.log("[Onboarding] Slug check done, exists:", !!existingSlug);
+
+        const finalSlug = existingSlug
+          ? `${newSlug}-${Date.now().toString(36)}`
+          : newSlug;
+
+        console.log("[Onboarding] Inserting with slug:", finalSlug);
+        const { error: insertError } = await supabase
+          .from("members")
+          .insert({
+            auth_user_id: user.id,
+            first_name: firstName,
+            last_name: lastName,
+            slug: finalSlug,
+            school_email: user.email,
+            school: school,
+            program: program || null,
+            graduating_class: graduatingClass || null,
+            onboarding_completed: true,
+            is_approved: false,
+          } as never);
+        console.log("[Onboarding] Insert done, error:", insertError);
+
+        if (insertError) {
+          setError(`Failed to create profile: ${insertError.message}`);
+          setSaving(false);
+          return;
+        }
+
+        await refreshMember();
+        window.location.href = `/directory/${finalSlug}`;
       }
-
-      // Bust Next's cached directory/profile pages so the new image shows immediately
-      try {
-        await fetch("/api/revalidate-profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slug: member.slug }),
-        });
-      } catch {
-        // Ignore revalidation failures; profile is still saved in the DB
-      }
-
-      await refreshMember();
-      setSuccess(true);
     } catch (err) {
-      console.error("[EditProfile] Save failed:", err);
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
+      console.error("[Onboarding] Error:", err);
+      setError("Something went wrong. Please try again.");
       setSaving(false);
     }
   };
 
-  if (authLoading) {
+  // Show loader (plays once, never re-triggers)
+  if (loaderPhase < 5) {
     return (
       <div>
         <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
-          <p>Loading...</p>
+          <div className={styles.loader}>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 1 ? styles.loaderLineVisible : ""}`}>
+              Connecting to your account...
+            </p>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 2 ? styles.loaderLineVisible : ""}`}>
+              {fullName ? `Found you \u2014 ${fullName}` : "Setting things up..."}
+            </p>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 3 ? styles.loaderLineVisible : ""}`}>
+              {school || "Detecting your school..."}
+            </p>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 4 ? styles.loaderLineVisible : ""}`}>
+              Getting everything ready...
+            </p>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
 
-  if (!member) {
+  // Member completed onboarding — redirect happening
+  if (member?.onboarding_completed) {
     return (
       <div>
         <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
-          <p>No profile found. Please complete onboarding first.</p>
+          <p>Redirecting to your profile...</p>
         </main>
         <Footer />
       </div>
@@ -161,32 +317,16 @@ export default function EditProfilePage() {
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-8">
           <div className={styles.header}>
-            <h1>Edit Profile</h1>
+            <h1>Welcome to Design Waterloo</h1>
             <p className={styles.subtitle}>
-              Update your profile information below.
+              Confirm your details to get started. You&apos;ll be able to fill out the rest of your profile next.
             </p>
           </div>
 
           {error && <div className={styles.error}>{error}</div>}
-          {success && (
-            <div className={styles.success}>
-              Profile updated successfully!{" "}
-              <a href={`/directory/${member.slug}`}>View your profile</a>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Profile Photo</h2>
-              <ImageUpload
-                currentImageUrl={profileImageUrl}
-                onImageUploaded={setProfileImageUrl}
-              />
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Basic Info</h2>
-
               <div className={styles.fieldGroup}>
                 <div className={styles.field}>
                   <label htmlFor="firstName">First Name *</label>
@@ -213,9 +353,9 @@ export default function EditProfilePage() {
 
               <div className={styles.field}>
                 <label>School</label>
-                <input type="text" value={member.school || ""} disabled />
+                <input type="text" value={school || ""} disabled />
                 <span className={styles.hint}>
-                  School is determined by your email and cannot be changed.
+                  Detected from your email ({user?.email})
                 </span>
               </div>
 
@@ -244,179 +384,13 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>About You</h2>
-
-              <div className={styles.field}>
-                <label htmlFor="bio">Bio</label>
-                <textarea
-                  id="bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tell us about yourself..."
-                  rows={4}
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="publicEmail">Public Email</label>
-                <input
-                  id="publicEmail"
-                  type="email"
-                  value={publicEmail}
-                  onChange={(e) => setPublicEmail(e.target.value)}
-                  placeholder="Email for employers to contact you"
-                />
-                <span className={styles.hint}>
-                  This will be visible on your profile
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Social Links</h2>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.field}>
-                  <label htmlFor="linkedin">LinkedIn</label>
-                  <input
-                    id="linkedin"
-                    type="url"
-                    value={linkedin}
-                    onChange={(e) => setLinkedin(e.target.value)}
-                    placeholder="https://linkedin.com/in/yourprofile"
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label htmlFor="portfolio">Portfolio</label>
-                  <input
-                    id="portfolio"
-                    type="url"
-                    value={portfolio}
-                    onChange={(e) => setPortfolio(e.target.value)}
-                    placeholder="https://yourportfolio.com"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.field}>
-                  <label htmlFor="instagram">Instagram</label>
-                  <input
-                    id="instagram"
-                    type="text"
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    placeholder="@yourusername or full URL"
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label htmlFor="twitter">Twitter / X</label>
-                  <input
-                    id="twitter"
-                    type="text"
-                    value={twitter}
-                    onChange={(e) => setTwitter(e.target.value)}
-                    placeholder="@yourusername or full URL"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.field}>
-                  <label htmlFor="github">GitHub</label>
-                  <input
-                    id="github"
-                    type="text"
-                    value={github}
-                    onChange={(e) => setGithub(e.target.value)}
-                    placeholder="yourusername or full URL"
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label htmlFor="behance">Behance</label>
-                  <input
-                    id="behance"
-                    type="text"
-                    value={behance}
-                    onChange={(e) => setBehance(e.target.value)}
-                    placeholder="Full URL"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="dribbble">Dribbble</label>
-                <input
-                  id="dribbble"
-                  type="text"
-                  value={dribbble}
-                  onChange={(e) => setDribbble(e.target.value)}
-                  placeholder="Full URL"
-                />
-              </div>
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Specialties</h2>
-
-              <div className={styles.field}>
-                <label>Add Skills</label>
-                <div className={styles.specialtiesInput}>
-                  <input
-                    type="text"
-                    value={newSpecialty}
-                    onChange={(e) => setNewSpecialty(e.target.value)}
-                    placeholder="Add a skill (e.g., UI Design)"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddSpecialty();
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddSpecialty}
-                    className={styles.addButton}
-                  >
-                    Add
-                  </button>
-                </div>
-                {specialties.length > 0 && (
-                  <div className={styles.specialties}>
-                    {specialties.map((s) => (
-                      <span key={s} className={styles.specialty}>
-                        {s}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSpecialty(s)}
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
             <div className={styles.actions}>
-              <a
-                href={`/directory/${member.slug}`}
-                className={styles.secondaryButton}
-              >
-                Cancel
-              </a>
               <button
                 type="submit"
                 className={styles.primaryButton}
                 disabled={saving || !firstName || !lastName}
               >
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? "Creating profile..." : "Continue"}
               </button>
             </div>
           </form>

@@ -127,7 +127,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
       {/* Bottom row */}
       <div className="w-full flex justify-between items-center">
         <p>© 2025 Design Waterloo</p>
-        <p>Version 1.0</p>
+        <p>Version 1.1</p>
       </div>
     </footer>
   );

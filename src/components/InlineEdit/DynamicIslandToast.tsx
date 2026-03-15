@@ -3,7 +3,11 @@
 import { useInlineEdit } from "./InlineEditProvider";
 import styles from "./InlineEdit.module.css";
 
-export default function DynamicIslandToast() {
+interface DynamicIslandToastProps {
+  isApproved?: boolean;
+}
+
+export default function DynamicIslandToast({ isApproved = true }: DynamicIslandToastProps) {
   const { editMode, setEditMode, isDirty, saving, savedRecently, save, discard } = useInlineEdit();
 
   const visible = editMode || savedRecently;
@@ -32,7 +36,9 @@ export default function DynamicIslandToast() {
               strokeLinejoin="round"
             />
           </svg>
-          <span className={styles.toastLabel}>Changes saved</span>
+          <span className={styles.toastLabel}>
+            {isApproved ? "Changes saved" : "Profile submitted for review"}
+          </span>
         </>
       ) : isDirty ? (
         <>
@@ -54,20 +60,26 @@ export default function DynamicIslandToast() {
               onClick={save}
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save changes"}
+              {saving
+                ? "Saving..."
+                : isApproved
+                  ? "Save changes"
+                  : "Submit profile"}
             </button>
           </div>
         </>
       ) : (
         <>
-          <span className={styles.toastLabel}>Editing profile</span>
+          <span className={styles.toastLabel}>
+            {isApproved ? "Editing profile" : "Setting up profile"}
+          </span>
           <div className={styles.toastActions}>
             <button
               type="button"
               className={styles.toastSave}
               onClick={() => setEditMode(false)}
             >
-              Done
+              {isApproved ? "Done" : "Submit profile"}
             </button>
           </div>
         </>

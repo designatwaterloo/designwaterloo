@@ -8,6 +8,7 @@ import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 import Curtain from "../Curtain";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { createClient } from "@/lib/supabase/client";
 
 interface OverlayNavProps {
   isOpen: boolean;
@@ -18,6 +19,30 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
   const { user, member, loading } = useAuth();
+  const [directoryCount, setDirectoryCount] = useState<number | null>(null);
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
+
+  // Fetch counts when nav opens
+  useEffect(() => {
+    if (!isOpen) return;
+    const supabase = createClient();
+
+    supabase
+      .from("members")
+      .select("*", { count: "exact", head: true })
+      .eq("onboarding_completed", true)
+      .eq("is_approved", true)
+      .then(({ count }) => setDirectoryCount(count));
+
+    if (member?.is_admin) {
+      supabase
+        .from("members")
+        .select("*", { count: "exact", head: true })
+        .eq("onboarding_completed", true)
+        .eq("is_approved", false)
+        .then(({ count }) => setPendingCount(count));
+    }
+  }, [isOpen, member?.is_admin]);
 
   useEffect(() => {
     if (isOpen) {
@@ -37,20 +62,20 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   if (!isOpen && !isAnimating) return null;
 
   const navItems = [
-    { label: "Home", href: "/" },
-    { label: "Directory", href: "/directory" },
-    { label: "About", href: "/about" },
+    { label: "Home", href: "/", sup: null as number | null },
+    { label: "Directory", href: "/directory", sup: directoryCount },
+    { label: "About", href: "/about", sup: null as number | null },
   ];
 
   // Build user navigation items based on auth state
-  const userNavItems: { label: string; href?: string; onClick?: () => void }[] = [];
+  const userNavItems: { label: string; href?: string; onClick?: () => void; sup?: number | null }[] = [];
 
   if (loading) {
     // Still loading - don't show auth items yet to avoid flicker
   } else if (user) {
     // User is logged in
     if (member?.is_admin) {
-      userNavItems.push({ label: "Admin", href: "/admin" });
+      userNavItems.push({ label: "Admin", href: "/admin", sup: pendingCount });
     }
   } else {
     // Not logged in - sign in handled via header icon
@@ -106,7 +131,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   data-cursor="nav"
                   data-cursor-label={item.label}
                 >
-                  {item.label}
+                  {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
               ))}
               {userNavItems.map((item, index) => {
@@ -125,7 +150,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     data-cursor="nav"
                     data-cursor-label={item.label}
                   >
-                    {item.label}
+                    {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                   </Link>
                 ) : (
                   <button
@@ -140,7 +165,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     data-cursor="nav"
                     data-cursor-label={item.label}
                   >
-                    {item.label}
+                    {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                   </button>
                 );
               })}
@@ -165,7 +190,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                 data-cursor="nav"
                 data-cursor-label={item.label}
               >
-                {item.label}
+                {item.label}{item.sup != null && <sup>{item.sup}</sup>}
               </Link>
             ))}
             {userNavItems.map((item, index) => {
@@ -184,7 +209,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   data-cursor="nav"
                   data-cursor-label={item.label}
                 >
-                  {item.label}
+                  {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
               ) : (
                 <button
@@ -199,7 +224,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   data-cursor="nav"
                   data-cursor-label={item.label}
                 >
-                  {item.label}
+                  {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </button>
               );
             })}

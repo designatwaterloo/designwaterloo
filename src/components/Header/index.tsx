@@ -66,7 +66,7 @@ export default function Header() {
       </header>
 
       {/* Profile button — no blend mode, renders photo normally */}
-      <div className={`${styles.profileBar} ${isNavOpen ? styles.actionBarOpen : ''}`}>
+      <div className={[styles.profileBar, isNavOpen ? styles.actionBarOpen : '', hasProfile && member?.profile_image_url ? '' : styles.profileBarBlend].filter(Boolean).join(' ')}>
         <Link
           href={
             hasProfile

@@ -54,6 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Safety timeout — never hang on loading for more than 5s
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -75,7 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("[Auth] Error getting session:", err);
       }
 
-      if (mounted) setLoading(false);
+      if (mounted) {
+        setLoading(false);
+        clearTimeout(timeout);
+      }
     };
 
     getInitialSession();
@@ -96,10 +104,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading(false);
+      clearTimeout(timeout);
     });
 
     return () => {
       mounted = false;
+      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, [supabase.auth, fetchMember]);
@@ -110,6 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         scopes: "email profile openid",
         redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          domain_hint: "uwaterloo.ca",
+        },
       },
     });
   };

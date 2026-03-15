@@ -147,12 +147,16 @@ export function InlineEditProvider({
   }, []);
 
   const save = useCallback(async () => {
+    console.log("[InlineEdit] save called, isOwner:", isOwner, "member:", member?.id);
     if (!isOwner || !member) {
       console.error("[InlineEdit] save aborted: isOwner=", isOwner, "member=", member);
       return;
     }
     // Synchronous concurrency guard — prevents rapid double-clicks
-    if (savingRef.current) return;
+    if (savingRef.current) {
+      console.log("[InlineEdit] save blocked by concurrency guard");
+      return;
+    }
     savingRef.current = true;
     setSaving(true);
 
@@ -175,15 +179,30 @@ export function InlineEditProvider({
         dribbble: fields.dribbble,
       };
 
-      const { error: memberError } = await supabase
-        .from("members")
-        .update(updatePayload as never)
-        .eq("id", member.id)
-        .select();
+      console.log("[InlineEdit] Starting supabase update...");
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/members?id=eq.${member.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            Authorization: `Bearer ${session?.access_token}`,
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify(updatePayload),
+        }
+      );
+      console.log("[InlineEdit] Supabase update done, status:", res.status);
 
-      if (memberError) throw memberError;
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
 
       // 2. Sync experiences and leadership in parallel (independent tables)
+      console.log("[InlineEdit] Syncing experiences & leadership...");
       await Promise.all([
         (async () => {
           const { error: delExpError } = await supabase
@@ -233,6 +252,7 @@ export function InlineEditProvider({
         })(),
       ]);
 
+      console.log("[InlineEdit] Experiences & leadership synced");
       // 3. Update saved snapshots
       savedFields.current = { ...fields };
       savedExperiences.current = [...experiences];

@@ -371,3 +371,65 @@
   padding-bottom: var(--big);
 }
 
+/* ===== Welcome Lightbox ===== */
+
+.welcomeOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--margin);
+  animation: fadeIn 0.3s ease;
+}
+
+.welcomeModal {
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 16px;
+  padding: var(--big);
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--smaller);
+}
+
+.welcomeModal h2 {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.welcomeModal p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
+.welcomeButton {
+  padding: var(--tiny) var(--smaller);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  align-self: flex-start;
+  margin-top: var(--tinier);
+}
+
+.welcomeButton:hover {
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
