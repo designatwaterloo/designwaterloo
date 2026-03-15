@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import ProfileContent from "./ProfileContent";
 import AdminReviewBar from "@/components/AdminReviewBar";
 import type { EditableFields, ExperienceEntry, LeadershipEntry } from "@/components/InlineEdit";
+import { PROGRAMS } from "@/data/programs";
 
 export const revalidate = 30;
 
@@ -119,16 +120,7 @@ export default async function PersonDetail({
   const nextAvailableTerm = getNextAvailableTerm(member.work_schedule);
   const allTerms = getTermsWithStatus(member.work_schedule);
 
-  // Fetch distinct programs for autocomplete suggestions
-  const { data: programRows } = (await supabase
-    .from("members")
-    .select("program")
-    .not("program", "is", null)
-    .eq("onboarding_completed", true)) as { data: { program: string }[] | null };
-
-  const programSuggestions = [
-    ...new Set((programRows || []).map((r) => r.program).filter(Boolean)),
-  ].sort();
+  const programSuggestions = PROGRAMS[member.school ?? ""] ?? [];
 
   // Map to inline-edit shapes
   const initialFields: EditableFields = {

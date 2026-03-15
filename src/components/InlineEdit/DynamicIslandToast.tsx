@@ -8,7 +8,7 @@ interface DynamicIslandToastProps {
 }
 
 export default function DynamicIslandToast({ isApproved = true }: DynamicIslandToastProps) {
-  const { editMode, setEditMode, isDirty, saving, savedRecently, save, discard } = useInlineEdit();
+  const { editMode, setEditMode, isDirty, saving, savedRecently, saveError, save, discard } = useInlineEdit();
 
   const visible = editMode || savedRecently;
 
@@ -43,7 +43,7 @@ export default function DynamicIslandToast({ isApproved = true }: DynamicIslandT
       ) : isDirty ? (
         <>
           <span className={styles.toastLabel}>
-            {saving ? "Saving..." : "Unsaved changes"}
+            {saving ? "Saving..." : saveError ? `Error: ${saveError}` : "Unsaved changes"}
           </span>
           <div className={styles.toastActions}>
             <button

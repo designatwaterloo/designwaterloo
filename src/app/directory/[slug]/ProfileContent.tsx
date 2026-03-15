@@ -322,6 +322,7 @@ function ProfileContentInner({
                       field="program"
                       placeholder="Click to add program..."
                       suggestions={programSuggestions}
+                      strict
                     />
                   </dd>
                 </div>

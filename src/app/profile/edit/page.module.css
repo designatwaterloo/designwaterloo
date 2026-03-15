@@ -144,6 +144,7 @@
 }
 
 .field {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--tiniest);
@@ -183,6 +184,50 @@
 .hint {
   font-size: 12px;
   color: var(--muted);
+}
+
+.hintSuccess {
+  font-size: 12px;
+  color: var(--success, #34C759);
+}
+
+.hintError {
+  font-size: 12px;
+  color: var(--error, #FF3B30);
+}
+
+.slugInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.slugInput:focus-within {
+  border-color: var(--foreground);
+}
+
+.slugPrefix {
+  padding: var(--tiny) 0 var(--tiny) var(--tinier);
+  color: var(--muted);
+  font-size: 16px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.slugInput input {
+  border: none !important;
+  border-radius: 0 !important;
+  padding-left: 0 !important;
+  flex: 1;
+  min-width: 0;
+}
+
+.slugInput input:focus {
+  border: none !important;
+  outline: none !important;
 }
 
 .specialtiesInput {
@@ -322,6 +367,59 @@
 }
 
 .specialty button:hover {
+  color: var(--foreground);
+}
+
+/* ===== Program Combobox ===== */
+
+.comboboxDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--background);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.comboboxItem {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  font: inherit;
+  font-size: 15px;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.comboboxItem:hover {
+  background-color: var(--hover-bg);
+}
+
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.clearButton:hover {
   color: var(--foreground);
 }
 

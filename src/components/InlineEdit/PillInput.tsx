@@ -158,7 +158,7 @@ export default function PillInput({
         )}
       </div>
       {showDropdown && (
-        <div className={styles.suggestions}>
+        <div className={styles.suggestions} data-lenis-prevent>
           {filtered.slice(0, 8).map((s) => (
             <button
               key={s}

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
-import { createClient } from "@/lib/supabase/client";
+import { rest } from "@/lib/supabase/rest";
 import Link from "@/components/Link";
 import styles from "./AdminReviewBar.module.css";
 
@@ -12,8 +13,8 @@ interface AdminReviewBarProps {
 }
 
 export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarProps) {
+  const { session } = useAuth();
   const { startTransition } = useTransition();
-  const supabase = createClient();
   const [visible, setVisible] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -23,10 +24,12 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
 
   const handleApprove = async () => {
     setActionLoading(true);
-    const { error } = await supabase
-      .from("members")
-      .update({ is_approved: true } as never)
-      .eq("id", memberId);
+    const token = session?.access_token ?? null;
+    const { error } = await rest(`members?id=eq.${memberId}`, {
+      method: "PATCH",
+      token: token ?? undefined,
+      body: { is_approved: true },
+    });
 
     if (!error) {
       startTransition("/admin");
@@ -40,10 +43,11 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
     }
 
     setActionLoading(true);
-    const { error } = await supabase
-      .from("members")
-      .delete()
-      .eq("id", memberId);
+    const token = session?.access_token ?? null;
+    const { error } = await rest(`members?id=eq.${memberId}`, {
+      method: "DELETE",
+      token: token ?? undefined,
+    });
 
     if (!error) {
       startTransition("/admin");
