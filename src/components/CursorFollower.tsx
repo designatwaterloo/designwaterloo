@@ -7,22 +7,30 @@ type CursorState =
   | "default"
   | "external-link"
   | "internal-link"
+  | "copy-email"
   | "menu"
   | "nav"
   | "button"
   | "grid-item"
-  | "text";
+  | "text"
+  | "reading-text";
 
 const stateClassMap: Record<CursorState, string | undefined> = {
   default: undefined,
   "external-link": styles.externalLink,
   "internal-link": styles.internalLink,
+  "copy-email": styles.copyEmail,
   menu: styles.menu,
   nav: styles.nav,
   button: styles.button,
   "grid-item": styles.gridItem,
   text: styles.text,
+  "reading-text": styles.readingText,
 };
+
+/* Text-content selectors for reading-text detection */
+const TEXT_SELECTORS =
+  "p, h1, h2, h3, h4, h5, h6, li, blockquote, figcaption, td, th, dd, dt, label, legend";
 
 function extractDomain(href: string): string {
   try {
@@ -33,17 +41,48 @@ function extractDomain(href: string): string {
 }
 
 function extractPageName(href: string): string {
-  // Strip trailing slash and hash/query
   const path = href.split(/[?#]/)[0].replace(/\/+$/, "");
   if (!path || path === "") return "Home";
-  // Take the first path segment and capitalize
   const segment = path.split("/").filter(Boolean)[0];
   if (!segment) return "Home";
-  // Handle kebab-case: "sign-in" → "Sign In"
   return segment
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
+}
+
+function extractFieldLabel(el: Element): string {
+  const input = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+  if (input.id) {
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) return (label.textContent || "").trim();
+  }
+
+  const parentLabel = input.closest("label");
+  if (parentLabel) {
+    const clone = parentLabel.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll("input, textarea, select").forEach((c) => c.remove());
+    const text = (clone.textContent || "").trim();
+    if (text) return text;
+  }
+
+  const ariaLabel = input.getAttribute("aria-label");
+  if (ariaLabel) return ariaLabel;
+
+  const placeholder = input.getAttribute("placeholder");
+  if (placeholder) return placeholder;
+
+  const name = input.getAttribute("name");
+  if (name) {
+    return name
+      .replace(/([A-Z])/g, " $1")
+      .replace(/[_-]/g, " ")
+      .trim()
+      .replace(/^\w/, (c) => c.toUpperCase());
+  }
+
+  return "";
 }
 
 function detectState(
@@ -59,20 +98,23 @@ function detectState(
     return { state, label };
   }
 
-  // 2. External <a> tags
+  // 2. <a> tags
   const anchor = (target as HTMLElement).closest("a[href]");
   if (anchor) {
     const href = anchor.getAttribute("href") || "";
+
+    if (/^mailto:/i.test(href)) {
+      return { state: "copy-email", label: "Copy Email" };
+    }
+
     if (/^https?:\/\//.test(href)) {
       const domain = extractDomain(href);
       return { state: "external-link", label: domain ? `${domain} ↗` : "" };
     }
-    // 3. Internal link — show page name pill
-    // For deeper paths (e.g. /directory/john-doe), use the link's text content
+
     const segments = href.split(/[?#]/)[0].replace(/\/+$/, "").split("/").filter(Boolean);
     let pageName: string;
     if (segments.length > 1) {
-      // Use the anchor's visible text if available, otherwise derive from path
       const text = (anchor.textContent || "").trim();
       pageName = text || extractPageName(href);
     } else {
@@ -81,29 +123,31 @@ function detectState(
     return { state: "internal-link", label: `${pageName} →` };
   }
 
-  // 4. <button>
+  // 3. <button>
   const button = (target as HTMLElement).closest("button");
   if (button) {
     return { state: "button", label: "" };
   }
 
-  // 5. <input>, <textarea>, <select>
-  const formEl = (target as HTMLElement).closest(
-    "input, textarea, select"
-  );
+  // 4. <input>, <textarea>, <select>
+  const formEl = (target as HTMLElement).closest("input, textarea, select");
   if (formEl) {
     const type = formEl.getAttribute("type");
-    // Only text-like inputs should get the text cursor
     if (
       formEl.tagName === "TEXTAREA" ||
       formEl.tagName === "SELECT" ||
       !type ||
-      ["text", "search", "email", "password", "url", "tel", "number"].includes(
-        type
-      )
+      ["text", "search", "email", "password", "url", "tel", "number"].includes(type)
     ) {
-      return { state: "text", label: "" };
+      const fieldLabel = extractFieldLabel(formEl);
+      return { state: "text", label: fieldLabel };
     }
+  }
+
+  // 5. Text content — shrink for precision
+  const textEl = (target as HTMLElement).closest(TEXT_SELECTORS);
+  if (textEl) {
+    return { state: "reading-text", label: "" };
   }
 
   // 6. Default
@@ -113,6 +157,8 @@ function detectState(
 export default function CursorFollower() {
   const dotRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
+  const textBubbleRef = useRef<HTMLDivElement>(null);
+  const textBubbleLabelRef = useRef<HTMLSpanElement>(null);
   const mouse = useRef({ x: 0, y: 0 });
   const pos = useRef({ x: 0, y: 0 });
   const visible = useRef(false);
@@ -123,12 +169,21 @@ export default function CursorFollower() {
 
     const dot = dotRef.current;
     const label = labelRef.current;
-    if (!dot || !label) return;
+    const textBubble = textBubbleRef.current;
+    const textBubbleLabel = textBubbleLabelRef.current;
+    if (!dot || !label || !textBubble || !textBubbleLabel) return;
+
+    const hideTextBubble = () => {
+      textBubble.classList.remove(styles.textBubbleVisible);
+      textBubble.style.width = "0px";
+      textBubbleLabel.textContent = "";
+    };
 
     const applyState = (state: CursorState, labelText: string) => {
       if (
         state === currentState.current &&
-        label.textContent === labelText
+        label.textContent === labelText &&
+        (state !== "text" || textBubbleLabel.textContent === labelText)
       ) {
         return;
       }
@@ -143,11 +198,37 @@ export default function CursorFollower() {
       const newClass = stateClassMap[state];
       if (newClass) dot.classList.add(newClass);
 
-      // Update label
-      if (labelText) {
+      // Hide text bubble unless text state
+      if (state !== "text") {
+        hideTextBubble();
+      }
+
+      if (state === "text") {
+        // Text input — thin caret + label bubble above
+        label.classList.remove(styles.labelVisible);
+        label.textContent = "";
+        dot.style.width = "2px";
+
+        if (labelText) {
+          textBubbleLabel.textContent = labelText;
+          textBubbleLabel.style.position = "absolute";
+          textBubbleLabel.style.visibility = "hidden";
+          textBubbleLabel.style.display = "block";
+          const bubbleWidth = textBubbleLabel.scrollWidth;
+          textBubbleLabel.style.position = "";
+          textBubbleLabel.style.visibility = "";
+          textBubbleLabel.style.display = "";
+
+          textBubble.style.width = `${bubbleWidth}px`;
+          requestAnimationFrame(() => {
+            textBubble.classList.add(styles.textBubbleVisible);
+          });
+        } else {
+          hideTextBubble();
+        }
+      } else if (labelText) {
+        // Cursor morphs into pill with label
         label.textContent = labelText;
-        // Measure and set explicit width for smooth transition
-        // Temporarily make label visible to measure
         label.style.position = "absolute";
         label.style.visibility = "hidden";
         label.style.display = "block";
@@ -158,18 +239,16 @@ export default function CursorFollower() {
         label.style.display = "";
 
         dot.style.width = `${textWidth}px`;
-        // Small delay so width transition starts before opacity
         requestAnimationFrame(() => {
           label.classList.add(styles.labelVisible);
         });
       } else {
         label.classList.remove(styles.labelVisible);
         label.textContent = "";
-        // Reset to default or state-defined width
         if (state === "button") {
           dot.style.width = "32px";
-        } else if (state === "text") {
-          dot.style.width = "2px";
+        } else if (state === "reading-text") {
+          dot.style.width = "14px";
         } else {
           dot.style.width = "20px";
         }
@@ -194,6 +273,21 @@ export default function CursorFollower() {
     const handleMouseLeave = () => {
       visible.current = false;
       dot.style.opacity = "0";
+      hideTextBubble();
+    };
+
+    const handleClick = (e: MouseEvent) => {
+      if (!(e.target instanceof Element)) return;
+      const anchor = (e.target as HTMLElement).closest('a[href^="mailto:"]');
+      if (!anchor) return;
+      e.preventDefault();
+      const href = anchor.getAttribute("href") || "";
+      const email = href.replace(/^mailto:/i, "").split("?")[0];
+      navigator.clipboard.writeText(email).then(() => {
+        label.textContent = "Copied!";
+        const w = label.scrollWidth;
+        dot.style.width = `${w}px`;
+      });
     };
 
     const lerp = 0.45;
@@ -203,23 +297,32 @@ export default function CursorFollower() {
       pos.current.x += (mouse.current.x - pos.current.x) * lerp;
       pos.current.y += (mouse.current.y - pos.current.y) * lerp;
       dot.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%)`;
+      // Position text bubble above cursor
+      textBubble.style.transform = `translate(${pos.current.x}px, ${pos.current.y - 24}px) translate(-50%, -100%)`;
       raf = requestAnimationFrame(tick);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("click", handleClick, true);
     raf = requestAnimationFrame(tick);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("click", handleClick, true);
       cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
-    <div ref={dotRef} className={styles.cursor} aria-hidden>
-      <span ref={labelRef} className={styles.label} />
-    </div>
+    <>
+      <div ref={dotRef} className={styles.cursor} aria-hidden>
+        <span ref={labelRef} className={styles.label} />
+      </div>
+      <div ref={textBubbleRef} className={styles.textBubble} aria-hidden>
+        <span ref={textBubbleLabelRef} className={styles.textBubbleLabel} />
+      </div>
+    </>
   );
 }

@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { rest } from "@/lib/supabase/rest";
+import type { ReviewStatus } from "@/types/database";
 
 // ---------- Types ----------
 
@@ -71,6 +72,8 @@ interface InlineEditContextType {
   savedRecently: boolean;
   /** Last save error message, null if no error */
   saveError: string | null;
+  /** Current review status */
+  reviewStatus: ReviewStatus;
   /** Update a flat field */
   setField: <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => void;
   /** Replace the entire experiences list */
@@ -79,6 +82,8 @@ interface InlineEditContextType {
   setLeadership: (entries: LeadershipEntry[]) => void;
   /** Persist all pending changes to Supabase */
   save: () => Promise<void>;
+  /** Save and submit for review */
+  submitForReview: () => Promise<void>;
   /** Revert all unsaved edits */
   discard: () => void;
 }
@@ -92,6 +97,7 @@ interface ProviderProps {
   initialFields: EditableFields;
   initialExperiences: ExperienceEntry[];
   initialLeadership: LeadershipEntry[];
+  initialReviewStatus?: ReviewStatus;
   children: ReactNode;
 }
 
@@ -100,11 +106,13 @@ export function InlineEditProvider({
   initialFields,
   initialExperiences,
   initialLeadership,
+  initialReviewStatus = "draft",
   children,
 }: ProviderProps) {
   const { session, member, refreshMember } = useAuth();
 
   const isOwner = !!member && member.slug === memberSlug;
+  const reviewStatus: ReviewStatus = (member?.review_status as ReviewStatus) ?? initialReviewStatus;
 
   // Snapshot of the last-saved state (updated after successful save)
   const savedFields = useRef<EditableFields>({ ...initialFields });
@@ -288,6 +296,40 @@ export function InlineEditProvider({
     }).catch(() => {});
   }, [isOwner, member, session, fields, experiences, leadership, memberSlug, refreshMember]);
 
+  const submitForReview = useCallback(async () => {
+    // First save any pending changes
+    await save();
+
+    // Then update review_status
+    if (!isOwner || !member) return;
+    const token = session?.access_token ?? null;
+    if (!token) return;
+
+    const { error: submitError } = await rest(
+      `members?id=eq.${member.id}`,
+      {
+        method: "PATCH",
+        token,
+        body: {
+          review_status: "pending_review",
+          submitted_at: new Date().toISOString(),
+          is_approved: false,
+        },
+      }
+    );
+
+    if (submitError) {
+      setSaveError(submitError);
+      return;
+    }
+
+    setSavedRecently(true);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setSavedRecently(false), 3000);
+
+    refreshMember().catch(() => {});
+  }, [save, isOwner, member, session, refreshMember]);
+
   return (
     <InlineEditContext.Provider
       value={{
@@ -301,10 +343,12 @@ export function InlineEditProvider({
         saving,
         savedRecently,
         saveError,
+        reviewStatus,
         setField,
         setExperiences,
         setLeadership,
         save,
+        submitForReview,
         discard,
       }}
     >

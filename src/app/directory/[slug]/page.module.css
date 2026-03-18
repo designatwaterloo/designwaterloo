@@ -356,6 +356,31 @@
   filter: invert(1) opacity(1);
 }
 
+/* ===== Rejection Banner ===== */
+
+.rejectionBanner {
+  grid-column: 1 / 9;
+  padding: var(--tinier) var(--smaller);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+  border-radius: var(--radius-large);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: var(--smaller);
+}
+
+.rejectionLink {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .rejectionBanner {
+    grid-column: 1;
+  }
+}
+
 /* ===== Edit Mode: expanded layout with dividers ===== */
 
 .editMode .content {

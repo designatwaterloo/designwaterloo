@@ -56,6 +56,12 @@
   border-radius: 999px;
 }
 
+/* Copy email pill */
+.copyEmail {
+  height: 28px;
+  border-radius: 999px;
+}
+
 /* Menu pill */
 .menu {
   height: 28px;
@@ -85,4 +91,47 @@
   width: 2px !important;
   height: 20px;
   border-radius: 1px;
+}
+
+/* Reading text — slight shrink for precision */
+.readingText {
+  width: 14px;
+  height: 14px;
+}
+
+/* Text input label bubble — floats above the caret */
+.textBubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  height: 24px;
+  border-radius: 6px;
+  background-color: black;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  transition:
+    width 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.15s ease;
+}
+
+.textBubbleVisible {
+  opacity: 1;
+}
+
+.textBubbleLabel {
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+  padding: 0 10px;
+  white-space: nowrap;
 }

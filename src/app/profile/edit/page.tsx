@@ -16,14 +16,16 @@ async function findAvailableSlug(
   baseSlug: string,
   excludeId?: string
 ): Promise<string> {
+  // Fast path: check exact match first (avoids LIKE scan)
+  const taken = await checkSlugTaken(baseSlug, excludeId);
+  if (!taken) return baseSlug;
+
+  // Slug is taken — find next available variant
   let qs = `members?select=slug&slug=like.${encodeURIComponent(baseSlug)}%25`;
   if (excludeId) qs += `&id=neq.${excludeId}`;
 
   const { data } = await rest(qs);
-  if (data.length === 0) return baseSlug;
-
   const set = new Set(data.map((r) => r.slug as string));
-  if (!set.has(baseSlug)) return baseSlug;
 
   const escaped = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`^${escaped}-(\\d+)$`);
@@ -107,17 +109,19 @@ export default function EditProfilePage() {
     if (!authLoading && !user) startTransition("/sign-in");
   }, [authLoading, user, startTransition]);
 
-  // If member exists AND onboarding is completed, redirect to profile
+  // If member exists AND onboarding is completed, redirect immediately
   useEffect(() => {
-    if (!authLoading && member?.onboarding_completed)
-      startTransition(`/directory/${member.slug}`);
-  }, [authLoading, member, startTransition]);
+    if (!authLoading && member?.onboarding_completed) {
+      window.location.replace(`/dashboard`);
+    }
+  }, [authLoading, member]);
 
   // Pre-fill form from OAuth metadata or existing draft member
   useEffect(() => {
     if (authLoading) return;
-    if (member && !member.onboarding_completed) {
-      console.log("[Onboarding] Prefill from draft member:", member.slug);
+    if (member) {
+      // Prefill from existing member (draft or completed — covers backtracking)
+      console.log("[Onboarding] Prefill from member:", member.slug);
       setFirstName(member.first_name || "");
       setLastName(member.last_name || "");
       setProgram(member.program || "");
@@ -238,13 +242,11 @@ export default function EditProfilePage() {
     const draftLast =
       nameFromOAuth.length >= 2 ? nameFromOAuth.slice(1).join(" ") : "";
 
-    if (!draftFirst) {
-      console.log("[Onboarding] No first name from OAuth, skipping draft");
-      return;
-    }
-
-    const baseSlug = generateSlug(draftFirst, draftLast || "member");
-    const finalSlug = await findAvailableSlug(baseSlug);
+    // Generate slug from name or email prefix (supports OTP users without name)
+    const baseSlug = draftFirst
+      ? generateSlug(draftFirst, draftLast || "member")
+      : generateSlug(user.email!.split("@")[0].replace(/\./g, "-"), "");
+    const finalSlug = await findAvailableSlug(baseSlug || "member");
     console.log("[Onboarding] Inserting draft with slug:", finalSlug);
 
     const { error: insertErr } = await rest("members", {
@@ -252,13 +254,14 @@ export default function EditProfilePage() {
       token,
       body: {
         auth_user_id: user.id,
-        first_name: draftFirst,
-        last_name: draftLast,
+        first_name: draftFirst || null,
+        last_name: draftLast || null,
         slug: finalSlug,
         school_email: user.email,
         school,
         onboarding_completed: false,
         is_approved: false,
+        review_status: "draft",
       },
     });
 
@@ -284,7 +287,7 @@ export default function EditProfilePage() {
     const timers: ReturnType<typeof setTimeout>[] = [];
     timers.push(setTimeout(() => setLoaderPhase(2), 1200));
     timers.push(setTimeout(() => setLoaderPhase(3), 2400));
-    timers.push(setTimeout(() => createDraftRow(), 1200));
+    createDraftRow();
     timers.push(setTimeout(() => setLoaderPhase(4), 3600));
     timers.push(setTimeout(() => setLoaderPhase(5), 4800));
     return () => timers.forEach(clearTimeout);
@@ -345,8 +348,9 @@ export default function EditProfilePage() {
           return;
         }
 
-        console.log("[Onboarding] Update succeeded, navigating...");
-        window.location.href = `/directory/${finalSlug}`;
+        console.log("[Onboarding] Update succeeded, refreshing member...");
+        await safeRefresh();
+        startTransition(`/directory/${finalSlug}`);
       } else {
         // Draft row may already exist (createDraftRow ran but refreshMember didn't propagate)
         const { data: existing } = await rest(
@@ -383,8 +387,9 @@ export default function EditProfilePage() {
             return;
           }
 
-          console.log("[Onboarding] Draft update succeeded, navigating...");
-          window.location.href = `/directory/${finalSlug}`;
+          console.log("[Onboarding] Draft update succeeded, refreshing member...");
+          await safeRefresh();
+          startTransition(`/directory/${finalSlug}`);
         } else {
           console.log("[Onboarding] POST insert (no draft)");
           const { data, error: insertErr } = await rest("members", {
@@ -401,6 +406,7 @@ export default function EditProfilePage() {
               graduating_class: graduatingClass || null,
               onboarding_completed: true,
               is_approved: false,
+              review_status: "draft",
             },
           });
 
@@ -419,8 +425,9 @@ export default function EditProfilePage() {
             return;
           }
 
-          console.log("[Onboarding] Insert succeeded, navigating...");
-          window.location.href = `/directory/${finalSlug}`;
+          console.log("[Onboarding] Insert succeeded, refreshing member...");
+          await safeRefresh();
+          startTransition(`/directory/${finalSlug}`);
         }
       }
     } catch (err) {
@@ -510,8 +517,12 @@ export default function EditProfilePage() {
                 <span className={
                   slugStatus === "available" ? styles.hintSuccess
                     : slugStatus === "taken" ? styles.hintError
+                    : slugStatus === "checking" ? styles.hintChecking
                     : styles.hint
                 }>
+                  {slugStatus === "checking" && (
+                    <span className={styles.spinner} />
+                  )}
                   {slugStatus === "checking" ? "Checking availability..."
                     : slugStatus === "available" ? "Available"
                     : slugStatus === "taken" ? "Already taken — choose a different URL"
@@ -530,21 +541,46 @@ export default function EditProfilePage() {
               <div className={styles.fieldGroup}>
                 <div className={styles.field} ref={programRef}>
                   <label htmlFor="program">Program</label>
-                  <input
-                    id="program"
-                    type="text"
-                    value={programOpen ? programSearch : program}
-                    onChange={(e) => {
-                      setProgramSearch(e.target.value);
-                      setProgramOpen(true);
-                    }}
-                    onFocus={() => {
-                      setProgramSearch("");
-                      setProgramOpen(true);
-                    }}
-                    placeholder="Search programs..."
-                    autoComplete="off"
-                  />
+                  <div className={styles.programInputWrapper}>
+                    <input
+                      id="program"
+                      type="text"
+                      value={programOpen ? programSearch : program}
+                      onChange={(e) => {
+                        setProgramSearch(e.target.value);
+                        setProgramOpen(true);
+                      }}
+                      onFocus={() => {
+                        setProgramSearch("");
+                        setProgramOpen(true);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Tab" && programOpen && filteredPrograms.length > 0) {
+                          e.preventDefault();
+                          setProgram(filteredPrograms[0]);
+                          setProgramOpen(false);
+                          setProgramSearch("");
+                        }
+                      }}
+                      placeholder="Search programs..."
+                      autoComplete="off"
+                    />
+                    {programOpen && programSearch && filteredPrograms.length > 0 &&
+                      filteredPrograms[0].toLowerCase().startsWith(programSearch.toLowerCase()) && (
+                      <span className={styles.programGhost} aria-hidden>
+                        {programSearch}{filteredPrograms[0].slice(programSearch.length)}
+                      </span>
+                    )}
+                    {program && !programOpen && (
+                      <button
+                        type="button"
+                        className={styles.clearButton}
+                        onClick={() => setProgram("")}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
                   {programOpen && filteredPrograms.length > 0 && (
                     <div className={styles.comboboxDropdown} data-lenis-prevent>
                       {filteredPrograms.map((p) => (
@@ -563,21 +599,22 @@ export default function EditProfilePage() {
                       ))}
                     </div>
                   )}
-                  {program && !programOpen && (
-                    <button
-                      type="button"
-                      className={styles.clearButton}
-                      onClick={() => setProgram("")}
-                    >
-                      Clear
-                    </button>
-                  )}
                 </div>
                 <div className={styles.field}>
                   <label htmlFor="graduatingClass">Graduating Year</label>
-                  <input id="graduatingClass" type="text" value={graduatingClass}
+                  <input id="graduatingClass" type="number" value={graduatingClass}
                     onChange={(e) => setGraduatingClass(e.target.value)}
-                    placeholder="e.g., 2026" />
+                    min={new Date().getFullYear()}
+                    max={new Date().getFullYear() + 6}
+                    placeholder={`e.g., ${new Date().getFullYear()}`} />
+                  {graduatingClass && (
+                    Number(graduatingClass) < new Date().getFullYear() ||
+                    Number(graduatingClass) > new Date().getFullYear() + 6
+                  ) && (
+                    <span className={styles.hintError}>
+                      Must be between {new Date().getFullYear()} and {new Date().getFullYear() + 6}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -585,7 +622,11 @@ export default function EditProfilePage() {
             <div className={styles.actions}>
               <button type="submit" className={styles.primaryButton}
                 disabled={saving || !firstName || !lastName || !slug
-                  || slugStatus === "taken" || slugStatus === "checking"}>
+                  || slugStatus === "taken" || slugStatus === "checking"
+                  || (!!graduatingClass && (
+                    Number(graduatingClass) < new Date().getFullYear() ||
+                    Number(graduatingClass) > new Date().getFullYear() + 6
+                  ))}>
                 {saving ? "Creating profile..." : "Continue"}
               </button>
             </div>

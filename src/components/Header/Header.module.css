@@ -102,6 +102,35 @@
   object-fit: cover;
 }
 
+/* ─── Status Pill (desktop) ─── */
+.statusPill {
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Hide pill on mobile — use ring instead */
+@media (max-width: 768px) {
+  .statusPill {
+    display: none;
+  }
+}
+
+/* ─── Mobile Profile Ring ─── */
+.profileRingUnsubmitted {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px #F5A623;
+}
+
+.profileRingPending {
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--blue);
+}
+
 /* ─── Menu / Close Button ─── */
 /* Fixed-positioned independently so blend mode composites against the page */
 .menuButton {

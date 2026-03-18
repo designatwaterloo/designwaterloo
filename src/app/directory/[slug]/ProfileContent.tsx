@@ -17,6 +17,8 @@ import type {
   ExperienceEntry,
   LeadershipEntry,
 } from "@/components/InlineEdit";
+import type { ReviewStatus } from "@/types/database";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { ensureHttps } from "@/lib/urlUtils";
 import { decodeTermCode, getCurrentTermCode } from "@/lib/termUtils";
 import styles from "./page.module.css";
@@ -73,6 +75,8 @@ interface ProfileContentProps {
   school: string | null;
   publicEmail: string | null;
   isApproved: boolean;
+  reviewStatus: ReviewStatus;
+  rejectionFeedback?: string | null;
   nextAvailableTerm: string | null;
   allTerms: Array<{ code: string; displayName: string; isPast: boolean }>;
   initialFields: EditableFields;
@@ -89,6 +93,7 @@ export default function ProfileContent(props: ProfileContentProps) {
       initialFields={props.initialFields}
       initialExperiences={props.initialExperiences}
       initialLeadership={props.initialLeadership}
+      initialReviewStatus={props.reviewStatus}
     >
       <ProfileContentInner {...props} />
     </InlineEditProvider>
@@ -127,21 +132,46 @@ function ProfileContentInner({
   lastName,
   school,
   publicEmail,
-  isApproved,
+  reviewStatus: serverReviewStatus,
+  rejectionFeedback,
   nextAvailableTerm,
   programSuggestions,
 }: ProfileContentProps) {
-  const { isOwner, editMode, setEditMode, fields } = useInlineEdit();
+  const { isOwner, editMode, setEditMode, fields, reviewStatus, submitForReview } = useInlineEdit();
   const [socialModalOpen, setSocialModalOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Auto-enable edit mode and show welcome lightbox for unapproved owners
+  // Use live reviewStatus from context (updates after actions)
+  const effectiveStatus = reviewStatus;
+  const isDraftOrRejected = effectiveStatus === "draft" || effectiveStatus === "rejected";
+
+  // Auto-enable edit mode and show welcome lightbox for draft owners
   useEffect(() => {
-    if (isOwner && !isApproved) {
+    if (isOwner && effectiveStatus === "draft") {
       setEditMode(true);
       setShowWelcome(true);
     }
-  }, [isOwner, isApproved, setEditMode]);
+  }, [isOwner, effectiveStatus, setEditMode]);
+
+  // Auto-enable edit mode for rejected owners
+  useEffect(() => {
+    if (isOwner && effectiveStatus === "rejected") {
+      setEditMode(true);
+    }
+  }, [isOwner, effectiveStatus, setEditMode]);
+
+  const handleSubmitForReview = () => {
+    setShowSubmitConfirm(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    setSubmitting(true);
+    await submitForReview();
+    setSubmitting(false);
+    setShowSubmitConfirm(false);
+  };
 
   // For non-owners, derive values from initial; for owners, from live fields
   const program = fields.program;
@@ -294,6 +324,15 @@ function ProfileContentInner({
           </div>
         )}
 
+        {/* Rejection banner for owners */}
+        {isOwner && effectiveStatus === "rejected" && rejectionFeedback && (
+          <div className={styles.rejectionBanner}>
+            <strong>Your profile was not approved.</strong> Feedback: {rejectionFeedback}
+            <br />
+            <a href="/dashboard" className={styles.rejectionLink}>View details on your dashboard</a>
+          </div>
+        )}
+
         {/* Content */}
         <div className={styles.content}>
           {/* Basic Info */}
@@ -417,8 +456,23 @@ function ProfileContentInner({
             isOpen={socialModalOpen}
             onClose={() => setSocialModalOpen(false)}
           />
-          <DynamicIslandToast isApproved={isApproved} />
+          <DynamicIslandToast
+            reviewStatus={effectiveStatus}
+            onSubmitForReview={handleSubmitForReview}
+          />
         </>
+      )}
+
+      {/* Submit confirmation dialog */}
+      {showSubmitConfirm && (
+        <ConfirmDialog
+          title="Submit for review"
+          message="Your profile will be reviewed by an admin before appearing in the directory. You can still edit your profile while it's under review."
+          confirmLabel="Submit"
+          onConfirm={handleConfirmSubmit}
+          onCancel={() => setShowSubmitConfirm(false)}
+          loading={submitting}
+        />
       )}
 
       {/* Welcome lightbox for new members */}

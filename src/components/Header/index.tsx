@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
 import { useAuth } from "@/components/auth/AuthProvider";
+import type { ReviewStatus } from "@/types/database";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -14,6 +15,9 @@ export default function Header() {
   const hasProfile = !!(user && member);
   const avatarSrc =
     hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
+
+  const reviewStatus = (member?.review_status ?? "draft") as ReviewStatus;
+  const showBadge = hasProfile && reviewStatus !== "approved";
 
   // Close menu on Esc key press
   useEffect(() => {
@@ -35,6 +39,15 @@ export default function Header() {
   useEffect(() => {
     setIsNavOpen(false);
   }, [pathname]);
+
+  // Badge label for desktop
+  const badgeLabel = reviewStatus === "pending_review" ? "Under review" : "Unsubmitted";
+
+  // Ring color class for mobile
+  const ringClass =
+    reviewStatus === "pending_review"
+      ? styles.profileRingPending
+      : styles.profileRingUnsubmitted;
 
   return (
     <>
@@ -70,11 +83,11 @@ export default function Header() {
         <Link
           href={
             hasProfile
-              ? `/directory/${member!.slug}`
+              ? "/dashboard"
               : "/sign-in"
           }
-          className={styles.primaryButton}
-          aria-label={hasProfile ? "View your profile" : "Sign in"}
+          className={`${styles.primaryButton} ${showBadge ? ringClass : ""}`}
+          aria-label={hasProfile ? "Your dashboard" : "Sign in"}
         >
           <Image
             src={avatarSrc}
@@ -83,6 +96,12 @@ export default function Header() {
             height={20}
           />
         </Link>
+        {/* Desktop status badge */}
+        {showBadge && (
+          <Link href="/dashboard" className={styles.statusPill}>
+            {badgeLabel}
+          </Link>
+        )}
       </div>
 
       {/* Menu button — separate element so blend mode composites against the page */}

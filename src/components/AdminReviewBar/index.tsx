@@ -5,6 +5,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
 import { rest } from "@/lib/supabase/rest";
 import Link from "@/components/Link";
+import RejectionModal from "./RejectionModal";
 import styles from "./AdminReviewBar.module.css";
 
 interface AdminReviewBarProps {
@@ -17,6 +18,7 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
   const { startTransition } = useTransition();
   const [visible, setVisible] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
@@ -28,7 +30,10 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
     const { error } = await rest(`members?id=eq.${memberId}`, {
       method: "PATCH",
       token: token ?? undefined,
-      body: { is_approved: true },
+      body: {
+        is_approved: true,
+        review_status: "approved",
+      },
     });
 
     if (!error) {
@@ -37,46 +42,60 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
     setActionLoading(false);
   };
 
-  const handleReject = async () => {
-    if (!confirm(`Are you sure you want to reject and delete ${memberName}?`)) {
-      return;
-    }
-
+  const handleRejectConfirm = async (feedback: string) => {
     setActionLoading(true);
     const token = session?.access_token ?? null;
     const { error } = await rest(`members?id=eq.${memberId}`, {
-      method: "DELETE",
+      method: "PATCH",
       token: token ?? undefined,
+      body: {
+        review_status: "rejected",
+        rejection_feedback: feedback,
+        rejected_at: new Date().toISOString(),
+        is_approved: false,
+      },
     });
 
     if (!error) {
+      setShowRejectModal(false);
       startTransition("/admin");
     }
     setActionLoading(false);
   };
 
   return (
-    <div className={`${styles.bar} ${visible ? styles.barVisible : ""}`}>
-      <span className={styles.label}>Previewing profile</span>
-      <div className={styles.actions}>
-        <Link href="/admin" className={styles.backButton}>
-          ← Back
-        </Link>
-        <button
-          onClick={handleReject}
-          disabled={actionLoading}
-          className={styles.rejectButton}
-        >
-          Reject
-        </button>
-        <button
-          onClick={handleApprove}
-          disabled={actionLoading}
-          className={styles.approveButton}
-        >
-          Approve
-        </button>
+    <>
+      <div className={`${styles.bar} ${visible ? styles.barVisible : ""}`}>
+        <span className={styles.label}>Previewing profile</span>
+        <div className={styles.actions}>
+          <Link href="/admin" className={styles.backButton}>
+            ← Back
+          </Link>
+          <button
+            onClick={() => setShowRejectModal(true)}
+            disabled={actionLoading}
+            className={styles.rejectButton}
+          >
+            Reject
+          </button>
+          <button
+            onClick={handleApprove}
+            disabled={actionLoading}
+            className={styles.approveButton}
+          >
+            Approve
+          </button>
+        </div>
       </div>
-    </div>
+
+      {showRejectModal && (
+        <RejectionModal
+          memberName={memberName}
+          loading={actionLoading}
+          onConfirm={handleRejectConfirm}
+          onCancel={() => setShowRejectModal(false)}
+        />
+      )}
+    </>
   );
 }

@@ -29,8 +29,7 @@ export default function AdminPage() {
       const { data } = await supabase
         .from("members")
         .select("*")
-        .eq("onboarding_completed", true)
-        .eq("is_approved", false)
+        .eq("review_status", "pending_review")
         .order("created_at", { ascending: false });
 
       setPendingMembers((data || []) as Member[]);

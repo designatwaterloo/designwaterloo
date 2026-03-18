@@ -97,7 +97,7 @@ export default async function PersonDetail({
     notFound();
   }
 
-  // Only allow the member themselves or an admin to view unapproved profiles
+  // Only allow the member themselves or an admin to view unapproved / non-approved profiles
   let isAdminPreview = false;
   if (!member.is_approved) {
     const { data: { user } } = await supabase.auth.getUser();
@@ -114,7 +114,8 @@ export default async function PersonDetail({
     if (!isOwner && !isAdmin) {
       notFound();
     }
-    isAdminPreview = isAdmin;
+    // Admin preview only for pending_review profiles
+    isAdminPreview = isAdmin && member.review_status === "pending_review";
   }
 
   const nextAvailableTerm = getNextAvailableTerm(member.work_schedule);
@@ -175,6 +176,8 @@ export default async function PersonDetail({
           school={member.school}
           publicEmail={member.public_email}
           isApproved={member.is_approved}
+          reviewStatus={member.review_status}
+          rejectionFeedback={member.rejection_feedback}
           nextAvailableTerm={nextAvailableTerm}
           allTerms={allTerms}
           initialFields={initialFields}

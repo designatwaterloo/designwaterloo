@@ -88,3 +88,85 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ===== Rejection Modal ===== */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--margin);
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 16px;
+  padding: var(--smaller);
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+  animation: fadeSlideIn 0.2s ease;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+}
+
+.modalDescription {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.modalTextarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-large);
+  background: transparent;
+  color: inherit;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.modalTextarea:focus {
+  border-color: var(--foreground);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: var(--tinier);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
