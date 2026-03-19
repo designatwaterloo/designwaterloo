@@ -160,7 +160,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
                   }}
                   data-cursor="nav"
-                  data-cursor-label={item.label}
+                  data-cursor-label={`${item.label} →`}
                 >
                   {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
@@ -179,7 +179,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                         : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
                     data-cursor="nav"
-                    data-cursor-label={item.label}
+                    data-cursor-label={`${item.label} →`}
                   >
                     {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                   </Link>
@@ -194,7 +194,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                         : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
                     data-cursor="nav"
-                    data-cursor-label={item.label}
+                    data-cursor-label={`${item.label} →`}
                   >
                     {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                   </button>
@@ -238,7 +238,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                   }}
                   data-cursor="nav"
-                  data-cursor-label={item.label}
+                  data-cursor-label={`${item.label} →`}
                 >
                   {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
@@ -253,7 +253,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
                     }}
                   data-cursor="nav"
-                  data-cursor-label={item.label}
+                  data-cursor-label={`${item.label} →`}
                 >
                   {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </button>

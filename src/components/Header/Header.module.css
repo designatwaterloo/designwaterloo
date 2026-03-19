@@ -204,6 +204,15 @@
   bottom: 0;
 }
 
+/* Hover — lines spread apart */
+.menuButton:hover .menuIcon:not(.menuIconOpen) span:first-child {
+  top: -3px;
+}
+
+.menuButton:hover .menuIcon:not(.menuIconOpen) span:last-child {
+  bottom: -3px;
+}
+
 /* Middle line merges into top — same rotation, moves to center */
 .menuIconOpen .menuIconMiddle {
   top: 6px;

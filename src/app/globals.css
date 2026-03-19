@@ -337,6 +337,15 @@ a:hover {
   color: var(--link-hover);
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+  background: none;
+}
+
+button:hover {
+  background: none;
+}
+
 /* Dark theme variant */
 .dark {
   --background: var(--black);

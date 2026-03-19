@@ -256,14 +256,14 @@ export default function CursorFollower() {
         label.classList.remove(styles.labelVisible);
         label.textContent = "";
         if (state === "button") {
-          dot.style.width = "32px";
-          base.style.width = "32px";
+          dot.style.width = "40px";
+          base.style.width = "40px";
         } else if (state === "reading-text") {
           dot.style.width = "14px";
           base.style.width = "14px";
         } else {
-          dot.style.width = "20px";
-          base.style.width = "20px";
+          dot.style.width = "28px";
+          base.style.width = "28px";
         }
       }
     };
