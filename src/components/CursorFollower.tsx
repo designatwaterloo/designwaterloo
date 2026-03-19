@@ -155,6 +155,7 @@ function detectState(
 }
 
 export default function CursorFollower() {
+  const baseRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const textBubbleRef = useRef<HTMLDivElement>(null);
@@ -167,11 +168,12 @@ export default function CursorFollower() {
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
+    const base = baseRef.current;
     const dot = dotRef.current;
     const label = labelRef.current;
     const textBubble = textBubbleRef.current;
     const textBubbleLabel = textBubbleLabelRef.current;
-    if (!dot || !label || !textBubble || !textBubbleLabel) return;
+    if (!base || !dot || !label || !textBubble || !textBubbleLabel) return;
 
     const hideTextBubble = () => {
       textBubble.classList.remove(styles.textBubbleVisible);
@@ -190,13 +192,19 @@ export default function CursorFollower() {
 
       // Remove old state class
       const oldClass = stateClassMap[currentState.current];
-      if (oldClass) dot.classList.remove(oldClass);
+      if (oldClass) {
+        dot.classList.remove(oldClass);
+        base.classList.remove(oldClass);
+      }
 
       currentState.current = state;
 
       // Add new state class
       const newClass = stateClassMap[state];
-      if (newClass) dot.classList.add(newClass);
+      if (newClass) {
+        dot.classList.add(newClass);
+        base.classList.add(newClass);
+      }
 
       // Hide text bubble unless text state
       if (state !== "text") {
@@ -208,6 +216,7 @@ export default function CursorFollower() {
         label.classList.remove(styles.labelVisible);
         label.textContent = "";
         dot.style.width = "2px";
+        base.style.width = "2px";
 
         if (labelText) {
           textBubbleLabel.textContent = labelText;
@@ -239,6 +248,7 @@ export default function CursorFollower() {
         label.style.display = "";
 
         dot.style.width = `${textWidth}px`;
+        base.style.width = `${textWidth}px`;
         requestAnimationFrame(() => {
           label.classList.add(styles.labelVisible);
         });
@@ -247,10 +257,13 @@ export default function CursorFollower() {
         label.textContent = "";
         if (state === "button") {
           dot.style.width = "32px";
+          base.style.width = "32px";
         } else if (state === "reading-text") {
           dot.style.width = "14px";
+          base.style.width = "14px";
         } else {
           dot.style.width = "20px";
+          base.style.width = "20px";
         }
       }
     };
@@ -264,6 +277,7 @@ export default function CursorFollower() {
         pos.current.x = e.clientX;
         pos.current.y = e.clientY;
         dot.style.opacity = "1";
+        base.style.opacity = "1";
       }
 
       const { state, label: labelText } = detectState(e.target);
@@ -273,6 +287,7 @@ export default function CursorFollower() {
     const handleMouseLeave = () => {
       visible.current = false;
       dot.style.opacity = "0";
+      base.style.opacity = "0";
       hideTextBubble();
     };
 
@@ -287,6 +302,7 @@ export default function CursorFollower() {
         label.textContent = "Copied!";
         const w = label.scrollWidth;
         dot.style.width = `${w}px`;
+        base.style.width = `${w}px`;
       });
     };
 
@@ -296,7 +312,9 @@ export default function CursorFollower() {
     const tick = () => {
       pos.current.x += (mouse.current.x - pos.current.x) * lerp;
       pos.current.y += (mouse.current.y - pos.current.y) * lerp;
-      dot.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%)`;
+      const t = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%)`;
+      base.style.transform = t;
+      dot.style.transform = t;
       // Position text bubble above cursor
       textBubble.style.transform = `translate(${pos.current.x}px, ${pos.current.y - 24}px) translate(-50%, -100%)`;
       raf = requestAnimationFrame(tick);
@@ -317,6 +335,7 @@ export default function CursorFollower() {
 
   return (
     <>
+      <div ref={baseRef} className={styles.cursorBase} aria-hidden />
       <div ref={dotRef} className={styles.cursor} aria-hidden>
         <span ref={labelRef} className={styles.label} />
       </div>

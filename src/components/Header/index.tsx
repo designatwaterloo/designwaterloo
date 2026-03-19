@@ -19,7 +19,7 @@ export default function Header() {
     hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
 
   const reviewStatus = (member?.review_status ?? "draft") as ReviewStatus;
-  const showBadge = hasProfile && reviewStatus !== "approved";
+  const showBadge = hasProfile && reviewStatus === "pending_review";
 
   // Close menu on Esc key press
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function Header() {
       </header>
 
       {/* Profile button — no blend mode, renders photo normally */}
-      <div className={[styles.profileBar, isNavOpen ? styles.actionBarOpen : '', hasProfile && member?.profile_image_url ? '' : styles.profileBarBlend].filter(Boolean).join(' ')}>
+      <div className={[styles.profileBar, isNavOpen ? styles.profileBarHidden : '', hasProfile && member?.profile_image_url ? '' : styles.profileBarBlend].filter(Boolean).join(' ')}>
         <Link
           href={
             hasProfile

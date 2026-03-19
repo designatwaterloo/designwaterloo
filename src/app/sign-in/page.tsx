@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { isLaurierEmail } from "@/lib/supabase/auth-utils";
+import { isLaurierEmail, getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import { useSearchParams } from "next/navigation";
 import { useTransition } from "@/context/TransitionContext";
 import Header from "@/components/Header";
@@ -97,6 +97,54 @@ function SignInContent() {
       }
       startTransition(`/directory/${existingByEmail.slug}`);
       return;
+    }
+
+    // No existing profile — create draft member (same as OAuth callback)
+    if (!member && !existingByEmail) {
+      try {
+        const email = user.email!;
+        const school = getSchoolFromEmail(email);
+        const emailPrefix = email.split("@")[0].replace(/\./g, "-");
+        const baseSlug = generateSlug(emailPrefix, "");
+
+        // Check slug availability
+        let finalSlug = baseSlug || "member";
+        const { data: slugTaken } = await supabase
+          .from("members")
+          .select("slug")
+          .eq("slug", finalSlug)
+          .maybeSingle();
+
+        if (slugTaken) {
+          const { data: similar } = await supabase
+            .from("members")
+            .select("slug")
+            .like("slug", `${finalSlug}%`);
+
+          const escaped = finalSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const pattern = new RegExp(`^${escaped}-(\\d+)$`);
+          let maxN = 0;
+          for (const s of (similar || []) as { slug: string }[]) {
+            const m = s.slug.match(pattern);
+            if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
+          }
+          finalSlug = `${finalSlug}-${maxN + 1}`;
+        }
+
+        await supabase.from("members").insert({
+          auth_user_id: user.id,
+          first_name: null,
+          last_name: null,
+          slug: finalSlug,
+          school_email: email,
+          school,
+          onboarding_completed: false,
+          is_approved: false,
+          review_status: "draft",
+        } as never);
+      } catch (err) {
+        console.error("Failed to create draft member for OTP user:", err);
+      }
     }
 
     startTransition("/profile/edit");

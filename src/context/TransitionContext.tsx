@@ -36,9 +36,21 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
           router.push(nextHref);
           setIsWaitingForPush(false);
         }
-      }, 1200); 
+      }, 1200);
 
-      return () => clearTimeout(timer);
+      // Safety: if we're still in "entering" after 5s, force reset
+      // (handles cases where middleware redirects elsewhere and pathname never matches)
+      const safetyTimer = setTimeout(() => {
+        setStage("idle");
+        setNextHref(null);
+        setIsWaitingForPush(false);
+        document.body.style.cursor = "";
+      }, 5000);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(safetyTimer);
+      };
     }
   }, [stage, nextHref, router]);
 

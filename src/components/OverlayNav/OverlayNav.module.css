@@ -87,8 +87,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap);
-  align-items: flex-start;
-  flex: 0 1 auto;
+  align-items: stretch;
+  flex: 1 1 auto;
 }
 
 /* Mobile: single row, fixed header height (0-768px) */
@@ -102,10 +102,12 @@
   }
 }
 
-/* Left side - Logo */
+/* Left side - Logo + user info */
 .logoSection {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
+  height: 100%;
 }
 
 /* Mobile: Keep logo at top left (0-768px) */
@@ -264,6 +266,52 @@
   color: grey;
 }
 
+/* Overlay profile button — mirrors header position, animates with nav */
+.overlayProfileButton {
+  position: fixed;
+  top: var(--margin);
+  right: calc(var(--margin) + 56px);
+  z-index: 1001;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.overlayProfileOpening {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.7s;
+}
+
+.overlayProfileClosing {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition-delay: 0s;
+  transition-duration: 0.15s;
+}
+
+.overlayProfileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+}
+
+/* Mobile: match header position */
+@media (max-width: 768px) {
+  .overlayProfileButton {
+    top: 0;
+    height: var(--header-height);
+    right: calc(var(--margin) + 42px);
+    display: flex;
+    align-items: center;
+  }
+}
+
 /* Style for button nav items */
 .navButton {
   background: none;
@@ -271,4 +319,64 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+}
+
+/* User info in left column */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: var(--tinier);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.userInfoOpening {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.8s;
+}
+
+.userInfoClosing {
+  opacity: 0;
+  transform: translateY(10px);
+  transition-delay: 0s;
+  transition-duration: 0.2s;
+}
+
+.userName {
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -0.96px;
+  color: var(--white);
+}
+
+@media (max-width: 768px) {
+  .userName {
+    font-size: 42px;
+  }
+}
+
+.userLinks {
+  display: flex;
+  gap: 16px;
+}
+
+.userLink {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.userLink:hover {
+  color: var(--white);
+}
+
+/* Hide user info on mobile — shown via nav items instead */
+@media (max-width: 768px) {
+  .userInfo {
+    display: none;
+  }
 }

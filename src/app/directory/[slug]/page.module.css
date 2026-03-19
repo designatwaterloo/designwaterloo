@@ -370,7 +370,7 @@
 }
 
 .rejectionLink {
-  color: var(--blue);
+  color: var(--foreground);
   text-decoration: underline;
   text-underline-offset: 2px;
 }

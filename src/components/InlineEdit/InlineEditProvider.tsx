@@ -76,6 +76,8 @@ interface InlineEditContextType {
   reviewStatus: ReviewStatus;
   /** Update a flat field */
   setField: <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => void;
+  /** Update a field that was already persisted server-side (e.g. image upload). Flashes the save toast. */
+  setFieldPersisted: <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => void;
   /** Replace the entire experiences list */
   setExperiences: (entries: ExperienceEntry[]) => void;
   /** Replace the entire leadership list */
@@ -145,6 +147,18 @@ export function InlineEditProvider({
   const setField = useCallback(
     <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => {
       setFields((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
+  const setFieldPersisted = useCallback(
+    <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => {
+      setFields((prev) => ({ ...prev, [key]: value }));
+      savedFields.current = { ...savedFields.current, [key]: value };
+      // Flash the save toast
+      setSavedRecently(true);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSavedRecently(false), 3000);
     },
     []
   );
@@ -345,6 +359,7 @@ export function InlineEditProvider({
         saveError,
         reviewStatus,
         setField,
+        setFieldPersisted,
         setExperiences,
         setLeadership,
         save,

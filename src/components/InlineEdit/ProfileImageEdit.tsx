@@ -8,7 +8,7 @@ import styles from "./InlineEdit.module.css";
 import pageStyles from "@/app/directory/[slug]/page.module.css";
 
 export default function ProfileImageEdit() {
-  const { isOwner, editMode, fields, setField } = useInlineEdit();
+  const { isOwner, editMode, fields, setFieldPersisted } = useInlineEdit();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export default function ProfileImageEdit() {
 
       if (!response.ok) throw new Error(data.error || "Upload failed");
 
-      setField("profile_image_url", data.imageUrl);
+      setFieldPersisted("profile_image_url", data.imageUrl);
       setPreviewUrl(data.imageUrl);
     } catch (err) {
       console.error("Upload failed:", err);

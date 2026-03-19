@@ -35,7 +35,7 @@ html {
   --background: var(--white);
   --foreground: var(--black);
   --muted: rgba(14, 14, 14, 0.22);
-  --link-hover: var(--blue);
+  --link-hover: var(--foreground);
 
   /* Semantic tokens */
   --border: rgba(14, 14, 14, 0.15);
@@ -121,7 +121,7 @@ html {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-accent: var(--blue);
+  --color-accent: var(--foreground);
   --color-muted-text: var(--muted-text);
   --color-muted-light: var(--muted-light);
   --color-border: var(--border);

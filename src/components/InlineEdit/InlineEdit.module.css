@@ -132,7 +132,7 @@
 }
 
 .suggestionCreate {
-  color: var(--blue);
+  color: var(--foreground);
   font-weight: 500;
   border-top: 1px solid var(--muted);
 }
@@ -233,19 +233,20 @@
   gap: 5px;
   padding: 4px 12px;
   background: var(--background);
-  color: var(--blue);
-  border: 1px solid var(--blue);
+  color: var(--foreground);
+  border: 1px solid var(--muted);
   border-radius: var(--radius-full);
   font: inherit;
   font-size: 14px;
   line-height: 1.25rem;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   animation: pillIn 0.2s ease;
 }
 
 .addSkillPill:hover {
-  background-color: color-mix(in srgb, var(--blue) 8%, transparent);
+  background-color: var(--hover-bg);
+  border-color: var(--foreground);
 }
 
 /* ===== Dynamic Island Toast ===== */
@@ -580,7 +581,7 @@
   padding: 6px 0;
   font: inherit;
   font-size: inherit;
-  color: var(--blue);
+  color: var(--foreground);
   background: transparent;
   border: none;
   cursor: pointer;
