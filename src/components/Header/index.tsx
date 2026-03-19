@@ -6,10 +6,12 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
+import ProfileDropdown from "../ProfileDropdown";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { user, member } = useAuth();
   const hasProfile = !!(user && member);
   const avatarSrc =
@@ -30,10 +32,11 @@ export default function Header() {
     };
   }, [isNavOpen]);
 
-  // Close menu on route change
+  // Close menus on route change
   const pathname = usePathname();
   useEffect(() => {
     setIsNavOpen(false);
+    setIsProfileDropdownOpen(false);
   }, [pathname]);
 
   return (
@@ -66,14 +69,10 @@ export default function Header() {
             />
           </Link>
           <div className={`${styles.headerActions} col-start-11 col-span-2`}>
-            <Link
-              href={
-                hasProfile
-                  ? `/directory/${member!.slug}`
-                  : "/sign-in"
-              }
+            <button
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
               className={`btn-menu ${styles.primaryButton}`}
-              aria-label={hasProfile ? "View your profile" : "Sign in"}
+              aria-label={hasProfile ? "Profile menu" : "Sign in"}
             >
               <Image
                 src={avatarSrc}
@@ -81,7 +80,7 @@ export default function Header() {
                 width={20}
                 height={20}
               />
-            </Link>
+            </button>
             <button
               onClick={() => setIsNavOpen(true)}
               className={`btn-menu ${styles.menuButton}`}
@@ -98,6 +97,12 @@ export default function Header() {
 
       {/* Full-screen Overlay Navigation */}
       <OverlayNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />
+
+      {/* Profile Dropdown */}
+      <ProfileDropdown
+        isOpen={isProfileDropdownOpen}
+        onClose={() => setIsProfileDropdownOpen(false)}
+      />
     </>
   );
 }

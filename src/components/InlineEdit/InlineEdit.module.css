@@ -232,6 +232,7 @@
   border-radius: var(--radius-full);
   font: inherit;
   font-size: 14px;
+  line-height: 1.25rem;
   cursor: pointer;
   transition: background-color 0.15s ease;
   animation: pillIn 0.2s ease;

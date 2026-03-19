@@ -162,7 +162,10 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
 
   const isEntryComplete = (entry: Entry) => {
     const org = getOrg(entry);
-    return !!entry.positionTitle?.trim() && !!org.trim();
+    const hasBasicInfo = !!entry.positionTitle?.trim() && !!org.trim();
+    // For incoming entries, only require year. For others, require both month and year.
+    const hasDateInfo = entry.isIncoming ? !!entry.startYear : (!!entry.startMonth && !!entry.startYear);
+    return hasBasicInfo && hasDateInfo;
   };
 
   const canAdd = entries.every(isEntryComplete);

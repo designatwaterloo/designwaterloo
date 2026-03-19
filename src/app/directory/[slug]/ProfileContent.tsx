@@ -24,19 +24,19 @@ import editStyles from "@/components/InlineEdit/InlineEdit.module.css";
 
 // ===== All known specialties for suggestions =====
 const ALL_SPECIALTIES = [
-  "UI design",
-  "UX design",
-  "Product design",
-  "Interaction design",
-  "Visual design",
-  "Design systems",
+  "UI Design",
+  "UX Design",
+  "Product Design",
+  "Interaction Design",
+  "Visual Design",
+  "Design Systems",
   "Prototyping",
-  "UX research",
-  "Content design",
-  "Brand design",
-  "Motion design",
-  "Information architecture",
-  "Service design",
+  "UX Research",
+  "Content Design",
+  "Brand Design",
+  "Motion Design",
+  "Information Architecture",
+  "Service Design",
 ];
 
 // ===== Generate term code suggestions (next ~8 terms) =====
