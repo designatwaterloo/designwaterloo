@@ -8,6 +8,7 @@ import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
 import ProfileDropdown from "../ProfileDropdown";
 import { useAuth } from "@/components/auth/AuthProvider";
+import type { ReviewStatus } from "@/types/database";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -16,6 +17,9 @@ export default function Header() {
   const hasProfile = !!(user && member);
   const avatarSrc =
     hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
+
+  const reviewStatus = (member?.review_status ?? "draft") as ReviewStatus;
+  const showBadge = hasProfile && reviewStatus !== "approved";
 
   // Close menu on Esc key press
   useEffect(() => {
@@ -39,6 +43,15 @@ export default function Header() {
     setIsProfileDropdownOpen(false);
   }, [pathname]);
 
+  // Badge label for desktop
+  const badgeLabel = reviewStatus === "pending_review" ? "Under review" : "Unsubmitted";
+
+  // Ring color class for mobile
+  const ringClass =
+    reviewStatus === "pending_review"
+      ? styles.profileRingPending
+      : styles.profileRingUnsubmitted;
+
   return (
     <>
       {/* Sticky Header Grid Container */}
@@ -55,10 +68,7 @@ export default function Header() {
               priority
             />
           </Link>
-          <Link
-            href="/"
-            className={`${styles.headerLogo} col-start-3 col-span-1`}
-          >
+          <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
             <Image
               src="/Design Waterloo Logo.svg"
               alt="Design Waterloo"
@@ -94,6 +104,49 @@ export default function Header() {
           </div>
         </div>
       </header>
+        </div>
+      </header>
+
+      {/* Profile button — no blend mode, renders photo normally */}
+      <div className={[styles.profileBar, isNavOpen ? styles.actionBarOpen : '', hasProfile && member?.profile_image_url ? '' : styles.profileBarBlend].filter(Boolean).join(' ')}>
+        <Link
+          href={
+            hasProfile
+              ? "/dashboard"
+              : "/sign-in"
+          }
+          className={`${styles.primaryButton} ${showBadge ? ringClass : ""}`}
+          aria-label={hasProfile ? "Your dashboard" : "Sign in"}
+        >
+          <Image
+            src={avatarSrc}
+            alt={hasProfile ? "Your profile" : "Sign in"}
+            width={20}
+            height={20}
+          />
+        </Link>
+        {/* Desktop status badge */}
+        {showBadge && (
+          <Link href="/dashboard" className={styles.statusPill}>
+            {badgeLabel}
+          </Link>
+        )}
+      </div>
+
+      {/* Menu button — separate element so blend mode composites against the page */}
+      <button
+        onClick={() => setIsNavOpen(!isNavOpen)}
+        className={`${styles.menuButton} ${isNavOpen ? styles.menuButtonOpen : ''}`}
+        aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
+        data-cursor="menu"
+        data-cursor-label="Menu"
+      >
+        <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
+          <span></span>
+          <span className={styles.menuIconMiddle}></span>
+          <span></span>
+        </div>
+      </button>
 
       {/* Full-screen Overlay Navigation */}
       <OverlayNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />

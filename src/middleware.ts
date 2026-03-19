@@ -2,7 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
 
-const PROTECTED_PATHS = ["/onboarding", "/profile", "/pending-approval"];
+const PROTECTED_PATHS = ["/onboarding", "/profile", "/pending-approval", "/dashboard"];
+const ONBOARDING_REDIRECT = "/profile/edit";
 const ADMIN_PATHS = ["/admin"];
 const AUTH_PATHS = ["/sign-in"];
 
@@ -62,11 +63,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Fetch member data once for all subsequent checks
-  let member: { slug: string; onboarding_completed: boolean; is_admin: boolean } | null = null;
+  let member: { slug: string; onboarding_completed: boolean; is_admin: boolean; review_status: string } | null = null;
   if (user && (isAuthPath || isAdminPath || isProtectedPath)) {
     const { data } = await supabase
       .from("members")
-      .select("slug, onboarding_completed, is_admin")
+      .select("slug, onboarding_completed, is_admin, review_status")
       .eq("auth_user_id", user.id)
       .maybeSingle();
     member = data;
@@ -75,11 +76,21 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from auth pages
   if (isAuthPath && user) {
     if (!member || !member.onboarding_completed) {
-      return NextResponse.redirect(new URL("/onboarding", request.url));
+      return NextResponse.redirect(new URL(ONBOARDING_REDIRECT, request.url));
     }
     return NextResponse.redirect(
-      new URL(`/directory/${member.slug}`, request.url)
+      new URL("/dashboard", request.url)
     );
+  }
+
+  // Redirect /onboarding to /profile/edit
+  if (pathname === "/onboarding" && user) {
+    return NextResponse.redirect(new URL(ONBOARDING_REDIRECT, request.url));
+  }
+
+  // Redirect completed users away from onboarding
+  if (pathname === ONBOARDING_REDIRECT && user && member?.onboarding_completed) {
+    return NextResponse.redirect(new URL(`/dashboard`, request.url));
   }
 
   // Check admin access
@@ -87,10 +98,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Redirect to onboarding if user hasn't completed it
-  if (user && isProtectedPath && pathname !== "/onboarding") {
+  // Redirect to profile setup if user hasn't completed onboarding
+  if (user && isProtectedPath && pathname !== "/onboarding" && pathname !== ONBOARDING_REDIRECT) {
     if (!member || !member.onboarding_completed) {
-      return NextResponse.redirect(new URL("/onboarding", request.url));
+      return NextResponse.redirect(new URL(ONBOARDING_REDIRECT, request.url));
     }
   }
 

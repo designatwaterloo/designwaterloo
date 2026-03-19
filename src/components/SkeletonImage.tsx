@@ -5,11 +5,13 @@ import Image, { ImageProps } from "next/image";
 
 type SkeletonImageProps = Omit<ImageProps, "placeholder" | "blurDataURL" | "onLoad"> & {
   skeletonClassName?: string;
+  wrapperClassName?: string;
 };
 
 export default function SkeletonImage({
   className = "",
   skeletonClassName,
+  wrapperClassName,
   style,
   alt,
   width,
@@ -24,21 +26,36 @@ export default function SkeletonImage({
     (width && height ? `${width} / ${height}` : undefined);
 
   return (
-    <div className="relative" style={{ aspectRatio }}>
+    <div
+      className={`relative overflow-hidden ${wrapperClassName ?? ""}`}
+      style={{ aspectRatio }}
+    >
+      {/* Skeleton pulse — visible until image loads */}
       {!loaded && (
         <div
-          className={`absolute inset-0 animate-pulse rounded ${skeletonClassName ?? "bg-skeleton"}`}
+          className={`absolute inset-0 animate-pulse ${skeletonClassName ?? "bg-skeleton"}`}
         />
       )}
+
       <Image
         {...props}
         alt={alt}
         width={width}
         height={height}
-        className={`${className} transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={className}
         style={style}
         onLoad={() => setLoaded(true)}
       />
+
+      {/* Black wipe overlay — covers image, then sweeps down to reveal */}
+      {loaded && (
+        <div
+          className="absolute inset-0 bg-skeleton"
+          style={{
+            animation: "wipeReveal 0.8s cubic-bezier(0.76, 0, 0.24, 1) forwards",
+          }}
+        />
+      )}
     </div>
   );
 }

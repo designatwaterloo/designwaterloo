@@ -1,12 +1,35 @@
 "use client";
 
 import { useInlineEdit } from "./InlineEditProvider";
+import type { ReviewStatus } from "@/types/database";
 import styles from "./InlineEdit.module.css";
 
-export default function DynamicIslandToast() {
-  const { editMode, setEditMode, isDirty, saving, savedRecently, save, discard } = useInlineEdit();
+interface DynamicIslandToastProps {
+  reviewStatus?: ReviewStatus;
+  onSubmitForReview?: () => void;
+}
+
+export default function DynamicIslandToast({
+  reviewStatus = "approved",
+  onSubmitForReview,
+}: DynamicIslandToastProps) {
+  const { editMode, setEditMode, isDirty, saving, savedRecently, saveError, save, discard } =
+    useInlineEdit();
 
   const visible = editMode || savedRecently;
+
+  const isDraftOrRejected = reviewStatus === "draft" || reviewStatus === "rejected";
+  const isPending = reviewStatus === "pending_review";
+
+  // Success message varies by status
+  const successMessage = isDraftOrRejected
+    ? "Draft saved"
+    : isPending
+      ? "Changes saved"
+      : "Changes saved";
+
+  // Save button label varies by status
+  const saveLabel = isDraftOrRejected ? "Save draft" : "Save changes";
 
   return (
     <div
@@ -32,12 +55,12 @@ export default function DynamicIslandToast() {
               strokeLinejoin="round"
             />
           </svg>
-          <span className={styles.toastLabel}>Changes saved</span>
+          <span className={styles.toastLabel}>{successMessage}</span>
         </>
       ) : isDirty ? (
         <>
           <span className={styles.toastLabel}>
-            {saving ? "Saving..." : "Unsaved changes"}
+            {saving ? "Saving..." : saveError ? `Error: ${saveError}` : "Unsaved changes"}
           </span>
           <div className={styles.toastActions}>
             <button
@@ -54,21 +77,51 @@ export default function DynamicIslandToast() {
               onClick={save}
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save changes"}
+              {saving ? "Saving..." : saveLabel}
             </button>
+            {isDraftOrRejected && onSubmitForReview && (
+              <button
+                type="button"
+                className={styles.toastSave}
+                onClick={onSubmitForReview}
+                disabled={saving}
+              >
+                Submit for review
+              </button>
+            )}
           </div>
         </>
       ) : (
         <>
-          <span className={styles.toastLabel}>Editing profile</span>
+          <span className={styles.toastLabel}>
+            {isDraftOrRejected ? "Editing draft" : "Editing profile"}
+          </span>
           <div className={styles.toastActions}>
             <button
               type="button"
-              className={styles.toastSave}
+              className={styles.toastDiscard}
               onClick={() => setEditMode(false)}
             >
               Done
             </button>
+            {isDraftOrRejected && onSubmitForReview && (
+              <button
+                type="button"
+                className={styles.toastSave}
+                onClick={onSubmitForReview}
+              >
+                Submit for review
+              </button>
+            )}
+            {!isDraftOrRejected && (
+              <button
+                type="button"
+                className={styles.toastSave}
+                onClick={() => setEditMode(false)}
+              >
+                Done
+              </button>
+            )}
           </div>
         </>
       )}

@@ -1,0 +1,137 @@
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: white;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  opacity: 0;
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    width 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    height 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    border-radius 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+@media (pointer: coarse) {
+  .cursor {
+    display: none;
+  }
+}
+
+.label {
+  color: black;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  padding: 0 10px;
+}
+
+.labelVisible {
+  opacity: 1;
+}
+
+/* External link pill */
+.externalLink {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Internal link pill */
+.internalLink {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Copy email pill */
+.copyEmail {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Menu pill */
+.menu {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Nav pill */
+.nav {
+  height: 32px;
+  border-radius: 999px;
+}
+
+/* Button expand */
+.button {
+  width: 32px;
+  height: 32px;
+}
+
+/* Grid/table item pill */
+.gridItem {
+  height: 28px;
+  border-radius: 999px;
+}
+
+/* Text input cursor */
+.text {
+  width: 2px !important;
+  height: 20px;
+  border-radius: 1px;
+}
+
+/* Reading text — slight shrink for precision */
+.readingText {
+  width: 14px;
+  height: 14px;
+}
+
+/* Text input label bubble — floats above the caret */
+.textBubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  height: 24px;
+  border-radius: 6px;
+  background-color: black;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  transition:
+    width 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.15s ease;
+}
+
+.textBubbleVisible {
+  opacity: 1;
+}
+
+.textBubbleLabel {
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+  padding: 0 10px;
+  white-space: nowrap;
+}

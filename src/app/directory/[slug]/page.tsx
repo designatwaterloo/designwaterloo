@@ -13,7 +13,9 @@ import { notFound } from "next/navigation";
 import { getNextAvailableTerm, getTermsWithStatus } from "@/lib/termUtils";
 import type { Metadata } from "next";
 import ProfileContent from "./ProfileContent";
+import AdminReviewBar from "@/components/AdminReviewBar";
 import type { EditableFields, ExperienceEntry, LeadershipEntry } from "@/components/InlineEdit";
+import { PROGRAMS } from "@/data/programs";
 
 export const revalidate = 30;
 
@@ -95,7 +97,8 @@ export default async function PersonDetail({
     notFound();
   }
 
-  // Only allow the member themselves or an admin to view unapproved profiles
+  // Only allow the member themselves or an admin to view unapproved / non-approved profiles
+  let isAdminPreview = false;
   if (!member.is_approved) {
     const { data: { user } } = await supabase.auth.getUser();
     const isOwner = user && member.auth_user_id === user.id;
@@ -111,21 +114,14 @@ export default async function PersonDetail({
     if (!isOwner && !isAdmin) {
       notFound();
     }
+    // Admin preview only for pending_review profiles
+    isAdminPreview = isAdmin && member.review_status === "pending_review";
   }
 
   const nextAvailableTerm = getNextAvailableTerm(member.work_schedule);
   const allTerms = getTermsWithStatus(member.work_schedule);
 
-  // Fetch distinct programs for autocomplete suggestions
-  const { data: programRows } = (await supabase
-    .from("members")
-    .select("program")
-    .not("program", "is", null)
-    .eq("onboarding_completed", true)) as { data: { program: string }[] | null };
-
-  const programSuggestions = [
-    ...new Set((programRows || []).map((r) => r.program).filter(Boolean)),
-  ].sort();
+  const programSuggestions = PROGRAMS[member.school ?? ""] ?? [];
 
   // Map to inline-edit shapes
   const initialFields: EditableFields = {
@@ -168,15 +164,20 @@ export default async function PersonDetail({
       <Header />
 
       <main className="w-full">
-        <Link href="/directory" className={styles.backButton}>
-          ← Back to directory
-        </Link>
+        {member.is_approved && (
+          <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton}>
+            ← Back to {isAdminPreview ? "admin" : "directory"}
+          </Link>
+        )}
         <ProfileContent
           memberSlug={member.slug}
           firstName={member.first_name}
           lastName={member.last_name}
           school={member.school}
           publicEmail={member.public_email}
+          isApproved={member.is_approved}
+          reviewStatus={member.review_status}
+          rejectionFeedback={member.rejection_feedback}
           nextAvailableTerm={nextAvailableTerm}
           allTerms={allTerms}
           initialFields={initialFields}
@@ -187,6 +188,13 @@ export default async function PersonDetail({
       </main>
 
       <Footer />
+
+      {isAdminPreview && (
+        <AdminReviewBar
+          memberId={member.id}
+          memberName={`${member.first_name} ${member.last_name}`}
+        />
+      )}
     </div>
   );
 }

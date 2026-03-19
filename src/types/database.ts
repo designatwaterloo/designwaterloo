@@ -36,6 +36,10 @@ export interface Database {
           onboarding_completed: boolean;
           is_approved: boolean;
           is_admin: boolean;
+          review_status: "draft" | "pending_review" | "approved" | "rejected";
+          rejection_feedback: string | null;
+          rejected_at: string | null;
+          submitted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -68,6 +72,10 @@ export interface Database {
           onboarding_completed?: boolean;
           is_approved?: boolean;
           is_admin?: boolean;
+          review_status?: "draft" | "pending_review" | "approved" | "rejected";
+          rejection_feedback?: string | null;
+          rejected_at?: string | null;
+          submitted_at?: string | null;
         };
         Update: {
           id?: string;
@@ -98,6 +106,10 @@ export interface Database {
           onboarding_completed?: boolean;
           is_approved?: boolean;
           is_admin?: boolean;
+          review_status?: "draft" | "pending_review" | "approved" | "rejected";
+          rejection_feedback?: string | null;
+          rejected_at?: string | null;
+          submitted_at?: string | null;
         };
         Relationships: [];
       };
@@ -166,6 +178,9 @@ export interface Database {
     };
   };
 }
+
+// Review status
+export type ReviewStatus = "draft" | "pending_review" | "approved" | "rejected";
 
 // Convenience types
 export type Member = Database["public"]["Tables"]["members"]["Row"];

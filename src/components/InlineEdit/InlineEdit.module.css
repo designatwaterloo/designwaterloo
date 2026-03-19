@@ -109,6 +109,7 @@
   margin-top: 4px;
   max-height: 200px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   animation: fadeSlideIn 0.15s ease;
 }
 
@@ -162,6 +163,11 @@
   font-size: 14px;
   line-height: 1.25rem;
   animation: pillIn 0.2s ease;
+}
+
+.pillPast {
+  opacity: 0.35;
+  text-decoration: line-through;
 }
 
 @keyframes pillIn {
@@ -249,7 +255,7 @@
   bottom: -80px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
+  z-index: 1500;
   display: flex;
   align-items: center;
   gap: 16px;

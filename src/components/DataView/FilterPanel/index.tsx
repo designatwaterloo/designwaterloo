@@ -105,7 +105,7 @@ export default function FilterPanel<T>({
               ×
             </button>
           </div>
-          <div className={styles.panelContent}>{content}</div>
+          <div className={styles.panelContent} data-lenis-prevent>{content}</div>
         </div>
       </>
     );

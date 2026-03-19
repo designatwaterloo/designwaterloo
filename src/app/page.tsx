@@ -3,15 +3,22 @@ import Footer from "@/components/Footer";
 import Button from "@/components/Button";
 import Link from "@/components/Link";
 import SkeletonImage from "@/components/SkeletonImage";
-import { client } from "@/sanity/lib/client";
-import { Member } from "@/sanity/types";
-import { membersQuery } from "@/sanity/queries";
-import { urlFor } from "@/sanity/lib/image";
+import ScrollReveal from "@/components/ScrollReveal";
+import { createClient } from "@/lib/supabase/server";
+import { Member } from "@/types/database";
 
-const options = { next: { revalidate: 30 } };
+export const revalidate = 30;
 
 export default async function Home() {
-  const allMembers = await client.fetch<Member[]>(membersQuery, {}, options);
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("members")
+    .select("id, member_id, first_name, last_name, slug, profile_image_url")
+    .eq("onboarding_completed", true)
+    .eq("is_approved", true);
+
+  const allMembers = (data || []) as Pick<Member, "id" | "member_id" | "first_name" | "last_name" | "slug" | "profile_image_url">[];
 
   // Show random 24 members (will be different on each build)
   const members = allMembers
@@ -93,25 +100,28 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-8 gap-[var(--gap)] w-full max-lg:grid-cols-4">
-            {members.map((member) => (
-              <Link 
-                key={member._id}
-                href={`/directory/${member.slug.current}`}
-                className="group"
-                underline={false}
-              >
-                {member.profileImage ? (
-                  <SkeletonImage
-                    src={urlFor(member.profileImage).width(400).height(500).url()}
-                    alt={`${member.firstName} ${member.lastName}`}
-                    width={400}
-                    height={500}
-                    className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
-                  />
-                ) : (
-                  <div className="aspect-[4/5] bg-skeleton rounded" />
-                )}
-              </Link>
+            {members.map((member, index) => (
+              <ScrollReveal key={member.id} index={index}>
+                <Link
+                  href={`/directory/${member.slug}`}
+                  className="group"
+                  underline={false}
+                  data-cursor="internal-link"
+                  data-cursor-label={`${member.first_name} ${member.last_name} →`}
+                >
+                  {member.profile_image_url ? (
+                    <SkeletonImage
+                      src={member.profile_image_url}
+                      alt={`${member.first_name} ${member.last_name}`}
+                      width={400}
+                      height={500}
+                      className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300"
+                    />
+                  ) : (
+                    <div className="aspect-[4/5] bg-skeleton rounded" />
+                  )}
+                </Link>
+              </ScrollReveal>
             ))}
           </div>
 

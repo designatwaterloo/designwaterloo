@@ -26,6 +26,7 @@ export function generateSlug(firstName: string, lastName: string): string {
   const base = `${firstName}-${lastName}`
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-");
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
   return base;
 }

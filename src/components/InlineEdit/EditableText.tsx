@@ -9,6 +9,8 @@ interface EditableTextProps {
   field: keyof EditableFields;
   placeholder?: string;
   suggestions?: string[];
+  /** When true, value must be from suggestions list */
+  strict?: boolean;
   multiline?: boolean;
   maxLength?: number;
   className?: string;
@@ -18,6 +20,7 @@ export default function EditableText({
   field,
   placeholder = "Click to add...",
   suggestions,
+  strict = false,
   multiline = false,
   maxLength,
   className,
@@ -25,6 +28,7 @@ export default function EditableText({
   const { isOwner, editMode, fields, setField } = useInlineEdit();
   const [editing, setEditing] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -42,8 +46,13 @@ export default function EditableText({
         el.style.height = "auto";
         el.style.height = `${el.scrollHeight}px`;
       }
+      // In strict mode, show all options immediately and reset search
+      if (strict) {
+        setSearchValue("");
+        setShowSuggestions(true);
+      }
     }
-  }, [editing, multiline]);
+  }, [editing, multiline, strict]);
 
   // Auto-resize textarea as content changes
   useEffect(() => {
@@ -72,8 +81,9 @@ export default function EditableText({
   }
 
   // Filtered suggestions
+  const filterTerm = strict ? searchValue : value;
   const filtered = suggestions?.filter(
-    (s) => s.toLowerCase().includes(value.toLowerCase()) && s !== value
+    (s) => s.toLowerCase().includes(filterTerm.toLowerCase()) && s !== value
   );
 
   if (!editing) {
@@ -94,11 +104,17 @@ export default function EditableText({
 
   const handleChange = (val: string) => {
     if (maxLength && val.length > maxLength) return;
-    setField(field, val || null);
-    if (suggestions && val.length > 0) {
+    if (strict) {
+      // In strict mode, update search text but don't set the field directly
+      setSearchValue(val);
       setShowSuggestions(true);
     } else {
-      setShowSuggestions(false);
+      setField(field, val || null);
+      if (suggestions && val.length > 0) {
+        setShowSuggestions(true);
+      } else {
+        setShowSuggestions(false);
+      }
     }
   };
 
@@ -107,6 +123,7 @@ export default function EditableText({
     setTimeout(() => {
       setEditing(false);
       setShowSuggestions(false);
+      setSearchValue("");
     }, 150);
   };
 
@@ -114,16 +131,25 @@ export default function EditableText({
     if (e.key === "Escape") {
       setEditing(false);
       setShowSuggestions(false);
+      setSearchValue("");
     }
     if (e.key === "Enter" && !multiline) {
+      if (strict) {
+        // In strict mode, auto-select if there's exactly one match
+        if (filtered && filtered.length === 1) {
+          setField(field, filtered[0]);
+        }
+      }
       setEditing(false);
       setShowSuggestions(false);
+      setSearchValue("");
     }
   };
 
   const selectSuggestion = (s: string) => {
     setField(field, s);
     setShowSuggestions(false);
+    setSearchValue("");
     setEditing(false);
   };
 
@@ -151,17 +177,17 @@ export default function EditableText({
         <input
           ref={inputRef as React.RefObject<HTMLInputElement>}
           type="text"
-          value={value}
+          value={strict ? searchValue : value}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           className={`${styles.editableInput} ${className ?? ""}`}
-          placeholder={placeholder}
+          placeholder={strict ? (value || placeholder) : placeholder}
         />
       )}
       {showSuggestions && filtered && filtered.length > 0 && (
-        <div className={styles.suggestions}>
-          {filtered.slice(0, 6).map((s) => (
+        <div className={styles.suggestions} data-lenis-prevent>
+          {filtered.slice(0, strict ? 8 : 6).map((s) => (
             <button
               key={s}
               type="button"

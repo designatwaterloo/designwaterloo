@@ -1,154 +1,475 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
-import { createClient } from "@/lib/supabase/client";
+import { rest } from "@/lib/supabase/rest";
+import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
+import { PROGRAMS } from "@/data/programs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ImageUpload from "@/components/ImageUpload";
 import styles from "./page.module.css";
 
+// ─── Slug helpers ───
+
+async function findAvailableSlug(
+  baseSlug: string,
+  excludeId?: string
+): Promise<string> {
+  // Fast path: check exact match first (avoids LIKE scan)
+  const taken = await checkSlugTaken(baseSlug, excludeId);
+  if (!taken) return baseSlug;
+
+  // Slug is taken — find next available variant
+  let qs = `members?select=slug&slug=like.${encodeURIComponent(baseSlug)}%25`;
+  if (excludeId) qs += `&id=neq.${excludeId}`;
+
+  const { data } = await rest(qs);
+  const set = new Set(data.map((r) => r.slug as string));
+
+  const escaped = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escaped}-(\\d+)$`);
+  let maxN = 0;
+  for (const s of set) {
+    const m = s.match(pattern);
+    if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
+  }
+  const result = `${baseSlug}-${maxN + 1}`;
+  console.log("[Slug] findAvailable:", baseSlug, "→", result);
+  return result;
+}
+
+async function checkSlugTaken(
+  slugVal: string,
+  excludeId?: string
+): Promise<boolean> {
+  let qs = `members?select=slug&slug=eq.${encodeURIComponent(slugVal)}`;
+  if (excludeId) qs += `&id=neq.${excludeId}`;
+
+  const { data } = await rest(qs);
+  return data.length > 0;
+}
+
+// ─── Page Component ───
+
 export default function EditProfilePage() {
-  const { user, member, loading: authLoading, refreshMember } = useAuth();
+  const { user, session, member, loading: authLoading, refreshMember } = useAuth();
   const { startTransition } = useTransition();
-  const supabase = createClient();
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
-  // Form state
+  // Loader
+  const [loaderPhase, setLoaderPhase] = useState(1);
+  const loaderStarted = useRef(false);
+  const rowCreated = useRef(false);
+
+  // Form
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [program, setProgram] = useState("");
   const [graduatingClass, setGraduatingClass] = useState("");
-  const [bio, setBio] = useState("");
-  const [publicEmail, setPublicEmail] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [portfolio, setPortfolio] = useState("");
-  const [instagram, setInstagram] = useState("");
-  const [twitter, setTwitter] = useState("");
-  const [github, setGithub] = useState("");
-  const [behance, setBehance] = useState("");
-  const [dribbble, setDribbble] = useState("");
-  const [specialties, setSpecialties] = useState<string[]>([]);
-  const [newSpecialty, setNewSpecialty] = useState("");
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  // Program combobox
+  const [programSearch, setProgramSearch] = useState("");
+  const [programOpen, setProgramOpen] = useState(false);
+  const programRef = useRef<HTMLDivElement>(null);
+
+  // Slug
+  const [slug, setSlug] = useState("");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [slugStatus, setSlugStatus] = useState<
+    "idle" | "checking" | "available" | "taken"
+  >("idle");
+  const slugCheckRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Derived
+  const school = user?.email ? getSchoolFromEmail(user.email) : null;
+  const fullName = (user?.user_metadata?.full_name as string) || null;
+  const schoolPrograms = school ? PROGRAMS[school] ?? [] : [];
+  const filteredPrograms = schoolPrograms.filter(
+    (p) => p.toLowerCase().includes(programSearch.toLowerCase())
+  );
+
+  // Close program dropdown on outside click
+  useEffect(() => {
+    if (!programOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (programRef.current && !programRef.current.contains(e.target as Node)) {
+        setProgramOpen(false);
+        setProgramSearch("");
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [programOpen]);
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) {
-      startTransition("/sign-in");
-    }
+    if (!authLoading && !user) startTransition("/sign-in");
   }, [authLoading, user, startTransition]);
 
-  // Populate form with existing data
+  // If member exists AND onboarding is completed, redirect immediately
   useEffect(() => {
+    if (!authLoading && member?.onboarding_completed) {
+      window.location.replace(`/dashboard`);
+    }
+  }, [authLoading, member]);
+
+  // Pre-fill form from OAuth metadata or existing draft member
+  useEffect(() => {
+    if (authLoading) return;
     if (member) {
+      // Prefill from existing member (draft or completed — covers backtracking)
+      console.log("[Onboarding] Prefill from member:", member.slug);
       setFirstName(member.first_name || "");
       setLastName(member.last_name || "");
       setProgram(member.program || "");
       setGraduatingClass(member.graduating_class || "");
-      setBio(member.bio || "");
-      setPublicEmail(member.public_email || "");
-      setLinkedin(member.linkedin || "");
-      setPortfolio(member.portfolio || "");
-      setInstagram(member.instagram || "");
-      setTwitter(member.twitter || "");
-      setGithub(member.github || "");
-      setBehance(member.behance || "");
-      setDribbble(member.dribbble || "");
-      setSpecialties(member.specialties || []);
-      setProfileImageUrl(member.profile_image_url || null);
+      setSlug(member.slug || "");
+      setSlugManuallyEdited(true);
+      setSlugStatus("available");
+    } else if (user && !member && fullName) {
+      console.log("[Onboarding] Prefill from OAuth name:", fullName);
+      const parts = fullName.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        setFirstName(parts[0]);
+        setLastName(parts.slice(1).join(" "));
+      } else if (parts.length === 1) {
+        setFirstName(parts[0]);
+      }
     }
-  }, [member]);
+  }, [authLoading, user, member, fullName]);
 
-  const handleAddSpecialty = () => {
-    if (newSpecialty.trim() && !specialties.includes(newSpecialty.trim())) {
-      setSpecialties([...specialties, newSpecialty.trim()]);
-      setNewSpecialty("");
-    }
+  // Auto-generate slug from name changes
+  useEffect(() => {
+    if (slugManuallyEdited || !firstName) return;
+    const baseSlug = generateSlug(firstName, lastName);
+    if (!baseSlug) return;
+
+    console.log("[Slug] Auto-setting from name:", baseSlug);
+    setSlug(baseSlug);
+    setSlugStatus("checking");
+
+    if (slugCheckRef.current) clearTimeout(slugCheckRef.current);
+    let cancelled = false;
+
+    slugCheckRef.current = setTimeout(async () => {
+      try {
+        const available = await findAvailableSlug(baseSlug, member?.id);
+        if (!cancelled) {
+          console.log("[Slug] Auto resolved:", available);
+          setSlug(available);
+          setSlugStatus("available");
+        }
+      } catch (err) {
+        console.error("[Slug] Auto check error:", err);
+        if (!cancelled) setSlugStatus("available"); // optimistic
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      if (slugCheckRef.current) clearTimeout(slugCheckRef.current);
+    };
+  }, [firstName, lastName, slugManuallyEdited, member]);
+
+  // Manual slug edit
+  const handleSlugChange = (rawValue: string) => {
+    const value = rawValue
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-");
+    setSlug(value);
+    setSlugManuallyEdited(true);
+
+    if (slugCheckRef.current) clearTimeout(slugCheckRef.current);
+    if (!value) { setSlugStatus("idle"); return; }
+
+    setSlugStatus("checking");
+    slugCheckRef.current = setTimeout(async () => {
+      if (member?.slug === value) { setSlugStatus("available"); return; }
+      try {
+        const taken = await checkSlugTaken(value, member?.id);
+        setSlugStatus(taken ? "taken" : "available");
+      } catch {
+        setSlugStatus("available");
+      }
+    }, 400);
   };
 
-  const handleRemoveSpecialty = (specialty: string) => {
-    setSpecialties(specialties.filter((s) => s !== specialty));
-  };
+  // refreshMember with timeout
+  const safeRefresh = useCallback(async () => {
+    try {
+      await Promise.race([
+        refreshMember(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("refreshMember timed out")), 5000)
+        ),
+      ]);
+      console.log("[Onboarding] refreshMember succeeded");
+    } catch (err) {
+      console.warn("[Onboarding] refreshMember timed out, continuing:", err);
+    }
+  }, [refreshMember]);
+
+  // Create draft member row during loader
+  const createDraftRow = useCallback(async () => {
+    if (!user?.email || rowCreated.current) return;
+    rowCreated.current = true;
+    console.log("[Onboarding] createDraftRow for", user.email);
+
+    const token = session?.access_token ?? null;
+    if (!token) {
+      console.error("[Onboarding] No token, skipping draft creation");
+      return;
+    }
+
+    // Check for existing member via REST
+    const { data: existing } = await rest(
+      `members?select=id&auth_user_id=eq.${user.id}`,
+      { token }
+    );
+
+    if (existing.length > 0) {
+      console.log("[Onboarding] Found existing member:", existing[0].id);
+      await safeRefresh();
+      return;
+    }
+
+    const nameFromOAuth = fullName?.trim().split(/\s+/) || [];
+    const draftFirst = nameFromOAuth[0] || "";
+    const draftLast =
+      nameFromOAuth.length >= 2 ? nameFromOAuth.slice(1).join(" ") : "";
+
+    // Generate slug from name or email prefix (supports OTP users without name)
+    const baseSlug = draftFirst
+      ? generateSlug(draftFirst, draftLast || "member")
+      : generateSlug(user.email!.split("@")[0].replace(/\./g, "-"), "");
+    const finalSlug = await findAvailableSlug(baseSlug || "member");
+    console.log("[Onboarding] Inserting draft with slug:", finalSlug);
+
+    const { error: insertErr } = await rest("members", {
+      method: "POST",
+      token,
+      body: {
+        auth_user_id: user.id,
+        first_name: draftFirst || null,
+        last_name: draftLast || null,
+        slug: finalSlug,
+        school_email: user.email,
+        school,
+        onboarding_completed: false,
+        is_approved: false,
+        review_status: "draft",
+      },
+    });
+
+    if (insertErr) {
+      console.error("[Onboarding] Draft insert failed:", insertErr);
+      return;
+    }
+
+    console.log("[Onboarding] Draft created, refreshing...");
+    await safeRefresh();
+  }, [user, fullName, school, session, safeRefresh]);
+
+  // Skip loader if member appears
+  useEffect(() => {
+    if (member && loaderPhase > 0 && loaderPhase < 5) setLoaderPhase(5);
+  }, [member, loaderPhase]);
+
+  // Run loader
+  useEffect(() => {
+    if (authLoading || loaderStarted.current) return;
+    if (member) { setLoaderPhase(5); return; }
+    loaderStarted.current = true;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    timers.push(setTimeout(() => setLoaderPhase(2), 1200));
+    timers.push(setTimeout(() => setLoaderPhase(3), 2400));
+    createDraftRow();
+    timers.push(setTimeout(() => setLoaderPhase(4), 3600));
+    timers.push(setTimeout(() => setLoaderPhase(5), 4800));
+    return () => timers.forEach(clearTimeout);
+  }, [authLoading, member, createDraftRow]);
+
+  // ─── Submit ───
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!member) return;
+    if (!user?.email) return;
+    if (!slug) { setError("Profile URL is required."); return; }
+    if (slugStatus === "taken") {
+      setError("This profile URL is already taken.");
+      return;
+    }
 
     setSaving(true);
     setError(null);
-    setSuccess(false);
+
+    console.log("[Onboarding] handleSubmit — slug:", slug, "member:", member?.id);
 
     try {
-      const { error: updateError } = await supabase
-        .from("members")
-        .update({
-          first_name: firstName,
-          last_name: lastName,
-          program: program || null,
-          graduating_class: graduatingClass || null,
-          bio: bio || null,
-          public_email: publicEmail || null,
-          linkedin: linkedin || null,
-          portfolio: portfolio || null,
-          instagram: instagram || null,
-          twitter: twitter || null,
-          github: github || null,
-          behance: behance || null,
-          dribbble: dribbble || null,
-          specialties: specialties,
-          profile_image_url: profileImageUrl,
-        } as never)
-        .eq("id", member.id);
-
-      if (updateError) {
-        setError(`Failed to update profile: ${updateError.message}`);
+      const token = session?.access_token ?? null;
+      if (!token) {
+        setError("Your session has expired. Please refresh the page and sign in again.");
+        setSaving(false);
         return;
       }
 
-      // Bust Next's cached directory/profile pages so the new image shows immediately
-      try {
-        await fetch("/api/revalidate-profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slug: member.slug }),
-        });
-      } catch {
-        // Ignore revalidation failures; profile is still saved in the DB
-      }
+      const finalSlug = slug.replace(/^-|-$/g, "");
 
-      await refreshMember();
-      setSuccess(true);
+      if (member) {
+        console.log("[Onboarding] PATCH update for member:", member.id);
+        const { data, error: updateErr } = await rest(
+          `members?id=eq.${member.id}`,
+          {
+            method: "PATCH",
+            token,
+            body: {
+              first_name: firstName,
+              last_name: lastName,
+              slug: finalSlug,
+              program: program || null,
+              graduating_class: graduatingClass || null,
+              onboarding_completed: true,
+            },
+          }
+        );
+
+        if (updateErr) {
+          setError(`Failed to save: ${updateErr}`);
+          setSaving(false);
+          return;
+        }
+        if (data.length === 0) {
+          setError("Update failed — your session may have expired. Please refresh and try again.");
+          setSaving(false);
+          return;
+        }
+
+        console.log("[Onboarding] Update succeeded, refreshing member...");
+        await safeRefresh();
+        startTransition(`/directory/${finalSlug}`);
+      } else {
+        // Draft row may already exist (createDraftRow ran but refreshMember didn't propagate)
+        const { data: existing } = await rest(
+          `members?select=id&auth_user_id=eq.${user.id}`,
+          { token }
+        );
+
+        if (existing.length > 0) {
+          console.log("[Onboarding] Found existing draft, PATCHing:", existing[0].id);
+          const { data, error: updateErr } = await rest(
+            `members?id=eq.${existing[0].id}`,
+            {
+              method: "PATCH",
+              token,
+              body: {
+                first_name: firstName,
+                last_name: lastName,
+                slug: finalSlug,
+                program: program || null,
+                graduating_class: graduatingClass || null,
+                onboarding_completed: true,
+              },
+            }
+          );
+
+          if (updateErr) {
+            setError(`Failed to save: ${updateErr}`);
+            setSaving(false);
+            return;
+          }
+          if (data.length === 0) {
+            setError("Update failed — please refresh and try again.");
+            setSaving(false);
+            return;
+          }
+
+          console.log("[Onboarding] Draft update succeeded, refreshing member...");
+          await safeRefresh();
+          startTransition(`/directory/${finalSlug}`);
+        } else {
+          console.log("[Onboarding] POST insert (no draft)");
+          const { data, error: insertErr } = await rest("members", {
+            method: "POST",
+            token,
+            body: {
+              auth_user_id: user.id,
+              first_name: firstName,
+              last_name: lastName,
+              slug: finalSlug,
+              school_email: user.email,
+              school,
+              program: program || null,
+              graduating_class: graduatingClass || null,
+              onboarding_completed: true,
+              is_approved: false,
+              review_status: "draft",
+            },
+          });
+
+          if (insertErr) {
+            setError(
+              insertErr.includes("slug")
+                ? "This profile URL was just taken. Please choose a different one."
+                : `Failed to create profile: ${insertErr}`
+            );
+            setSaving(false);
+            return;
+          }
+          if (data.length === 0) {
+            setError("Insert failed — please refresh and try again.");
+            setSaving(false);
+            return;
+          }
+
+          console.log("[Onboarding] Insert succeeded, refreshing member...");
+          await safeRefresh();
+          startTransition(`/directory/${finalSlug}`);
+        }
+      }
     } catch (err) {
-      console.error("[EditProfile] Save failed:", err);
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
+      console.error("[Onboarding] Unexpected error:", err);
+      setError("Something went wrong. Please try again.");
       setSaving(false);
     }
   };
 
-  if (authLoading) {
+  // ─── Render ───
+
+  if (loaderPhase < 5) {
     return (
       <div>
         <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
-          <p>Loading...</p>
+          <div className={styles.loader}>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 1 ? styles.loaderLineVisible : ""}`}>
+              Connecting to your account...
+            </p>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 2 ? styles.loaderLineVisible : ""}`}>
+              {fullName ? `Found you \u2014 ${fullName}` : "Setting things up..."}
+            </p>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 3 ? styles.loaderLineVisible : ""}`}>
+              {school || "Detecting your school..."}
+            </p>
+            <p className={`${styles.loaderLine} ${loaderPhase >= 4 ? styles.loaderLineVisible : ""}`}>
+              Getting everything ready...
+            </p>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
 
-  if (!member) {
+  if (member?.onboarding_completed) {
     return (
       <div>
         <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
-          <p>No profile found. Please complete onboarding first.</p>
+          <p>Redirecting to your profile...</p>
         </main>
         <Footer />
       </div>
@@ -161,262 +482,152 @@ export default function EditProfilePage() {
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-8">
           <div className={styles.header}>
-            <h1>Edit Profile</h1>
+            <h1>Welcome to Design Waterloo</h1>
             <p className={styles.subtitle}>
-              Update your profile information below.
+              Confirm your details to get started. You&apos;ll be able to fill
+              out the rest of your profile next.
             </p>
           </div>
 
           {error && <div className={styles.error}>{error}</div>}
-          {success && (
-            <div className={styles.success}>
-              Profile updated successfully!{" "}
-              <a href={`/directory/${member.slug}`}>View your profile</a>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Profile Photo</h2>
-              <ImageUpload
-                currentImageUrl={profileImageUrl}
-                onImageUploaded={setProfileImageUrl}
-              />
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Basic Info</h2>
-
               <div className={styles.fieldGroup}>
                 <div className={styles.field}>
                   <label htmlFor="firstName">First Name *</label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                  />
+                  <input id="firstName" type="text" value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)} required />
                 </div>
-
                 <div className={styles.field}>
                   <label htmlFor="lastName">Last Name *</label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                  />
+                  <input id="lastName" type="text" value={lastName}
+                    onChange={(e) => setLastName(e.target.value)} required />
                 </div>
+              </div>
+
+              <div className={styles.field}>
+                <label htmlFor="slug">Profile URL</label>
+                <div className={styles.slugInput}>
+                  <span className={styles.slugPrefix}>/directory/</span>
+                  <input id="slug" type="text" value={slug}
+                    onChange={(e) => handleSlugChange(e.target.value)}
+                    placeholder="your-profile-url" required />
+                </div>
+                <span className={
+                  slugStatus === "available" ? styles.hintSuccess
+                    : slugStatus === "taken" ? styles.hintError
+                    : slugStatus === "checking" ? styles.hintChecking
+                    : styles.hint
+                }>
+                  {slugStatus === "checking" && (
+                    <span className={styles.spinner} />
+                  )}
+                  {slugStatus === "checking" ? "Checking availability..."
+                    : slugStatus === "available" ? "Available"
+                    : slugStatus === "taken" ? "Already taken — choose a different URL"
+                    : "This will be your profile link"}
+                </span>
               </div>
 
               <div className={styles.field}>
                 <label>School</label>
-                <input type="text" value={member.school || ""} disabled />
+                <input type="text" value={school || ""} disabled />
                 <span className={styles.hint}>
-                  School is determined by your email and cannot be changed.
+                  Detected from your email ({user?.email})
                 </span>
               </div>
 
               <div className={styles.fieldGroup}>
-                <div className={styles.field}>
+                <div className={styles.field} ref={programRef}>
                   <label htmlFor="program">Program</label>
-                  <input
-                    id="program"
-                    type="text"
-                    value={program}
-                    onChange={(e) => setProgram(e.target.value)}
-                    placeholder="e.g., Systems Design Engineering"
-                  />
+                  <div className={styles.programInputWrapper}>
+                    <input
+                      id="program"
+                      type="text"
+                      value={programOpen ? programSearch : program}
+                      onChange={(e) => {
+                        setProgramSearch(e.target.value);
+                        setProgramOpen(true);
+                      }}
+                      onFocus={() => {
+                        setProgramSearch("");
+                        setProgramOpen(true);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Tab" && programOpen && filteredPrograms.length > 0) {
+                          e.preventDefault();
+                          setProgram(filteredPrograms[0]);
+                          setProgramOpen(false);
+                          setProgramSearch("");
+                        }
+                      }}
+                      placeholder="Search programs..."
+                      autoComplete="off"
+                    />
+                    {programOpen && programSearch && filteredPrograms.length > 0 &&
+                      filteredPrograms[0].toLowerCase().startsWith(programSearch.toLowerCase()) && (
+                      <span className={styles.programGhost} aria-hidden>
+                        {programSearch}{filteredPrograms[0].slice(programSearch.length)}
+                      </span>
+                    )}
+                    {program && !programOpen && (
+                      <button
+                        type="button"
+                        className={styles.clearButton}
+                        onClick={() => setProgram("")}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  {programOpen && filteredPrograms.length > 0 && (
+                    <div className={styles.comboboxDropdown} data-lenis-prevent>
+                      {filteredPrograms.map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          className={styles.comboboxItem}
+                          onMouseDown={() => {
+                            setProgram(p);
+                            setProgramOpen(false);
+                            setProgramSearch("");
+                          }}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-
                 <div className={styles.field}>
                   <label htmlFor="graduatingClass">Graduating Year</label>
-                  <input
-                    id="graduatingClass"
-                    type="text"
-                    value={graduatingClass}
+                  <input id="graduatingClass" type="number" value={graduatingClass}
                     onChange={(e) => setGraduatingClass(e.target.value)}
-                    placeholder="e.g., 2026"
-                  />
+                    min={new Date().getFullYear()}
+                    max={new Date().getFullYear() + 6}
+                    placeholder={`e.g., ${new Date().getFullYear()}`} />
+                  {graduatingClass && (
+                    Number(graduatingClass) < new Date().getFullYear() ||
+                    Number(graduatingClass) > new Date().getFullYear() + 6
+                  ) && (
+                    <span className={styles.hintError}>
+                      Must be between {new Date().getFullYear()} and {new Date().getFullYear() + 6}
+                    </span>
+                  )}
                 </div>
-              </div>
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>About You</h2>
-
-              <div className={styles.field}>
-                <label htmlFor="bio">Bio</label>
-                <textarea
-                  id="bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tell us about yourself..."
-                  rows={4}
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="publicEmail">Public Email</label>
-                <input
-                  id="publicEmail"
-                  type="email"
-                  value={publicEmail}
-                  onChange={(e) => setPublicEmail(e.target.value)}
-                  placeholder="Email for employers to contact you"
-                />
-                <span className={styles.hint}>
-                  This will be visible on your profile
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Social Links</h2>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.field}>
-                  <label htmlFor="linkedin">LinkedIn</label>
-                  <input
-                    id="linkedin"
-                    type="url"
-                    value={linkedin}
-                    onChange={(e) => setLinkedin(e.target.value)}
-                    placeholder="https://linkedin.com/in/yourprofile"
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label htmlFor="portfolio">Portfolio</label>
-                  <input
-                    id="portfolio"
-                    type="url"
-                    value={portfolio}
-                    onChange={(e) => setPortfolio(e.target.value)}
-                    placeholder="https://yourportfolio.com"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.field}>
-                  <label htmlFor="instagram">Instagram</label>
-                  <input
-                    id="instagram"
-                    type="text"
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    placeholder="@yourusername or full URL"
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label htmlFor="twitter">Twitter / X</label>
-                  <input
-                    id="twitter"
-                    type="text"
-                    value={twitter}
-                    onChange={(e) => setTwitter(e.target.value)}
-                    placeholder="@yourusername or full URL"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.field}>
-                  <label htmlFor="github">GitHub</label>
-                  <input
-                    id="github"
-                    type="text"
-                    value={github}
-                    onChange={(e) => setGithub(e.target.value)}
-                    placeholder="yourusername or full URL"
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label htmlFor="behance">Behance</label>
-                  <input
-                    id="behance"
-                    type="text"
-                    value={behance}
-                    onChange={(e) => setBehance(e.target.value)}
-                    placeholder="Full URL"
-                  />
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="dribbble">Dribbble</label>
-                <input
-                  id="dribbble"
-                  type="text"
-                  value={dribbble}
-                  onChange={(e) => setDribbble(e.target.value)}
-                  placeholder="Full URL"
-                />
-              </div>
-            </div>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Specialties</h2>
-
-              <div className={styles.field}>
-                <label>Add Skills</label>
-                <div className={styles.specialtiesInput}>
-                  <input
-                    type="text"
-                    value={newSpecialty}
-                    onChange={(e) => setNewSpecialty(e.target.value)}
-                    placeholder="Add a skill (e.g., UI Design)"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddSpecialty();
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddSpecialty}
-                    className={styles.addButton}
-                  >
-                    Add
-                  </button>
-                </div>
-                {specialties.length > 0 && (
-                  <div className={styles.specialties}>
-                    {specialties.map((s) => (
-                      <span key={s} className={styles.specialty}>
-                        {s}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSpecialty(s)}
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
 
             <div className={styles.actions}>
-              <a
-                href={`/directory/${member.slug}`}
-                className={styles.secondaryButton}
-              >
-                Cancel
-              </a>
-              <button
-                type="submit"
-                className={styles.primaryButton}
-                disabled={saving || !firstName || !lastName}
-              >
-                {saving ? "Saving..." : "Save Changes"}
+              <button type="submit" className={styles.primaryButton}
+                disabled={saving || !firstName || !lastName || !slug
+                  || slugStatus === "taken" || slugStatus === "checking"
+                  || (!!graduatingClass && (
+                    Number(graduatingClass) < new Date().getFullYear() ||
+                    Number(graduatingClass) > new Date().getFullYear() + 6
+                  ))}>
+                {saving ? "Creating profile..." : "Continue"}
               </button>
             </div>
           </form>

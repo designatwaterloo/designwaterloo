@@ -6,6 +6,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import { TransitionProvider } from "@/context/TransitionContext";
 import PageTransition from "@/components/PageTransition";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import CursorFollower from "@/components/CursorFollower";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://designwaterloo.com'),
@@ -61,6 +62,7 @@ export default function RootLayout({
             </SmoothScroll>
           </TransitionProvider>
         </AuthProvider>
+        <CursorFollower />
         <Analytics />
       </body>
     </html>

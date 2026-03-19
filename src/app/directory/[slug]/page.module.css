@@ -169,9 +169,15 @@
 
 .image {
   width: 100%;
-  height: auto;
-  object-fit: contain;
-  object-position: top right;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.imageWrapper {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  overflow: hidden;
 }
 
 .infoRow {
@@ -266,7 +272,7 @@
   transition-duration: 0.2s, 0.2s, 0.2s;
   transition-timing-function: ease, ease, ease;
   cursor: pointer;
-  border-bottom: 2px solid var(--foreground);
+  border-bottom: 2px solid var(--muted);
 }
 
 .experienceItem:hover {
@@ -350,6 +356,31 @@
   filter: invert(1) opacity(1);
 }
 
+/* ===== Rejection Banner ===== */
+
+.rejectionBanner {
+  grid-column: 1 / 9;
+  padding: var(--tinier) var(--smaller);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+  border-radius: var(--radius-large);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: var(--smaller);
+}
+
+.rejectionLink {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .rejectionBanner {
+    grid-column: 1;
+  }
+}
+
 /* ===== Edit Mode: expanded layout with dividers ===== */
 
 .editMode .content {
@@ -363,5 +394,67 @@
 
 .editMode .experienceGroup {
   padding-bottom: var(--big);
+}
+
+/* ===== Welcome Lightbox ===== */
+
+.welcomeOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--margin);
+  animation: fadeIn 0.3s ease;
+}
+
+.welcomeModal {
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 16px;
+  padding: var(--big);
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--smaller);
+}
+
+.welcomeModal h2 {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.welcomeModal p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
+.welcomeButton {
+  padding: var(--tiny) var(--smaller);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  align-self: flex-start;
+  margin-top: var(--tinier);
+}
+
+.welcomeButton:hover {
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 

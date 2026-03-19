@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "@/components/Link";
 import ScrollReveal from "@/components/ScrollReveal";
+import SkeletonImage from "@/components/SkeletonImage";
 import { Member } from "@/sanity/types";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -18,12 +18,13 @@ export default function MemberGridCard({ member, index = 0 }: MemberGridCardProp
         underline={false}
       >
         {member.profileImage ? (
-          <Image
+          <SkeletonImage
             src={urlFor(member.profileImage).width(400).height(500).url()}
             alt={`${member.firstName} ${member.lastName}`}
             width={400}
             height={500}
-            className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300"
+            className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter,opacity] duration-300"
+            style={{ aspectRatio: "4 / 5" }}
           />
         ) : (
           <div className="aspect-[4/5] bg-skeleton rounded" />

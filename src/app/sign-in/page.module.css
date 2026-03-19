@@ -105,20 +105,45 @@
   margin: 0;
 }
 
-.emailInput {
+.emailInputGroup {
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: var(--tiny) var(--smallest);
-  font-size: 16px;
+  max-width: 300px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--background);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.emailInputGroup:focus-within {
+  border-color: var(--foreground);
+}
+
+.emailInput {
+  flex: 1;
+  min-width: 0;
+  padding: var(--tiny) var(--smallest);
+  padding-right: 2px;
+  font-size: 16px;
+  border: none;
+  background: transparent;
   color: var(--foreground);
-  text-align: center;
+  text-align: right;
 }
 
 .emailInput:focus {
   outline: none;
-  border-color: var(--foreground);
+}
+
+.emailDomain {
+  padding: var(--tiny) var(--smallest);
+  padding-left: 0;
+  font-size: 16px;
+  color: var(--muted);
+  white-space: nowrap;
+  user-select: none;
 }
 
 .otpInput {
