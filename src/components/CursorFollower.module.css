@@ -1,3 +1,21 @@
+.cursorBase {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: rgba(128, 128, 128, 0.4);
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    width 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    height 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    border-radius 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
 .cursor {
   position: fixed;
   top: 0;

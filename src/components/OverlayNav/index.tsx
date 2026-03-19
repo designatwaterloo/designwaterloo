@@ -72,13 +72,11 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   if (loading) {
     // Still loading - don't show auth items yet to avoid flicker
-  } else if (user) {
-    // User is logged in
-    if (member?.is_admin) {
+  } else if (user && member) {
+    userNavItems.push({ label: "Dashboard", href: "/dashboard" });
+    if (member.is_admin) {
       userNavItems.push({ label: "Admin", href: "/admin", sup: pendingCount });
     }
-  } else {
-    // Not logged in - sign in handled via header icon
   }
 
   // Nav item delays: start after columns finish
@@ -100,18 +98,51 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
         className={styles.curtainOverride}
       />
 
+      {/* Profile button inside overlay — animates with nav content */}
+      {user && (
+        <Link
+          href={member ? "/dashboard" : "/sign-in"}
+          className={`${styles.overlayProfileButton} ${isAnimating && isOpen ? styles.overlayProfileOpening : ''} ${isClosing ? styles.overlayProfileClosing : ''}`}
+          aria-label={member ? "Your dashboard" : "Sign in"}
+        >
+          <Image
+            src={member?.profile_image_url || "/person.svg"}
+            alt={member ? "Your profile" : "Sign in"}
+            width={32}
+            height={32}
+            className={styles.overlayProfileImage}
+          />
+        </Link>
+      )}
+
       {/* Content Layer */}
       <div className={styles.contentLayer}>
-        {/* Top Section - Logo (desktop: also contains nav) */}
+        {/* Top Section - Logo + user info (desktop: also contains nav) */}
         <div className={styles.topSection}>
           <div className={styles.logoSection}>
-            <Image
-              src="/Design Waterloo Logo.svg"
-              alt="Design Waterloo"
-              width={45}
-              height={36}
-              className={styles.logo}
-            />
+            {!loading && user && member ? (
+              <div className={`${styles.userInfo} ${isAnimating && isOpen ? styles.userInfoOpening : ''} ${isClosing ? styles.userInfoClosing : ''}`}>
+                <span className={styles.userName}>
+                  {member.first_name} {member.last_name}
+                </span>
+                <div className={styles.userLinks}>
+                  <Link href={`/directory/${member.slug}`} onClick={onClose} className={styles.userLink}>
+                    View profile
+                  </Link>
+                  <Link href="/auth/sign-out" className={styles.userLink}>
+                    Sign out
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <Image
+                src="/Design Waterloo Logo.svg"
+                alt="Design Waterloo"
+                width={45}
+                height={36}
+                className={styles.logo}
+              />
+            )}
           </div>
 
           {/* Desktop only: nav sits beside logo */}

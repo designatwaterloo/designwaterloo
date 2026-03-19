@@ -42,8 +42,8 @@
 }
 
 .statusPending {
-  background: color-mix(in srgb, var(--blue) 15%, transparent);
-  color: var(--blue);
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  color: var(--foreground);
 }
 
 .statusApproved {
@@ -127,4 +127,20 @@
 
 .secondaryButton:hover {
   border-color: var(--foreground);
+}
+
+.signOutButton {
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  align-self: flex-start;
+}
+
+.signOutButton:hover {
+  color: var(--foreground);
 }

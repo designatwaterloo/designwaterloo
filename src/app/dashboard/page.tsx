@@ -11,16 +11,16 @@ import type { ReviewStatus } from "@/types/database";
 import styles from "./page.module.css";
 
 export default function DashboardPage() {
-  const { member, loading: authLoading } = useAuth();
+  const { user, member, loading: authLoading, signOut } = useAuth();
   const { startTransition } = useTransition();
   const { submitForReview, submitting } = useSubmitForReview();
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !member) {
+    if (!authLoading && !user) {
       startTransition("/sign-in");
     }
-  }, [authLoading, member, startTransition]);
+  }, [authLoading, user, startTransition]);
 
   if (authLoading || !member) {
     return (
@@ -144,6 +144,14 @@ export default function DashboardPage() {
               </>
             )}
           </div>
+
+          <button
+            type="button"
+            className={styles.signOutButton}
+            onClick={signOut}
+          >
+            Sign out
+          </button>
         </section>
       </main>
       <Footer />

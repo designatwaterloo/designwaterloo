@@ -128,6 +128,7 @@ function EditableRow({
 }
 
 function ProfileContentInner({
+  memberSlug,
   firstName,
   lastName,
   school,
@@ -147,13 +148,17 @@ function ProfileContentInner({
   const effectiveStatus = reviewStatus;
   const isDraftOrRejected = effectiveStatus === "draft" || effectiveStatus === "rejected";
 
-  // Auto-enable edit mode and show welcome lightbox for draft owners
+  // Auto-enable edit mode for draft owners; show welcome only on first visit
   useEffect(() => {
     if (isOwner && effectiveStatus === "draft") {
       setEditMode(true);
-      setShowWelcome(true);
+      const key = `dw-welcome-seen-${memberSlug}`;
+      if (!localStorage.getItem(key)) {
+        setShowWelcome(true);
+        localStorage.setItem(key, "1");
+      }
     }
-  }, [isOwner, effectiveStatus, setEditMode]);
+  }, [isOwner, effectiveStatus, setEditMode, memberSlug]);
 
   // Auto-enable edit mode for rejected owners
   useEffect(() => {

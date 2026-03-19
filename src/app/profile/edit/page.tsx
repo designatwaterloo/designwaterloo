@@ -58,6 +58,7 @@ export default function EditProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   // Loader
   const [loaderPhase, setLoaderPhase] = useState(1);
@@ -109,12 +110,12 @@ export default function EditProfilePage() {
     if (!authLoading && !user) startTransition("/sign-in");
   }, [authLoading, user, startTransition]);
 
-  // If member exists AND onboarding is completed, redirect immediately
+  // If member exists AND onboarding is completed, redirect (unless we're mid-submit)
   useEffect(() => {
-    if (!authLoading && member?.onboarding_completed) {
-      window.location.replace(`/dashboard`);
+    if (!authLoading && member?.onboarding_completed && !submittingRef.current) {
+      startTransition("/dashboard");
     }
-  }, [authLoading, member]);
+  }, [authLoading, member, startTransition]);
 
   // Pre-fill form from OAuth metadata or existing draft member
   useEffect(() => {
@@ -266,6 +267,12 @@ export default function EditProfilePage() {
     });
 
     if (insertErr) {
+      // If it's a unique constraint violation, the OAuth callback already created the row — just refresh
+      if (insertErr.includes("duplicate") || insertErr.includes("unique") || insertErr.includes("23505")) {
+        console.log("[Onboarding] Draft already exists (race with callback), refreshing...");
+        await safeRefresh();
+        return;
+      }
       console.error("[Onboarding] Draft insert failed:", insertErr);
       return;
     }
@@ -306,6 +313,7 @@ export default function EditProfilePage() {
 
     setSaving(true);
     setError(null);
+    submittingRef.current = true;
 
     console.log("[Onboarding] handleSubmit — slug:", slug, "member:", member?.id);
 
@@ -348,8 +356,7 @@ export default function EditProfilePage() {
           return;
         }
 
-        console.log("[Onboarding] Update succeeded, refreshing member...");
-        await safeRefresh();
+        console.log("[Onboarding] Update succeeded, redirecting...");
         startTransition(`/directory/${finalSlug}`);
       } else {
         // Draft row may already exist (createDraftRow ran but refreshMember didn't propagate)
@@ -387,8 +394,7 @@ export default function EditProfilePage() {
             return;
           }
 
-          console.log("[Onboarding] Draft update succeeded, refreshing member...");
-          await safeRefresh();
+          console.log("[Onboarding] Draft update succeeded, redirecting...");
           startTransition(`/directory/${finalSlug}`);
         } else {
           console.log("[Onboarding] POST insert (no draft)");
@@ -425,8 +431,7 @@ export default function EditProfilePage() {
             return;
           }
 
-          console.log("[Onboarding] Insert succeeded, refreshing member...");
-          await safeRefresh();
+          console.log("[Onboarding] Insert succeeded, redirecting...");
           startTransition(`/directory/${finalSlug}`);
         }
       }
@@ -434,6 +439,7 @@ export default function EditProfilePage() {
       console.error("[Onboarding] Unexpected error:", err);
       setError("Something went wrong. Please try again.");
       setSaving(false);
+      submittingRef.current = false;
     }
   };
 

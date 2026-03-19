@@ -37,7 +37,7 @@ export default function DynamicIslandToast({
       role="status"
       aria-live="polite"
     >
-      {savedRecently && !isDirty && !editMode ? (
+      {savedRecently && !isDirty ? (
         <>
           <svg
             width="16"

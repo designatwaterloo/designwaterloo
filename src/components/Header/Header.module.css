@@ -54,6 +54,8 @@
   z-index: 1001;
   display: flex;
   align-items: center;
+  opacity: 1;
+  transition: opacity 0.3s ease 0.3s;
 }
 
 /* Mobile: vertically center within header-height */
@@ -63,6 +65,13 @@
     height: var(--header-height);
     right: calc(var(--margin) + 42px);
   }
+}
+
+/* Hide profile bar when overlay nav is open */
+.profileBarHidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 /* Blend mode only when showing the default icon (no profile image) */
@@ -128,7 +137,7 @@
 }
 
 .profileRingPending {
-  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--blue);
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--foreground);
 }
 
 /* ─── Menu / Close Button ─── */
