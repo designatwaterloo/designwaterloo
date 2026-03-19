@@ -312,7 +312,9 @@ export default function CursorFollower() {
     const tick = () => {
       pos.current.x += (mouse.current.x - pos.current.x) * lerp;
       pos.current.y += (mouse.current.y - pos.current.y) * lerp;
-      const t = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%)`;
+      const rx = Math.round(pos.current.x);
+      const ry = Math.round(pos.current.y);
+      const t = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
       base.style.transform = t;
       dot.style.transform = t;
       // Position text bubble above cursor
