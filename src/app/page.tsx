@@ -20,8 +20,9 @@ export default async function Home() {
 
   const allMembers = (data || []) as Pick<Member, "id" | "member_id" | "first_name" | "last_name" | "slug" | "profile_image_url">[];
 
-  // Show random 24 members (will be different on each build)
+  // Filter to only show members with profile images, then show random 24 (will be different on each build)
   const members = allMembers
+    .filter(member => member.profile_image_url)
     .sort(() => Math.random() - 0.5)
     .slice(0, 24);
 
