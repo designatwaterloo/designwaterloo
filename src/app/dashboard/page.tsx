@@ -8,12 +8,13 @@ import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import type { ReviewStatus } from "@/types/database";
+import { rest } from "@/lib/supabase/rest";
 import styles from "./page.module.css";
 
 export default function DashboardPage() {
   const { user, member, loading: authLoading, signOut } = useAuth();
   const { startTransition } = useTransition();
-  const { submitForReview, submitting } = useSubmitForReview();
+  const { submitForReview, submitting, submitError } = useSubmitForReview();
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function DashboardPage() {
 
   const status = (member.review_status ?? "draft") as ReviewStatus;
   const profileUrl = `/directory/${member.slug}`;
+  const isProfileSparse = !member.profile_image_url || !member.bio;
 
   const handleConfirmSubmit = async () => {
     await submitForReview();
@@ -90,7 +92,7 @@ export default function DashboardPage() {
                   </p>
                 )}
                 <div className={styles.actions}>
-                  <Link href={profileUrl} className={styles.secondaryButton}>
+                  <Link href={`${profileUrl}?edit=true`} className={styles.secondaryButton}>
                     Edit profile
                   </Link>
                 </div>
@@ -106,7 +108,7 @@ export default function DashboardPage() {
                   <Link href={profileUrl} className={styles.primaryButton}>
                     View profile
                   </Link>
-                  <Link href={profileUrl} className={styles.secondaryButton}>
+                  <Link href={`${profileUrl}?edit=true`} className={styles.secondaryButton}>
                     Edit profile
                   </Link>
                 </div>
@@ -130,7 +132,7 @@ export default function DashboardPage() {
                   </div>
                 )}
                 <div className={styles.actions}>
-                  <Link href={profileUrl} className={styles.primaryButton}>
+                  <Link href={`${profileUrl}?edit=true`} className={styles.primaryButton}>
                     Edit &amp; resubmit
                   </Link>
                   <button
@@ -144,6 +146,12 @@ export default function DashboardPage() {
               </>
             )}
           </div>
+
+          {submitError && (
+            <p style={{ color: "var(--error)", fontSize: "14px", margin: 0 }}>
+              {submitError}
+            </p>
+          )}
 
           <button
             type="button"
@@ -159,7 +167,11 @@ export default function DashboardPage() {
       {showSubmitConfirm && (
         <ConfirmDialog
           title="Submit for review"
-          message="Your profile will be reviewed by an admin before appearing in the directory."
+          message={
+            isProfileSparse
+              ? "Your profile is missing a photo or bio. Profiles with more details are more likely to be approved. Submit anyway?"
+              : "Your profile will be reviewed by an admin before appearing in the directory."
+          }
           confirmLabel="Submit"
           onConfirm={handleConfirmSubmit}
           onCancel={() => setShowSubmitConfirm(false)}
@@ -194,32 +206,35 @@ function statusClass(s: ReviewStatus): string {
 function useSubmitForReview() {
   const { member, session, refreshMember } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const submitForReview = async () => {
     if (!member || !session?.access_token) return;
     setSubmitting(true);
+    setSubmitError(null);
 
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const { error } = await rest(
+      `members?id=eq.${member.id}`,
+      {
+        method: "PATCH",
+        token: session.access_token,
+        body: {
+          review_status: "pending_review",
+          submitted_at: new Date().toISOString(),
+          is_approved: false,
+        },
+      }
+    );
 
-    await fetch(`${SUPABASE_URL}/rest/v1/members?id=eq.${member.id}`, {
-      method: "PATCH",
-      headers: {
-        apikey: ANON_KEY,
-        Authorization: `Bearer ${session.access_token}`,
-        "Content-Type": "application/json",
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify({
-        review_status: "pending_review",
-        submitted_at: new Date().toISOString(),
-        is_approved: false,
-      }),
-    });
+    if (error) {
+      setSubmitError("Failed to submit your profile for review. Please try again.");
+      setSubmitting(false);
+      return;
+    }
 
     await refreshMember().catch(() => {});
     setSubmitting(false);
   };
 
-  return { submitForReview, submitting };
+  return { submitForReview, submitting, submitError };
 }

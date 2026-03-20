@@ -339,11 +339,6 @@ a:hover {
 
 button {
   -webkit-tap-highlight-color: transparent;
-  background: none;
-}
-
-button:hover {
-  background: none;
 }
 
 /* Dark theme variant */

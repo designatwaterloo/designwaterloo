@@ -13,6 +13,7 @@ function SignInContent() {
   const { signInWithMicrosoft, signInWithLaurierOtp, verifyLaurierOtp, loading } = useAuth();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const redirectTo = searchParams.get("redirectTo");
 
   const [showLaurierFlow, setShowLaurierFlow] = useState(false);
   const [laurierUsername, setLaurierUsername] = useState("");
@@ -73,7 +74,7 @@ function SignInContent() {
       .maybeSingle()) as { data: { slug: string; onboarding_completed: boolean } | null };
 
     if (member?.onboarding_completed) {
-      startTransition(`/directory/${member.slug}`);
+      startTransition(redirectTo || `/directory/${member.slug}`);
       return;
     }
 
@@ -95,7 +96,7 @@ function SignInContent() {
         setVerifyingOtp(false);
         return;
       }
-      startTransition(`/directory/${existingByEmail.slug}`);
+      startTransition(redirectTo || `/directory/${existingByEmail.slug}`);
       return;
     }
 
@@ -172,7 +173,7 @@ function SignInContent() {
 
       <button
         className={styles.microsoftButton}
-        onClick={signInWithMicrosoft}
+        onClick={() => signInWithMicrosoft(redirectTo || undefined)}
         disabled={loading}
       >
         <svg

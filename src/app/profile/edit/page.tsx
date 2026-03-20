@@ -610,15 +610,15 @@ export default function EditProfilePage() {
                   <label htmlFor="graduatingClass">Graduating Year</label>
                   <input id="graduatingClass" type="number" value={graduatingClass}
                     onChange={(e) => setGraduatingClass(e.target.value)}
-                    min={new Date().getFullYear()}
+                    min={2020}
                     max={new Date().getFullYear() + 6}
                     placeholder={`e.g., ${new Date().getFullYear()}`} />
                   {graduatingClass && (
-                    Number(graduatingClass) < new Date().getFullYear() ||
+                    Number(graduatingClass) < 2020 ||
                     Number(graduatingClass) > new Date().getFullYear() + 6
                   ) && (
                     <span className={styles.hintError}>
-                      Must be between {new Date().getFullYear()} and {new Date().getFullYear() + 6}
+                      Must be between 2020 and {new Date().getFullYear() + 6}
                     </span>
                   )}
                 </div>
@@ -630,7 +630,7 @@ export default function EditProfilePage() {
                 disabled={saving || !firstName || !lastName || !slug
                   || slugStatus === "taken" || slugStatus === "checking"
                   || (!!graduatingClass && (
-                    Number(graduatingClass) < new Date().getFullYear() ||
+                    Number(graduatingClass) < 2020 ||
                     Number(graduatingClass) > new Date().getFullYear() + 6
                   ))}>
                 {saving ? "Creating profile..." : "Continue"}

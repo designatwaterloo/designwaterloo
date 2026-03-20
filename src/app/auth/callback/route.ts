@@ -17,7 +17,8 @@ interface ExistingMember {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/profile/edit";
+  const explicitNext = searchParams.get("next");
+  const next = explicitNext ?? "/profile/edit";
 
   if (code) {
     const supabase = await createClient();
@@ -38,9 +39,8 @@ export async function GET(request: Request) {
         .maybeSingle()) as { data: LinkedMember | null };
 
       if (linkedMember?.onboarding_completed) {
-        // Already linked and onboarded, go to their profile
         return NextResponse.redirect(
-          `${origin}/directory/${linkedMember.slug}`
+          `${origin}${explicitNext || `/directory/${linkedMember.slug}`}`
         );
       }
 
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
           console.error("[Auth Callback] Failed to link migrated profile:", updateError);
         } else {
           return NextResponse.redirect(
-            `${origin}/directory/${existingByEmail.slug}`
+            `${origin}${explicitNext || `/directory/${existingByEmail.slug}`}`
           );
         }
       }

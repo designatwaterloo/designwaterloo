@@ -19,7 +19,7 @@ interface AuthContextType {
   session: Session | null;
   member: Member | null;
   loading: boolean;
-  signInWithMicrosoft: () => Promise<void>;
+  signInWithMicrosoft: (redirectTo?: string) => Promise<void>;
   signInWithLaurierOtp: (email: string) => Promise<{ error: string | null }>;
   verifyLaurierOtp: (email: string, token: string) => Promise<{ error: string | null; user: User | null }>;
   signOut: () => Promise<void>;
@@ -114,12 +114,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase.auth, fetchMember]);
 
-  const signInWithMicrosoft = async () => {
+  const signInWithMicrosoft = async (redirectTo?: string) => {
+    const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+    if (redirectTo) callbackUrl.searchParams.set("next", redirectTo);
+
     await supabase.auth.signInWithOAuth({
       provider: "azure",
       options: {
         scopes: "email profile openid",
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl.toString(),
         queryParams: {
           domain_hint: "uwaterloo.ca",
         },

@@ -126,8 +126,9 @@ export default async function Home() {
             ))}
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-[var(--gap)]">
             <Button href="/directory" variant="secondary">View directory</Button>
+            <Button href="/sign-in" variant="primary">Join the directory</Button>
           </div>
         </section>
 

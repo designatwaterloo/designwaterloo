@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import {
   InlineEditProvider,
@@ -166,6 +167,14 @@ function ProfileContentInner({
       setEditMode(true);
     }
   }, [isOwner, effectiveStatus, setEditMode]);
+
+  // Auto-enable edit mode when linked from dashboard "Edit profile"
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (isOwner && searchParams.get("edit") === "true") {
+      setEditMode(true);
+    }
+  }, [isOwner, searchParams, setEditMode]);
 
   const handleSubmitForReview = () => {
     setShowSubmitConfirm(true);
@@ -366,7 +375,6 @@ function ProfileContentInner({
                       field="program"
                       placeholder="Click to add program..."
                       suggestions={programSuggestions}
-                      strict
                     />
                   </dd>
                 </div>
