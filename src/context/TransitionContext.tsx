@@ -55,7 +55,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   }, [stage, nextHref, router]);
 
   useEffect(() => {
-    if (stage === "entering" && pathname === nextHref && !isWaitingForPush) {
+    const nextPathname = nextHref?.split(/[?#]/)[0] ?? null;
+    if (stage === "entering" && pathname === nextPathname && !isWaitingForPush) {
       requestAnimationFrame(() => {
         setStage("exiting");
       });

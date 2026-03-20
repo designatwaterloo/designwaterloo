@@ -162,6 +162,8 @@ export default function CursorFollower() {
   const textBubbleLabelRef = useRef<HTMLSpanElement>(null);
   const mouse = useRef({ x: 0, y: 0 });
   const pos = useRef({ x: 0, y: 0 });
+  const scale = useRef(1);
+  const clicking = useRef(false);
   const visible = useRef(false);
   const currentState = useRef<CursorState>("default");
 
@@ -306,15 +308,26 @@ export default function CursorFollower() {
       });
     };
 
+    const handleMouseDown = () => {
+      clicking.current = true;
+    };
+
+    const handleMouseUp = () => {
+      clicking.current = false;
+    };
+
     const lerp = 0.45;
     let raf: number;
 
     const tick = () => {
       pos.current.x += (mouse.current.x - pos.current.x) * lerp;
       pos.current.y += (mouse.current.y - pos.current.y) * lerp;
+      const targetScale = clicking.current ? 0.75 : 1;
+      scale.current += (targetScale - scale.current) * 0.3;
       const rx = Math.round(pos.current.x);
       const ry = Math.round(pos.current.y);
-      const t = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      const s = scale.current.toFixed(3);
+      const t = `translate(${rx}px, ${ry}px) translate(-50%, -50%) scale(${s})`;
       base.style.transform = t;
       dot.style.transform = t;
       // Position text bubble above cursor
@@ -324,12 +337,16 @@ export default function CursorFollower() {
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("click", handleClick, true);
     raf = requestAnimationFrame(tick);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("click", handleClick, true);
       cancelAnimationFrame(raf);
     };

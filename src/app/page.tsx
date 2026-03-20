@@ -4,6 +4,7 @@ import Button from "@/components/Button";
 import Link from "@/components/Link";
 import SkeletonImage from "@/components/SkeletonImage";
 import ScrollReveal from "@/components/ScrollReveal";
+import VimeoBackground from "@/components/VimeoBackground";
 import { createClient } from "@/lib/supabase/server";
 import { Member } from "@/types/database";
 
@@ -58,23 +59,10 @@ export default async function Home() {
             </div>
           </div>
 
-          <div 
-            className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative bg-[var(--black)]"
-            style={{
-              backgroundImage: 'url(https://vumbnail.com/1146446016.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          >
-            <iframe
-              src="https://player.vimeo.com/video/1146446016?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-              referrerPolicy="strict-origin-when-cross-origin"
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
-              title="BYODP | Design Waterloo & Figma"
-            />
-          </div>
+          <VimeoBackground
+            videoId="1146446016"
+            thumbnailUrl="https://vumbnail.com/1146446016.jpg"
+          />
 
           <p className="jumbo">
             Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <a href="https://uwaterloo.ca?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</a> and <a href="https://wlu.ca?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</a>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
