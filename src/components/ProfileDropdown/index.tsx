@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
 import { useEffect, useRef } from "react";
 import styles from "./ProfileDropdown.module.css";
 import Link from "@/components/Link";
@@ -13,6 +14,7 @@ interface ProfileDropdownProps {
 
 export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProps) {
   const { user, member, signOut } = useAuth();
+  const { startTransition } = useTransition();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -63,9 +65,10 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
               View Profile
             </Link>
             <button
-              onClick={() => {
-                signOut();
+              onClick={async () => {
                 onClose();
+                await signOut();
+                startTransition("/");
               }}
               className={`${styles.menuItem} ${styles.signOutButton}`}
             >

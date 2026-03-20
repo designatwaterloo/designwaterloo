@@ -150,17 +150,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = useCallback(async () => {
-    // Clear client-side session (localStorage/cookies) first
+    setUser(null);
+    setSession(null);
+    setMember(null);
     try {
       await supabase.auth.signOut();
     } catch (err) {
       console.error("[Auth] Client sign-out error:", err);
     }
-    setUser(null);
-    setSession(null);
-    setMember(null);
-    // Then redirect to server route to clear server-side cookies
-    window.location.href = "/auth/sign-out";
   }, [supabase.auth]);
 
   const refreshMember = useCallback(async () => {

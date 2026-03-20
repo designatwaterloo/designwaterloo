@@ -8,6 +8,7 @@ import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 import Curtain from "../Curtain";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 
 interface OverlayNavProps {
@@ -18,7 +19,8 @@ interface OverlayNavProps {
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
-  const { user, member, loading } = useAuth();
+  const { user, member, loading, signOut } = useAuth();
+  const { startTransition } = useTransition();
   const [directoryCount, setDirectoryCount] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
 
@@ -129,9 +131,16 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   <Link href={`/directory/${member.slug}`} onClick={onClose} className={styles.userLink}>
                     View profile
                   </Link>
-                  <Link href="/auth/sign-out" className={styles.userLink}>
+                  <button
+                    onClick={async () => {
+                      onClose();
+                      await signOut();
+                      startTransition("/");
+                    }}
+                    className={styles.userLink}
+                  >
                     Sign out
-                  </Link>
+                  </button>
                 </div>
               </div>
             ) : (

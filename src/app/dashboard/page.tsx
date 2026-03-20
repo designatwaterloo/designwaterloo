@@ -16,12 +16,13 @@ export default function DashboardPage() {
   const { startTransition } = useTransition();
   const { submitForReview, submitting, submitError } = useSubmitForReview();
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !user && !signingOut) {
       startTransition("/sign-in");
     }
-  }, [authLoading, user, startTransition]);
+  }, [authLoading, user, signingOut, startTransition]);
 
   if (authLoading || !member) {
     return (
@@ -52,12 +53,6 @@ export default function DashboardPage() {
           <h1 className={styles.title}>Your Profile</h1>
 
           <div className={styles.card}>
-            <div className={styles.statusRow}>
-              <span>Status:</span>
-              <span className={`${styles.statusBadge} ${statusClass(status)}`}>
-                {statusLabel(status)}
-              </span>
-            </div>
 
             {status === "draft" && (
               <>
@@ -156,7 +151,11 @@ export default function DashboardPage() {
           <button
             type="button"
             className={styles.signOutButton}
-            onClick={signOut}
+            onClick={async () => {
+              setSigningOut(true);
+              await signOut();
+              startTransition("/");
+            }}
           >
             Sign out
           </button>

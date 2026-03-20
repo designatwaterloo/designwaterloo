@@ -67,23 +67,29 @@ function SignInContent() {
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
 
-    const { data: member } = (await supabase
-      .from("members")
-      .select("slug, onboarding_completed")
-      .eq("auth_user_id", user.id)
-      .maybeSingle()) as { data: { slug: string; onboarding_completed: boolean } | null };
+    // Run both lookups in parallel
+    const [{ data: member }, { data: existingByEmail }] = await Promise.all([
+      supabase
+        .from("members")
+        .select("slug, onboarding_completed")
+        .eq("auth_user_id", user.id)
+        .maybeSingle() as Promise<{ data: { slug: string; onboarding_completed: boolean } | null }>,
+      supabase
+        .from("members")
+        .select("id, slug, auth_user_id, onboarding_completed")
+        .eq("school_email", user.email!)
+        .maybeSingle() as Promise<{ data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null }>,
+    ]);
 
     if (member?.onboarding_completed) {
       startTransition(redirectTo || `/directory/${member.slug}`);
       return;
     }
 
-    // Check for migrated profile by email
-    const { data: existingByEmail } = (await supabase
-      .from("members")
-      .select("id, slug, auth_user_id, onboarding_completed")
-      .eq("school_email", user.email!)
-      .maybeSingle()) as { data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null };
+    if (member) {
+      startTransition("/profile/edit");
+      return;
+    }
 
     if (existingByEmail && !existingByEmail.auth_user_id) {
       const { error: linkError } = await supabase
@@ -100,52 +106,48 @@ function SignInContent() {
       return;
     }
 
-    // No existing profile — create draft member (same as OAuth callback)
-    if (!member && !existingByEmail) {
-      try {
-        const email = user.email!;
-        const school = getSchoolFromEmail(email);
-        const emailPrefix = email.split("@")[0].replace(/\./g, "-");
-        const baseSlug = generateSlug(emailPrefix, "");
+    if (existingByEmail) {
+      startTransition("/profile/edit");
+      return;
+    }
 
-        // Check slug availability
-        let finalSlug = baseSlug || "member";
-        const { data: slugTaken } = await supabase
-          .from("members")
-          .select("slug")
-          .eq("slug", finalSlug)
-          .maybeSingle();
+    // No existing profile — create draft member
+    try {
+      const email = user.email!;
+      const school = getSchoolFromEmail(email);
+      const emailPrefix = email.split("@")[0].replace(/\./g, "-");
+      const baseSlug = generateSlug(emailPrefix, "");
 
-        if (slugTaken) {
-          const { data: similar } = await supabase
-            .from("members")
-            .select("slug")
-            .like("slug", `${finalSlug}%`);
+      let finalSlug = baseSlug || "member";
+      const { data: similar } = await supabase
+        .from("members")
+        .select("slug")
+        .like("slug", `${finalSlug}%`);
 
-          const escaped = finalSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-          const pattern = new RegExp(`^${escaped}-(\\d+)$`);
-          let maxN = 0;
-          for (const s of (similar || []) as { slug: string }[]) {
-            const m = s.slug.match(pattern);
-            if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
-          }
-          finalSlug = `${finalSlug}-${maxN + 1}`;
+      if (similar?.some((s: { slug: string }) => s.slug === finalSlug)) {
+        const escaped = finalSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const pattern = new RegExp(`^${escaped}-(\\d+)$`);
+        let maxN = 0;
+        for (const s of (similar || []) as { slug: string }[]) {
+          const m = s.slug.match(pattern);
+          if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
         }
-
-        await supabase.from("members").insert({
-          auth_user_id: user.id,
-          first_name: null,
-          last_name: null,
-          slug: finalSlug,
-          school_email: email,
-          school,
-          onboarding_completed: false,
-          is_approved: false,
-          review_status: "draft",
-        } as never);
-      } catch (err) {
-        console.error("Failed to create draft member for OTP user:", err);
+        finalSlug = `${finalSlug}-${maxN + 1}`;
       }
+
+      await supabase.from("members").insert({
+        auth_user_id: user.id,
+        first_name: null,
+        last_name: null,
+        slug: finalSlug,
+        school_email: email,
+        school,
+        onboarding_completed: false,
+        is_approved: false,
+        review_status: "draft",
+      } as never);
+    } catch (err) {
+      console.error("Failed to create draft member for OTP user:", err);
     }
 
     startTransition("/profile/edit");

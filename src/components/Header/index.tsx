@@ -108,12 +108,6 @@ export default function Header() {
             height={20}
           />
         </Link>
-        {/* Desktop status badge */}
-        {showBadge && (
-          <Link href="/dashboard" className={styles.statusPill}>
-            {badgeLabel}
-          </Link>
-        )}
       </div>
 
       {/* Menu button — separate element so blend mode composites against the page */}

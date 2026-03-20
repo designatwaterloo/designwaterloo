@@ -31,13 +31,21 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}/sign-in?error=invalid-email`);
       }
 
-      // Check if member profile is already linked to this auth account
-      const { data: linkedMember } = (await supabase
-        .from("members")
-        .select("slug, onboarding_completed")
-        .eq("auth_user_id", data.user.id)
-        .maybeSingle()) as { data: LinkedMember | null };
+      // Run both lookups in parallel
+      const [{ data: linkedMember }, { data: existingByEmail }] = await Promise.all([
+        supabase
+          .from("members")
+          .select("slug, onboarding_completed")
+          .eq("auth_user_id", data.user.id)
+          .maybeSingle() as Promise<{ data: LinkedMember | null }>,
+        supabase
+          .from("members")
+          .select("id, slug, auth_user_id, onboarding_completed")
+          .eq("school_email", data.user.email!)
+          .maybeSingle() as Promise<{ data: ExistingMember | null }>,
+      ]);
 
+      // Already linked — fast path for returning users
       if (linkedMember?.onboarding_completed) {
         return NextResponse.redirect(
           `${origin}${explicitNext || `/directory/${linkedMember.slug}`}`
@@ -45,17 +53,10 @@ export async function GET(request: Request) {
       }
 
       if (linkedMember) {
-        // Linked but not onboarded — continue onboarding
         return NextResponse.redirect(`${origin}${next}`);
       }
 
-      // Check if there's an existing member with matching school_email (migrated from Sanity)
-      const { data: existingByEmail } = (await supabase
-        .from("members")
-        .select("id, slug, auth_user_id, onboarding_completed")
-        .eq("school_email", data.user.email!)
-        .maybeSingle()) as { data: ExistingMember | null };
-
+      // Migrated profile — link it
       if (existingByEmail && !existingByEmail.auth_user_id) {
         // Found a migrated profile - link it to this auth account
         const { error: updateError } = await supabase
@@ -91,20 +92,14 @@ export async function GET(request: Request) {
         : generateSlug(email.split("@")[0].replace(/\./g, "-"), "");
       const safeSlug = baseSlug || "member";
 
-      // Find available slug
+      // Find available slug — single query covers both exact match and similar
       let finalSlug = safeSlug;
-      const { data: slugTaken } = await supabase
+      const { data: similar } = await supabase
         .from("members")
         .select("slug")
-        .eq("slug", safeSlug)
-        .maybeSingle();
+        .like("slug", `${safeSlug}%`);
 
-      if (slugTaken) {
-        const { data: similar } = await supabase
-          .from("members")
-          .select("slug")
-          .like("slug", `${safeSlug}%`);
-
+      if (similar?.some((s: { slug: string }) => s.slug === safeSlug)) {
         const escaped = safeSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const pattern = new RegExp(`^${escaped}-(\\d+)$`);
         let maxN = 0;
