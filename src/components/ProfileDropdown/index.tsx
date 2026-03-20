@@ -71,6 +71,8 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
                 startTransition("/");
               }}
               className={`${styles.menuItem} ${styles.signOutButton}`}
+              data-cursor="button"
+              data-cursor-label="Sign Out"
             >
               <Image
                 src="/sign-out.svg"

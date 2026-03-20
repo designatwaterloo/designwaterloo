@@ -64,6 +64,14 @@
   opacity: 1;
 }
 
+.label svg,
+.label img {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
 /* External link pill */
 .externalLink {
   height: 36px;

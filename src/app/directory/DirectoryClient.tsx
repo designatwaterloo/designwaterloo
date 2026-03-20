@@ -1,9 +1,12 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Member } from "@/sanity/types";
 import { decodeTermCode } from "@/lib/termUtils";
+import { decodeSpecialtyCode, encodeSpecialtyCode } from "@/lib/specialties";
 import DataView from "@/components/DataView";
 import MemberGridCard from "./MemberGridCard";
 import MemberHoverPreview from "./MemberHoverPreview";
@@ -20,6 +23,56 @@ interface DirectoryClientProps {
 }
 
 export default function DirectoryClient({ members }: DirectoryClientProps) {
+  const searchParams = useSearchParams();
+
+  const initialFilters = useMemo(() => {
+    const filters: Record<string, string[]> = {};
+
+    // Short params: s=PRD → specialty=["Product Design"], a=1261 → availability=["1261"]
+    const specialtyCodes = searchParams.getAll("s");
+    if (specialtyCodes.length > 0) {
+      filters.specialty = specialtyCodes.map(decodeSpecialtyCode);
+    }
+    const availCodes = searchParams.getAll("a");
+    if (availCodes.length > 0) {
+      filters.availability = availCodes;
+    }
+
+    // Also support full param names for direct use
+    const directKeys = ["class", "program", "school", "specialty", "availability"];
+    for (const key of directKeys) {
+      const values = searchParams.getAll(key);
+      if (values.length > 0) {
+        filters[key] = [...(filters[key] ?? []), ...values];
+      }
+    }
+
+    return filters;
+  }, [searchParams]);
+
+  const handleFiltersChange = useCallback((filters: Record<string, string[]>) => {
+    const params = new URLSearchParams();
+
+    // Encode specialties as short codes
+    for (const val of filters.specialty ?? []) {
+      params.append("s", encodeSpecialtyCode(val));
+    }
+    // Encode availability as short codes
+    for (const val of filters.availability ?? []) {
+      params.append("a", val);
+    }
+    // Other filters use full names
+    for (const key of ["class", "program", "school"]) {
+      for (const val of filters[key] ?? []) {
+        params.append(key, val);
+      }
+    }
+
+    const qs = params.toString();
+    const url = qs ? `/directory?${qs}` : "/directory";
+    window.history.replaceState(null, "", url);
+  }, []);
+
   return (
     <div className="w-full">
       <Header />
@@ -37,6 +90,8 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
             getItemKey={(member) => member._id}
             getItemHref={(member) => `/directory/${member.slug.current}`}
             storageKey="directoryViewMode"
+            initialFilters={initialFilters}
+            onFiltersChange={handleFiltersChange}
             getCursorLabel={(member) => `${member.firstName} ${member.lastName} →`}
             renderGridItem={(member, index) => (
               <MemberGridCard member={member} index={index} />

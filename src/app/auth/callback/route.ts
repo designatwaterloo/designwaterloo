@@ -37,12 +37,12 @@ export async function GET(request: Request) {
           .from("members")
           .select("slug, onboarding_completed")
           .eq("auth_user_id", data.user.id)
-          .maybeSingle() as Promise<{ data: LinkedMember | null }>,
+          .maybeSingle() as unknown as Promise<{ data: LinkedMember | null }>,
         supabase
           .from("members")
           .select("id, slug, auth_user_id, onboarding_completed")
           .eq("school_email", data.user.email!)
-          .maybeSingle() as Promise<{ data: ExistingMember | null }>,
+          .maybeSingle() as unknown as Promise<{ data: ExistingMember | null }>,
       ]);
 
       // Already linked — fast path for returning users

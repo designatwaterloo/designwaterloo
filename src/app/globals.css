@@ -433,6 +433,12 @@ button {
   display: inline-block;
 }
 
+/* Pulsing ring radiating from green dot */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
 /* Image wipe reveal — black overlay slides down to reveal image */
 @keyframes wipeReveal {
   0% {

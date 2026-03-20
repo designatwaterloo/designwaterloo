@@ -74,6 +74,8 @@ export default function DataView<T>({
   onItemClick,
   storageKey,
   getCursorLabel,
+  initialFilters,
+  onFiltersChange,
 }: DataViewProps<T>) {
   // View mode state
   const [viewMode, setViewMode] = useState<"grid" | "table">(viewModeConfig.defaultMode);
@@ -85,8 +87,17 @@ export default function DataView<T>({
   const overrideTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   // Search and filter state
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+
+  // Debounce search input
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => setSearchTerm(value), 300);
+  }, []);
 
   // Sort state
   const [sortField, setSortField] = useState<string>(sortConfig?.defaultField || "");
@@ -106,13 +117,22 @@ export default function DataView<T>({
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Load view mode and filters from localStorage
+  // Load view mode and filters from URL params (priority) or localStorage
   useEffect(() => {
+    const hasInitialFilters = initialFilters && Object.values(initialFilters).some((v) => v.length > 0);
+
+    // Always restore saved view mode
     if (storageKey && typeof window !== "undefined") {
       const savedView = localStorage.getItem(storageKey);
       if (savedView === "grid" || savedView === "table") {
         setViewMode(savedView);
       }
+    }
+
+    if (hasInitialFilters) {
+      setSelectedFilters(initialFilters);
+      setIsFilterPanelVisible(true);
+    } else if (storageKey && typeof window !== "undefined") {
       try {
         const savedFilters = localStorage.getItem(`${storageKey}.filters`);
         if (savedFilters) {
@@ -123,6 +143,7 @@ export default function DataView<T>({
           };
           if (typeof parsed.searchTerm === "string") {
             setSearchTerm(parsed.searchTerm);
+            setSearchInput(parsed.searchTerm);
           }
           if (parsed.selectedFilters && typeof parsed.selectedFilters === "object") {
             setSelectedFilters(parsed.selectedFilters);
@@ -135,7 +156,7 @@ export default function DataView<T>({
         // Ignore parse errors
       }
     }
-  }, [storageKey]);
+  }, [storageKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save view mode to localStorage
   const handleViewModeChange = (mode: "grid" | "table") => {
@@ -234,6 +255,16 @@ export default function DataView<T>({
     }
   };
 
+  // Notify parent of filter changes (skip the initial mount)
+  const didMount = useRef(false);
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+    onFiltersChange?.(selectedFilters);
+  }, [selectedFilters]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Handle filter change
   const handleFilterChange = (filterKey: string, values: string[]) => {
     setSelectedFilters((prev) => ({
@@ -244,7 +275,9 @@ export default function DataView<T>({
 
   // Clear all filters
   const clearAllFilters = () => {
+    setSearchInput("");
     setSearchTerm("");
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     setSelectedFilters({});
   };
 
@@ -321,13 +354,13 @@ export default function DataView<T>({
           <div className={styles.searchSection}>
             {searchConfig && (
               <SearchBar
-                value={searchTerm}
-                onChange={setSearchTerm}
+                value={searchInput}
+                onChange={handleSearchChange}
                 placeholder={searchConfig.placeholder}
               />
             )}
             {filterConfig.length > 0 && (
-              <div className={styles.filterButtonWrapper}>
+              <div className={styles.filterButtonWrapper} data-cursor="button" data-cursor-label="Filters">
                 <Button
                   onClick={() => {
                     if (isDesktop) {
@@ -382,14 +415,38 @@ export default function DataView<T>({
             </div>
           </div>
 
-          {/* Desktop View Toggle */}
-          {viewModeConfig.showToggle && isDesktop && (
+          {/* Active filter pills + view toggle */}
+          {(hasActiveFilters || viewModeConfig.showToggle) && isDesktop && (
             <div className={styles.desktopControls}>
-              <ViewModeToggle
-                mode={viewMode}
-                onChange={handleViewModeChange}
-                variant="desktop"
-              />
+              {hasActiveFilters && (
+                <div className={styles.activeFilters}>
+                  {Object.entries(selectedFilters).flatMap(([filterKey, values]) => {
+                    const cfg = filterConfig.find((f) => f.key === filterKey);
+                    return values.map((val) => {
+                      const display = cfg?.formatValue ? cfg.formatValue(val) : val;
+                      return (
+                        <button
+                          key={`${filterKey}-${val}`}
+                          className={styles.activeFilterPill}
+                          onClick={() => handleFilterChange(filterKey, values.filter((v) => v !== val))}
+                        >
+                          {display}
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                            <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      );
+                    });
+                  })}
+                </div>
+              )}
+              {viewModeConfig.showToggle && (
+                <ViewModeToggle
+                  mode={viewMode}
+                  onChange={handleViewModeChange}
+                  variant="desktop"
+                />
+              )}
             </div>
           )}
 

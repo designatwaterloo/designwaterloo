@@ -1,9 +1,19 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { useInlineEdit } from "./InlineEditProvider";
 import type { EditableFields } from "./InlineEditProvider";
+import { encodeSpecialtyCode } from "@/lib/specialties";
 import styles from "./InlineEdit.module.css";
+
+/** Maps EditableFields keys to directory filter query param names and optional value encoder */
+const FILTER_PARAM_MAP: Partial<
+  Record<keyof EditableFields, { param: string; encode?: (v: string) => string }>
+> = {
+  specialties: { param: "s", encode: encodeSpecialtyCode },
+  work_schedule: { param: "a" },
+};
 
 interface PillInputProps {
   field: keyof EditableFields;
@@ -15,6 +25,8 @@ interface PillInputProps {
   renderPill?: (value: string) => string;
   /** Return true if a pill value represents a past/current item (will be grayed out + strikethrough) */
   isPast?: (value: string) => boolean;
+  /** Return true to show a pulsing green dot (e.g. next recruiting term) */
+  isHighlighted?: (value: string) => boolean;
   className?: string;
 }
 
@@ -26,6 +38,7 @@ export default function PillInput({
   addLabel = "Add skill",
   renderPill,
   isPast,
+  isHighlighted,
   className,
 }: PillInputProps) {
   const { isOwner, editMode, fields, setField } = useInlineEdit();
@@ -68,22 +81,77 @@ export default function PillInput({
   };
 
   // Non-owner or not in edit mode: just show the pills (or nothing)
+  const filterMapping = FILTER_PARAM_MAP[field];
   if (!isOwner || !editMode) {
     if (items.length === 0) return null;
     return (
       <div className={`flex flex-wrap gap-2 ${className ?? ""}`}>
         {items.map((item) => {
           const past = isPast?.(item);
-          return (
+          const highlighted = !past && isHighlighted?.(item);
+          const label = renderPill ? renderPill(item) : item;
+          const baseClass = "px-3 py-1 rounded-full text-sm";
+          const pillStyle: React.CSSProperties = past
+            ? {
+                backgroundColor: "color-mix(in srgb, var(--foreground) 20%, transparent)",
+                color: "color-mix(in srgb, var(--foreground) 40%, transparent)",
+                textDecoration: "line-through",
+              }
+            : {
+                backgroundColor: "var(--foreground)",
+                color: "var(--background)",
+                textDecoration: "none",
+              };
+
+          const dot = highlighted ? (
             <span
-              key={item}
-              className={`px-3 py-1 rounded-full text-sm ${
-                past
-                  ? "bg-[var(--foreground)]/20 text-[var(--foreground)]/40 line-through"
-                  : "bg-[var(--foreground)] text-[var(--background)]"
-              }`}
+              style={{
+                position: "relative",
+                display: "inline-block",
+                width: 8,
+                height: 8,
+                marginRight: 6,
+                flexShrink: 0,
+              }}
             >
-              {renderPill ? renderPill(item) : item}
+              <span style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                backgroundColor: "#22c55e",
+                animation: "pulse-ring 2s ease-out infinite",
+              }} />
+              <span style={{
+                position: "relative",
+                display: "block",
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor: "#22c55e",
+              }} />
+            </span>
+          ) : null;
+
+          if (filterMapping) {
+            const encoded = filterMapping.encode ? filterMapping.encode(item) : item;
+            return (
+              <Link
+                key={item}
+                href={`/directory?${filterMapping.param}=${encodeURIComponent(encoded)}`}
+                className={baseClass}
+                style={{ ...pillStyle, display: "inline-flex", alignItems: "center" }}
+                data-cursor="grid-item"
+                data-cursor-label={label}
+                data-cursor-icon="search"
+              >
+                {dot}{label}
+              </Link>
+            );
+          }
+
+          return (
+            <span key={item} className={baseClass} style={{ ...pillStyle, display: "inline-flex", alignItems: "center" }}>
+              {dot}{label}
             </span>
           );
         })}

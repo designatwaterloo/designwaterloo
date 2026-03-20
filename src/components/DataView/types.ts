@@ -144,6 +144,12 @@ export interface DataViewProps<T> {
   // Persistence
   /** localStorage key for persisting view mode */
   storageKey?: string;
+
+  /** Initial filter selections (e.g. from URL params). Takes priority over localStorage. */
+  initialFilters?: Record<string, string[]>;
+
+  /** Called whenever filter selections change (for URL sync, analytics, etc.) */
+  onFiltersChange?: (filters: Record<string, string[]>) => void;
 }
 
 /**

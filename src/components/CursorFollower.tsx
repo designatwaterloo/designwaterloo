@@ -28,6 +28,16 @@ const stateClassMap: Record<CursorState, string | undefined> = {
   "reading-text": styles.readingText,
 };
 
+/** Named SVG icons that can be used via data-cursor-icon="name" */
+const CURSOR_ICONS: Record<string, string> = {
+  search: '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  twitter: '<img src="/twitter_logo.svg" width="12" height="12" alt="" />',
+  linkedin: '<img src="/linkedin_logo.svg" width="12" height="12" alt="" />',
+  instagram: '<img src="/instagram_logo.svg" width="12" height="12" alt="" />',
+  github: '<img src="/github_logo.svg" width="12" height="12" alt="" />',
+  globe: '<img src="/globe.svg" width="12" height="12" alt="" />',
+};
+
 /* Text-content selectors for reading-text detection */
 const TEXT_SELECTORS =
   "p, h1, h2, h3, h4, h5, h6, li, blockquote, figcaption, td, th, dd, dt, label, legend";
@@ -87,15 +97,17 @@ function extractFieldLabel(el: Element): string {
 
 function detectState(
   target: EventTarget | null
-): { state: CursorState; label: string } {
-  if (!(target instanceof Element)) return { state: "default", label: "" };
+): { state: CursorState; label: string; icon: string } {
+  if (!(target instanceof Element)) return { state: "default", label: "", icon: "" };
 
   // 1. data-cursor attribute on element or ancestor
   const cursorEl = (target as HTMLElement).closest("[data-cursor]");
   if (cursorEl) {
     const state = cursorEl.getAttribute("data-cursor") as CursorState;
     const label = cursorEl.getAttribute("data-cursor-label") || "";
-    return { state, label };
+    const iconName = cursorEl.getAttribute("data-cursor-icon") || "";
+    const icon = CURSOR_ICONS[iconName] || "";
+    return { state, label, icon };
   }
 
   // 2. <a> tags
@@ -104,12 +116,12 @@ function detectState(
     const href = anchor.getAttribute("href") || "";
 
     if (/^mailto:/i.test(href)) {
-      return { state: "copy-email", label: "Copy Email" };
+      return { state: "copy-email", label: "Copy Email", icon: "" };
     }
 
     if (/^https?:\/\//.test(href)) {
       const domain = extractDomain(href);
-      return { state: "external-link", label: domain ? `${domain} ↗` : "" };
+      return { state: "external-link", label: domain ? `${domain} ↗` : "", icon: "" };
     }
 
     const segments = href.split(/[?#]/)[0].replace(/\/+$/, "").split("/").filter(Boolean);
@@ -120,13 +132,13 @@ function detectState(
     } else {
       pageName = extractPageName(href);
     }
-    return { state: "internal-link", label: `${pageName} →` };
+    return { state: "internal-link", label: `${pageName} →`, icon: "" };
   }
 
   // 3. <button>
   const button = (target as HTMLElement).closest("button");
   if (button) {
-    return { state: "button", label: "" };
+    return { state: "button", label: "", icon: "" };
   }
 
   // 4. <input>, <textarea>, <select>
@@ -140,18 +152,18 @@ function detectState(
       ["text", "search", "email", "password", "url", "tel", "number"].includes(type)
     ) {
       const fieldLabel = extractFieldLabel(formEl);
-      return { state: "text", label: fieldLabel };
+      return { state: "text", label: fieldLabel, icon: "" };
     }
   }
 
   // 5. Text content — shrink for precision
   const textEl = (target as HTMLElement).closest(TEXT_SELECTORS);
   if (textEl) {
-    return { state: "reading-text", label: "" };
+    return { state: "reading-text", label: "", icon: "" };
   }
 
   // 6. Default
-  return { state: "default", label: "" };
+  return { state: "default", label: "", icon: "" };
 }
 
 export default function CursorFollower() {
@@ -183,14 +195,17 @@ export default function CursorFollower() {
       textBubbleLabel.textContent = "";
     };
 
-    const applyState = (state: CursorState, labelText: string) => {
+    let currentIcon = "";
+    const applyState = (state: CursorState, labelText: string, icon: string = "") => {
       if (
         state === currentState.current &&
         label.textContent === labelText &&
+        icon === currentIcon &&
         (state !== "text" || textBubbleLabel.textContent === labelText)
       ) {
         return;
       }
+      currentIcon = icon;
 
       // Remove old state class
       const oldClass = stateClassMap[currentState.current];
@@ -238,8 +253,12 @@ export default function CursorFollower() {
           hideTextBubble();
         }
       } else if (labelText) {
-        // Cursor morphs into pill with label
-        label.textContent = labelText;
+        // Cursor morphs into pill with label (+ optional icon)
+        if (icon) {
+          label.innerHTML = icon + labelText;
+        } else {
+          label.textContent = labelText;
+        }
         label.style.position = "absolute";
         label.style.visibility = "hidden";
         label.style.display = "block";
@@ -282,8 +301,8 @@ export default function CursorFollower() {
         base.style.opacity = "1";
       }
 
-      const { state, label: labelText } = detectState(e.target);
-      applyState(state, labelText);
+      const { state, label: labelText, icon } = detectState(e.target);
+      applyState(state, labelText, icon);
     };
 
     const handleMouseLeave = () => {
@@ -335,11 +354,21 @@ export default function CursorFollower() {
       raf = requestAnimationFrame(tick);
     };
 
+    const handleScroll = () => {
+      if (!visible.current) return;
+      const el = document.elementFromPoint(mouse.current.x, mouse.current.y);
+      if (el) {
+        const { state, label: labelText, icon } = detectState(el);
+        applyState(state, labelText, icon);
+      }
+    };
+
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("click", handleClick, true);
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
     raf = requestAnimationFrame(tick);
 
     return () => {
@@ -348,6 +377,7 @@ export default function CursorFollower() {
       document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("click", handleClick, true);
+      window.removeEventListener("scroll", handleScroll, true);
       cancelAnimationFrame(raf);
     };
   }, []);

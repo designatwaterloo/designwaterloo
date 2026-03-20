@@ -67,6 +67,16 @@ export function isTermPast(termCode: string): boolean {
 }
 
 /**
+ * Get the next future term code from a list (the member's soonest upcoming term)
+ */
+export function getNextTermCode(termCodes: string[] | undefined): string | null {
+  if (!termCodes || termCodes.length === 0) return null;
+  const currentCode = getCurrentTermCode();
+  const sorted = [...termCodes].sort();
+  return sorted.find(code => code > currentCode) ?? null;
+}
+
+/**
  * Get all terms with past/future status
  * @param termCodes - Array of term codes
  * @returns Array of terms with decoded names and past/future status

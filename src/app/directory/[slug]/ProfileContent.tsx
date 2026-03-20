@@ -21,26 +21,12 @@ import type {
 import type { ReviewStatus } from "@/types/database";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ensureHttps } from "@/lib/urlUtils";
-import { decodeTermCode, getCurrentTermCode } from "@/lib/termUtils";
+import { decodeTermCode, getCurrentTermCode, getNextTermCode } from "@/lib/termUtils";
 import styles from "./page.module.css";
 import editStyles from "@/components/InlineEdit/InlineEdit.module.css";
 
-// ===== All known specialties for suggestions =====
-const ALL_SPECIALTIES = [
-  "UI Design",
-  "UX Design",
-  "Product Design",
-  "Interaction Design",
-  "Visual Design",
-  "Design Systems",
-  "Prototyping",
-  "UX Research",
-  "Content Design",
-  "Brand Design",
-  "Motion Design",
-  "Information Architecture",
-  "Service Design",
-];
+import { SPECIALTIES } from "@/lib/specialties";
+const ALL_SPECIALTIES = [...SPECIALTIES];
 
 // ===== Generate term code suggestions (next ~8 terms) =====
 function generateTermSuggestions(): string[] {
@@ -428,6 +414,7 @@ function ProfileContentInner({
                       addLabel="Add work term"
                       renderPill={decodeTermCode}
                       isPast={(code) => code <= getCurrentTermCode()}
+                      isHighlighted={(code) => code === getNextTermCode(workSchedule)}
                     />
                   </dd>
                 </div>
@@ -516,6 +503,14 @@ function ProfileContentInner({
 
 // ===== Helper: Trading Card Link =====
 
+const ICON_TO_CURSOR: Record<string, string> = {
+  "/globe.svg": "globe",
+  "/twitter_logo.svg": "twitter",
+  "/linkedin_logo.svg": "linkedin",
+  "/instagram_logo.svg": "instagram",
+  "/github_logo.svg": "github",
+};
+
 function TradingCardLink({
   href,
   icon,
@@ -531,12 +526,17 @@ function TradingCardLink({
     if (preventNav) e.preventDefault();
   };
 
+  const cursorIcon = icon ? ICON_TO_CURSOR[icon] || "" : "";
+
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
+      data-cursor="external-link"
+      data-cursor-label={label}
+      {...(cursorIcon && { "data-cursor-icon": cursorIcon })}
     >
       {icon && (
         // eslint-disable-next-line @next/next/no-img-element

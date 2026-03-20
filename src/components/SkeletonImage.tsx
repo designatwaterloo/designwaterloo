@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Image, { ImageProps } from "next/image";
+
+/** Track which src URLs have already been revealed in this session */
+const revealedSrcs = new Set<string>();
 
 type SkeletonImageProps = Omit<ImageProps, "placeholder" | "blurDataURL" | "onLoad"> & {
   skeletonClassName?: string;
@@ -18,7 +21,15 @@ export default function SkeletonImage({
   height,
   ...props
 }: SkeletonImageProps) {
-  const [loaded, setLoaded] = useState(false);
+  const src = typeof props.src === "string" ? props.src : "";
+  const alreadyRevealed = revealedSrcs.has(src);
+  const [loaded, setLoaded] = useState(alreadyRevealed);
+  const skipAnimation = useRef(alreadyRevealed);
+
+  const handleLoad = useCallback(() => {
+    if (src) revealedSrcs.add(src);
+    setLoaded(true);
+  }, [src]);
 
   // Derive aspect ratio: explicit style > computed from width/height props
   const aspectRatio =
@@ -44,11 +55,11 @@ export default function SkeletonImage({
         height={height}
         className={className}
         style={style}
-        onLoad={() => setLoaded(true)}
+        onLoad={handleLoad}
       />
 
       {/* Black wipe overlay — covers image, then sweeps down to reveal */}
-      {loaded && (
+      {loaded && !skipAnimation.current && (
         <div
           className="absolute inset-0 bg-skeleton"
           style={{

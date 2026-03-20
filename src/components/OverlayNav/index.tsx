@@ -138,6 +138,8 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       startTransition("/");
                     }}
                     className={styles.userLink}
+                    data-cursor="button"
+                    data-cursor-label="Sign Out"
                   >
                     Sign out
                   </button>

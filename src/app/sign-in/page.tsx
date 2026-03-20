@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { isLaurierEmail, getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import { useSearchParams } from "next/navigation";
@@ -22,6 +22,8 @@ function SignInContent() {
   const [laurierError, setLaurierError] = useState<string | null>(null);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpFocused, setOtpFocused] = useState(false);
+  const otpRef = useRef<HTMLInputElement>(null);
 
   const laurierEmail = laurierUsername ? `${laurierUsername}@mylaurier.ca` : "";
 
@@ -73,12 +75,12 @@ function SignInContent() {
         .from("members")
         .select("slug, onboarding_completed")
         .eq("auth_user_id", user.id)
-        .maybeSingle() as Promise<{ data: { slug: string; onboarding_completed: boolean } | null }>,
+        .maybeSingle() as unknown as Promise<{ data: { slug: string; onboarding_completed: boolean } | null }>,
       supabase
         .from("members")
         .select("id, slug, auth_user_id, onboarding_completed")
         .eq("school_email", user.email!)
-        .maybeSingle() as Promise<{ data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null }>,
+        .maybeSingle() as unknown as Promise<{ data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null }>,
     ]);
 
     if (member?.onboarding_completed) {
@@ -177,6 +179,8 @@ function SignInContent() {
         className={styles.microsoftButton}
         onClick={() => signInWithMicrosoft(redirectTo || undefined)}
         disabled={loading}
+        data-cursor="button"
+        data-cursor-label="UWaterloo SSO →"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -200,6 +204,8 @@ function SignInContent() {
         <button
           className={styles.laurierButton}
           onClick={() => setShowLaurierFlow(true)}
+          data-cursor="button"
+          data-cursor-label="Email Code →"
         >
           Sign in with @mylaurier.ca
         </button>
@@ -231,15 +237,34 @@ function SignInContent() {
           <p className={styles.otpHint}>
             Enter the 6-digit code sent to {laurierEmail}
           </p>
-          <input
-            type="text"
-            className={styles.otpInput}
-            placeholder="000000"
-            maxLength={6}
-            value={otpCode}
-            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-            onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
-          />
+          <div
+            className={styles.otpBoxes}
+            onClick={() => otpRef.current?.focus()}
+            data-cursor="text"
+            data-cursor-label="Enter Code"
+          >
+            <input
+              ref={otpRef}
+              type="text"
+              className={styles.otpHiddenInput}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+              onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
+              onFocus={() => setOtpFocused(true)}
+              onBlur={() => setOtpFocused(false)}
+            />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className={`${styles.otpDigit}${otpFocused && i === otpCode.length ? ` ${styles.otpDigitActive}` : ""}${otpCode[i] ? ` ${styles.otpDigitFilled}` : ""}`}
+              >
+                {otpCode[i] || ""}
+              </div>
+            ))}
+          </div>
           {laurierError && <div className={styles.error}>{laurierError}</div>}
           <button
             className={styles.sendButton}
