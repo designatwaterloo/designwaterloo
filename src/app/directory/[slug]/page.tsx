@@ -148,6 +148,7 @@ export default async function PersonDetail({
     startMonth: exp.start_month,
     startYear: exp.start_year,
     isCurrent: exp.is_current,
+    link: exp.link,
   }));
 
   const initialLeadership: LeadershipEntry[] = member.member_leadership.map((lead) => ({
@@ -157,6 +158,7 @@ export default async function PersonDetail({
     startMonth: lead.start_month,
     startYear: lead.start_year,
     isCurrent: lead.is_current,
+    link: lead.link,
   }));
 
   return (

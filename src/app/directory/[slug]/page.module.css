@@ -302,6 +302,11 @@
   color: var(--muted-text);
 }
 
+a.experienceItem {
+  text-decoration: none;
+  color: inherit;
+}
+
 .year {
   text-align: right;
 }

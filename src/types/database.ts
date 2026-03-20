@@ -122,6 +122,7 @@ export interface Database {
           start_month: string | null;
           start_year: string | null;
           is_current: boolean;
+          link: string | null;
           created_at: string;
         };
         Insert: {
@@ -132,6 +133,7 @@ export interface Database {
           start_month?: string | null;
           start_year?: string | null;
           is_current?: boolean;
+          link?: string | null;
         };
         Update: {
           id?: string;
@@ -141,6 +143,7 @@ export interface Database {
           start_month?: string | null;
           start_year?: string | null;
           is_current?: boolean;
+          link?: string | null;
         };
         Relationships: [];
       };
@@ -153,6 +156,7 @@ export interface Database {
           start_month: string | null;
           start_year: string | null;
           is_current: boolean;
+          link: string | null;
           created_at: string;
         };
         Insert: {
@@ -163,6 +167,7 @@ export interface Database {
           start_month?: string | null;
           start_year?: string | null;
           is_current?: boolean;
+          link?: string | null;
         };
         Update: {
           id?: string;
@@ -172,6 +177,7 @@ export interface Database {
           start_month?: string | null;
           start_year?: string | null;
           is_current?: boolean;
+          link?: string | null;
         };
         Relationships: [];
       };

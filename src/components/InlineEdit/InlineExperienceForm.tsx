@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useInlineEdit, ExperienceEntry, LeadershipEntry } from "./InlineEditProvider";
+import { ensureHttps } from "@/lib/urlUtils";
 import styles from "./InlineEdit.module.css";
 import pageStyles from "@/app/directory/[slug]/page.module.css";
 
@@ -74,6 +75,16 @@ function EntryForm({
           onChange={(e) => setOrg(e.target.value)}
           placeholder={orgLabel}
           className={styles.entryInput}
+        />
+      </div>
+      <div className={styles.entryRow}>
+        <input
+          type="text"
+          value={entry.link ?? ""}
+          onChange={(e) => onChange({ ...entry, link: e.target.value || null })}
+          placeholder="Link (optional)"
+          className={styles.entryInput}
+          style={{ flex: 1 }}
         />
       </div>
       <div className={styles.entryRow}>
@@ -174,8 +185,8 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
     if (!canAdd) return;
     const blank: Entry =
       type === "experience"
-        ? { positionTitle: null, company: "", startMonth: null, startYear: null, isCurrent: false }
-        : { positionTitle: null, org: "", startMonth: null, startYear: null, isCurrent: false };
+        ? { positionTitle: null, company: "", startMonth: null, startYear: null, isCurrent: false, link: null }
+        : { positionTitle: null, org: "", startMonth: null, startYear: null, isCurrent: false, link: null };
     setEntries([...entries, blank]);
     setEditingIndex(entries.length);
   };
@@ -187,8 +198,13 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
       <dl className={pageStyles.experienceGroup}>
         <dt className={pageStyles.label}>{label}</dt>
         <dd className={pageStyles.experienceList}>
-          {sorted.map(({ entry }, i) => (
-            <div key={i} className={pageStyles.experienceItem}>
+          {sorted.map(({ entry }, i) => {
+            const Tag = entry.link ? "a" : "div";
+            const linkProps = entry.link
+              ? { href: ensureHttps(entry.link), target: "_blank", rel: "noopener noreferrer" }
+              : {};
+            return (
+            <Tag key={i} className={pageStyles.experienceItem} {...linkProps}>
               <div className={pageStyles.experienceInfo}>
                 {entry.positionTitle && <p className={pageStyles.jobTitle}>{entry.positionTitle}</p>}
                 <p className={pageStyles.companyName}>{getOrg(entry)}</p>
@@ -199,8 +215,9 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
                   {!entry.isIncoming && entry.isCurrent ? " - Present" : ""}
                 </span>
               )}
-            </div>
-          ))}
+            </Tag>
+            );
+          })}
         </dd>
       </dl>
     );

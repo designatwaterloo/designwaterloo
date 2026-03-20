@@ -23,6 +23,7 @@ export interface ExperienceEntry {
   startYear: string | null;
   isCurrent: boolean;
   isIncoming?: boolean;
+  link?: string | null;
 }
 
 export interface LeadershipEntry {
@@ -33,6 +34,7 @@ export interface LeadershipEntry {
   startYear: string | null;
   isCurrent: boolean;
   isIncoming?: boolean;
+  link?: string | null;
 }
 
 /** Flat member fields that can be edited inline. */
@@ -250,6 +252,7 @@ export function InlineEditProvider({
                 start_month: e.startMonth,
                 start_year: e.startYear,
                 is_current: e.isCurrent,
+                link: e.link ?? null,
               })),
             });
             if (expError) throw new Error(expError);
@@ -273,6 +276,7 @@ export function InlineEditProvider({
                 start_month: l.startMonth,
                 start_year: l.startYear,
                 is_current: l.isCurrent,
+                link: l.link ?? null,
               })),
             });
             if (leadError) throw new Error(leadError);
