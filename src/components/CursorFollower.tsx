@@ -31,11 +31,11 @@ const stateClassMap: Record<CursorState, string | undefined> = {
 /** Named SVG icons that can be used via data-cursor-icon="name" */
 const CURSOR_ICONS: Record<string, string> = {
   search: '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  twitter: '<img src="/twitter_logo.svg" width="12" height="12" alt="" />',
-  linkedin: '<img src="/linkedin_logo.svg" width="12" height="12" alt="" />',
-  instagram: '<img src="/instagram_logo.svg" width="12" height="12" alt="" />',
-  github: '<img src="/github_logo.svg" width="12" height="12" alt="" />',
-  globe: '<img src="/globe.svg" width="12" height="12" alt="" />',
+  twitter: '<img src="/twitter_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
+  linkedin: '<img src="/linkedin_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
+  instagram: '<img src="/instagram_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
+  github: '<img src="/github_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
+  globe: '<img src="/globe.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
 };
 
 /* Text-content selectors for reading-text detection */
