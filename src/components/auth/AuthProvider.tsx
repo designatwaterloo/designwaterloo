@@ -59,20 +59,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setLoading(false);
     }, 5000);
 
-    // Get initial session
+    // Get initial session — use getUser() to validate on the server,
+    // then getSession() for the token. getSession() alone can return null
+    // during token refresh, causing a premature redirect to sign-in.
     const getInitialSession = async () => {
       try {
         const {
-          data: { session },
-        } = await supabase.auth.getSession();
+          data: { user },
+        } = await supabase.auth.getUser();
 
         if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          await fetchMember(session.user.id);
+        if (user) {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          setSession(session);
+          setUser(user);
+          await fetchMember(user.id);
+        } else {
+          setSession(null);
+          setUser(null);
         }
       } catch (err) {
         // Ignore AbortErrors from Strict Mode double-mounting

@@ -56,7 +56,7 @@ export default function Curtain({
   const columnCount = isMobile ? 4 : 6;
 
   const columnDelaysOpen = isMobile
-    ? [0.405, 0.305, 0.195, 0.075]
+    ? [0.53, 0.40, 0.26, 0.10]
     : [0.575, 0.495, 0.405, 0.305, 0.195, 0.075];
 
   const columnDelaysClose = isMobile
@@ -64,7 +64,7 @@ export default function Curtain({
     : [0.3, 0.24, 0.18, 0.12, 0.07, 0.03];
 
   const columnDurationsOpen = isMobile
-    ? [0.22, 0.25, 0.30, 0.35]
+    ? [0.29, 0.33, 0.39, 0.46]
     : [0.17, 0.19, 0.22, 0.25, 0.30, 0.35];
 
   const isClosing = !isOpen;

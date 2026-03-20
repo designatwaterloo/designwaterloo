@@ -8,6 +8,7 @@ import styles from "./Header.module.css";
 import OverlayNav from "../OverlayNav";
 import { useAuth } from "@/components/auth/AuthProvider";
 import type { ReviewStatus } from "@/types/database";
+import { triggerHaptic } from "@/lib/haptics";
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -75,7 +76,7 @@ export default function Header() {
               priority
             />
           </Link>
-          <div className={`${styles.headerActions} col-start-11 col-span-2`}>
+          <div className={`${styles.headerActions} hidden sm:flex col-start-11 col-span-2`}>
             <button
               onClick={() => setIsNavOpen(true)}
               className={`btn-menu ${styles.menuButton}`}
@@ -112,7 +113,7 @@ export default function Header() {
 
       {/* Menu button — separate element so blend mode composites against the page */}
       <button
-        onClick={() => setIsNavOpen(!isNavOpen)}
+        onClick={() => { triggerHaptic(); setIsNavOpen(!isNavOpen); }}
         className={`${styles.menuButton} ${isNavOpen ? styles.menuButtonOpen : ''}`}
         aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
         data-cursor="menu"

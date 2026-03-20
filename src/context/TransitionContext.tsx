@@ -19,6 +19,14 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<TransitionStage>("idle");
   const [nextHref, setNextHref] = useState<string | null>(null);
   const [isWaitingForPush, setIsWaitingForPush] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 769);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const startTransition = (href: string) => {
     setNextHref(href);
@@ -29,6 +37,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (stage === "entering") {
       document.body.style.cursor = "wait";
+      const delay = isMobile ? 1500 : 1200;
       const timer = setTimeout(() => {
         if (nextHref) {
           // Scroll to top regardless of whether it's same-page or different page
@@ -36,7 +45,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
           router.push(nextHref);
           setIsWaitingForPush(false);
         }
-      }, 1200);
+      }, delay);
 
       // Safety: if we're still in "entering" after 5s, force reset
       // (handles cases where middleware redirects elsewhere and pathname never matches)
@@ -52,7 +61,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         clearTimeout(safetyTimer);
       };
     }
-  }, [stage, nextHref, router]);
+  }, [stage, nextHref, router, isMobile]);
 
   useEffect(() => {
     const nextPathname = nextHref?.split(/[?#]/)[0] ?? null;

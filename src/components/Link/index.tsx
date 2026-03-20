@@ -2,6 +2,7 @@
 
 import NextLink from "next/link";
 import { useTransition } from "@/context/TransitionContext";
+import { triggerHaptic } from "@/lib/haptics";
 import { ComponentProps } from "react";
 
 type LinkProps = ComponentProps<typeof NextLink> & {
@@ -19,6 +20,7 @@ export default function Link({ href, onClick, underline = true, className, style
     const path = typeof href === "string" ? href : href?.pathname ?? null;
     if (typeof path === "string" && path.startsWith("/") && !path.startsWith("/#")) {
       e.preventDefault();
+      triggerHaptic();
       startTransition(path);
     }
     // External links, hash links, and Link objects work normally

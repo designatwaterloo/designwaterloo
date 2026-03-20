@@ -242,11 +242,11 @@
   }
 
   .headerLogo:nth-child(1) {
-    grid-column: 1 / span 1;
+    grid-column: 1 / span 2;
   }
 
   .headerLogo:nth-child(2) {
-    grid-column: 2 / span 1;
+    grid-column: 3 / span 1;
   }
 
   .headerLogo {

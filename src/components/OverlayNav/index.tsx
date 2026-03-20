@@ -10,6 +10,7 @@ import Curtain from "../Curtain";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface OverlayNavProps {
   isOpen: boolean;
@@ -23,6 +24,14 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const { startTransition } = useTransition();
   const [directoryCount, setDirectoryCount] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 769);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Fetch counts when nav opens
   useEffect(() => {
@@ -82,7 +91,9 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   }
 
   // Nav item delays: start after columns finish
-  const allNavItemDelays = [0.65, 0.72, 0.80, 0.88, 0.96, 1.04, 1.12];
+  const allNavItemDelays = isMobile
+    ? [0.85, 0.92, 1.00, 1.08, 1.16, 1.24, 1.32]
+    : [0.65, 0.72, 0.80, 0.88, 0.96, 1.04, 1.12];
 
   const isClosing = !isOpen;
 
@@ -133,6 +144,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   </Link>
                   <button
                     onClick={async () => {
+                      triggerHaptic();
                       onClose();
                       await signOut();
                       startTransition("/");
