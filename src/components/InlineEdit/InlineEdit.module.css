@@ -16,8 +16,10 @@
   grid-template-columns: subgrid;
 }
 
-.editableRow:hover {
-  background-color: var(--hover-bg);
+@media (hover: hover) {
+  .editableRow:hover {
+    background-color: var(--hover-bg);
+  }
 }
 
 @media (max-width: 768px) {
@@ -41,8 +43,10 @@
   border-radius: var(--radius-small);
 }
 
-.disabledRow:hover {
-  background-color: var(--surface);
+@media (hover: hover) {
+  .disabledRow:hover {
+    background-color: var(--surface);
+  }
 }
 
 @media (max-width: 768px) {
@@ -127,8 +131,10 @@
   transition: background-color 0.1s ease;
 }
 
-.suggestionItem:hover {
-  background-color: var(--hover-bg);
+@media (hover: hover) {
+  .suggestionItem:hover {
+    background-color: var(--hover-bg);
+  }
 }
 
 .suggestionCreate {
@@ -199,8 +205,10 @@
   transition: opacity 0.1s ease;
 }
 
-.pillRemove:hover {
-  opacity: 1;
+@media (hover: hover) {
+  .pillRemove:hover {
+    opacity: 1;
+  }
 }
 
 .pillInput {
@@ -244,9 +252,11 @@
   animation: pillIn 0.2s ease;
 }
 
-.addSkillPill:hover {
-  background-color: var(--hover-bg);
-  border-color: var(--foreground);
+@media (hover: hover) {
+  .addSkillPill:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--foreground);
+  }
 }
 
 /* ===== Dynamic Island Toast ===== */
@@ -295,9 +305,11 @@
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-.toastDiscard:hover {
-  color: var(--white);
-  border-color: rgba(255, 255, 255, 0.5);
+@media (hover: hover) {
+  .toastDiscard:hover {
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .toastSave {
@@ -313,8 +325,10 @@
   transition: opacity 0.15s ease;
 }
 
-.toastSave:hover {
-  opacity: 0.85;
+@media (hover: hover) {
+  .toastSave:hover {
+    opacity: 0.85;
+  }
 }
 
 .toastSave:disabled,
@@ -351,9 +365,14 @@
   transition: opacity 0.2s ease;
 }
 
-.imageEditButton:hover .imageEditOverlay,
 .imageEditOverlayActive {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .imageEditButton:hover .imageEditOverlay {
+    opacity: 1;
+  }
 }
 
 .imageEditLabel {
@@ -424,8 +443,10 @@
   line-height: 1;
 }
 
-.socialClose:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .socialClose:hover {
+    color: var(--foreground);
+  }
 }
 
 .socialFields {
@@ -482,8 +503,10 @@
   transition: opacity 0.15s ease;
 }
 
-.socialDone:hover {
-  opacity: 0.85;
+@media (hover: hover) {
+  .socialDone:hover {
+    opacity: 0.85;
+  }
 }
 
 /* ===== Experience Entry Form ===== */
@@ -571,9 +594,11 @@
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
-.entryRemove:hover {
-  color: var(--error);
-  background-color: rgba(220, 38, 38, 0.08);
+@media (hover: hover) {
+  .entryRemove:hover {
+    color: var(--error);
+    background-color: rgba(220, 38, 38, 0.08);
+  }
 }
 
 .addEntryButton {
@@ -589,8 +614,10 @@
   transition: opacity 0.15s ease;
 }
 
-.addEntryButton:hover {
-  opacity: 0.7;
+@media (hover: hover) {
+  .addEntryButton:hover {
+    opacity: 0.7;
+  }
 }
 
 .addEntryButton:disabled {
@@ -607,8 +634,10 @@
   outline-offset: -2px;
 }
 
-.tradingCardEditable:hover {
-  outline-color: var(--foreground);
+@media (hover: hover) {
+  .tradingCardEditable:hover {
+    outline-color: var(--foreground);
+  }
 }
 
 /* ===== Animations ===== */

@@ -108,8 +108,10 @@
   transition: opacity 0.15s ease;
 }
 
-.primaryButton:hover {
-  opacity: 0.85;
+@media (hover: hover) {
+  .primaryButton:hover {
+    opacity: 0.85;
+  }
 }
 
 .secondaryButton {
@@ -125,8 +127,10 @@
   transition: border-color 0.15s ease;
 }
 
-.secondaryButton:hover {
-  border-color: var(--foreground);
+@media (hover: hover) {
+  .secondaryButton:hover {
+    border-color: var(--foreground);
+  }
 }
 
 .signOutButton {
@@ -141,6 +145,8 @@
   align-self: flex-start;
 }
 
-.signOutButton:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .signOutButton:hover {
+    color: var(--foreground);
+  }
 }

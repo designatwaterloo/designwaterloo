@@ -217,13 +217,15 @@
   transition-duration: 0.2s, 0.2s, 0.6s, 0.6s;
 }
 
-.navItem:hover {
-  background-color: var(--white);
-  color: var(--black);
-  transition-property: opacity, transform, background-color, color;
-  transition-duration: 0.4s, 0.4s, 0.05s, 0.05s;
-  transition-timing-function: ease, ease, ease, ease;
-  transition-delay: 0s, 0s, 0s, 0s;
+@media (hover: hover) {
+  .navItem:hover {
+    background-color: var(--white);
+    color: var(--black);
+    transition-property: opacity, transform, background-color, color;
+    transition-duration: 0.4s, 0.4s, 0.05s, 0.05s;
+    transition-timing-function: ease, ease, ease, ease;
+    transition-delay: 0s, 0s, 0s, 0s;
+  }
 }
 
 /* Footer Section */
@@ -314,6 +316,16 @@
   border-radius: 999px;
 }
 
+.overlayProfileButtonDefault {
+  width: 24px;
+  height: 24px;
+}
+
+.overlayProfileButtonDefault .overlayProfileImage {
+  width: 24px;
+  height: 24px;
+}
+
 /* Mobile: match header position */
 @media (max-width: 768px) {
   .overlayProfileButton {
@@ -322,6 +334,14 @@
     right: calc(var(--margin) + 42px);
     display: flex;
     align-items: center;
+    width: auto;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  .overlayProfileImage {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -389,8 +409,10 @@
   transition: color 0.15s ease;
 }
 
-.userLink:hover {
-  color: var(--white);
+@media (hover: hover) {
+  .userLink:hover {
+    color: var(--white);
+  }
 }
 
 /* Hide user info on mobile — shown via nav items instead */

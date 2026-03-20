@@ -250,8 +250,10 @@
   transition: opacity 0.2s ease;
 }
 
-.addButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .addButton:hover {
+    opacity: 0.9;
+  }
 }
 
 .specialties {
@@ -315,8 +317,10 @@
   font-size: 14px;
 }
 
-.specialtiesDropdownItem:hover {
-  background: var(--hover-bg);
+@media (hover: hover) {
+  .specialtiesDropdownItem:hover {
+    background: var(--hover-bg);
+  }
 }
 
 .specialtiesDropdownLabel {
@@ -366,8 +370,10 @@
   padding: 0;
 }
 
-.specialty button:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .specialty button:hover {
+    color: var(--foreground);
+  }
 }
 
 /* ===== Program Combobox ===== */
@@ -401,8 +407,10 @@
   transition: background-color 0.1s ease;
 }
 
-.comboboxItem:hover {
-  background-color: var(--hover-bg);
+@media (hover: hover) {
+  .comboboxItem:hover {
+    background-color: var(--hover-bg);
+  }
 }
 
 /* ===== Program Ghost Autocomplete ===== */
@@ -477,8 +485,10 @@
   cursor: pointer;
 }
 
-.clearButton:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .clearButton:hover {
+    color: var(--foreground);
+  }
 }
 
 .actions {
@@ -500,8 +510,10 @@
   transition: opacity 0.2s ease;
 }
 
-.primaryButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .primaryButton:hover {
+    opacity: 0.9;
+  }
 }
 
 .primaryButton:disabled {
@@ -523,6 +535,8 @@
   align-items: center;
 }
 
-.secondaryButton:hover {
-  border-color: var(--foreground);
+@media (hover: hover) {
+  .secondaryButton:hover {
+    border-color: var(--foreground);
+  }
 }

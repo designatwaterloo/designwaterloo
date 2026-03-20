@@ -112,21 +112,19 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
       />
 
       {/* Profile button inside overlay — animates with nav content */}
-      {user && (
-        <Link
-          href={member ? "/dashboard" : "/sign-in"}
-          className={`${styles.overlayProfileButton} ${isAnimating && isOpen ? styles.overlayProfileOpening : ''} ${isClosing ? styles.overlayProfileClosing : ''}`}
-          aria-label={member ? "Your dashboard" : "Sign in"}
-        >
-          <Image
-            src={member?.profile_image_url || "/person.svg"}
-            alt={member ? "Your profile" : "Sign in"}
-            width={32}
-            height={32}
-            className={styles.overlayProfileImage}
-          />
-        </Link>
-      )}
+      <Link
+        href={user && member ? "/dashboard" : "/sign-in"}
+        className={`${styles.overlayProfileButton} ${!member?.profile_image_url ? styles.overlayProfileButtonDefault : ''} ${isAnimating && isOpen ? styles.overlayProfileOpening : ''} ${isClosing ? styles.overlayProfileClosing : ''}`}
+        aria-label={user && member ? "Your dashboard" : "Sign in"}
+      >
+        <Image
+          src={member?.profile_image_url || "/person.svg"}
+          alt={user && member ? "Your profile" : "Sign in"}
+          width={32}
+          height={32}
+          className={styles.overlayProfileImage}
+        />
+      </Link>
 
       {/* Content Layer */}
       <div className={styles.contentLayer}>

@@ -14,8 +14,8 @@ export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { user, member } = useAuth();
   const hasProfile = !!(user && member);
-  const avatarSrc =
-    hasProfile && member?.profile_image_url ? member.profile_image_url : "/person.svg";
+  const hasProfileImage = !!(member?.profile_image_url);
+  const avatarSrc = hasProfileImage ? member!.profile_image_url! : "/person.svg";
 
   const reviewStatus = (member?.review_status ?? "draft") as ReviewStatus;
   const showBadge = hasProfile && reviewStatus === "pending_review";
@@ -99,7 +99,7 @@ export default function Header() {
               ? "/dashboard"
               : "/sign-in"
           }
-          className={`${styles.primaryButton} ${showBadge ? ringClass : ""}`}
+          className={`${styles.primaryButton} ${!hasProfileImage ? styles.primaryButtonDefault : ''} ${showBadge ? ringClass : ""}`}
           aria-label={hasProfile ? "Your dashboard" : "Sign in"}
         >
           <Image

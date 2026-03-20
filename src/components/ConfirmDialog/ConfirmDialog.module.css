@@ -55,8 +55,10 @@
   transition: border-color 0.15s ease;
 }
 
-.cancelButton:hover {
-  border-color: var(--foreground);
+@media (hover: hover) {
+  .cancelButton:hover {
+    border-color: var(--foreground);
+  }
 }
 
 .confirmButton {
@@ -72,8 +74,10 @@
   transition: opacity 0.15s ease;
 }
 
-.confirmButton:hover {
-  opacity: 0.85;
+@media (hover: hover) {
+  .confirmButton:hover {
+    opacity: 0.85;
+  }
 }
 
 .confirmButtonDanger {

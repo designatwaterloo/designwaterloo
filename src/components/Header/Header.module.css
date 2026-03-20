@@ -103,6 +103,11 @@
   overflow: hidden;
 }
 
+.primaryButtonDefault {
+  width: 24px;
+  height: 24px;
+}
+
 .primaryButton :global(img),
 .primaryButton img {
   height: 100%;
@@ -205,12 +210,14 @@
 }
 
 /* Hover — lines spread apart */
-.menuButton:hover .menuIcon:not(.menuIconOpen) span:first-child {
-  top: -3px;
-}
+@media (hover: hover) {
+  .menuButton:hover .menuIcon:not(.menuIconOpen) span:first-child {
+    top: -3px;
+  }
 
-.menuButton:hover .menuIcon:not(.menuIconOpen) span:last-child {
-  bottom: -3px;
+  .menuButton:hover .menuIcon:not(.menuIconOpen) span:last-child {
+    bottom: -3px;
+  }
 }
 
 /* Middle line merges into top — same rotation, moves to center */
@@ -235,18 +242,18 @@
 /* Mobile: 4 column grid, show both logos, fixed height (0-768px) */
 @media (max-width: 768px) {
   .headerInner {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: auto auto 1fr 1fr;
     height: var(--header-height);
     padding: 0 var(--margin);
     align-items: center;
   }
 
   .headerLogo:nth-child(1) {
-    grid-column: 1 / span 2;
+    grid-column: 1;
   }
 
   .headerLogo:nth-child(2) {
-    grid-column: 3 / span 1;
+    grid-column: 2;
   }
 
   .headerLogo {

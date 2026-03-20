@@ -21,8 +21,10 @@
   transition: border-color 0.2s ease;
 }
 
-.uploadButton:hover {
-  border-color: var(--foreground);
+@media (hover: hover) {
+  .uploadButton:hover {
+    border-color: var(--foreground);
+  }
 }
 
 .uploadButton:disabled {
@@ -71,8 +73,10 @@
   font-size: var(--smallest);
 }
 
-.uploadButton:hover .overlay {
-  opacity: 1;
+@media (hover: hover) {
+  .uploadButton:hover .overlay {
+    opacity: 1;
+  }
 }
 
 .error {

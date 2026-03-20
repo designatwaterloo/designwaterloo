@@ -67,16 +67,20 @@
   transition: background 0.15s ease;
 }
 
-.menuItem:hover {
-  background: var(--background);
+@media (hover: hover) {
+  .menuItem:hover {
+    background: var(--background);
+  }
 }
 
 .signOutButton {
   color: var(--black);
 }
 
-.signOutButton:hover {
-  background: var(--background);
+@media (hover: hover) {
+  .signOutButton:hover {
+    background: var(--background);
+  }
 }
 
 .signOutButton img {

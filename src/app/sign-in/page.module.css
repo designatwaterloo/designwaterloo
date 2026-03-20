@@ -46,8 +46,10 @@
   margin-top: var(--tinier);
 }
 
-.microsoftButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .microsoftButton:hover {
+    opacity: 0.9;
+  }
 }
 
 .microsoftButton:disabled {
@@ -87,8 +89,10 @@
   transition: background 0.2s ease;
 }
 
-.laurierButton:hover {
-  background: var(--surface);
+@media (hover: hover) {
+  .laurierButton:hover {
+    background: var(--surface);
+  }
 }
 
 .otpFlow {
@@ -199,8 +203,10 @@
   width: 100%;
 }
 
-.sendButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .sendButton:hover {
+    opacity: 0.9;
+  }
 }
 
 .sendButton:disabled {
@@ -218,8 +224,10 @@
   padding: 0;
 }
 
-.backLink:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .backLink:hover {
+    color: var(--foreground);
+  }
 }
 
 .hint {

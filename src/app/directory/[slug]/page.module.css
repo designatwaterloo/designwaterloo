@@ -99,6 +99,7 @@
 @media (max-width: 768px) {
   .section {
     grid-template-columns: 1fr;
+    overflow-wrap: anywhere;
   }
 
   .nameRow {
@@ -144,12 +145,14 @@
     flex-direction: column;
     row-gap: var(--big);
     padding-right: 0;
+    min-width: 0;
   }
 
   .rowGroup {
     display: flex;
     flex-direction: column;
     gap: var(--smaller);
+    min-width: 0;
   }
 
   .infoRow {
@@ -195,9 +198,11 @@
   transition: background-color 0.12s ease, box-shadow 0.12s ease;
 }
 
-.infoRowEditable:hover {
-  background-color: var(--hover-bg);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+@media (hover: hover) {
+  .infoRowEditable:hover {
+    background-color: var(--hover-bg);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .infoRowFull {
@@ -239,6 +244,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--tinier);
+    min-width: 0;
   }
 
   .experienceGroup>dt {
@@ -275,22 +281,25 @@
   border-bottom: 2px solid var(--muted);
 }
 
-.experienceItem:hover {
-  background-color: var(--black);
-  color: var(--white);
-  border-color: var(--background);
-  transition-duration: 0.05s, 0.05s, 0.05s;
-}
+@media (hover: hover) {
+  .experienceItem:hover {
+    background-color: var(--black);
+    color: var(--white);
+    border-color: var(--background);
+    transition-duration: 0.05s, 0.05s, 0.05s;
+  }
 
-.experienceItem:hover .companyName {
-  color: var(--white);
-  opacity: 0.7;
+  .experienceItem:hover .companyName {
+    color: var(--white);
+    opacity: 0.7;
+  }
 }
 
 .experienceInfo {
   display: flex;
   flex-direction: column;
   gap: 0;
+  min-width: 0;
 }
 
 .jobTitle {
@@ -309,6 +318,15 @@ a.experienceItem {
 
 .year {
   text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .year {
+    white-space: normal;
+    flex-shrink: 1;
+  }
 }
 
 .tradingCard {
@@ -342,8 +360,10 @@ a.experienceItem {
   width: fit-content;
 }
 
-.tradingCardLinks a:hover {
-  color: var(--white);
+@media (hover: hover) {
+  .tradingCardLinks a:hover {
+    color: var(--white);
+  }
 }
 
 .tradingCardIcon {
@@ -357,8 +377,10 @@ a.experienceItem {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.tradingCardLinks a:hover .tradingCardIcon {
-  filter: invert(1) opacity(1);
+@media (hover: hover) {
+  .tradingCardLinks a:hover .tradingCardIcon {
+    filter: invert(1) opacity(1);
+  }
 }
 
 /* ===== Rejection Banner ===== */
@@ -454,8 +476,10 @@ a.experienceItem {
   margin-top: var(--tinier);
 }
 
-.welcomeButton:hover {
-  opacity: 0.9;
+@media (hover: hover) {
+  .welcomeButton:hover {
+    opacity: 0.9;
+  }
 }
 
 @keyframes fadeIn {

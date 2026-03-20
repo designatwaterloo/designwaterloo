@@ -90,7 +90,9 @@
   font-size: var(--smallest);
 }
 
-.previewLink:hover {
-  border-color: var(--foreground);
+@media (hover: hover) {
+  .previewLink:hover {
+    border-color: var(--foreground);
+  }
 }
 
