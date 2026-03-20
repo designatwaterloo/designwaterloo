@@ -5,6 +5,11 @@
   box-sizing: border-box;
 }
 
+img, svg {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 html {
   margin: 0;
   padding: 0;
