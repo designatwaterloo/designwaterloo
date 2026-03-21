@@ -97,13 +97,6 @@ export default function DynamicIslandToast({
             {isDraftOrRejected ? "Editing draft" : "Editing profile"}
           </span>
           <div className={styles.toastActions}>
-            <button
-              type="button"
-              className={styles.toastDiscard}
-              onClick={() => setEditMode(false)}
-            >
-              Done
-            </button>
             {isDraftOrRejected && onSubmitForReview && (
               <button
                 type="button"
