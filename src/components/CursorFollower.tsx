@@ -30,12 +30,12 @@ const stateClassMap: Record<CursorState, string | undefined> = {
 
 /** Named SVG icons that can be used via data-cursor-icon="name" */
 const CURSOR_ICONS: Record<string, string> = {
-  search: '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  twitter: '<img src="/twitter_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
-  linkedin: '<img src="/linkedin_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
-  instagram: '<img src="/instagram_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
-  github: '<img src="/github_logo.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
-  globe: '<img src="/globe.svg" alt="" style="display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:4px" />',
+  search: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  twitter: '<img src="/twitter_logo.svg" alt="" style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:4px" />',
+  linkedin: '<img src="/linkedin_logo.svg" alt="" style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:4px" />',
+  instagram: '<img src="/instagram_logo.svg" alt="" style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:4px" />',
+  github: '<img src="/github_logo.svg" alt="" style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:4px" />',
+  globe: '<img src="/globe.svg" alt="" style="display:inline-block;width:16px;height:16px;vertical-align:middle;margin-right:4px" />',
 };
 
 /* Text-content selectors for reading-text detection */
@@ -263,7 +263,7 @@ export default function CursorFollower() {
         label.style.visibility = "hidden";
         label.style.display = "block";
         label.classList.add(styles.labelVisible);
-        const textWidth = label.scrollWidth;
+        const textWidth = Math.ceil(label.scrollWidth) + (icon ? 20 : 0);
         label.style.position = "";
         label.style.visibility = "";
         label.style.display = "";
