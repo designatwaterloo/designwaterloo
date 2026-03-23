@@ -163,7 +163,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await supabase.auth.signOut();
     } catch (err) {
-      console.error("[Auth] Client sign-out error:", err);
+      console.error("[Auth] Global sign-out failed, clearing local session:", err);
+      // Global sign-out failed (network/API error) — clear local cookies at minimum
+      // so the middleware doesn't think we're still authenticated.
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // Even local sign-out failed — shouldn't happen
+      }
     }
   }, [supabase.auth]);
 

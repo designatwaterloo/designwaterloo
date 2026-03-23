@@ -18,13 +18,24 @@ export default function DashboardPage() {
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading && !user && !signingOut) {
-      startTransition("/sign-in");
-    }
-  }, [authLoading, user, signingOut, startTransition]);
+  const hasMember = !!member;
 
-  if (authLoading || !member) {
+  useEffect(() => {
+    if (authLoading || signingOut) return;
+
+    if (!user) {
+      startTransition("/sign-in");
+      return;
+    }
+
+    // User is authenticated but no linked member found —
+    // redirect to onboarding so they can create/link their profile.
+    if (!hasMember) {
+      startTransition("/profile/edit");
+    }
+  }, [authLoading, user, hasMember, signingOut, startTransition]);
+
+  if (authLoading || !user || !member) {
     return (
       <div>
         <Header />
