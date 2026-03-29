@@ -2,7 +2,7 @@
 
 import { Suspense, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { isLaurierEmail, getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
+import { isLaurierEmail } from "@/lib/supabase/auth-utils";
 import { useSearchParams } from "next/navigation";
 import { useTransition } from "@/context/TransitionContext";
 import Header from "@/components/Header";
@@ -65,94 +65,24 @@ function SignInContent() {
       return;
     }
 
-    // OTP verified — route the user the same way OAuth callback does
+    // OTP verified — find or create the member record using the same logic as
+    // the OAuth callback, then redirect appropriately.
     const { createClient } = await import("@/lib/supabase/client");
+    const { findOrInitMember } = await import("@/lib/supabase/member-init");
     const supabase = createClient();
 
-    // Run both lookups in parallel
-    const [{ data: member }, { data: existingByEmail }] = await Promise.all([
-      supabase
-        .from("members")
-        .select("slug, onboarding_completed")
-        .eq("auth_user_id", user.id)
-        .maybeSingle() as unknown as Promise<{ data: { slug: string; onboarding_completed: boolean } | null }>,
-      supabase
-        .from("members")
-        .select("id, slug, auth_user_id, onboarding_completed")
-        .eq("school_email", user.email!)
-        .maybeSingle() as unknown as Promise<{ data: { id: string; slug: string; auth_user_id: string | null; onboarding_completed: boolean } | null }>,
-    ]);
-
-    if (member?.onboarding_completed) {
-      startTransition(redirectTo || `/directory/${member.slug}`);
-      return;
-    }
-
-    if (member) {
-      startTransition("/profile/edit");
-      return;
-    }
-
-    if (existingByEmail && !existingByEmail.auth_user_id) {
-      const { error: linkError } = await supabase
-        .from("members")
-        .update({ auth_user_id: user.id } as never)
-        .eq("id", existingByEmail.id);
-      if (linkError) {
-        console.error("Failed to link migrated profile:", linkError);
-        setLaurierError("Failed to link your profile. Please try again or contact support.");
-        setVerifyingOtp(false);
-        return;
-      }
-      startTransition(redirectTo || `/directory/${existingByEmail.slug}`);
-      return;
-    }
-
-    if (existingByEmail) {
-      startTransition("/profile/edit");
-      return;
-    }
-
-    // No existing profile — create draft member
     try {
-      const email = user.email!;
-      const school = getSchoolFromEmail(email);
-      const emailPrefix = email.split("@")[0].replace(/\./g, "-");
-      const baseSlug = generateSlug(emailPrefix, "");
-
-      let finalSlug = baseSlug || "member";
-      const { data: similar } = await supabase
-        .from("members")
-        .select("slug")
-        .like("slug", `${finalSlug}%`);
-
-      if (similar?.some((s: { slug: string }) => s.slug === finalSlug)) {
-        const escaped = finalSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const pattern = new RegExp(`^${escaped}-(\\d+)$`);
-        let maxN = 0;
-        for (const s of (similar || []) as { slug: string }[]) {
-          const m = s.slug.match(pattern);
-          if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
-        }
-        finalSlug = `${finalSlug}-${maxN + 1}`;
+      const result = await findOrInitMember(supabase, user.id, user.email!);
+      if (result.onboardingCompleted) {
+        startTransition(redirectTo || `/directory/${result.slug}`);
+      } else {
+        startTransition(redirectTo || "/profile/edit");
       }
-
-      await supabase.from("members").insert({
-        auth_user_id: user.id,
-        first_name: null,
-        last_name: null,
-        slug: finalSlug,
-        school_email: email,
-        school,
-        onboarding_completed: false,
-        is_approved: false,
-        review_status: "draft",
-      } as never);
     } catch (err) {
-      console.error("Failed to create draft member for OTP user:", err);
+      console.error("[OTP] Failed to initialise member record:", err);
+      setLaurierError("Something went wrong. Please try again.");
+      setVerifyingOtp(false);
     }
-
-    startTransition("/profile/edit");
   };
 
   return (

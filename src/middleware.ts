@@ -7,6 +7,28 @@ const ONBOARDING_REDIRECT = "/profile/edit";
 const ADMIN_PATHS = ["/admin"];
 const AUTH_PATHS = ["/sign-in"];
 
+/**
+ * Create a redirect response that forwards any auth cookies that were set (or
+ * refreshed) on `authResponse` during this request.  Without this, a token
+ * refresh that happens inside `supabase.auth.getUser()` would write new cookies
+ * to `authResponse` but those cookies would never reach the browser when we
+ * return a different redirect response — leaving the client with stale/expired
+ * tokens and causing redirect loops that only clear after the cookies are
+ * manually deleted.
+ */
+function redirectWithCookies(
+  to: string | URL,
+  request: NextRequest,
+  authResponse: NextResponse
+): NextResponse {
+  const url = typeof to === "string" ? new URL(to, request.url) : to;
+  const response = NextResponse.redirect(url);
+  authResponse.cookies.getAll().forEach(({ name, value, ...rest }) => {
+    response.cookies.set({ name, value, ...rest });
+  });
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -51,7 +73,7 @@ export async function middleware(request: NextRequest) {
   if ((isProtectedPath || isAdminPath) && !user) {
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
-    return NextResponse.redirect(redirectUrl);
+    return redirectWithCookies(redirectUrl, request, supabaseResponse);
   }
 
   // Validate email domain for authenticated users
@@ -59,7 +81,7 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.signOut();
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("error", "invalid-email");
-    return NextResponse.redirect(redirectUrl);
+    return redirectWithCookies(redirectUrl, request, supabaseResponse);
   }
 
   // Fetch member data once for all subsequent checks
@@ -76,32 +98,30 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from auth pages
   if (isAuthPath && user) {
     if (!member || !member.onboarding_completed) {
-      return NextResponse.redirect(new URL(ONBOARDING_REDIRECT, request.url));
+      return redirectWithCookies(new URL(ONBOARDING_REDIRECT, request.url), request, supabaseResponse);
     }
-    return NextResponse.redirect(
-      new URL("/dashboard", request.url)
-    );
+    return redirectWithCookies(new URL("/dashboard", request.url), request, supabaseResponse);
   }
 
   // Redirect /onboarding to /profile/edit
   if (pathname === "/onboarding" && user) {
-    return NextResponse.redirect(new URL(ONBOARDING_REDIRECT, request.url));
+    return redirectWithCookies(new URL(ONBOARDING_REDIRECT, request.url), request, supabaseResponse);
   }
 
   // Redirect completed users away from onboarding
   if (pathname === ONBOARDING_REDIRECT && user && member?.onboarding_completed) {
-    return NextResponse.redirect(new URL(`/dashboard`, request.url));
+    return redirectWithCookies(new URL("/dashboard", request.url), request, supabaseResponse);
   }
 
   // Check admin access
   if (isAdminPath && !member?.is_admin) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return redirectWithCookies(new URL("/", request.url), request, supabaseResponse);
   }
 
   // Redirect to profile setup if user hasn't completed onboarding
   if (user && isProtectedPath && pathname !== "/onboarding" && pathname !== ONBOARDING_REDIRECT) {
     if (!member || !member.onboarding_completed) {
-      return NextResponse.redirect(new URL(ONBOARDING_REDIRECT, request.url));
+      return redirectWithCookies(new URL(ONBOARDING_REDIRECT, request.url), request, supabaseResponse);
     }
   }
 
