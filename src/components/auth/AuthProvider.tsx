@@ -59,59 +59,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setLoading(false);
     }, 5000);
 
-    // Get initial session — use getUser() to validate on the server,
-    // then getSession() for the token. getSession() alone can return null
-    // during token refresh, causing a premature redirect to sign-in.
-    const getInitialSession = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+    // Single auth state handler.  onAuthStateChange fires INITIAL_SESSION
+    // immediately on subscription, so there is no need for a separate
+    // getInitialSession call (which previously raced against this listener and
+    // caused double fetchMember calls and loading-state flicker).
+    //
+    // On INITIAL_SESSION we still call getUser() to validate the token
+    // server-side — getSession() alone only reads from local storage and can
+    // return a stale/expired session, causing a premature authenticated state.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
 
-        if (!mounted) return;
-
-        if (user) {
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-          setSession(session);
-          setUser(user);
-          await fetchMember(user.id);
-        } else {
-          setSession(null);
-          setUser(null);
-        }
-      } catch (err) {
-        // Ignore AbortErrors from Strict Mode double-mounting
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        console.error("[Auth] Error getting session:", err);
+      if (!session) {
+        setUser(null);
+        setSession(null);
+        setMember(null);
+        setLoading(false);
+        clearTimeout(timeout);
+        return;
       }
+
+      // Validate the token server-side on the very first load so we don't
+      // trust a stale session from local storage/cookies.
+      if (event === "INITIAL_SESSION") {
+        try {
+          const { data: { user: validatedUser } } = await supabase.auth.getUser();
+          if (!mounted) return;
+          if (!validatedUser) {
+            setUser(null);
+            setSession(null);
+            setMember(null);
+            setLoading(false);
+            clearTimeout(timeout);
+            return;
+          }
+        } catch (err) {
+          // Ignore AbortErrors from React Strict Mode double-mounting
+          if (err instanceof DOMException && err.name === "AbortError") return;
+          // Network error — trust the local session and continue
+        }
+      }
+
+      setSession(session);
+      setUser(session.user);
+      await fetchMember(session.user.id);
 
       if (mounted) {
         setLoading(false);
         clearTimeout(timeout);
       }
-    };
-
-    getInitialSession();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!mounted) return;
-
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        await fetchMember(session.user.id);
-      } else {
-        setMember(null);
-      }
-
-      setLoading(false);
-      clearTimeout(timeout);
     });
 
     return () => {
@@ -132,6 +130,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         redirectTo: callbackUrl.toString(),
         queryParams: {
           domain_hint: "uwaterloo.ca",
+          // Force the Microsoft account picker so users with multiple accounts
+          // (or a stale SSO session) can choose the right one.
+          prompt: "select_account",
         },
       },
     });
