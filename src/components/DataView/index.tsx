@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { DataViewProps } from "./types";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { DataViewProps, GridColumnsConfig } from "./types";
 import GridView from "./GridView";
 import TableView from "./TableView";
 import FilterPanel from "./FilterPanel";
@@ -9,6 +9,27 @@ import SearchBar from "./SearchBar";
 import ViewModeToggle from "./ViewModeToggle";
 import Button from "@/components/Button";
 import styles from "./DataView.module.css";
+
+const BREAKPOINTS = [0, 500, 800, 1100, 1400];
+const DEFAULT_COLS = [2, 3, 4, 5, 6];
+
+function getColCountForWidth(width: number, gridColumns?: GridColumnsConfig): number {
+  if (gridColumns) {
+    const sortedBps = Object.keys(gridColumns)
+      .map(Number)
+      .sort((a, b) => a - b);
+    let result = gridColumns[sortedBps[0]] ?? 1;
+    for (const bp of sortedBps) {
+      if (width >= bp) result = gridColumns[bp];
+    }
+    return result;
+  }
+  let result = DEFAULT_COLS[0];
+  for (let i = 0; i < BREAKPOINTS.length; i++) {
+    if (width >= BREAKPOINTS[i]) result = DEFAULT_COLS[i];
+  }
+  return result;
+}
 
 /**
  * DataView - Generic data view component with grid/table layouts and filtering
@@ -18,7 +39,7 @@ import styles from "./DataView.module.css";
  * - Search functionality
  * - Multi-select filtering
  * - Sortable columns
- * - localStorage persistence for view mode
+ * - localStorage persistence for view mode and filters (when storageKey provided)
  * - Responsive design with mobile/desktop variants
  *
  * @example
@@ -52,6 +73,9 @@ export default function DataView<T>({
   gridColumns,
   onItemClick,
   storageKey,
+  getCursorLabel,
+  initialFilters,
+  onFiltersChange,
 }: DataViewProps<T>) {
   // View mode state
   const [viewMode, setViewMode] = useState<"grid" | "table">(viewModeConfig.defaultMode);
@@ -59,9 +83,21 @@ export default function DataView<T>({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
 
+  const mainContentRef = useRef<HTMLDivElement>(null);
+  const overrideTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
   // Search and filter state
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+
+  // Debounce search input
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => setSearchTerm(value), 300);
+  }, []);
 
   // Sort state
   const [sortField, setSortField] = useState<string>(sortConfig?.defaultField || "");
@@ -81,15 +117,46 @@ export default function DataView<T>({
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Load view mode from localStorage
+  // Load view mode and filters from URL params (priority) or localStorage
   useEffect(() => {
-    if (storageKey) {
+    const hasInitialFilters = initialFilters && Object.values(initialFilters).some((v) => v.length > 0);
+
+    // Always restore saved view mode
+    if (storageKey && typeof window !== "undefined") {
       const savedView = localStorage.getItem(storageKey);
       if (savedView === "grid" || savedView === "table") {
         setViewMode(savedView);
       }
     }
-  }, [storageKey]);
+
+    if (hasInitialFilters) {
+      setSelectedFilters(initialFilters);
+      setIsFilterPanelVisible(true);
+    } else if (storageKey && typeof window !== "undefined") {
+      try {
+        const savedFilters = localStorage.getItem(`${storageKey}.filters`);
+        if (savedFilters) {
+          const parsed = JSON.parse(savedFilters) as {
+            searchTerm?: string;
+            selectedFilters?: Record<string, string[]>;
+            filterPanelOpen?: boolean;
+          };
+          if (typeof parsed.searchTerm === "string") {
+            setSearchTerm(parsed.searchTerm);
+            setSearchInput(parsed.searchTerm);
+          }
+          if (parsed.selectedFilters && typeof parsed.selectedFilters === "object") {
+            setSelectedFilters(parsed.selectedFilters);
+          }
+          if (parsed.filterPanelOpen === true) {
+            setIsFilterPanelVisible(true);
+          }
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }, [storageKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save view mode to localStorage
   const handleViewModeChange = (mode: "grid" | "table") => {
@@ -98,6 +165,28 @@ export default function DataView<T>({
       localStorage.setItem(storageKey, mode);
     }
   };
+
+  // Persist filters and filter panel state to localStorage when they change
+  useEffect(() => {
+    if (storageKey && typeof window !== "undefined") {
+      const hasFilters =
+        searchTerm !== "" ||
+        Object.values(selectedFilters).some((vals) => vals.length > 0);
+      const filterPanelOpen = isFilterPanelVisible || isMobileFilterOpen;
+      if (hasFilters || filterPanelOpen) {
+        localStorage.setItem(
+          `${storageKey}.filters`,
+          JSON.stringify({
+            searchTerm,
+            selectedFilters,
+            filterPanelOpen,
+          })
+        );
+      } else {
+        localStorage.removeItem(`${storageKey}.filters`);
+      }
+    }
+  }, [storageKey, searchTerm, selectedFilters, isFilterPanelVisible, isMobileFilterOpen]);
 
   // Filter items
   const filteredItems = useMemo(() => {
@@ -166,6 +255,16 @@ export default function DataView<T>({
     }
   };
 
+  // Notify parent of filter changes (skip the initial mount)
+  const didMount = useRef(false);
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+    onFiltersChange?.(selectedFilters);
+  }, [selectedFilters]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Handle filter change
   const handleFilterChange = (filterKey: string, values: string[]) => {
     setSelectedFilters((prev) => ({
@@ -176,9 +275,38 @@ export default function DataView<T>({
 
   // Clear all filters
   const clearAllFilters = () => {
+    setSearchInput("");
     setSearchTerm("");
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     setSelectedFilters({});
   };
+
+  // Lock grid columns during filter panel animation to prevent jarring reflow
+  const handleFilterToggle = useCallback(() => {
+    const el = mainContentRef.current;
+    if (el && isDesktop && viewMode === "grid") {
+      const currentWidth = el.offsetWidth;
+      // Filter panel is 280px + --margin (32px on desktop)
+      const delta = 280 + 32;
+      const targetWidth = isFilterPanelVisible
+        ? currentWidth + delta  // closing: content grows
+        : currentWidth - delta; // opening: content shrinks
+
+      const targetCols = getColCountForWidth(Math.max(0, targetWidth), gridColumns);
+      el.style.setProperty("--grid-cols-override", String(targetCols));
+
+      // Clear any existing timer
+      if (overrideTimerRef.current) clearTimeout(overrideTimerRef.current);
+
+      // Remove override after animation completes
+      overrideTimerRef.current = setTimeout(() => {
+        el.style.removeProperty("--grid-cols-override");
+        overrideTimerRef.current = null;
+      }, 450);
+    }
+
+    setIsFilterPanelVisible((prev) => !prev);
+  }, [isDesktop, isFilterPanelVisible, viewMode, gridColumns]);
 
   const hasActiveFilters =
     searchTerm !== "" || Object.values(selectedFilters).some((vals) => vals.length > 0);
@@ -204,36 +332,39 @@ export default function DataView<T>({
       {/* Main Layout */}
       <div className={styles.container}>
         {/* Desktop Filter Panel */}
-        {isDesktop && isFilterPanelVisible && filterConfig.length > 0 && (
-          <FilterPanel
-            filters={filterConfig}
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChange}
-            onClearAll={clearAllFilters}
-            items={items}
-            searchTerm={searchTerm}
-            searchConfig={searchConfig}
-            variant="desktop"
-          />
+        {isDesktop && filterConfig.length > 0 && (
+          <div className={`${styles.filterPanelWrapper} ${isFilterPanelVisible ? styles.filterPanelWrapperOpen : ""}`}>
+            <FilterPanel
+              filters={filterConfig}
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              onClearAll={clearAllFilters}
+              items={items}
+              searchTerm={searchTerm}
+              searchConfig={searchConfig}
+              variant="desktop"
+              isOpen={isFilterPanelVisible}
+            />
+          </div>
         )}
 
         {/* Main Content */}
-        <div className={styles.mainContent}>
+        <div ref={mainContentRef} className={styles.mainContent}>
           {/* Search Section */}
           <div className={styles.searchSection}>
             {searchConfig && (
               <SearchBar
-                value={searchTerm}
-                onChange={setSearchTerm}
+                value={searchInput}
+                onChange={handleSearchChange}
                 placeholder={searchConfig.placeholder}
               />
             )}
             {filterConfig.length > 0 && (
-              <div className={styles.filterButtonWrapper}>
+              <div className={styles.filterButtonWrapper} data-cursor="button" data-cursor-label="Filters">
                 <Button
                   onClick={() => {
                     if (isDesktop) {
-                      setIsFilterPanelVisible(!isFilterPanelVisible);
+                      handleFilterToggle();
                     } else {
                       setIsMobileFilterOpen(!isMobileFilterOpen);
                     }
@@ -284,14 +415,38 @@ export default function DataView<T>({
             </div>
           </div>
 
-          {/* Desktop View Toggle */}
-          {viewModeConfig.showToggle && isDesktop && (
+          {/* Active filter pills + view toggle */}
+          {(hasActiveFilters || viewModeConfig.showToggle) && isDesktop && (
             <div className={styles.desktopControls}>
-              <ViewModeToggle
-                mode={viewMode}
-                onChange={handleViewModeChange}
-                variant="desktop"
-              />
+              {hasActiveFilters && (
+                <div className={styles.activeFilters}>
+                  {Object.entries(selectedFilters).flatMap(([filterKey, values]) => {
+                    const cfg = filterConfig.find((f) => f.key === filterKey);
+                    return values.map((val) => {
+                      const display = cfg?.formatValue ? cfg.formatValue(val) : val;
+                      return (
+                        <button
+                          key={`${filterKey}-${val}`}
+                          className={styles.activeFilterPill}
+                          onClick={() => handleFilterChange(filterKey, values.filter((v) => v !== val))}
+                        >
+                          {display}
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                            <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      );
+                    });
+                  })}
+                </div>
+              )}
+              {viewModeConfig.showToggle && (
+                <ViewModeToggle
+                  mode={viewMode}
+                  onChange={handleViewModeChange}
+                  variant="desktop"
+                />
+              )}
             </div>
           )}
 
@@ -305,6 +460,7 @@ export default function DataView<T>({
               className={gridClassName}
               onItemClick={onItemClick}
               gridColumns={gridColumns}
+              getCursorLabel={getCursorLabel}
             />
           ) : (
             <TableView
@@ -317,6 +473,7 @@ export default function DataView<T>({
               sortDirection={sortDirection}
               onItemClick={onItemClick}
               renderHoverPreview={renderHoverPreview}
+              getCursorLabel={getCursorLabel}
             />
           )}
         </div>

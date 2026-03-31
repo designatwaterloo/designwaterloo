@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Member } from "@/sanity/types";
-import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
+import { urlFor } from "@/sanity/lib/image";
 
 interface MemberHoverPreviewProps {
   member: Member;
@@ -23,8 +23,6 @@ export default function MemberHoverPreview({ member }: MemberHoverPreviewProps) 
       width={300}
       height={375}
       style={{ width: "100%", height: "auto", aspectRatio: "4/5", objectFit: "cover", borderRadius: "4px" }}
-      placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
-      blurDataURL={getBlurDataURL(member.profileImage)}
     />
   );
 }

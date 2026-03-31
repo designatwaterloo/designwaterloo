@@ -1,0 +1,108 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--margin);
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 16px;
+  padding: var(--smaller);
+  max-width: 440px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+  animation: fadeSlideIn 0.2s ease;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+}
+
+.message {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: var(--tinier);
+}
+
+.cancelButton {
+  padding: 8px 20px;
+  font: inherit;
+  font-size: 14px;
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+@media (hover: hover) {
+  .cancelButton:hover {
+    border-color: var(--foreground);
+  }
+}
+
+.confirmButton {
+  padding: 8px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--background);
+  background: var(--foreground);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .confirmButton:hover {
+    opacity: 0.85;
+  }
+}
+
+.confirmButtonDanger {
+  background: var(--error);
+  color: var(--white);
+}
+
+.confirmButton:disabled,
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,178 @@
+.bar {
+  position: fixed;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px 12px 24px;
+  background: var(--black);
+  color: var(--white);
+  border-radius: 50px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+  transition: bottom 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+
+.barVisible {
+  bottom: 32px;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.backButton {
+  padding: 6px 16px;
+  font: inherit;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .backButton:hover {
+    color: var(--white);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.rejectButton {
+  padding: 6px 16px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--error);
+  background: transparent;
+  border: 1px solid var(--error);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+@media (hover: hover) {
+  .rejectButton:hover {
+    background: var(--error);
+    color: var(--white);
+  }
+}
+
+.approveButton {
+  padding: 6px 16px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+  background: var(--white);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .approveButton:hover {
+    opacity: 0.85;
+  }
+}
+
+.approveButton:disabled,
+.rejectButton:disabled,
+.backButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Rejection Modal ===== */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--margin);
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 16px;
+  padding: var(--smaller);
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+  animation: fadeSlideIn 0.2s ease;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+}
+
+.modalDescription {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.modalTextarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-large);
+  background: transparent;
+  color: inherit;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.modalTextarea:focus {
+  border-color: var(--foreground);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: var(--tinier);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

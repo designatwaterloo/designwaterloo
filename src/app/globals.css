@@ -5,6 +5,11 @@
   box-sizing: border-box;
 }
 
+img, svg {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 html {
   margin: 0;
   padding: 0;
@@ -28,14 +33,31 @@ html {
   /* Color Primitives */
   --white: #ffffff;
   --black: #0e0e0e;
-  --blue: #0000ff;
+  --blue: #002fff;
   --orange: #ff6600;
 
   /* Base Colors */
   --background: var(--white);
   --foreground: var(--black);
   --muted: rgba(14, 14, 14, 0.22);
-  --link-hover: var(--blue);
+  --link-hover: var(--foreground);
+
+  /* Semantic tokens */
+  --border: rgba(14, 14, 14, 0.15);
+  --surface: rgba(14, 14, 14, 0.03);
+  --muted-text: #7f7f7f;
+  --muted-light: #b5b5b5;
+  --hover-bg: rgba(14, 14, 14, 0.05);
+  --focus-ring: var(--orange);
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --skeleton: #e0e0e0;
+  --shadow-md: 0 8px 24px rgba(14, 14, 14, 0.12);
+  --shadow-lg: 0 20px 60px rgba(14, 14, 14, 0.25);
 
   font-family: Inter, sans-serif;
 
@@ -104,6 +126,14 @@ html {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--foreground);
+  --color-muted-text: var(--muted-text);
+  --color-muted-light: var(--muted-light);
+  --color-border: var(--border);
+  --color-surface: var(--surface);
+  --color-skeleton: var(--skeleton);
+  --color-error: var(--error);
+  --color-success: var(--success);
   --font-sans: Inter, sans-serif;
 
   /* Tailwind Breakpoints - Must match CSS variable breakpoints above */
@@ -120,6 +150,12 @@ html {
     --foreground: var(--white);
   }
 } */
+
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
 
 body {
   background: var(--background);
@@ -140,7 +176,7 @@ body {
 
 /* Global focus ring styles */
 *:focus-visible {
-  outline: 3px solid #ff6b35;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 4px;
   border-radius: 4px;
 }
@@ -297,13 +333,19 @@ p {
 
 /* Default link styling */
 a {
-  color: #7f7f7f;
+  color: var(--muted-text);
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
 
-a:hover {
-  color: var(--link-hover);
+@media (hover: hover) {
+  a:hover {
+    color: var(--link-hover);
+  }
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Dark theme variant */
@@ -311,6 +353,18 @@ a:hover {
   --background: var(--black);
   --foreground: var(--white);
   --muted: rgba(255, 255, 255, 0.7);
+  --border: rgba(255, 255, 255, 0.2);
+  --surface: rgba(255, 255, 255, 0.05);
+  --muted-text: rgba(255, 255, 255, 0.5);
+  --muted-light: rgba(255, 255, 255, 0.35);
+  --hover-bg: rgba(255, 255, 255, 0.08);
+  --error-bg: rgba(220, 38, 38, 0.15);
+  --error-border: rgba(220, 38, 38, 0.3);
+  --success-bg: rgba(22, 163, 74, 0.15);
+  --success-border: rgba(22, 163, 74, 0.3);
+  --skeleton: #2a2a2a;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* Mobile: Typography and layout overrides (0-768px) */
@@ -379,4 +433,20 @@ a:hover {
 .blink-colon {
   animation: blink 1s infinite;
   display: inline-block;
+}
+
+/* Pulsing ring radiating from green dot */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Image wipe reveal — black overlay slides down to reveal image */
+@keyframes wipeReveal {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
 }

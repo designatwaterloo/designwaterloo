@@ -23,20 +23,24 @@ export default function ViewModeToggle({
 
   return (
     <div className={className}>
-      <Button
-        onClick={() => onChange("grid")}
-        variant="icon"
-        icon="/Grid.svg"
-        iconAlt="Grid view"
-        active={mode === "grid"}
-      />
-      <Button
-        onClick={() => onChange("table")}
-        variant="icon"
-        icon="/List.svg"
-        iconAlt="Table view"
-        active={mode === "table"}
-      />
+      <span data-cursor="button" data-cursor-label="Grid view">
+        <Button
+          onClick={() => onChange("grid")}
+          variant="icon"
+          icon="/Grid.svg"
+          iconAlt="Grid view"
+          active={mode === "grid"}
+        />
+      </span>
+      <span data-cursor="button" data-cursor-label="List view">
+        <Button
+          onClick={() => onChange("table")}
+          variant="icon"
+          icon="/List.svg"
+          iconAlt="Table view"
+          active={mode === "table"}
+        />
+      </span>
     </div>
   );
 }

@@ -25,10 +25,18 @@
   font-size: inherit;
 }
 
-.name {
+.nameRow {
   grid-column: 1 / 9;
   grid-row: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap);
   margin-bottom: var(--big);
+}
+
+.name {
+  margin: 0;
 }
 
 .nextAvailable {
@@ -57,6 +65,7 @@
   grid-template-columns: repeat(8, 1fr);
   row-gap: var(--big);
   padding-right: var(--smaller);
+  transition: row-gap 0.4s ease;
 }
 
 .content p,
@@ -74,6 +83,9 @@
   column-gap: var(--gap);
   row-gap: 8px;
   align-content: start;
+  padding-bottom: 0;
+  border-bottom: 0px solid transparent;
+  transition: row-gap 0.4s ease, padding-bottom 0.4s ease, border-bottom 0.4s ease;
 }
 
 .imageContainer {
@@ -87,11 +99,18 @@
 @media (max-width: 768px) {
   .section {
     grid-template-columns: 1fr;
+    overflow-wrap: anywhere;
+  }
+
+  .nameRow {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: var(--smaller);
   }
 
   .name {
-    grid-column: 1;
-    grid-row: 1;
     margin-bottom: var(--smaller);
   }
 
@@ -126,12 +145,14 @@
     flex-direction: column;
     row-gap: var(--big);
     padding-right: 0;
+    min-width: 0;
   }
 
   .rowGroup {
     display: flex;
     flex-direction: column;
     gap: var(--smaller);
+    min-width: 0;
   }
 
   .infoRow {
@@ -151,9 +172,15 @@
 
 .image {
   width: 100%;
-  height: auto;
-  object-fit: contain;
-  object-position: top right;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.imageWrapper {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  overflow: hidden;
 }
 
 .infoRow {
@@ -161,6 +188,21 @@
   display: grid;
   grid-template-columns: subgrid;
   align-items: start;
+}
+
+.infoRowEditable {
+  padding: 8px 10px;
+  margin: 0 -10px;
+  border-radius: var(--radius-large);
+  cursor: pointer;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+@media (hover: hover) {
+  .infoRowEditable:hover {
+    background-color: var(--hover-bg);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .infoRowFull {
@@ -173,7 +215,7 @@
 
 .label {
   grid-column: span 2;
-  color: #7f7f7f;
+  color: var(--muted-text);
   margin: 0;
   line-height: 1;
 }
@@ -202,6 +244,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--tinier);
+    min-width: 0;
   }
 
   .experienceGroup>dt {
@@ -231,28 +274,32 @@
   margin: calc(var(--tinier) * -1);
   background-color: transparent;
   color: inherit;
-  transition-property: background-color, color;
-  transition-duration: 0.2s, 0.2s;
-  transition-timing-function: ease, ease;
+  transition-property: background-color, color, border-color;
+  transition-duration: 0.2s, 0.2s, 0.2s;
+  transition-timing-function: ease, ease, ease;
   cursor: pointer;
   border-bottom: 2px solid var(--muted);
 }
 
-.experienceItem:hover {
-  background-color: var(--black);
-  color: var(--white);
-  transition-duration: 0.05s, 0.05s;
-}
+@media (hover: hover) {
+  .experienceItem:hover {
+    background-color: var(--black);
+    color: var(--white);
+    border-color: var(--background);
+    transition-duration: 0.05s, 0.05s, 0.05s;
+  }
 
-.experienceItem:hover .companyName {
-  color: var(--white);
-  opacity: 0.7;
+  .experienceItem:hover .companyName {
+    color: var(--white);
+    opacity: 0.7;
+  }
 }
 
 .experienceInfo {
   display: flex;
   flex-direction: column;
   gap: 0;
+  min-width: 0;
 }
 
 .jobTitle {
@@ -261,11 +308,25 @@
 
 .companyName {
   margin: 0;
-  color: #7f7f7f;
+  color: var(--muted-text);
+}
+
+a.experienceItem {
+  text-decoration: none;
+  color: inherit;
 }
 
 .year {
   text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .year {
+    white-space: normal;
+    flex-shrink: 1;
+  }
 }
 
 .tradingCard {
@@ -281,17 +342,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.tradingCardNameIcon {
-  flex-shrink: 0;
-  filter: invert(1);
-  /* Safari rendering optimizations */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: filter;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .tradingCardLinks {
@@ -310,8 +360,10 @@
   width: fit-content;
 }
 
-.tradingCardLinks a:hover {
-  color: var(--white);
+@media (hover: hover) {
+  .tradingCardLinks a:hover {
+    color: var(--white);
+  }
 }
 
 .tradingCardIcon {
@@ -325,35 +377,113 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.tradingCardLinks a:hover .tradingCardIcon {
-  filter: invert(1) opacity(1);
+@media (hover: hover) {
+  .tradingCardLinks a:hover .tradingCardIcon {
+    filter: invert(1) opacity(1);
+  }
 }
 
-.emailContainer {
+/* ===== Rejection Banner ===== */
+
+.rejectionBanner {
+  grid-column: 1 / 9;
+  padding: var(--tinier) var(--smaller);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+  border-radius: var(--radius-large);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: var(--smaller);
+}
+
+.rejectionLink {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .rejectionBanner {
+    grid-column: 1;
+  }
+}
+
+/* ===== Edit Mode: expanded layout with dividers ===== */
+
+.editMode .content {
+  row-gap: 0;
+}
+
+.editMode .rowGroup {
+  row-gap: 12px;
+  padding-bottom: var(--big);
+}
+
+.editMode .experienceGroup {
+  padding-bottom: var(--big);
+}
+
+/* ===== Welcome Lightbox ===== */
+
+.welcomeOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
   display: flex;
   align-items: center;
-  gap: var(--tinier);
+  justify-content: center;
+  padding: var(--margin);
+  animation: fadeIn 0.3s ease;
 }
 
-.emailText {
-  flex: 1;
-}
-
-.copyButton {
-  padding: 4px 12px;
-  border: 2px solid var(--muted);
-  border-radius: var(--radius-full);
-  background: transparent;
+.welcomeModal {
+  background: var(--background);
   color: var(--foreground);
-  font-size: inherit;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-  white-space: nowrap;
+  border-radius: 16px;
+  padding: var(--big);
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--smaller);
 }
 
-.copyButton:hover {
-  border-color: var(--foreground);
-  background-color: var(--foreground);
-  color: var(--background);
+.welcomeModal h2 {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin: 0;
 }
+
+.welcomeModal p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
+.welcomeButton {
+  padding: var(--tiny) var(--smaller);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  align-self: flex-start;
+  margin-top: var(--tinier);
+}
+
+@media (hover: hover) {
+  .welcomeButton:hover {
+    opacity: 0.9;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+

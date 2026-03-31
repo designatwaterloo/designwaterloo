@@ -1,0 +1,152 @@
+.section {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 100px var(--margin) var(--big);
+  display: flex;
+  flex-direction: column;
+  gap: var(--smaller);
+}
+
+.title {
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.card {
+  padding: var(--smaller);
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tinier);
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.statusDraft {
+  background: color-mix(in srgb, var(--muted) 20%, transparent);
+  color: var(--foreground);
+}
+
+.statusPending {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  color: var(--foreground);
+}
+
+.statusApproved {
+  background: color-mix(in srgb, #34C759 15%, transparent);
+  color: #34C759;
+}
+
+.statusRejected {
+  background: color-mix(in srgb, var(--error) 12%, transparent);
+  color: var(--error);
+}
+
+.description {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.date {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.feedbackBox {
+  padding: var(--tinier) var(--smaller);
+  background: color-mix(in srgb, var(--error) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 20%, transparent);
+  border-radius: var(--radius-large);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.feedbackLabel {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--error);
+  margin-bottom: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: var(--tinier);
+}
+
+.primaryButton {
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--background);
+  background: var(--foreground);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .primaryButton:hover {
+    opacity: 0.85;
+  }
+}
+
+.secondaryButton {
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+@media (hover: hover) {
+  .secondaryButton:hover {
+    border-color: var(--foreground);
+  }
+}
+
+.signOutButton {
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  align-self: flex-start;
+}
+
+@media (hover: hover) {
+  .signOutButton:hover {
+    color: var(--foreground);
+  }
+}

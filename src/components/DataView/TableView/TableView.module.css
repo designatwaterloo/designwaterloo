@@ -124,6 +124,11 @@
   z-index: 1000;
   pointer-events: none;
   transform: translateY(-50%);
+  visibility: hidden;
+}
+
+.hoverPreviewVisible {
+  visibility: visible;
 }
 
 .hoverImage {

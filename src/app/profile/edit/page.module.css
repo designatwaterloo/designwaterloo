@@ -1,0 +1,542 @@
+/* ===== Staged Loader ===== */
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--smaller);
+  text-align: center;
+  padding: var(--margin);
+}
+
+.loaderLine {
+  margin: 0;
+  font-size: 36px;
+  letter-spacing: -0.025em;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+@media (max-width: 768px) {
+  .loaderLine {
+    font-size: 24px;
+  }
+}
+
+.loaderLineVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loaderLineVisible:first-child {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--foreground) 40%,
+    var(--muted) 80%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Stop shimmer once later lines appear */
+.loaderLineVisible:first-child:not(:last-of-type) {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.loaderLineVisible:last-of-type {
+  color: var(--foreground);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== Form ===== */
+
+.header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  font-size: 48px;
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--tinier) 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.error {
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error);
+  padding: var(--tinier) var(--smallest);
+  border-radius: 8px;
+  font-size: 14px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.success {
+  background-color: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success);
+  padding: var(--tinier) var(--smallest);
+  border-radius: 8px;
+  font-size: 14px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.success a {
+  text-decoration: underline;
+  color: inherit;
+}
+
+.form {
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--small);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--smaller);
+  padding: var(--smaller) 0;
+  border-bottom: 1px solid var(--muted);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.fieldGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--smaller);
+}
+
+@media (max-width: 600px) {
+  .fieldGroup {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tiniest);
+}
+
+.field label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.field input,
+.field textarea {
+  padding: var(--tiny) var(--tinier);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--foreground);
+}
+
+.field input:disabled {
+  background: var(--hover-bg);
+  color: var(--muted);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hintSuccess {
+  font-size: 12px;
+  color: var(--success, #34C759);
+}
+
+.hintError {
+  font-size: 12px;
+  color: var(--error, #FF3B30);
+}
+
+.slugInput {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.slugInput:focus-within {
+  border-color: var(--foreground);
+}
+
+.slugPrefix {
+  padding: var(--tiny) 0 var(--tiny) var(--tinier);
+  color: var(--muted);
+  font-size: 16px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.slugInput input {
+  border: none !important;
+  border-radius: 0 !important;
+  padding-left: 0 !important;
+  flex: 1;
+  min-width: 0;
+}
+
+.slugInput input:focus {
+  border: none !important;
+  outline: none !important;
+}
+
+.specialtiesInput {
+  display: flex;
+  gap: var(--tinier);
+}
+
+.specialtiesInput input {
+  flex: 1;
+}
+
+.addButton {
+  padding: var(--tiny) var(--smallest);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+@media (hover: hover) {
+  .addButton:hover {
+    opacity: 0.9;
+  }
+}
+
+.specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tinier);
+  margin-top: var(--tinier);
+}
+
+.specialtiesDropdown {
+  position: relative;
+  width: 100%;
+  margin-top: var(--tiniest);
+}
+
+.specialtiesDropdownTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--tiny) var(--tinier);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--background);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.specialtyDropdownCaret {
+  transition: transform 0.15s ease;
+  font-size: 12px;
+}
+
+.specialtyDropdownCaretOpen {
+  transform: rotate(180deg);
+}
+
+.specialtiesDropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px 0;
+  background: var(--background);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.specialtiesDropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+@media (hover: hover) {
+  .specialtiesDropdownItem:hover {
+    background: var(--hover-bg);
+  }
+}
+
+.specialtiesDropdownLabel {
+  text-align: left;
+}
+
+.specialtyCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  box-sizing: border-box;
+}
+
+.specialtyCheckboxChecked {
+  background: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.specialtyCheckboxIcon {
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.specialty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tiniest);
+  padding: var(--tiniest) var(--tinier);
+  background: var(--hover-bg);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.specialty button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--muted);
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .specialty button:hover {
+    color: var(--foreground);
+  }
+}
+
+/* ===== Program Combobox ===== */
+
+.comboboxDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--background);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.comboboxItem {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  font: inherit;
+  font-size: 15px;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+@media (hover: hover) {
+  .comboboxItem:hover {
+    background-color: var(--hover-bg);
+  }
+}
+
+/* ===== Program Ghost Autocomplete ===== */
+
+.programInputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.programInputWrapper input {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.programGhost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--tiny) var(--tinier);
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--muted);
+  opacity: 0.5;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  z-index: 0;
+  line-height: normal;
+  border: 1px solid transparent;
+}
+
+/* ===== Slug Spinner ===== */
+
+.hintChecking {
+  font-size: 12px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--muted);
+  border-top-color: var(--foreground);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .clearButton:hover {
+    color: var(--foreground);
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--tinier);
+  margin-top: var(--smaller);
+}
+
+.primaryButton {
+  padding: var(--tiny) var(--smaller);
+  background: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+@media (hover: hover) {
+  .primaryButton:hover {
+    opacity: 0.9;
+  }
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: var(--tiny) var(--smaller);
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (hover: hover) {
+  .secondaryButton:hover {
+    border-color: var(--foreground);
+  }
+}

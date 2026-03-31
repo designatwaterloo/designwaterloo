@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FilterConfig } from "../types";
 import styles from "./FilterPanel.module.css";
 
@@ -19,6 +19,15 @@ export default function FilterAccordion<T>({
   getCount,
 }: FilterAccordionProps<T>) {
   const [isOpen, setIsOpen] = useState(selectedValues.length > 0);
+  const prevSelected = useRef(selectedValues.length);
+
+  // Auto-expand when filters are applied externally (e.g. from URL params)
+  useEffect(() => {
+    if (selectedValues.length > 0 && prevSelected.current === 0) {
+      setIsOpen(true);
+    }
+    prevSelected.current = selectedValues.length;
+  }, [selectedValues.length]);
 
   const toggleFilter = (value: string) => {
     if (selectedValues.includes(value)) {
@@ -33,10 +42,9 @@ export default function FilterAccordion<T>({
   };
 
   return (
-    <div className={styles.filterAccordion}>
-      <button
+    <div className={styles.filterAccordion} onClick={() => setIsOpen(!isOpen)}>
+      <div
         className={styles.accordionHeader}
-        onClick={() => setIsOpen(!isOpen)}
       >
         <span className={styles.accordionTitle}>
           {filter.label}
@@ -55,9 +63,9 @@ export default function FilterAccordion<T>({
             fill="currentColor"
           />
         </svg>
-      </button>
-      {isOpen && (
-        <div className={styles.accordionContent}>
+      </div>
+      <div className={`${styles.accordionCollapse} ${isOpen ? styles.accordionCollapseOpen : ''}`} onClick={(e) => e.stopPropagation()}>
+        <div className={`${styles.accordionContent} ${isOpen ? styles.accordionContentOpen : ''}`}>
           {selectedValues.length > 0 && (
             <button onClick={clearFilter} className={styles.clearButton}>
               Clear
@@ -85,7 +93,7 @@ export default function FilterAccordion<T>({
             })}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -53,9 +53,9 @@ export default function AboutPage() {
             <p className={styles.extraSpacing}>Design Waterloo is an open collective for creatives at UW and Laurier. We&apos;re working on a few things:</p>
             
             <ul className="flex flex-col gap-(--gap)">
-                <li><span className="font-semibold text-[#7f7f7f]">Directory</span> - A showcase of Waterloo&apos;s design talent. Where employers find exceptional designers and students find each other.</li>
-                <li><span className="font-semibold text-[#7f7f7f]">Community</span> - Supporting existing initiatives and clubs on campus while empowering new ones. Real events and guest lectures where designers, filmmakers, engineers, and artists actually collaborate. Not networking for the sake of it—actual work across disciplines.</li>
-                <li><span className="font-semibold text-[#7f7f7f]">Opportunities</span> - Linking students with companies and projects that understand what design talent looks like. Not mixers. Real work with real teams.</li>
+                <li><span className="font-semibold text-muted-text">Directory</span> - A showcase of Waterloo&apos;s design talent. Where employers find exceptional designers and students find each other.</li>
+                <li><span className="font-semibold text-muted-text">Community</span> - Supporting existing initiatives and clubs on campus while empowering new ones. Real events and guest lectures where designers, filmmakers, engineers, and artists actually collaborate. Not networking for the sake of it—actual work across disciplines.</li>
+                <li><span className="font-semibold text-muted-text">Opportunities</span> - Linking students with companies and projects that understand what design talent looks like. Not mixers. Real work with real teams.</li>
             </ul>
             
             <p>This is the kind of home we wish we had starting out. A place where the culture isn&apos;t about staying in your lane. Where rising tides lift all boats.</p>

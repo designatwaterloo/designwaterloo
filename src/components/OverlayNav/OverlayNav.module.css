@@ -17,7 +17,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #000000;
+  background: var(--black);
   opacity: 0;
   z-index: 0;
   transition: opacity 0.47s ease;
@@ -27,6 +27,12 @@
 .overlay.opening::before {
   opacity: 1;
   transition-delay: 0.405s;
+}
+
+@media (max-width: 768px) {
+  .overlay.opening::before {
+    transition-delay: 0.53s;
+  }
 }
 
 .overlay.closing::before {
@@ -49,7 +55,7 @@
 /* Individual Column */
 .column {
   flex: 1;
-  background: #000000;
+  background: var(--black);
   transform: translateY(-100%);
   transition: transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
@@ -74,35 +80,40 @@
   height: 100%;
 }
 
-/* Mobile: Remove padding, let fixed elements position themselves (0-768px) */
+/* Mobile: use dvh for Safari dynamic viewport (0-768px) */
 @media (max-width: 768px) {
   .contentLayer {
-    padding: var(--margin);
-    justify-content: flex-start;
+    padding: 0 var(--margin);
+    height: 100dvh;
   }
 }
 
-/* Top Section - 50/50 split on desktop */
+/* Top Section - equal 50/50 columns on desktop */
 .topSection {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--gap);
-  align-items: flex-start;
-  flex: 0 1 auto;
+  align-items: stretch;
+  flex: 1 1 auto;
 }
 
-/* Mobile: Just logo at top left (0-768px) */
+/* Mobile: single row, fixed header height (0-768px) */
 @media (max-width: 768px) {
   .topSection {
+    display: flex;
+    flex: 0 0 var(--header-height);
     flex-direction: row;
     width: 100%;
+    align-items: center;
   }
 }
 
-/* Left side - Logo */
+/* Left side - Logo + user info */
 .logoSection {
-  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
+  height: 100%;
 }
 
 /* Mobile: Keep logo at top left (0-768px) */
@@ -114,7 +125,7 @@
 
 .logo {
   width: auto;
-  height: 36px;
+  height: 28px;
   filter: invert(1) brightness(100);
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -130,24 +141,34 @@
   transition-delay: 0s;
 }
 
-/* Right side - Nav Items + Close Button */
+/* Nav Section - shared base */
 .navSection {
-  flex: 1;
   display: flex;
-  gap: var(--margin);
+  flex-direction: column;
 }
 
-/* Mobile: Position nav section for centering (0-768px) */
+/* Desktop: sits in right column of topSection, reserve space for action bar */
+.navSectionDesktop {
+  flex-direction: column;
+  padding-right: 110px;
+}
+
+/* Hide desktop nav on mobile, hide mobile nav on desktop */
 @media (max-width: 768px) {
-  .navSection {
-    position: fixed;
-    top: 50%;
-    left: var(--margin);
-    right: var(--margin);
-    transform: translateY(-50%);
-    flex-direction: column;
-    gap: 0;
-    width: auto;
+  .navSectionDesktop {
+    display: none;
+  }
+}
+
+.navSectionMobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .navSectionMobile {
+    display: flex;
+    flex: 1;
+    padding-top: var(--small);
   }
 }
 
@@ -196,88 +217,15 @@
   transition-duration: 0.2s, 0.2s, 0.6s, 0.6s;
 }
 
-.navItem:hover {
-  background-color: var(--white);
-  color: var(--black);
-  transition-property: opacity, transform, background-color, color;
-  transition-duration: 0.4s, 0.4s, 0.05s, 0.05s;
-  transition-timing-function: ease, ease, ease, ease;
-  transition-delay: 0s, 0s, 0s, 0s;
-}
-
-/* Close Button - Desktop */
-.closeButton {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 41px;
-  height: 41px;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* Mobile: Hide desktop close button (0-768px) */
-@media (max-width: 768px) {
-  .closeButton {
-    display: none;
+@media (hover: hover) {
+  .navItem:hover {
+    background-color: var(--white);
+    color: var(--black);
+    transition-property: opacity, transform, background-color, color;
+    transition-duration: 0.4s, 0.4s, 0.05s, 0.05s;
+    transition-timing-function: ease, ease, ease, ease;
+    transition-delay: 0s, 0s, 0s, 0s;
   }
-}
-
-/* Close Button - Mobile only */
-.closeButtonMobile {
-  display: none;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 41px;
-  height: 41px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-/* Mobile: Show and position in top right (0-768px) */
-@media (max-width: 768px) {
-  .closeButtonMobile {
-    display: block;
-    position: fixed;
-    top: var(--margin);
-    right: var(--margin);
-    z-index: 30;
-  }
-}
-
-/* Mobile close button animations */
-.opening .closeButtonMobile {
-  opacity: 1;
-  transition-delay: 0.225s;
-}
-
-.closing .closeButtonMobile {
-  opacity: 0;
-  transition-delay: 0s;
-}
-
-.opening .closeButtonMobile:hover {
-  opacity: 0.7;
-  transition-delay: 0s;
-}
-
-.opening .closeButton {
-  opacity: 1;
-  transition-delay: 0.225s;
-}
-
-.closing .closeButton {
-  opacity: 0;
-  transition-delay: 0s;
-}
-
-.opening .closeButton:hover {
-  opacity: 0.7;
-  transition-delay: 0s;
 }
 
 /* Footer Section */
@@ -289,14 +237,12 @@
   transition-delay: 0.9s;
 }
 
-/* Mobile: Show footer at bottom (0-768px) */
+/* Mobile: footer pinned to bottom (0-768px) */
 @media (max-width: 768px) {
   .footerSection {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: var(--margin);
+    flex: 0 0 auto;
+    padding-bottom: var(--margin);
+    transition-delay: 1.1s;
   }
 }
 
@@ -323,4 +269,150 @@
 .curtainOverride {
   position: absolute !important;
   z-index: 1 !important;
+}
+
+.navItem sup {
+  color: grey;
+}
+
+/* Overlay profile button — mirrors header position, animates with nav */
+.overlayProfileButton {
+  position: fixed;
+  top: var(--margin);
+  right: calc(var(--margin) + 56px);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.overlayProfileOpening {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.7s;
+}
+
+@media (max-width: 768px) {
+  .overlayProfileOpening {
+    transition-delay: 0.9s;
+  }
+}
+
+.overlayProfileClosing {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition-delay: 0s;
+  transition-duration: 0.15s;
+}
+
+.overlayProfileImage {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 999px;
+}
+
+.overlayProfileButtonDefault .overlayProfileImage {
+  width: 24px;
+  height: 24px;
+  filter: invert(1);
+}
+
+/* Mobile: match header position */
+@media (max-width: 768px) {
+  .overlayProfileButton {
+    top: 0;
+    height: var(--header-height);
+    right: calc(var(--margin) + 42px);
+    display: flex;
+    align-items: center;
+    width: auto;
+    overflow: visible;
+    border-radius: 0;
+  }
+
+  .overlayProfileImage {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Style for button nav items */
+.navButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+/* User info in left column */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: var(--tinier);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.userInfoOpening {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.8s;
+}
+
+@media (max-width: 768px) {
+  .userInfoOpening {
+    transition-delay: 1.0s;
+  }
+}
+
+.userInfoClosing {
+  opacity: 0;
+  transform: translateY(10px);
+  transition-delay: 0s;
+  transition-duration: 0.2s;
+}
+
+.userName {
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -0.96px;
+  color: var(--white);
+}
+
+@media (max-width: 768px) {
+  .userName {
+    font-size: 42px;
+  }
+}
+
+.userLinks {
+  display: flex;
+  gap: 16px;
+}
+
+.userLink {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+@media (hover: hover) {
+  .userLink:hover {
+    color: var(--white);
+  }
+}
+
+/* Hide user info on mobile — shown via nav items instead */
+@media (max-width: 768px) {
+  .userInfo {
+    display: none;
+  }
 }

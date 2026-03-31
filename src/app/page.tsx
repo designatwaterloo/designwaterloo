@@ -1,20 +1,29 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
-import Image from "next/image";
 import Link from "@/components/Link";
-import { client } from "@/sanity/lib/client";
-import { Member } from "@/sanity/types";
-import { membersQuery } from "@/sanity/queries";
-import { urlFor, getBlurDataURL } from "@/sanity/lib/image";
+import SkeletonImage from "@/components/SkeletonImage";
+import ScrollReveal from "@/components/ScrollReveal";
+import VimeoBackground from "@/components/VimeoBackground";
+import { createClient } from "@/lib/supabase/server";
+import { Member } from "@/types/database";
 
-const options = { next: { revalidate: 30 } };
+export const revalidate = 30;
 
 export default async function Home() {
-  const allMembers = await client.fetch<Member[]>(membersQuery, {}, options);
+  const supabase = await createClient();
 
-  // Show random 24 members (will be different on each build)
+  const { data } = await supabase
+    .from("members")
+    .select("id, member_id, first_name, last_name, slug, profile_image_url")
+    .eq("onboarding_completed", true)
+    .eq("is_approved", true);
+
+  const allMembers = (data || []) as Pick<Member, "id" | "member_id" | "first_name" | "last_name" | "slug" | "profile_image_url">[];
+
+  // Filter to only show members with profile images, then show random 24 (will be different on each build)
   const members = allMembers
+    .filter(member => member.profile_image_url)
     .sort(() => Math.random() - 0.5)
     .slice(0, 24);
 
@@ -50,23 +59,10 @@ export default async function Home() {
             </div>
           </div>
 
-          <div 
-            className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative bg-[#1a1a1a]"
-            style={{
-              backgroundImage: 'url(https://vumbnail.com/1146446016.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          >
-            <iframe
-              src="https://player.vimeo.com/video/1146446016?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-              referrerPolicy="strict-origin-when-cross-origin"
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
-              title="BYODP | Design Waterloo & Figma"
-            />
-          </div>
+          <VimeoBackground
+            videoId="1146446016"
+            thumbnailUrl="https://vumbnail.com/1146446016.jpg"
+          />
 
           <p className="jumbo">
             Design Waterloo is an open collective dedicated to nurturing <span>exceptional</span> designers*, artists, filmmakers, engineers, and creatives at the <a href="https://uwaterloo.ca?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">University of Waterloo</a> and <a href="https://wlu.ca?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className="underline decoration-solid [text-underline-offset:8%]">Wilfrid Laurier University</a>. We&apos;re committed to advancing design excellence at Waterloo, and letting the world know about it.
@@ -93,32 +89,34 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-8 gap-[var(--gap)] w-full max-lg:grid-cols-4">
-            {members.map((member) => (
-              <Link 
-                key={member._id}
-                href={`/directory/${member.slug.current}`}
-                className="group"
-                underline={false}
-              >
-                {member.profileImage ? (
-                  <Image
-                    src={urlFor(member.profileImage).width(400).height(500).url()}
-                    alt={`${member.firstName} ${member.lastName}`}
-                    width={400}
-                    height={500}
-                    className="aspect-[4/5] w-full object-cover rounded grayscale group-hover:grayscale-0 transition-all duration-300"
-                    placeholder={getBlurDataURL(member.profileImage) ? "blur" : "empty"}
-                    blurDataURL={getBlurDataURL(member.profileImage)}
-                  />
-                ) : (
-                  <div className="aspect-[4/5] bg-[#d9d9d9] rounded" />
-                )}
-              </Link>
+            {members.map((member, index) => (
+              <ScrollReveal key={member.id} index={index}>
+                <Link
+                  href={`/directory/${member.slug}`}
+                  className="group"
+                  underline={false}
+                  data-cursor="internal-link"
+                  data-cursor-label={`${member.first_name} ${member.last_name} →`}
+                >
+                  {member.profile_image_url ? (
+                    <SkeletonImage
+                      src={member.profile_image_url}
+                      alt={`${member.first_name} ${member.last_name}`}
+                      width={400}
+                      height={500}
+                      className="aspect-[4/5] w-full object-cover rounded grayscale [@media(hover:hover)]:group-hover:grayscale-0 transition-[filter] duration-300"
+                    />
+                  ) : (
+                    <div className="aspect-[4/5] bg-skeleton rounded" />
+                  )}
+                </Link>
+              </ScrollReveal>
             ))}
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-[var(--gap)]">
             <Button href="/directory" variant="secondary">View directory</Button>
+            <Button href="/sign-in" variant="primary">Join the directory</Button>
           </div>
         </section>
 

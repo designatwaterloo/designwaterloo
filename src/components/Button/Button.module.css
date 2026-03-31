@@ -27,10 +27,13 @@
   border: 2px solid var(--black);
 }
 
-.primary:hover {
-  background: var(--blue);
-  color: var(--white);
-  border: 2px solid var(--blue);
+@media (hover: hover) {
+  .primary:hover {
+    background: var(--black);
+    color: var(--white);
+    border: 2px solid var(--black);
+    opacity: 0.8;
+  }
 }
 
 .secondary {
@@ -39,10 +42,12 @@
   border: 2px solid var(--black);
 }
 
-.secondary:hover {
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--black);
-  border: 2px solid var(--black);
+@media (hover: hover) {
+  .secondary:hover {
+    background: var(--hover-bg);
+    color: var(--black);
+    border: 2px solid var(--black);
+  }
 }
 
 .small {
@@ -57,10 +62,12 @@
   font-size: var(--smallest);
 }
 
-.small:hover {
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--black);
-  border: 2px solid var(--black);
+@media (hover: hover) {
+  .small:hover {
+    background: var(--hover-bg);
+    color: var(--black);
+    border: 2px solid var(--black);
+  }
 }
 
 /* Icon-only variant */
@@ -72,13 +79,15 @@
   opacity: 0.4;
 }
 
-.icon:hover {
-  background: rgba(0, 0, 0, 0.08);
-  opacity: 0.7;
+@media (hover: hover) {
+  .icon:hover {
+    background: var(--hover-bg);
+    opacity: 0.7;
+  }
 }
 
 .icon.active {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--hover-bg);
   opacity: 1;
 }
 

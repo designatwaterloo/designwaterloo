@@ -7,6 +7,10 @@ import { usePathname } from "next/navigation";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 import Curtain from "../Curtain";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useTransition } from "@/context/TransitionContext";
+import { createClient } from "@/lib/supabase/client";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface OverlayNavProps {
   isOpen: boolean;
@@ -16,6 +20,40 @@ interface OverlayNavProps {
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
+  const { user, member, loading, signOut } = useAuth();
+  const { startTransition } = useTransition();
+  const [directoryCount, setDirectoryCount] = useState<number | null>(null);
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 769);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Fetch counts when nav opens
+  useEffect(() => {
+    if (!isOpen) return;
+    const supabase = createClient();
+
+    supabase
+      .from("members")
+      .select("*", { count: "exact", head: true })
+      .eq("onboarding_completed", true)
+      .eq("is_approved", true)
+      .then(({ count }) => setDirectoryCount(count));
+
+    if (member?.is_admin) {
+      supabase
+        .from("members")
+        .select("*", { count: "exact", head: true })
+        .eq("onboarding_completed", true)
+        .eq("is_approved", false)
+        .then(({ count }) => setPendingCount(count));
+    }
+  }, [isOpen, member?.is_admin]);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,13 +73,27 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   if (!isOpen && !isAnimating) return null;
 
   const navItems = [
-    { label: "Home", href: "/" },
-    { label: "Directory", href: "/directory" },
-    { label: "About", href: "/about" },
+    { label: "Home", href: "/", sup: null as number | null },
+    { label: "Directory", href: "/directory", sup: directoryCount },
+    { label: "About", href: "/about", sup: null as number | null },
   ];
 
+  // Build user navigation items based on auth state
+  const userNavItems: { label: string; href?: string; onClick?: () => void; sup?: number | null }[] = [];
+
+  if (loading) {
+    // Still loading - don't show auth items yet to avoid flicker
+  } else if (user && member) {
+    userNavItems.push({ label: "Dashboard", href: "/dashboard" });
+    if (member.is_admin) {
+      userNavItems.push({ label: "Admin", href: "/admin", sup: pendingCount });
+    }
+  }
+
   // Nav item delays: start after columns finish
-  const navItemDelays = [0.65, 0.72, 0.80];
+  const allNavItemDelays = isMobile
+    ? [0.85, 0.92, 1.00, 1.08, 1.16, 1.24, 1.32]
+    : [0.65, 0.72, 0.80, 0.88, 0.96, 1.04, 1.12];
 
   const isClosing = !isOpen;
 
@@ -54,29 +106,68 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   return (
     <div className={`${styles.overlay} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}>
-      {/* Replaced columns with Curtain component */}
-      <Curtain 
-        isOpen={isOpen} 
+      <Curtain
+        isOpen={isOpen}
         className={styles.curtainOverride}
       />
 
+      {/* Profile button inside overlay — animates with nav content */}
+      <Link
+        href={user && member ? "/dashboard" : "/sign-in"}
+        className={`${styles.overlayProfileButton} ${!member?.profile_image_url ? styles.overlayProfileButtonDefault : ''} ${isAnimating && isOpen ? styles.overlayProfileOpening : ''} ${isClosing ? styles.overlayProfileClosing : ''}`}
+        aria-label={user && member ? "Your dashboard" : "Sign in"}
+      >
+        <Image
+          src={member?.profile_image_url || "/person.svg"}
+          alt={user && member ? "Your profile" : "Sign in"}
+          width={32}
+          height={32}
+          className={styles.overlayProfileImage}
+        />
+      </Link>
+
       {/* Content Layer */}
       <div className={styles.contentLayer}>
-        {/* Top Section - Logo */}
+        {/* Top Section - Logo + user info (desktop: also contains nav) */}
         <div className={styles.topSection}>
-          {/* Logo */}
           <div className={styles.logoSection}>
-            <Image
-              src="/Design Waterloo Logo.svg"
-              alt="Design Waterloo"
-              width={45}
-              height={36}
-              className={styles.logo}
-            />
+            {!loading && user && member ? (
+              <div className={`${styles.userInfo} ${isAnimating && isOpen ? styles.userInfoOpening : ''} ${isClosing ? styles.userInfoClosing : ''}`}>
+                <span className={styles.userName}>
+                  {member.first_name} {member.last_name}
+                </span>
+                <div className={styles.userLinks}>
+                  <Link href={`/directory/${member.slug}`} onClick={onClose} className={styles.userLink}>
+                    View profile
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      triggerHaptic();
+                      onClose();
+                      await signOut();
+                      startTransition("/");
+                    }}
+                    className={styles.userLink}
+                    data-cursor="button"
+                    data-cursor-label="Sign Out"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Image
+                src="/Design Waterloo Logo.svg"
+                alt="Design Waterloo"
+                width={45}
+                height={36}
+                className={styles.logo}
+              />
+            )}
           </div>
 
-          {/* Desktop: Nav Items + Close Button */}
-          <div className={styles.navSection}>
+          {/* Desktop only: nav sits beside logo */}
+          <div className={`${styles.navSection} ${styles.navSectionDesktop}`}>
             <nav className={styles.navItems}>
               {navItems.map((item, index) => (
                 <Link
@@ -87,37 +178,110 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   style={{
                     transitionDelay: isClosing
                       ? '0s, 0s, 0s, 0s'
-                      : `${navItemDelays[index]}s, ${navItemDelays[index]}s, 0s, 0s`
+                      : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
                   }}
+                  data-cursor="nav"
+                  data-cursor-label={`${item.label} →`}
                 >
-                  {item.label}
+                  {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
               ))}
+              {userNavItems.map((item, index) => {
+                const delayIndex = navItems.length + index;
+                return item.href ? (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => handleNavClick(item.href!)}
+                    className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                    style={{
+                      transitionDelay: isClosing
+                        ? '0s, 0s, 0s, 0s'
+                        : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
+                    }}
+                    data-cursor="nav"
+                    data-cursor-label={`${item.label} →`}
+                  >
+                    {item.label}{item.sup != null && <sup>{item.sup}</sup>}
+                  </Link>
+                ) : (
+                  <button
+                    key={item.label}
+                    onClick={item.onClick}
+                    className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                    style={{
+                      transitionDelay: isClosing
+                        ? '0s, 0s, 0s, 0s'
+                        : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
+                    }}
+                    data-cursor="nav"
+                    data-cursor-label={`${item.label} →`}
+                  >
+                    {item.label}{item.sup != null && <sup>{item.sup}</sup>}
+                  </button>
+                );
+              })}
             </nav>
-
-            {/* Close Button - Desktop */}
-            <button
-              className={styles.closeButton}
-              onClick={onClose}
-              aria-label="Close navigation"
-            >
-              <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 10L31 31M31 10L10 31" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </button>
           </div>
         </div>
 
-        {/* Mobile: Close Button - Independent positioning */}
-        <button
-          className={`${styles.closeButtonMobile} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}
-          onClick={onClose}
-          aria-label="Close navigation"
-        >
-          <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 10L31 31M31 10L10 31" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </button>
+        {/* Mobile only: nav below header, fills middle */}
+        <div className={`${styles.navSection} ${styles.navSectionMobile}`}>
+          <nav className={styles.navItems}>
+            {navItems.map((item, index) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => handleNavClick(item.href)}
+                className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                style={{
+                  transitionDelay: isClosing
+                    ? '0s, 0s, 0s, 0s'
+                    : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
+                }}
+                data-cursor="nav"
+                data-cursor-label={item.label}
+              >
+                {item.label}{item.sup != null && <sup>{item.sup}</sup>}
+              </Link>
+            ))}
+            {userNavItems.map((item, index) => {
+              const delayIndex = navItems.length + index;
+              return item.href ? (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => handleNavClick(item.href!)}
+                  className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                  style={{
+                    transitionDelay: isClosing
+                      ? '0s, 0s, 0s, 0s'
+                      : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
+                  }}
+                  data-cursor="nav"
+                  data-cursor-label={`${item.label} →`}
+                >
+                  {item.label}{item.sup != null && <sup>{item.sup}</sup>}
+                </Link>
+              ) : (
+                <button
+                  key={item.label}
+                  onClick={item.onClick}
+                  className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
+                  style={{
+                    transitionDelay: isClosing
+                      ? '0s, 0s, 0s, 0s'
+                      : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
+                    }}
+                  data-cursor="nav"
+                  data-cursor-label={`${item.label} →`}
+                >
+                  {item.label}{item.sup != null && <sup>{item.sup}</sup>}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
 
         {/* Bottom Section - Footer with menu variant */}
         <div className={`${styles.footerSection} ${isAnimating && isOpen ? styles.footerOpening : ''} ${isClosing ? styles.footerClosing : ''}`}>

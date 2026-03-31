@@ -133,6 +133,10 @@ export interface DataViewProps<T> {
   /** View mode configuration */
   viewModeConfig?: ViewModeConfig;
 
+  // Cursor
+  /** Function to get cursor label for each item (used for cursor follower) */
+  getCursorLabel?: (item: T) => string;
+
   // Callbacks
   /** Callback when item is clicked */
   onItemClick?: (item: T) => void;
@@ -140,6 +144,12 @@ export interface DataViewProps<T> {
   // Persistence
   /** localStorage key for persisting view mode */
   storageKey?: string;
+
+  /** Initial filter selections (e.g. from URL params). Takes priority over localStorage. */
+  initialFilters?: Record<string, string[]>;
+
+  /** Called whenever filter selections change (for URL sync, analytics, etc.) */
+  onFiltersChange?: (filters: Record<string, string[]>) => void;
 }
 
 /**
@@ -154,6 +164,8 @@ export interface GridViewProps<T> {
   onItemClick?: (item: T) => void;
   /** Custom grid column breakpoints (overrides default responsive columns) */
   gridColumns?: GridColumnsConfig;
+  /** Function to get cursor label for each item */
+  getCursorLabel?: (item: T) => string;
 }
 
 /**
@@ -169,6 +181,8 @@ export interface TableViewProps<T> {
   sortDirection?: "asc" | "desc";
   onItemClick?: (item: T) => void;
   renderHoverPreview?: (item: T) => ReactNode;
+  /** Function to get cursor label for each item */
+  getCursorLabel?: (item: T) => string;
 }
 
 /**

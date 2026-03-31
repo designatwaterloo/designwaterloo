@@ -105,18 +105,15 @@ export default function FilterPanel<T>({
               ×
             </button>
           </div>
-          <div className={styles.panelContent}>{content}</div>
+          <div className={styles.panelContent} data-lenis-prevent>{content}</div>
         </div>
-        {isOpen && (
-          <div className={styles.panelOverlay} onClick={onClose} />
-        )}
       </>
     );
   }
 
   // Desktop variant
   return (
-    <aside className={styles.panelDesktop}>
+    <aside className={`${styles.panelDesktop} ${isOpen ? styles.panelDesktopOpen : ""}`}>
       <div className={styles.panelSticky} data-lenis-prevent>
         {content}
       </div>

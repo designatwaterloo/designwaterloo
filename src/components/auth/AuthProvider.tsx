@@ -1,0 +1,209 @@
+"use client";
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from "react";
+import { createClient } from "@/lib/supabase/client";
+import { isLaurierEmail } from "@/lib/supabase/auth-utils";
+import type { User, Session } from "@supabase/supabase-js";
+import type { Member } from "@/types/database";
+
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  member: Member | null;
+  loading: boolean;
+  signInWithMicrosoft: (redirectTo?: string) => Promise<void>;
+  signInWithLaurierOtp: (email: string) => Promise<{ error: string | null }>;
+  verifyLaurierOtp: (email: string, token: string) => Promise<{ error: string | null; user: User | null }>;
+  signOut: () => Promise<void>;
+  refreshMember: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [member, setMember] = useState<Member | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = useMemo(() => createClient(), []);
+
+  const fetchMember = useCallback(
+    async (userId: string) => {
+      const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .eq("auth_user_id", userId)
+        .maybeSingle(); // Use maybeSingle instead of single to handle no rows
+
+      if (error) {
+        console.error("[Auth] Error fetching member:", error);
+      }
+      setMember(data as Member | null);
+    },
+    [supabase]
+  );
+
+  useEffect(() => {
+    let mounted = true;
+
+    // Safety timeout — never hang on loading for more than 5s
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
+    // Single auth state handler.  onAuthStateChange fires INITIAL_SESSION
+    // immediately on subscription, so there is no need for a separate
+    // getInitialSession call (which previously raced against this listener and
+    // caused double fetchMember calls and loading-state flicker).
+    //
+    // On INITIAL_SESSION we still call getUser() to validate the token
+    // server-side — getSession() alone only reads from local storage and can
+    // return a stale/expired session, causing a premature authenticated state.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
+      if (!session) {
+        setUser(null);
+        setSession(null);
+        setMember(null);
+        setLoading(false);
+        clearTimeout(timeout);
+        return;
+      }
+
+      // Validate the token server-side on the very first load so we don't
+      // trust a stale session from local storage/cookies.
+      if (event === "INITIAL_SESSION") {
+        try {
+          const { data: { user: validatedUser } } = await supabase.auth.getUser();
+          if (!mounted) return;
+          if (!validatedUser) {
+            setUser(null);
+            setSession(null);
+            setMember(null);
+            setLoading(false);
+            clearTimeout(timeout);
+            return;
+          }
+        } catch (err) {
+          // Ignore AbortErrors from React Strict Mode double-mounting
+          if (err instanceof DOMException && err.name === "AbortError") return;
+          // Network error — trust the local session and continue
+        }
+      }
+
+      setSession(session);
+      setUser(session.user);
+      await fetchMember(session.user.id);
+
+      if (mounted) {
+        setLoading(false);
+        clearTimeout(timeout);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
+  }, [supabase.auth, fetchMember]);
+
+  const signInWithMicrosoft = async (redirectTo?: string) => {
+    const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+    if (redirectTo) callbackUrl.searchParams.set("next", redirectTo);
+
+    await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: {
+        scopes: "email profile openid",
+        redirectTo: callbackUrl.toString(),
+        queryParams: {
+          domain_hint: "uwaterloo.ca",
+          // Force the Microsoft account picker so users with multiple accounts
+          // (or a stale SSO session) can choose the right one.
+          prompt: "select_account",
+        },
+      },
+    });
+  };
+
+  const signInWithLaurierOtp = async (email: string): Promise<{ error: string | null }> => {
+    if (!isLaurierEmail(email)) {
+      return { error: "Please use a @mylaurier.ca email address." };
+    }
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) {
+      return { error: error.message };
+    }
+    return { error: null };
+  };
+
+  const verifyLaurierOtp = async (email: string, token: string): Promise<{ error: string | null; user: User | null }> => {
+    const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+    if (error) {
+      return { error: error.message, user: null };
+    }
+    return { error: null, user: data.user };
+  };
+
+  const signOut = useCallback(async () => {
+    setUser(null);
+    setSession(null);
+    setMember(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("[Auth] Global sign-out failed, clearing local session:", err);
+      // Global sign-out failed (network/API error) — clear local cookies at minimum
+      // so the middleware doesn't think we're still authenticated.
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // Even local sign-out failed — shouldn't happen
+      }
+    }
+  }, [supabase.auth]);
+
+  const refreshMember = useCallback(async () => {
+    if (user) {
+      await fetchMember(user.id);
+    }
+  }, [user, fetchMember]);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        member,
+        loading,
+        signInWithMicrosoft,
+        signInWithLaurierOtp,
+        verifyLaurierOtp,
+        signOut,
+        refreshMember,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+}
