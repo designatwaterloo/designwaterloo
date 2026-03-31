@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Design at Waterloo
 
-## Getting Started
+The website for Design at Waterloo, built with Next.js, Sanity CMS, and Supabase.
 
-First, run the development server:
+## Prerequisites
+
+You'll need these installed on your computer before you start:
+
+1. **Node.js** (v18 or newer) — download from [nodejs.org](https://nodejs.org/) and run the installer
+2. **npm** — comes bundled with Node.js, no extra install needed
+3. **Git** — download from [git-scm.com](https://git-scm.com/) if you don't have it
+
+To check if you already have them, open your terminal and run:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+If each prints a version number, you're good to go.
+
+## Getting started
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/designatwaterloo/designwaterloo.git
+cd designwaterloo
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+This will download everything the project needs. It may take a minute the first time.
+
+### 3. Set up environment variables
+
+The project needs API keys for Sanity (CMS) and Supabase (auth/database). These are **not** stored in the repo for security reasons.
+
+Create a file called `.env.local` in the project root:
+
+```bash
+# Sanity (content management)
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=
+SANITY_API_TOKEN=
+
+# Supabase (auth & database)
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+Ask a team member for the values to fill in. Paste them after each `=` with no spaces.
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000) in your browser. The page will automatically reload when you save changes to the code.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Stop the dev server
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Press `Ctrl + C` in the terminal.
 
-## Learn More
+## Other commands
 
-To learn more about Next.js, take a look at the following resources:
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | Build the production version (used by deployment) |
+| `npm run start` | Run the production build locally |
+| `npm run lint` | Check for code style issues |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/          # Pages and routes
+├── components/   # Reusable UI components
+├── lib/          # Shared utilities (Supabase client, Sanity client, etc.)
+└── styles/       # Global styles
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The site deploys automatically via Vercel when changes are pushed to the `main` branch. You don't need to do anything manually — just merge your PR and it goes live.
