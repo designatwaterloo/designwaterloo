@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://rsms.me/" />
+        <link rel="preconnect" href="https://rsms.me/" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
         <meta name="apple-mobile-web-app-title" content="Waterloo" />
       </head>
