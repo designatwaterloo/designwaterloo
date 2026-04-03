@@ -103,7 +103,7 @@ function EntryForm({
         <input
           type="text"
           value={entry.startYear ?? ""}
-          onChange={(e) => onChange({ ...entry, startYear: e.target.value || null })}
+          onChange={(e) => onChange({ ...entry, startYear: e.target.value.slice(0, 4) || null })}
           placeholder="Year"
           className={`${styles.entryInput} ${styles.entryInputSmall}`}
         />
