@@ -40,22 +40,30 @@ const MONTHS = [
 function EntryForm({
   entry,
   type,
-  onChange,
+  onSave,
   onRemove,
+  onDirtyChange,
 }: {
   entry: Entry;
   type: "experience" | "leadership";
-  onChange: (updated: Entry) => void;
+  onSave: (updated: Entry) => void;
   onRemove: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
+  const [draft, setDraft] = useState<Entry>(() => ({ ...entry }));
   const orgLabel = type === "experience" ? "Company" : "Organization";
-  const org = getOrg(entry);
+  const org = getOrg(draft);
+
+  const update = (updated: Entry) => {
+    setDraft(updated);
+    onDirtyChange?.(JSON.stringify(updated) !== JSON.stringify(entry));
+  };
 
   const setOrg = (val: string) => {
     if (type === "experience") {
-      onChange({ ...entry, company: val } as ExperienceEntry);
+      update({ ...draft, company: val } as ExperienceEntry);
     } else {
-      onChange({ ...entry, org: val } as LeadershipEntry);
+      update({ ...draft, org: val } as LeadershipEntry);
     }
   };
 
@@ -64,8 +72,8 @@ function EntryForm({
       <div className={styles.entryRow}>
         <input
           type="text"
-          value={entry.positionTitle ?? ""}
-          onChange={(e) => onChange({ ...entry, positionTitle: e.target.value || null })}
+          value={draft.positionTitle ?? ""}
+          onChange={(e) => update({ ...draft, positionTitle: e.target.value || null })}
           placeholder="Title"
           className={styles.entryInput}
         />
@@ -80,8 +88,8 @@ function EntryForm({
       <div className={styles.entryRow}>
         <input
           type="text"
-          value={entry.link ?? ""}
-          onChange={(e) => onChange({ ...entry, link: e.target.value || null })}
+          value={draft.link ?? ""}
+          onChange={(e) => update({ ...draft, link: e.target.value || null })}
           placeholder="Link (optional)"
           className={styles.entryInput}
           style={{ flex: 1 }}
@@ -89,10 +97,10 @@ function EntryForm({
       </div>
       <div className={styles.entryRow}>
         <select
-          value={entry.startMonth ?? ""}
-          onChange={(e) => onChange({ ...entry, startMonth: e.target.value || null })}
+          value={draft.startMonth ?? ""}
+          onChange={(e) => update({ ...draft, startMonth: e.target.value || null })}
           className={styles.entrySelect}
-          disabled={!!entry.isIncoming}
+          disabled={!!draft.isIncoming}
         >
           {MONTHS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -102,24 +110,24 @@ function EntryForm({
         </select>
         <input
           type="text"
-          value={entry.startYear ?? ""}
-          onChange={(e) => onChange({ ...entry, startYear: e.target.value.slice(0, 4) || null })}
+          value={draft.startYear ?? ""}
+          onChange={(e) => update({ ...draft, startYear: e.target.value.slice(0, 4) || null })}
           placeholder="Year"
           className={`${styles.entryInput} ${styles.entryInputSmall}`}
         />
         <label className={styles.entryCheckbox}>
           <input
             type="checkbox"
-            checked={entry.isCurrent}
-            onChange={(e) => onChange({ ...entry, isCurrent: e.target.checked, isIncoming: false })}
+            checked={draft.isCurrent}
+            onChange={(e) => update({ ...draft, isCurrent: e.target.checked, isIncoming: false })}
           />
           Current
         </label>
         <label className={styles.entryCheckbox}>
           <input
             type="checkbox"
-            checked={!!entry.isIncoming}
-            onChange={(e) => onChange({ ...entry, isIncoming: e.target.checked, isCurrent: false, startMonth: null })}
+            checked={!!draft.isIncoming}
+            onChange={(e) => update({ ...draft, isIncoming: e.target.checked, isCurrent: false, startMonth: null })}
           />
           Incoming
         </label>
@@ -133,6 +141,14 @@ function EntryForm({
             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
         </button>
+        <button
+          type="button"
+          onClick={() => onSave(draft)}
+          className={styles.entrySave}
+          style={{ marginLeft: "auto" }}
+        >
+          Save changes
+        </button>
       </div>
     </div>
   );
@@ -141,18 +157,29 @@ function EntryForm({
 export default function InlineExperienceForm({ type, label }: InlineExperienceFormProps) {
   const { isOwner, editMode, experiences, leadership, setExperiences, setLeadership } = useInlineEdit();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const activeEntryRef = useRef<HTMLDivElement>(null);
+
+  const tryClose = () => {
+    if (isDirty) {
+      const discard = window.confirm("You have unsaved changes. Discard them?");
+      if (!discard) return;
+    }
+    setIsDirty(false);
+    setEditingIndex(null);
+  };
 
   useEffect(() => {
     if (editingIndex === null) return;
     const handleMouseDown = (e: MouseEvent) => {
       if (activeEntryRef.current && !activeEntryRef.current.contains(e.target as Node)) {
-        setEditingIndex(null);
+        tryClose();
       }
     };
     document.addEventListener("mousedown", handleMouseDown);
     return () => document.removeEventListener("mousedown", handleMouseDown);
-  }, [editingIndex]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingIndex, isDirty]);
 
   const entries = type === "experience" ? experiences : leadership;
 
@@ -276,8 +303,13 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
               <EntryForm
                 entry={entry}
                 type={type}
-                onChange={(updated) => handleUpdate(originalIndex, updated)}
+                onSave={(updated) => {
+                  handleUpdate(originalIndex, updated);
+                  setIsDirty(false);
+                  setEditingIndex(null);
+                }}
                 onRemove={() => handleRemove(originalIndex)}
+                onDirtyChange={setIsDirty}
               />
             </div>
           ) : (
