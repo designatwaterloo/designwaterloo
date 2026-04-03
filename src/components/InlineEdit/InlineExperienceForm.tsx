@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useInlineEdit, ExperienceEntry, LeadershipEntry } from "./InlineEditProvider";
 import { ensureHttps } from "@/lib/urlUtils";
 import styles from "./InlineEdit.module.css";
@@ -152,13 +152,31 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
     }
   };
 
-  const sorted = [...entries].map((e, i) => ({ entry: e, originalIndex: i })).sort((a, b) => {
-    if (a.entry.isCurrent && !b.entry.isCurrent) return -1;
-    if (!a.entry.isCurrent && b.entry.isCurrent) return 1;
-    const yearA = a.entry.startYear ? parseInt(a.entry.startYear) : 0;
-    const yearB = b.entry.startYear ? parseInt(b.entry.startYear) : 0;
-    return yearB - yearA;
-  });
+  const sortEntries = (es: Entry[]) =>
+    [...es].map((e, i) => ({ entry: e, originalIndex: i })).sort((a, b) => {
+      if (a.entry.isCurrent && !b.entry.isCurrent) return -1;
+      if (!a.entry.isCurrent && b.entry.isCurrent) return 1;
+      const yearA = a.entry.startYear ? parseInt(a.entry.startYear) : 0;
+      const yearB = b.entry.startYear ? parseInt(b.entry.startYear) : 0;
+      return yearB - yearA;
+    });
+
+  const [frozenOrder, setFrozenOrder] = useState<number[] | null>(null);
+  const [prevEditingIndex, setPrevEditingIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (editingIndex !== prevEditingIndex) {
+      // Re-sort when switching away from an entry, then freeze for the new one
+      const newOrder = sortEntries(entries).map((x) => x.originalIndex);
+      setFrozenOrder(editingIndex !== null ? newOrder : null);
+      setPrevEditingIndex(editingIndex);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingIndex]);
+
+  const sorted = frozenOrder
+    ? frozenOrder.filter((idx) => idx < entries.length).map((idx) => ({ entry: entries[idx], originalIndex: idx }))
+    : sortEntries(entries);
 
   const handleUpdate = (originalIndex: number, updated: Entry) => {
     const next = [...entries];
@@ -243,7 +261,7 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
         {sorted.map(({ entry, originalIndex }, i) =>
           editingIndex === originalIndex ? (
             <EntryForm
-              key={i}
+              key={originalIndex}
               entry={entry}
               type={type}
               onChange={(updated) => handleUpdate(originalIndex, updated)}
@@ -251,7 +269,7 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
             />
           ) : (
             <div
-              key={i}
+              key={originalIndex}
               className={`${pageStyles.experienceItem} ${styles.editableField}`}
               style={sorted[i + 1]?.originalIndex === editingIndex ? { borderBottom: "none" } : undefined}
               onClick={() => setEditingIndex(originalIndex)}
