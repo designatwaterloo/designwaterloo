@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useInlineEdit, ExperienceEntry, LeadershipEntry } from "./InlineEditProvider";
 import { ensureHttps } from "@/lib/urlUtils";
 import styles from "./InlineEdit.module.css";
@@ -141,6 +141,18 @@ function EntryForm({
 export default function InlineExperienceForm({ type, label }: InlineExperienceFormProps) {
   const { isOwner, editMode, experiences, leadership, setExperiences, setLeadership } = useInlineEdit();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const activeEntryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editingIndex === null) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (activeEntryRef.current && !activeEntryRef.current.contains(e.target as Node)) {
+        setEditingIndex(null);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, [editingIndex]);
 
   const entries = type === "experience" ? experiences : leadership;
 
@@ -260,13 +272,14 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
         )}
         {sorted.map(({ entry, originalIndex }, i) =>
           editingIndex === originalIndex ? (
-            <EntryForm
-              key={originalIndex}
-              entry={entry}
-              type={type}
-              onChange={(updated) => handleUpdate(originalIndex, updated)}
-              onRemove={() => handleRemove(originalIndex)}
-            />
+            <div key={originalIndex} ref={activeEntryRef}>
+              <EntryForm
+                entry={entry}
+                type={type}
+                onChange={(updated) => handleUpdate(originalIndex, updated)}
+                onRemove={() => handleRemove(originalIndex)}
+              />
+            </div>
           ) : (
             <div
               key={originalIndex}
