@@ -61,16 +61,21 @@ function EntryForm({
   const monthValid = !!draft.isIncoming || !!draft.startMonth;
 
   const getErrors = () => {
+    const missing: string[] = [];
+    if (!titleValid) missing.push("title");
+    if (!orgValid) missing.push(orgLabel.toLowerCase());
+    if (!monthValid) missing.push("start month");
+    if (!draft.startYear) missing.push("start year");
+
     const errors: string[] = [];
-    if (!titleValid) errors.push("Title is required.");
-    if (!orgValid) errors.push(`${orgLabel} is required.`);
-    if (!monthValid && !yearValid) {
-      errors.push("Month and year are required. Year must be 4 digits.");
-    } else if (!monthValid) {
-      errors.push("Month is required.");
-    } else if (!draft.startYear) {
-      errors.push("Year is required.");
-    } else if (!yearValid) {
+    if (missing.length === 1) {
+      errors.push(`${missing[0][0].toUpperCase() + missing[0].slice(1)} is required.`);
+    } else if (missing.length > 1) {
+      const last = missing.pop()!;
+      const list = missing.join(", ") + ", and " + last;
+      errors.push(`${list[0].toUpperCase() + list.slice(1)} are required.`);
+    }
+    if (draft.startYear && !yearValid) {
       errors.push("Year must be 4 digits.");
     }
     return errors;
