@@ -51,8 +51,31 @@ function EntryForm({
   onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [draft, setDraft] = useState<Entry>(() => ({ ...entry }));
+  const [showError, setShowError] = useState(false);
   const orgLabel = type === "experience" ? "Company" : "Organization";
   const org = getOrg(draft);
+
+  const titleValid = !!draft.positionTitle?.trim();
+  const orgValid = !!getOrg(draft).trim();
+  const yearValid = !!draft.startYear && draft.startYear.length === 4;
+  const monthValid = !!draft.isIncoming || !!draft.startMonth;
+
+  const getErrors = () => {
+    const errors: string[] = [];
+    if (!titleValid) errors.push("Title is required.");
+    if (!orgValid) errors.push(`${orgLabel} is required.`);
+    if (!monthValid && !yearValid) {
+      errors.push("Month and year are required. Year must be 4 digits.");
+    } else if (!monthValid) {
+      errors.push("Month is required.");
+    } else if (!draft.startYear) {
+      errors.push("Year is required.");
+    } else if (!yearValid) {
+      errors.push("Year must be 4 digits.");
+    }
+    return errors;
+  };
+  const hasErrors = !titleValid || !orgValid || !yearValid || !monthValid;
 
   const update = (updated: Entry) => {
     setDraft(updated);
@@ -75,14 +98,14 @@ function EntryForm({
           value={draft.positionTitle ?? ""}
           onChange={(e) => update({ ...draft, positionTitle: e.target.value || null })}
           placeholder="Title"
-          className={styles.entryInput}
+          className={`${styles.entryInput} ${showError && !titleValid ? styles.entryInputError : ""}`}
         />
         <input
           type="text"
           value={org}
           onChange={(e) => setOrg(e.target.value)}
           placeholder={orgLabel}
-          className={styles.entryInput}
+          className={`${styles.entryInput} ${showError && !orgValid ? styles.entryInputError : ""}`}
         />
       </div>
       <div className={styles.entryRow}>
@@ -99,7 +122,7 @@ function EntryForm({
         <select
           value={draft.startMonth ?? ""}
           onChange={(e) => update({ ...draft, startMonth: e.target.value || null })}
-          className={styles.entrySelect}
+          className={`${styles.entrySelect} ${showError && !monthValid ? styles.entryInputError : ""}`}
           disabled={!!draft.isIncoming}
         >
           {MONTHS.map((m) => (
@@ -113,7 +136,7 @@ function EntryForm({
           value={draft.startYear ?? ""}
           onChange={(e) => update({ ...draft, startYear: e.target.value.slice(0, 4) || null })}
           placeholder="Year"
-          className={`${styles.entryInput} ${styles.entryInputSmall}`}
+          className={`${styles.entryInput} ${styles.entryInputSmall} ${showError && !yearValid ? styles.entryInputError : ""}`}
         />
         <label className={styles.entryCheckbox}>
           <input
@@ -143,13 +166,29 @@ function EntryForm({
         </button>
         <button
           type="button"
-          onClick={() => onSave(draft)}
+          onClick={() => {
+            if (hasErrors) {
+              setShowError(true);
+              return;
+            }
+            onSave(draft);
+          }}
           className={styles.entrySave}
           style={{ marginLeft: "auto" }}
         >
           Save changes
         </button>
       </div>
+      {showError && hasErrors && (
+        <div className={styles.entryError}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          {getErrors().join(" ")}
+        </div>
+      )}
     </div>
   );
 }
