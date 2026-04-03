@@ -27,6 +27,8 @@ interface PillInputProps {
   isPast?: (value: string) => boolean;
   /** Return true to show a pulsing green dot (e.g. next recruiting term) */
   isHighlighted?: (value: string) => boolean;
+  /** If true, items are kept sorted (ascending string sort) after each addition */
+  sorted?: boolean;
   className?: string;
 }
 
@@ -39,6 +41,7 @@ export default function PillInput({
   renderPill,
   isPast,
   isHighlighted,
+  sorted,
   className,
 }: PillInputProps) {
   const { isOwner, editMode, fields, setField } = useInlineEdit();
@@ -67,7 +70,9 @@ export default function PillInput({
     const trimmed = value.trim();
     if (!trimmed || items.includes(trimmed)) return;
     if (atMax) return;
-    setField(field, [...items, trimmed] as EditableFields[typeof field]);
+    const next = [...items, trimmed];
+    if (sorted) next.sort();
+    setField(field, next as EditableFields[typeof field]);
     setInputValue("");
   };
 

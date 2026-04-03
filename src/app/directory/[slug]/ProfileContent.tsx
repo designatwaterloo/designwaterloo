@@ -415,6 +415,7 @@ function ProfileContentInner({
                       renderPill={decodeTermCode}
                       isPast={(code) => code <= getCurrentTermCode()}
                       isHighlighted={(code) => code === getNextTermCode(workSchedule)}
+                      sorted
                     />
                   </dd>
                 </div>
