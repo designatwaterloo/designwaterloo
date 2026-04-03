@@ -197,7 +197,10 @@ export default function PillInput({
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                addItem(inputValue);
+                const match = suggestions.find(
+                  (s) => s.toLowerCase() === inputValue.trim().toLowerCase()
+                );
+                addItem(match ?? inputValue);
               }
               if (e.key === "Backspace" && !inputValue && items.length > 0) {
                 removeItem(items[items.length - 1]);
@@ -238,8 +241,8 @@ export default function PillInput({
             </button>
           ))}
           {inputValue.trim() &&
-            !suggestions.includes(inputValue.trim()) &&
-            !items.includes(inputValue.trim()) && (
+            !suggestions.some((s) => s.toLowerCase() === inputValue.trim().toLowerCase()) &&
+            !items.some((i) => i.toLowerCase() === inputValue.trim().toLowerCase()) && (
               <button
                 type="button"
                 className={`${styles.suggestionItem} ${styles.suggestionCreate}`}
