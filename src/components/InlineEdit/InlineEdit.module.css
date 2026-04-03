@@ -520,10 +520,11 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: var(--tinier);
-  margin: calc(var(--tinier) * -1);
-  border: 2px solid var(--foreground);
+  padding: calc(var(--tinier) + 2px);
+  margin: 8px calc((var(--tinier) + 2px) * -1);
+  border: none;
   border-radius: var(--radius-large);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12), 0 4px 24px rgba(0, 0, 0, 0.08);
   animation: fadeSlideIn 0.15s ease;
 }
 
