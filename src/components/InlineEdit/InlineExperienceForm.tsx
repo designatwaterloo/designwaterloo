@@ -52,6 +52,7 @@ function EntryForm({
 }) {
   const [draft, setDraft] = useState<Entry>(() => ({ ...entry }));
   const [showError, setShowError] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const orgLabel = type === "experience" ? "Company" : "Organization";
   const org = getOrg(draft);
 
@@ -159,31 +160,56 @@ function EntryForm({
           />
           Incoming
         </label>
-        <button
-          type="button"
-          onClick={onRemove}
-          className={styles.entryRemove}
-          aria-label="Remove entry"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (hasErrors) {
-              setShowError(true);
-              return;
-            }
-            onSave(draft);
-          }}
-          className={styles.entrySave}
-          style={{ marginLeft: "auto" }}
-        >
-          Save changes
-        </button>
+        {!confirmingDelete && (
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            className={styles.entryRemove}
+            aria-label="Remove entry"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        )}
+        {!confirmingDelete && (
+          <button
+            type="button"
+            onClick={() => {
+              if (hasErrors) {
+                setShowError(true);
+                return;
+              }
+              onSave(draft);
+            }}
+            className={styles.entrySave}
+            style={{ marginLeft: "auto" }}
+          >
+            Save changes
+          </button>
+        )}
       </div>
+      {confirmingDelete && (
+        <div className={styles.entryConfirmDelete}>
+          <span>Delete this {type === "experience" ? "experience" : "leadership"} entry?</span>
+          <div className={styles.entryConfirmActions}>
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(false)}
+              className={styles.entryConfirmCancel}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              className={styles.entryConfirmDeleteBtn}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
       {showError && hasErrors && (
         <div className={styles.entryError}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0 }}>

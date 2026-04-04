@@ -624,6 +624,59 @@
   color: var(--error, #dc2626);
 }
 
+.entryConfirmDelete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--foreground);
+  background: var(--hover-bg);
+  border-radius: var(--radius-small);
+}
+
+.entryConfirmActions {
+  display: flex;
+  gap: 8px;
+}
+
+.entryConfirmCancel {
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .entryConfirmCancel:hover {
+    opacity: 0.8;
+  }
+}
+
+.entryConfirmDeleteBtn {
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  background: var(--error, #dc2626);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .entryConfirmDeleteBtn:hover {
+    opacity: 0.8;
+  }
+}
+
 .entrySave {
   padding: 6px 16px;
   font: inherit;
