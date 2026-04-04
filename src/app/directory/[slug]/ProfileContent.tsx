@@ -416,6 +416,22 @@ function ProfileContentInner({
                       isPast={(code) => code <= getCurrentTermCode()}
                       isHighlighted={(code) => code === getNextTermCode(workSchedule)}
                       sorted
+                      validate={(value) => {
+                        // Term code format (e.g. "1261")
+                        if (/^\d{4}$/.test(value)) {
+                          const season = value[3];
+                          if (!["1", "5", "9"].includes(season)) return "Term must be either Spring, Fall, or Winter.";
+                          return null;
+                        }
+                        // Human-readable format (e.g. "Winter 2026")
+                        const parts = value.trim().split(/\s+/);
+                        const validSeasons = ["spring", "fall", "winter"];
+                        const season = parts[0]?.toLowerCase();
+                        if (!season || !validSeasons.includes(season)) return "Term must be either Spring, Fall, or Winter.";
+                        const year = parts[1];
+                        if (!year || !/^\d{4}$/.test(year)) return "Year must be a valid year.";
+                        return null;
+                      }}
                     />
                   </dd>
                 </div>

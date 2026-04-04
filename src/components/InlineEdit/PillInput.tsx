@@ -29,6 +29,8 @@ interface PillInputProps {
   isHighlighted?: (value: string) => boolean;
   /** If true, items are kept sorted (ascending string sort) after each addition */
   sorted?: boolean;
+  /** Validate a value before adding. Return an error message string, or null if valid. */
+  validate?: (value: string) => string | null;
   className?: string;
 }
 
@@ -42,11 +44,13 @@ export default function PillInput({
   isPast,
   isHighlighted,
   sorted,
+  validate,
   className,
 }: PillInputProps) {
   const { isOwner, editMode, fields, setField } = useInlineEdit();
   const [inputValue, setInputValue] = useState("");
   const [focused, setFocused] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -60,6 +64,7 @@ export default function PillInput({
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setFocused(false);
         setInputValue("");
+        setError(null);
       }
     };
     document.addEventListener("mousedown", handleClick);
@@ -70,6 +75,14 @@ export default function PillInput({
     const trimmed = value.trim();
     if (!trimmed || items.includes(trimmed)) return;
     if (atMax) return;
+    if (validate) {
+      const err = validate(trimmed);
+      if (err) {
+        setError(err);
+        return;
+      }
+    }
+    setError(null);
     const next = [...items, trimmed];
     if (sorted) next.sort();
     setField(field, next as EditableFields[typeof field]);
@@ -197,7 +210,7 @@ export default function PillInput({
             ref={inputRef}
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => { setInputValue(e.target.value); setError(null); }}
             onFocus={() => setFocused(true)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -256,6 +269,16 @@ export default function PillInput({
                 Add &ldquo;{inputValue.trim()}&rdquo;
               </button>
             )}
+        </div>
+      )}
+      {error && (
+        <div className={styles.entryError}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          {error}
         </div>
       )}
       {maxItems && (
