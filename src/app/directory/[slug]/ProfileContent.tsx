@@ -203,7 +203,7 @@ function ProfileContentInner({
           </h1>
           {isOwner && !editMode && (
             <Button
-              variant="small"
+              variant="primary"
               onClick={() => setEditMode(true)}
             >
               Edit profile
