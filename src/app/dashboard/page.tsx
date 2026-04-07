@@ -61,7 +61,7 @@ export default function DashboardPage() {
       <Header />
       <main className="w-full">
         <section className={styles.section}>
-          <h1 className={styles.title}>Your Profile</h1>
+          <h1 className={styles.title}>{member.first_name} {member.last_name}</h1>
 
           <div className={styles.card}>
 
