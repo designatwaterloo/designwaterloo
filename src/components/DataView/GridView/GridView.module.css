@@ -1,8 +1,10 @@
 /* Grid Layout with Container Queries */
 .grid {
   display: grid;
-  gap: var(--gap);
-  width: 100%;
+  gap: 0;
+  width: calc(100% + var(--gap));
+  margin-left: calc(var(--gap) / -2);
+  margin-right: calc(var(--gap) / -2);
   /* Use override if set (during filter panel animation), otherwise default */
   grid-template-columns: repeat(var(--grid-cols-override, var(--grid-cols-base, 2)), 1fr);
 }
@@ -10,8 +12,10 @@
 /* Custom grid - when custom columns are provided, use CSS variables */
 .gridCustom {
   display: grid;
-  gap: var(--gap);
-  width: 100%;
+  gap: 0;
+  width: calc(100% + var(--gap));
+  margin-left: calc(var(--gap) / -2);
+  margin-right: calc(var(--gap) / -2);
   grid-template-columns: repeat(var(--grid-cols-override, var(--grid-cols-base, 1)), 1fr);
 }
 
@@ -59,4 +63,5 @@
 .gridItem {
   /* Items get their styling from renderItem prop */
   container-type: inline-size;
+  padding: calc(var(--gap) / 2);
 }

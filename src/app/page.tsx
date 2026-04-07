@@ -88,12 +88,12 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-8 gap-[var(--gap)] w-full max-lg:grid-cols-4">
+          <div className="grid grid-cols-8 w-[calc(100%+var(--gap))] -m-[calc(var(--gap)/2)] max-lg:grid-cols-4">
             {members.map((member, index) => (
               <ScrollReveal key={member.id} index={index}>
                 <Link
                   href={`/directory/${member.slug}`}
-                  className="group"
+                  className="group block p-[calc(var(--gap)/2)]"
                   underline={false}
                   data-cursor="internal-link"
                   data-cursor-label={`${member.first_name} ${member.last_name} →`}
