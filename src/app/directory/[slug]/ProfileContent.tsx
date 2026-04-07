@@ -180,6 +180,8 @@ function ProfileContentInner({
             <Button
               variant="primary"
               onClick={() => setEditMode(true)}
+              dataCursor="button"
+              dataCursorLabel="Edit profile"
             >
               Edit profile
             </Button>
