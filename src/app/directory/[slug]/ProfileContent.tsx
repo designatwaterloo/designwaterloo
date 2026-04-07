@@ -177,14 +177,17 @@ function ProfileContentInner({
             {firstName} {lastName}
           </h1>
           {isOwner && !editMode && (
-            <Button
-              variant="primary"
+            <button
+              type="button"
+              className={styles.editButton}
               onClick={() => setEditMode(true)}
-              dataCursor="button"
-              dataCursorLabel="Edit profile"
+              data-cursor="button"
+              data-cursor-label="Edit profile"
+              aria-label="Edit profile"
             >
-              Edit profile
-            </Button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/pencil.svg" alt="" />
+            </button>
           )}
         </div>
 
