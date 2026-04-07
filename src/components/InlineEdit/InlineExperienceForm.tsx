@@ -230,7 +230,27 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
   const [isDirty, setIsDirty] = useState(false);
   const activeEntryRef = useRef<HTMLDivElement>(null);
 
+  const isEntryBlank = (entry: Entry) => {
+    const org = getOrg(entry);
+    return (
+      !entry.positionTitle?.trim() &&
+      !org.trim() &&
+      !entry.startMonth &&
+      !entry.startYear &&
+      !entry.link?.trim() &&
+      !entry.isCurrent &&
+      !entry.isIncoming
+    );
+  };
+
   const tryClose = () => {
+    // Auto-delete blank entries on click-out
+    if (editingIndex !== null && editingIndex < entries.length && isEntryBlank(entries[editingIndex])) {
+      setEntries(entries.filter((_, i) => i !== editingIndex));
+      setIsDirty(false);
+      setEditingIndex(null);
+      return;
+    }
     if (isDirty) {
       const discard = window.confirm("You have unsaved changes. Discard them?");
       if (!discard) return;
