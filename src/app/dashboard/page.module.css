@@ -165,11 +165,12 @@
   border: none;
   cursor: pointer;
   text-align: center;
-  transition: color 0.15s ease;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
 }
 
 @media (hover: hover) {
   .signOutButton:hover {
-    color: var(--foreground);
+    opacity: 1;
   }
 }
