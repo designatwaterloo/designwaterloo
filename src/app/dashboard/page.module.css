@@ -110,6 +110,7 @@
 
 @media (hover: hover) {
   .primaryButton:hover {
+    color: var(--background);
     opacity: 0.85;
   }
 }
@@ -133,16 +134,38 @@
   }
 }
 
-.signOutButton {
+.submitButton {
+  width: 100%;
   padding: 10px 24px;
   font: inherit;
   font-size: 14px;
-  color: var(--muted);
-  background: transparent;
+  font-weight: 600;
+  color: var(--background);
+  background: var(--foreground);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .submitButton:hover {
+    opacity: 0.85;
+  }
+}
+
+.signOutButton {
+  width: 100%;
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--foreground);
+  background: var(--muted);
+  border-radius: var(--radius-full);
   border: none;
   cursor: pointer;
+  text-align: center;
   transition: color 0.15s ease;
-  align-self: flex-start;
 }
 
 @media (hover: hover) {
