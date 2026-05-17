@@ -13,6 +13,7 @@ function SignInContent() {
   const { signInWithMicrosoft, signInWithLaurierOtp, verifyLaurierOtp, loading } = useAuth();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const reset = searchParams.get("reset");
   const redirectTo = searchParams.get("redirectTo");
 
   const [showLaurierFlow, setShowLaurierFlow] = useState(false);
@@ -108,6 +109,36 @@ function SignInContent() {
       {error === "init-failed" && (
         <div className={styles.error}>
           Failed to set up your profile. Please try signing in again.
+        </div>
+      )}
+
+      {error === "session-expired" && (
+        <div className={styles.error}>
+          Your session has expired. Please sign in again.
+        </div>
+      )}
+
+      {error === "refresh-failed" && (
+        <div className={styles.error}>
+          We couldn&apos;t refresh your session. Please sign in again.
+        </div>
+      )}
+
+      {error === "access_denied" && (
+        <div className={styles.error}>
+          Sign-in was canceled. Try again when you&apos;re ready.
+        </div>
+      )}
+
+      {error === "consent_required" && (
+        <div className={styles.error}>
+          Additional permission is required from Microsoft. Please try again.
+        </div>
+      )}
+
+      {reset === "1" && !error && (
+        <div className={styles.error}>
+          Auth state cleared. Sign in to continue.
         </div>
       )}
 
@@ -225,6 +256,13 @@ function SignInContent() {
 
       <p className={styles.hint}>
         Use your @uwaterloo.ca or @mylaurier.ca email
+      </p>
+
+      <p className={styles.hint} style={{ marginTop: "1rem", opacity: 0.6 }}>
+        Having trouble?{" "}
+        <a href="/auth/reset" style={{ textDecoration: "underline" }}>
+          Reset auth state
+        </a>
       </p>
     </div>
   );

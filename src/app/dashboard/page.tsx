@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -13,34 +13,55 @@ import styles from "./page.module.css";
 
 export default function DashboardPage() {
   const { user, member, loading: authLoading, signOut } = useAuth();
-  const { startTransition } = useTransition();
+  const router = useRouter();
   const { submitForReview, submitting, submitError } = useSubmitForReview();
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
 
   const hasMember = !!member;
 
   useEffect(() => {
     if (authLoading || signingOut) return;
 
+    // Auth-recovery redirects use router.replace, not the cinematic
+    // transition. If TransitionContext stalls, we still escape the
+    // loading screen.
     if (!user) {
-      startTransition("/sign-in");
+      router.replace("/sign-in");
       return;
     }
 
-    // User is authenticated but no linked member found —
-    // redirect to onboarding so they can create/link their profile.
     if (!hasMember) {
-      startTransition("/profile/edit");
+      router.replace("/profile/edit");
     }
-  }, [authLoading, user, hasMember, signingOut, startTransition]);
+  }, [authLoading, user, hasMember, signingOut, router]);
+
+  // Show a manual escape hatch if we've been stuck on Loading for too long.
+  useEffect(() => {
+    if (!authLoading && user && member) {
+      setShowFallback(false);
+      return;
+    }
+    const t = setTimeout(() => setShowFallback(true), 3000);
+    return () => clearTimeout(t);
+  }, [authLoading, user, member]);
 
   if (authLoading || !user || !member) {
     return (
       <div>
         <Header />
-        <main className="w-full min-h-[60vh] flex items-center justify-center">
+        <main className="w-full min-h-[60vh] flex flex-col items-center justify-center gap-4">
           <p>Loading...</p>
+          {showFallback && (
+            <div className="flex flex-col items-center gap-2 text-sm opacity-70">
+              <p>Trouble loading?</p>
+              <div className="flex gap-3">
+                <a href="/sign-in" className="underline">Sign in</a>
+                <a href="/auth/reset" className="underline">Reset auth state</a>
+              </div>
+            </div>
+          )}
         </main>
         <Footer />
       </div>

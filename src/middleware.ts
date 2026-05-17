@@ -1,11 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
+import { fetchWithCeiling } from "@/lib/supabase/fetch-with-ceiling";
+import { withAbortableTimeout, withTimeout } from "@/lib/supabase/with-timeout";
 
 const PROTECTED_PATHS = ["/profile", "/pending-approval", "/dashboard"];
 const ONBOARDING_REDIRECT = "/profile/edit";
 const ADMIN_PATHS = ["/admin"];
 const AUTH_PATHS = ["/sign-in"];
+
+const MW_GET_USER_MS = 3000;
+const MW_REFRESH_MS = 3000;
+const MW_MEMBER_MS = 2000;
 
 /**
  * Create a redirect response that forwards any auth cookies that were set (or
@@ -26,6 +32,27 @@ function redirectWithCookies(
   authResponse.cookies.getAll().forEach(({ name, value, ...rest }) => {
     response.cookies.set({ name, value, ...rest });
   });
+  return response;
+}
+
+// Sweep every sb-* cookie on the outgoing response. Use after we've decided
+// the session is dead and want a clean slate (refresh failed, invalid email,
+// etc.). Belt-and-suspenders: `delete` plus explicit zero-Max-Age set, since
+// `delete` alone misses cookies with Domain attributes.
+function clearAuthCookies(request: NextRequest, response: NextResponse) {
+  request.cookies.getAll().forEach((c) => {
+    if (c.name.startsWith("sb-")) {
+      response.cookies.delete(c.name);
+      response.cookies.set(c.name, "", { maxAge: 0, path: "/" });
+    }
+  });
+}
+
+function expiredRedirect(request: NextRequest, reason: string): NextResponse {
+  const url = new URL("/sign-in", request.url);
+  url.searchParams.set("error", reason);
+  const response = NextResponse.redirect(url);
+  clearAuthCookies(request, response);
   return response;
 }
 
@@ -50,6 +77,7 @@ export async function middleware(request: NextRequest) {
           );
         },
       },
+      global: { fetch: fetchWithCeiling },
     }
   );
 
@@ -63,17 +91,63 @@ export async function middleware(request: NextRequest) {
 
   let user = null;
   try {
-    const { data, error: getUserError } = await supabase.auth.getUser();
+    const { data, error: getUserError } = await withTimeout(
+      supabase.auth.getUser(),
+      MW_GET_USER_MS,
+      "mw-getUser",
+    );
     user = data.user;
-    // If getUser() failed but cookies exist, let the request through —
-    // the client-side AuthProvider will retry the session refresh.
+
+    // getUser failed but cookies exist — try one active refresh. If that
+    // works, continue with the new user. If it fails (expired, revoked,
+    // network), clear the poison cookies and bounce to sign-in so the next
+    // request starts clean.
     if (getUserError && hasAuthCookies) {
-      return supabaseResponse;
+      try {
+        const { data: refreshed, error: refreshError } = await withTimeout(
+          supabase.auth.refreshSession(),
+          MW_REFRESH_MS,
+          "mw-refresh",
+        );
+
+        // `refresh_token_already_used` happens when a concurrent tab already
+        // refreshed and rotated the cookies. The new cookies are in
+        // request.cookies via the setAll callback — retry getUser once.
+        if (
+          refreshError &&
+          /already.?used/i.test(refreshError.message)
+        ) {
+          const { data: retry } = await withTimeout(
+            supabase.auth.getUser(),
+            MW_GET_USER_MS,
+            "mw-getUser-retry",
+          );
+          user = retry.user;
+          if (!user) {
+            return expiredRedirect(request, "session-expired");
+          }
+        } else if (refreshError || !refreshed?.user) {
+          return expiredRedirect(request, "session-expired");
+        } else {
+          user = refreshed.user;
+        }
+      } catch {
+        return expiredRedirect(request, "session-expired");
+      }
     }
   } catch {
-    // Supabase fetch can be aborted during dev HMR or redirects — safe to ignore
+    // getUser itself hung or threw. Without a validated user, the safe
+    // default for protected/admin paths is sign-in. Public paths can pass.
+    const pathname = request.nextUrl.pathname;
+    const needsAuth =
+      PROTECTED_PATHS.some((p) => pathname.startsWith(p)) ||
+      ADMIN_PATHS.some((p) => pathname.startsWith(p));
+    if (needsAuth) {
+      return expiredRedirect(request, "session-expired");
+    }
     return supabaseResponse;
   }
+
   const pathname = request.nextUrl.pathname;
 
   // /onboarding is a legacy URL alias — redirect before any auth checks
@@ -87,11 +161,8 @@ export async function middleware(request: NextRequest) {
   const isAdminPath = ADMIN_PATHS.some((path) => pathname.startsWith(path));
   const isAuthPath = AUTH_PATHS.some((path) => pathname.startsWith(path));
 
-  // Redirect unauthenticated users from protected or admin routes.
-  // If auth cookies exist but getUser() returned null, this is likely a
-  // transient token-refresh race — let the request through so the
-  // client-side AuthProvider can retry the refresh.
-  if ((isProtectedPath || isAdminPath) && !user && !hasAuthCookies) {
+  // Redirect unauthenticated users from protected or admin routes
+  if ((isProtectedPath || isAdminPath) && !user) {
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
     return redirectWithCookies(redirectUrl, request, supabaseResponse);
@@ -99,21 +170,43 @@ export async function middleware(request: NextRequest) {
 
   // Validate email domain for authenticated users
   if (user && !isValidStudentEmail(user.email || "")) {
-    await supabase.auth.signOut();
+    try {
+      await withTimeout(
+        supabase.auth.signOut(),
+        MW_REFRESH_MS,
+        "mw-signOut-invalidEmail",
+      );
+    } catch {
+      // ignore — we're nuking cookies anyway
+    }
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("error", "invalid-email");
-    return redirectWithCookies(redirectUrl, request, supabaseResponse);
+    const response = NextResponse.redirect(redirectUrl);
+    clearAuthCookies(request, response);
+    return response;
   }
 
-  // Fetch member data once for all subsequent checks
+  // Fetch member data once for all subsequent checks. On timeout/error,
+  // fail open with member=null — user lands on /profile/edit rather than
+  // hanging on a slow Postgres query.
   let member: { slug: string; onboarding_completed: boolean; is_admin: boolean; review_status: string } | null = null;
   if (user && (isAuthPath || isAdminPath || isProtectedPath)) {
-    const { data } = await supabase
-      .from("members")
-      .select("slug, onboarding_completed, is_admin, review_status")
-      .eq("auth_user_id", user.id)
-      .maybeSingle();
-    member = data;
+    try {
+      const { data } = await withAbortableTimeout(
+        (signal) =>
+          supabase
+            .from("members")
+            .select("slug, onboarding_completed, is_admin, review_status")
+            .eq("auth_user_id", user.id)
+            .abortSignal(signal)
+            .maybeSingle(),
+        MW_MEMBER_MS,
+        "mw-member",
+      );
+      member = data;
+    } catch {
+      // leave member = null — downstream logic treats this as "not onboarded"
+    }
   }
 
   // Redirect authenticated users away from auth pages
