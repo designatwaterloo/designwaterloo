@@ -17,6 +17,7 @@ interface MemberInitResult {
   isNewMember: boolean;
   /** true when the profile is fully onboarded and ready for directory redirect */
   onboardingCompleted: boolean;
+  error?: string;
 }
 
 export async function findOrInitMember(
@@ -27,27 +28,21 @@ export async function findOrInitMember(
   fullName?: string
 ): Promise<MemberInitResult> {
   // Run both lookups in parallel
-  const [{ data: linkedMember }, { data: existingByEmail }] = await Promise.all([
+  const [linkedResult, emailResult] = await Promise.all([
     supabase
       .from("members")
       .select("slug, onboarding_completed")
       .eq("auth_user_id", userId)
-      .maybeSingle() as unknown as Promise<{
-        data: { slug: string; onboarding_completed: boolean } | null;
-      }>,
+      .maybeSingle(),
     supabase
       .from("members")
       .select("id, slug, auth_user_id, onboarding_completed")
       .eq("school_email", email)
-      .maybeSingle() as unknown as Promise<{
-        data: {
-          id: string;
-          slug: string;
-          auth_user_id: string | null;
-          onboarding_completed: boolean;
-        } | null;
-      }>,
+      .maybeSingle(),
   ]);
+
+  const linkedMember = linkedResult.data;
+  const existingByEmail = emailResult.data;
 
   // Already linked — fast path for returning users
   if (linkedMember) {
@@ -62,7 +57,7 @@ export async function findOrInitMember(
   if (existingByEmail && !existingByEmail.auth_user_id) {
     const { error } = await supabase
       .from("members")
-      .update({ auth_user_id: userId } as never)
+      .update({ auth_user_id: userId })
       .eq("id", existingByEmail.id);
 
     if (error) {
@@ -104,11 +99,11 @@ export async function findOrInitMember(
     .select("slug")
     .like("slug", `${safeSlug}%`);
 
-  if (similar?.some((s: { slug: string }) => s.slug === safeSlug)) {
+  if (similar?.some((s) => s.slug === safeSlug)) {
     const escaped = safeSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const pattern = new RegExp(`^${escaped}-(\\d+)$`);
     let maxN = 0;
-    for (const s of (similar || []) as { slug: string }[]) {
+    for (const s of similar) {
       const m = s.slug.match(pattern);
       if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
     }
@@ -117,18 +112,19 @@ export async function findOrInitMember(
 
   const { error: insertError } = await supabase.from("members").insert({
     auth_user_id: userId,
-    first_name: firstName || null,
-    last_name: lastName || null,
+    first_name: firstName,
+    last_name: lastName,
     slug: finalSlug,
     school_email: email,
     school,
     onboarding_completed: false,
     is_approved: false,
     review_status: "draft",
-  } as never);
+  });
 
   if (insertError) {
     console.error("[member-init] Failed to create draft member:", insertError);
+    return { slug: "", isNewMember: false, onboardingCompleted: false, error: insertError.message };
   }
 
   return { slug: finalSlug, isNewMember: true, onboardingCompleted: false };

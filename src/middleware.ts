@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
 
-const PROTECTED_PATHS = ["/onboarding", "/profile", "/pending-approval", "/dashboard"];
+const PROTECTED_PATHS = ["/profile", "/pending-approval", "/dashboard"];
 const ONBOARDING_REDIRECT = "/profile/edit";
 const ADMIN_PATHS = ["/admin"];
 const AUTH_PATHS = ["/sign-in"];
@@ -56,7 +56,7 @@ export async function middleware(request: NextRequest) {
   // Check for Supabase auth cookies — their presence means the user likely
   // has a session even if getUser() fails due to a token-refresh race.
   // @supabase/ssr v0.5+ uses chunked cookies (e.g. sb-xxx-auth-token.0),
-  // so we match the base name before any chunk suffix.
+  // so we match the base name with `.includes` instead of `.endsWith`.
   const hasAuthCookies = request.cookies.getAll().some(
     (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
   );
@@ -76,14 +76,22 @@ export async function middleware(request: NextRequest) {
   }
   const pathname = request.nextUrl.pathname;
 
+  // /onboarding is a legacy URL alias — redirect before any auth checks
+  if (pathname === "/onboarding") {
+    return redirectWithCookies(new URL(ONBOARDING_REDIRECT, request.url), request, supabaseResponse);
+  }
+
   const isProtectedPath = PROTECTED_PATHS.some((path) =>
     pathname.startsWith(path)
   );
   const isAdminPath = ADMIN_PATHS.some((path) => pathname.startsWith(path));
   const isAuthPath = AUTH_PATHS.some((path) => pathname.startsWith(path));
 
-  // Redirect unauthenticated users from protected or admin routes
-  if ((isProtectedPath || isAdminPath) && !user) {
+  // Redirect unauthenticated users from protected or admin routes.
+  // If auth cookies exist but getUser() returned null, this is likely a
+  // transient token-refresh race — let the request through so the
+  // client-side AuthProvider can retry the refresh.
+  if ((isProtectedPath || isAdminPath) && !user && !hasAuthCookies) {
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
     return redirectWithCookies(redirectUrl, request, supabaseResponse);
@@ -116,11 +124,6 @@ export async function middleware(request: NextRequest) {
     return redirectWithCookies(new URL("/dashboard", request.url), request, supabaseResponse);
   }
 
-  // Redirect /onboarding to /profile/edit
-  if (pathname === "/onboarding" && user) {
-    return redirectWithCookies(new URL(ONBOARDING_REDIRECT, request.url), request, supabaseResponse);
-  }
-
   // Redirect completed users away from onboarding
   if (pathname === ONBOARDING_REDIRECT && user && member?.onboarding_completed) {
     return redirectWithCookies(new URL("/dashboard", request.url), request, supabaseResponse);
@@ -132,7 +135,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect to profile setup if user hasn't completed onboarding
-  if (user && isProtectedPath && pathname !== "/onboarding" && pathname !== ONBOARDING_REDIRECT) {
+  if (user && isProtectedPath && pathname !== ONBOARDING_REDIRECT) {
     if (!member || !member.onboarding_completed) {
       return redirectWithCookies(new URL(ONBOARDING_REDIRECT, request.url), request, supabaseResponse);
     }

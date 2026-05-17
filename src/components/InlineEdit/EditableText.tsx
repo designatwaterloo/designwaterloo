@@ -186,7 +186,7 @@ export default function EditableText({
         />
       )}
       {showSuggestions && filtered && filtered.length > 0 && (
-        <div className={styles.suggestions} data-lenis-prevent>
+        <div className={styles.suggestions} data-lenis-prevent data-cursor="default">
           {filtered.slice(0, strict ? 8 : 6).map((s) => (
             <button
               key={s}

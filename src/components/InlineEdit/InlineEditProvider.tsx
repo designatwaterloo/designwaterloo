@@ -7,10 +7,11 @@ import {
   useState,
   useRef,
   useEffect,
+  useMemo,
   ReactNode,
 } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { rest } from "@/lib/supabase/rest";
+import { createClient } from "@/lib/supabase/client";
 import type { ReviewStatus } from "@/types/database";
 
 // ---------- Types ----------
@@ -113,7 +114,8 @@ export function InlineEditProvider({
   initialReviewStatus = "draft",
   children,
 }: ProviderProps) {
-  const { session, member, refreshMember } = useAuth();
+  const { member, refreshMember } = useAuth();
+  const supabase = useMemo(() => createClient(), []);
 
   const isOwner = !!member && member.slug === memberSlug;
   const reviewStatus: ReviewStatus = (member?.review_status as ReviewStatus) ?? initialReviewStatus;
@@ -207,79 +209,73 @@ export function InlineEditProvider({
         dribbble: fields.dribbble,
       };
 
-      const token = session?.access_token ?? null;
-      if (!token) {
-        throw new Error(
-          "Your session has expired. Please refresh the page and sign in again."
-        );
-      }
-
-      console.log("[InlineEdit] Starting REST update...");
-      const { data, error: updateError } = await rest(
-        `members?id=eq.${member.id}`,
-        { method: "PATCH", token, body: updatePayload }
-      );
+      console.log("[InlineEdit] Starting update...");
+      const { data, error: updateError } = await supabase
+        .from("members")
+        .update(updatePayload)
+        .eq("id", member.id)
+        .select();
 
       if (updateError) {
         console.error("[InlineEdit] Update error:", updateError);
-        throw new Error(updateError);
+        throw new Error(updateError.message);
       }
       if (!data || data.length === 0) {
         throw new Error(
           "Update failed — your session may have expired. Please refresh the page and try again."
         );
       }
-      console.log("[InlineEdit] REST update done, rows:", data.length);
+      console.log("[InlineEdit] Update done, rows:", data.length);
 
       // 2. Sync experiences and leadership in parallel (independent tables)
       console.log("[InlineEdit] Syncing experiences & leadership...");
       await Promise.all([
         (async () => {
-          const { error: delExpError } = await rest(
-            `member_experiences?member_id=eq.${member.id}`,
-            { method: "DELETE", token }
-          );
-          if (delExpError) throw new Error(delExpError);
+          const { error: delExpError } = await supabase
+            .from("member_experiences")
+            .delete()
+            .eq("member_id", member.id);
+          if (delExpError) throw new Error(delExpError.message);
 
           if (experiences.length > 0) {
-            const { error: expError } = await rest("member_experiences", {
-              method: "POST",
-              token,
-              body: experiences.map((e) => ({
-                member_id: member.id,
-                position_title: e.positionTitle,
-                company: e.company,
-                start_month: e.startMonth,
-                start_year: e.startYear,
-                is_current: e.isCurrent,
-                link: e.link ?? null,
-              })),
-            });
-            if (expError) throw new Error(expError);
+            const { error: expError } = await supabase
+              .from("member_experiences")
+              .insert(
+                experiences.map((e) => ({
+                  member_id: member.id,
+                  position_title: e.positionTitle,
+                  company: e.company,
+                  start_month: e.startMonth,
+                  start_year: e.startYear,
+                  is_current: e.isCurrent,
+                  link: e.link ?? null,
+                }))
+              );
+            if (expError) throw new Error(expError.message);
           }
         })(),
         (async () => {
-          const { error: delLeadError } = await rest(
-            `member_leadership?member_id=eq.${member.id}`,
-            { method: "DELETE", token }
-          );
-          if (delLeadError) throw new Error(delLeadError);
+          const { error: delLeadError } = await supabase
+            .from("member_leadership")
+            .delete()
+            .eq("member_id", member.id);
+          if (delLeadError) throw new Error(delLeadError.message);
 
           if (leadership.length > 0) {
-            const { error: leadError } = await rest("member_leadership", {
-              method: "POST",
-              token,
-              body: leadership.map((l) => ({
-                member_id: member.id,
-                position_title: l.positionTitle,
-                organization: l.org,
-                start_month: l.startMonth,
-                start_year: l.startYear,
-                is_current: l.isCurrent,
-                link: l.link ?? null,
-              })),
-            });
-            if (leadError) throw new Error(leadError);
+            const { error: leadError } = await supabase
+              .from("member_leadership")
+              .insert(
+                leadership.map((l) => ({
+                  member_id: member.id,
+                  position_title: l.positionTitle,
+                  organization: l.org,
+                  start_month: l.startMonth,
+                  start_year: l.startYear,
+                  is_current: l.isCurrent,
+                  link: l.link ?? null,
+                }))
+              );
+            if (leadError) throw new Error(leadError.message);
           }
         })(),
       ]);
@@ -312,7 +308,7 @@ export function InlineEditProvider({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: memberSlug }),
     }).catch(() => {});
-  }, [isOwner, member, session, fields, experiences, leadership, memberSlug, refreshMember]);
+  }, [isOwner, member, supabase, fields, experiences, leadership, memberSlug, refreshMember]);
 
   const submitForReview = useCallback(async () => {
     // First save any pending changes
@@ -320,24 +316,18 @@ export function InlineEditProvider({
 
     // Then update review_status
     if (!isOwner || !member) return;
-    const token = session?.access_token ?? null;
-    if (!token) return;
 
-    const { error: submitError } = await rest(
-      `members?id=eq.${member.id}`,
-      {
-        method: "PATCH",
-        token,
-        body: {
-          review_status: "pending_review",
-          submitted_at: new Date().toISOString(),
-          is_approved: false,
-        },
-      }
-    );
+    const { error: submitError } = await supabase
+      .from("members")
+      .update({
+        review_status: "pending_review" as const,
+        submitted_at: new Date().toISOString(),
+        is_approved: false,
+      })
+      .eq("id", member.id);
 
     if (submitError) {
-      setSaveError(submitError);
+      setSaveError(submitError.message);
       return;
     }
 
@@ -346,7 +336,7 @@ export function InlineEditProvider({
     savedTimerRef.current = setTimeout(() => setSavedRecently(false), 3000);
 
     refreshMember().catch(() => {});
-  }, [save, isOwner, member, session, refreshMember]);
+  }, [save, isOwner, member, supabase, refreshMember]);
 
   return (
     <InlineEditContext.Provider

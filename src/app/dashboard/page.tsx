@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
+import { createClient } from "@/lib/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import type { ReviewStatus } from "@/types/database";
-import { rest } from "@/lib/supabase/rest";
 import styles from "./page.module.css";
 
 export default function DashboardPage() {
@@ -216,27 +216,24 @@ function statusClass(s: ReviewStatus): string {
 
 /** Hook to submit for review from the dashboard (no InlineEditProvider context) */
 function useSubmitForReview() {
-  const { member, session, refreshMember } = useAuth();
+  const { member, refreshMember } = useAuth();
+  const supabase = useMemo(() => createClient(), []);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const submitForReview = async () => {
-    if (!member || !session?.access_token) return;
+    if (!member) return;
     setSubmitting(true);
     setSubmitError(null);
 
-    const { error } = await rest(
-      `members?id=eq.${member.id}`,
-      {
-        method: "PATCH",
-        token: session.access_token,
-        body: {
-          review_status: "pending_review",
-          submitted_at: new Date().toISOString(),
-          is_approved: false,
-        },
-      }
-    );
+    const { error } = await supabase
+      .from("members")
+      .update({
+        review_status: "pending_review" as const,
+        submitted_at: new Date().toISOString(),
+        is_approved: false,
+      })
+      .eq("id", member.id);
 
     if (error) {
       setSubmitError("Failed to submit your profile for review. Please try again.");

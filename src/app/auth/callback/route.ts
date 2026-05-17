@@ -24,6 +24,10 @@ export async function GET(request: Request) {
       const fullName = (data.user.user_metadata?.full_name as string) || "";
       const result = await findOrInitMember(supabase, data.user.id, email, fullName);
 
+      if (result.error) {
+        return NextResponse.redirect(`${origin}/sign-in?error=init-failed`);
+      }
+
       if (result.onboardingCompleted) {
         return NextResponse.redirect(
           `${origin}${explicitNext || `/directory/${result.slug}`}`

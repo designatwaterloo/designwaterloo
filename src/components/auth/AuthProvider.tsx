@@ -96,8 +96,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
           }
         } catch (err) {
-          // Ignore AbortErrors from React Strict Mode double-mounting
-          if (err instanceof DOMException && err.name === "AbortError") return;
+          if (err instanceof DOMException && err.name === "AbortError") {
+            // React Strict Mode double-mount aborted the request.
+            // This instance is stale — bail out completely and let the
+            // re-mounted instance handle auth.
+            setLoading(false);
+            return;
+          }
           // Network error — trust the local session and continue
         }
       }

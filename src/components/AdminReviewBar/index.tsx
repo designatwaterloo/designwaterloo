@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useEffect, useState, useMemo } from "react";
 import { useTransition } from "@/context/TransitionContext";
-import { rest } from "@/lib/supabase/rest";
+import { createClient } from "@/lib/supabase/client";
 import Link from "@/components/Link";
 import RejectionModal from "./RejectionModal";
 import styles from "./AdminReviewBar.module.css";
@@ -14,8 +13,8 @@ interface AdminReviewBarProps {
 }
 
 export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarProps) {
-  const { session } = useAuth();
   const { startTransition } = useTransition();
+  const supabase = useMemo(() => createClient(), []);
   const [visible, setVisible] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -26,15 +25,13 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
 
   const handleApprove = async () => {
     setActionLoading(true);
-    const token = session?.access_token ?? null;
-    const { error } = await rest(`members?id=eq.${memberId}`, {
-      method: "PATCH",
-      token: token ?? undefined,
-      body: {
+    const { error } = await supabase
+      .from("members")
+      .update({
         is_approved: true,
-        review_status: "approved",
-      },
-    });
+        review_status: "approved" as const,
+      })
+      .eq("id", memberId);
 
     if (!error) {
       startTransition("/admin");
@@ -44,17 +41,15 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
 
   const handleRejectConfirm = async (feedback: string) => {
     setActionLoading(true);
-    const token = session?.access_token ?? null;
-    const { error } = await rest(`members?id=eq.${memberId}`, {
-      method: "PATCH",
-      token: token ?? undefined,
-      body: {
-        review_status: "rejected",
+    const { error } = await supabase
+      .from("members")
+      .update({
+        review_status: "rejected" as const,
         rejection_feedback: feedback,
         rejected_at: new Date().toISOString(),
         is_approved: false,
-      },
-    });
+      })
+      .eq("id", memberId);
 
     if (!error) {
       setShowRejectModal(false);

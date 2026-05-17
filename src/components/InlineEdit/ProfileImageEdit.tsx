@@ -11,6 +11,7 @@ export default function ProfileImageEdit() {
   const { isOwner, editMode, fields, setFieldPersisted } = useInlineEdit();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const imageUrl = previewUrl || fields.profile_image_url;
@@ -22,6 +23,7 @@ export default function ProfileImageEdit() {
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
     setUploading(true);
+    setUploadError(null);
 
     try {
       const formData = new FormData();
@@ -39,6 +41,7 @@ export default function ProfileImageEdit() {
       setPreviewUrl(data.imageUrl);
     } catch (err) {
       console.error("Upload failed:", err);
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
       setPreviewUrl(null);
     } finally {
       setUploading(false);
@@ -118,6 +121,11 @@ export default function ProfileImageEdit() {
           )}
         </div>
       </button>
+      {uploadError && (
+        <p style={{ color: "var(--error)", fontSize: 13, marginTop: 6 }}>
+          {uploadError}
+        </p>
+      )}
     </>
   );
 }

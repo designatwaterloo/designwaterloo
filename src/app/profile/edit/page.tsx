@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTransition } from "@/context/TransitionContext";
-import { rest } from "@/lib/supabase/rest";
+import { createClient } from "@/lib/supabase/client";
+import { findOrInitMember } from "@/lib/supabase/member-init";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import { PROGRAMS } from "@/data/programs";
 import Header from "@/components/Header";
@@ -12,49 +13,14 @@ import styles from "./page.module.css";
 
 // ─── Slug helpers ───
 
-async function findAvailableSlug(
-  baseSlug: string,
-  excludeId?: string
-): Promise<string> {
-  // Fast path: check exact match first (avoids LIKE scan)
-  const taken = await checkSlugTaken(baseSlug, excludeId);
-  if (!taken) return baseSlug;
-
-  // Slug is taken — find next available variant
-  let qs = `members?select=slug&slug=like.${encodeURIComponent(baseSlug)}%25`;
-  if (excludeId) qs += `&id=neq.${excludeId}`;
-
-  const { data } = await rest(qs);
-  const set = new Set(data.map((r) => r.slug as string));
-
-  const escaped = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(`^${escaped}-(\\d+)$`);
-  let maxN = 0;
-  for (const s of set) {
-    const m = s.match(pattern);
-    if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
-  }
-  const result = `${baseSlug}-${maxN + 1}`;
-  console.log("[Slug] findAvailable:", baseSlug, "→", result);
-  return result;
+function useSupabase() {
+  return useMemo(() => createClient(), []);
 }
-
-async function checkSlugTaken(
-  slugVal: string,
-  excludeId?: string
-): Promise<boolean> {
-  let qs = `members?select=slug&slug=eq.${encodeURIComponent(slugVal)}`;
-  if (excludeId) qs += `&id=neq.${excludeId}`;
-
-  const { data } = await rest(qs);
-  return data.length > 0;
-}
-
-// ─── Page Component ───
 
 export default function EditProfilePage() {
-  const { user, session, member, loading: authLoading, refreshMember } = useAuth();
+  const { user, member, loading: authLoading, refreshMember } = useAuth();
   const { startTransition } = useTransition();
+  const supabase = useSupabase();
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -142,6 +108,52 @@ export default function EditProfilePage() {
     }
   }, [authLoading, user, member, fullName]);
 
+  // ─── Slug helpers using Supabase client ───
+
+  const findAvailableSlug = useCallback(
+    async (baseSlug: string, excludeId?: string): Promise<string> => {
+      // Fast path: check exact match first
+      let query = supabase
+        .from("members")
+        .select("slug")
+        .eq("slug", baseSlug);
+      if (excludeId) query = query.neq("id", excludeId);
+      const { data: exact } = await query;
+      if (!exact || exact.length === 0) return baseSlug;
+
+      // Slug is taken — find next available variant
+      let likeQuery = supabase
+        .from("members")
+        .select("slug")
+        .like("slug", `${baseSlug}%`);
+      if (excludeId) likeQuery = likeQuery.neq("id", excludeId);
+      const { data: similar } = await likeQuery;
+
+      const escaped = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const pattern = new RegExp(`^${escaped}-(\\d+)$`);
+      let maxN = 0;
+      for (const s of similar || []) {
+        const m = s.slug.match(pattern);
+        if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
+      }
+      return `${baseSlug}-${maxN + 1}`;
+    },
+    [supabase]
+  );
+
+  const checkSlugTaken = useCallback(
+    async (slugVal: string, excludeId?: string): Promise<boolean> => {
+      let query = supabase
+        .from("members")
+        .select("slug")
+        .eq("slug", slugVal);
+      if (excludeId) query = query.neq("id", excludeId);
+      const { data } = await query;
+      return (data?.length ?? 0) > 0;
+    },
+    [supabase]
+  );
+
   // Auto-generate slug from name changes
   useEffect(() => {
     if (slugManuallyEdited || !firstName) return;
@@ -173,7 +185,7 @@ export default function EditProfilePage() {
       cancelled = true;
       if (slugCheckRef.current) clearTimeout(slugCheckRef.current);
     };
-  }, [firstName, lastName, slugManuallyEdited, member]);
+  }, [firstName, lastName, slugManuallyEdited, member, findAvailableSlug]);
 
   // Manual slug edit
   const handleSlugChange = (rawValue: string) => {
@@ -214,72 +226,20 @@ export default function EditProfilePage() {
     }
   }, [refreshMember]);
 
-  // Create draft member row during loader
+  // Create draft member row during loader — delegates to shared findOrInitMember
   const createDraftRow = useCallback(async () => {
     if (!user?.email || rowCreated.current) return;
     rowCreated.current = true;
     console.log("[Onboarding] createDraftRow for", user.email);
 
-    const token = session?.access_token ?? null;
-    if (!token) {
-      console.error("[Onboarding] No token, skipping draft creation");
-      return;
+    const result = await findOrInitMember(supabase, user.id, user.email, fullName || undefined);
+
+    if (result.error) {
+      console.error("[Onboarding] Draft creation failed:", result.error);
     }
 
-    // Check for existing member via REST
-    const { data: existing } = await rest(
-      `members?select=id&auth_user_id=eq.${user.id}`,
-      { token }
-    );
-
-    if (existing.length > 0) {
-      console.log("[Onboarding] Found existing member:", existing[0].id);
-      await safeRefresh();
-      return;
-    }
-
-    const nameFromOAuth = fullName?.trim().split(/\s+/) || [];
-    const draftFirst = nameFromOAuth[0] || "";
-    const draftLast =
-      nameFromOAuth.length >= 2 ? nameFromOAuth.slice(1).join(" ") : "";
-
-    // Generate slug from name or email prefix (supports OTP users without name)
-    const baseSlug = draftFirst
-      ? generateSlug(draftFirst, draftLast || "member")
-      : generateSlug(user.email!.split("@")[0].replace(/\./g, "-"), "");
-    const finalSlug = await findAvailableSlug(baseSlug || "member");
-    console.log("[Onboarding] Inserting draft with slug:", finalSlug);
-
-    const { error: insertErr } = await rest("members", {
-      method: "POST",
-      token,
-      body: {
-        auth_user_id: user.id,
-        first_name: draftFirst || null,
-        last_name: draftLast || null,
-        slug: finalSlug,
-        school_email: user.email,
-        school,
-        onboarding_completed: false,
-        is_approved: false,
-        review_status: "draft",
-      },
-    });
-
-    if (insertErr) {
-      // If it's a unique constraint violation, the OAuth callback already created the row — just refresh
-      if (insertErr.includes("duplicate") || insertErr.includes("unique") || insertErr.includes("23505")) {
-        console.log("[Onboarding] Draft already exists (race with callback), refreshing...");
-        await safeRefresh();
-        return;
-      }
-      console.error("[Onboarding] Draft insert failed:", insertErr);
-      return;
-    }
-
-    console.log("[Onboarding] Draft created, refreshing...");
     await safeRefresh();
-  }, [user, fullName, school, session, safeRefresh]);
+  }, [user, fullName, supabase, safeRefresh]);
 
   // Skip loader if member appears
   useEffect(() => {
@@ -318,39 +278,31 @@ export default function EditProfilePage() {
     console.log("[Onboarding] handleSubmit — slug:", slug, "member:", member?.id);
 
     try {
-      const token = session?.access_token ?? null;
-      if (!token) {
-        setError("Your session has expired. Please refresh the page and sign in again.");
-        setSaving(false);
-        return;
-      }
-
       const finalSlug = slug.replace(/^-|-$/g, "");
+
+      const updatePayload = {
+        first_name: firstName,
+        last_name: lastName,
+        slug: finalSlug,
+        program: program || null,
+        graduating_class: graduatingClass || null,
+        onboarding_completed: true,
+      };
 
       if (member) {
         console.log("[Onboarding] PATCH update for member:", member.id);
-        const { data, error: updateErr } = await rest(
-          `members?id=eq.${member.id}`,
-          {
-            method: "PATCH",
-            token,
-            body: {
-              first_name: firstName,
-              last_name: lastName,
-              slug: finalSlug,
-              program: program || null,
-              graduating_class: graduatingClass || null,
-              onboarding_completed: true,
-            },
-          }
-        );
+        const { data, error: updateErr } = await supabase
+          .from("members")
+          .update(updatePayload)
+          .eq("id", member.id)
+          .select();
 
         if (updateErr) {
-          setError(`Failed to save: ${updateErr}`);
+          setError(`Failed to save: ${updateErr.message}`);
           setSaving(false);
           return;
         }
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
           setError("Update failed — your session may have expired. Please refresh and try again.");
           setSaving(false);
           return;
@@ -360,35 +312,26 @@ export default function EditProfilePage() {
         startTransition(`/directory/${finalSlug}`);
       } else {
         // Draft row may already exist (createDraftRow ran but refreshMember didn't propagate)
-        const { data: existing } = await rest(
-          `members?select=id&auth_user_id=eq.${user.id}`,
-          { token }
-        );
+        const { data: existing } = await supabase
+          .from("members")
+          .select("id")
+          .eq("auth_user_id", user.id)
+          .maybeSingle();
 
-        if (existing.length > 0) {
-          console.log("[Onboarding] Found existing draft, PATCHing:", existing[0].id);
-          const { data, error: updateErr } = await rest(
-            `members?id=eq.${existing[0].id}`,
-            {
-              method: "PATCH",
-              token,
-              body: {
-                first_name: firstName,
-                last_name: lastName,
-                slug: finalSlug,
-                program: program || null,
-                graduating_class: graduatingClass || null,
-                onboarding_completed: true,
-              },
-            }
-          );
+        if (existing) {
+          console.log("[Onboarding] Found existing draft, PATCHing:", existing.id);
+          const { data, error: updateErr } = await supabase
+            .from("members")
+            .update(updatePayload)
+            .eq("id", existing.id)
+            .select();
 
           if (updateErr) {
-            setError(`Failed to save: ${updateErr}`);
+            setError(`Failed to save: ${updateErr.message}`);
             setSaving(false);
             return;
           }
-          if (data.length === 0) {
+          if (!data || data.length === 0) {
             setError("Update failed — please refresh and try again.");
             setSaving(false);
             return;
@@ -398,10 +341,9 @@ export default function EditProfilePage() {
           startTransition(`/directory/${finalSlug}`);
         } else {
           console.log("[Onboarding] POST insert (no draft)");
-          const { data, error: insertErr } = await rest("members", {
-            method: "POST",
-            token,
-            body: {
+          const { data, error: insertErr } = await supabase
+            .from("members")
+            .insert({
               auth_user_id: user.id,
               first_name: firstName,
               last_name: lastName,
@@ -412,20 +354,20 @@ export default function EditProfilePage() {
               graduating_class: graduatingClass || null,
               onboarding_completed: true,
               is_approved: false,
-              review_status: "draft",
-            },
-          });
+              review_status: "draft" as const,
+            })
+            .select();
 
           if (insertErr) {
             setError(
-              insertErr.includes("slug")
+              insertErr.message.includes("slug")
                 ? "This profile URL was just taken. Please choose a different one."
-                : `Failed to create profile: ${insertErr}`
+                : `Failed to create profile: ${insertErr.message}`
             );
             setSaving(false);
             return;
           }
-          if (data.length === 0) {
+          if (!data || data.length === 0) {
             setError("Insert failed — please refresh and try again.");
             setSaving(false);
             return;
@@ -588,7 +530,7 @@ export default function EditProfilePage() {
                     )}
                   </div>
                   {programOpen && filteredPrograms.length > 0 && (
-                    <div className={styles.comboboxDropdown} data-lenis-prevent>
+                    <div className={styles.comboboxDropdown} data-lenis-prevent data-cursor="default">
                       {filteredPrograms.map((p) => (
                         <button
                           key={p}
