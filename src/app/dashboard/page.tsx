@@ -50,6 +50,7 @@ export default function DashboardPage() {
   const status = (member.review_status ?? "draft") as ReviewStatus;
   const profileUrl = `/directory/${member.slug}`;
   const isProfileSparse = !member.profile_image_url || !member.bio;
+  const isDraftOrRejected = status === "draft" || status === "rejected";
 
   const handleConfirmSubmit = async () => {
     await submitForReview();
@@ -61,7 +62,7 @@ export default function DashboardPage() {
       <Header />
       <main className="w-full">
         <section className={styles.section}>
-          <h1 className={styles.title}>Your Profile</h1>
+          <h1 className={styles.title}>{member.first_name} {member.last_name}</h1>
 
           <div className={styles.card}>
 
@@ -75,13 +76,6 @@ export default function DashboardPage() {
                   <Link href={profileUrl} className={styles.primaryButton}>
                     Edit profile
                   </Link>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => setShowSubmitConfirm(true)}
-                  >
-                    Submit for review
-                  </button>
                 </div>
               </>
             )}
@@ -141,17 +135,20 @@ export default function DashboardPage() {
                   <Link href={`${profileUrl}?edit=true`} className={styles.primaryButton}>
                     Edit &amp; resubmit
                   </Link>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    onClick={() => setShowSubmitConfirm(true)}
-                  >
-                    Resubmit now
-                  </button>
                 </div>
               </>
             )}
           </div>
+
+          {isDraftOrRejected && (
+            <button
+              type="button"
+              className={styles.submitButton}
+              onClick={() => setShowSubmitConfirm(true)}
+            >
+              {status === "rejected" ? "Resubmit now" : "Submit for review"}
+            </button>
+          )}
 
           {submitError && (
             <p style={{ color: "var(--error)", fontSize: "14px", margin: 0 }}>
@@ -167,7 +164,7 @@ export default function DashboardPage() {
             onClick={async () => {
               setSigningOut(true);
               await signOut();
-              startTransition("/");
+              window.location.href = "/";
             }}
           >
             Sign out

@@ -29,7 +29,7 @@ export default function DynamicIslandToast({
       : "Changes saved";
 
   // Save button label varies by status
-  const saveLabel = isDraftOrRejected ? "Save draft" : "Save changes";
+  const saveLabel = isDraftOrRejected ? "Save draft" : "Publish";
 
   return (
     <div

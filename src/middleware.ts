@@ -55,14 +55,21 @@ export async function middleware(request: NextRequest) {
 
   // Check for Supabase auth cookies — their presence means the user likely
   // has a session even if getUser() fails due to a token-refresh race.
+  // @supabase/ssr v0.5+ uses chunked cookies (e.g. sb-xxx-auth-token.0),
+  // so we match the base name with `.includes` instead of `.endsWith`.
   const hasAuthCookies = request.cookies.getAll().some(
-    (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
+    (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
   );
 
   let user = null;
   try {
-    const { data } = await supabase.auth.getUser();
+    const { data, error: getUserError } = await supabase.auth.getUser();
     user = data.user;
+    // If getUser() failed but cookies exist, let the request through —
+    // the client-side AuthProvider will retry the session refresh.
+    if (getUserError && hasAuthCookies) {
+      return supabaseResponse;
+    }
   } catch {
     // Supabase fetch can be aborted during dev HMR or redirects — safe to ignore
     return supabaseResponse;

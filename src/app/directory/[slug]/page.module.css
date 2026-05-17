@@ -30,13 +30,38 @@
   grid-row: 1;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--gap);
   margin-bottom: var(--big);
 }
 
 .name {
   margin: 0;
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--biggest);
+  height: var(--biggest);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.35;
+  transition: opacity 0.15s ease;
+}
+
+.editButton img {
+  width: 50%;
+  height: 50%;
+}
+
+@media (hover: hover) {
+  .editButton:hover {
+    opacity: 0.6;
+  }
 }
 
 .nextAvailable {
@@ -112,6 +137,11 @@
 
   .name {
     margin-bottom: var(--smaller);
+  }
+
+  .editButton {
+    width: var(--big);
+    height: var(--big);
   }
 
   .nextAvailable {

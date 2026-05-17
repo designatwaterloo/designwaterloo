@@ -105,6 +105,12 @@ function SignInContent() {
         </div>
       )}
 
+      {error === "init-failed" && (
+        <div className={styles.error}>
+          Failed to set up your profile. Please try signing in again.
+        </div>
+      )}
+
       <button
         className={styles.microsoftButton}
         onClick={() => signInWithMicrosoft(redirectTo || undefined)}

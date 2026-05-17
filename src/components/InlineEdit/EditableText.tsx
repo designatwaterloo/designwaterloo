@@ -77,7 +77,7 @@ export default function EditableText({
 
   if (!isOwner || !editMode) {
     if (!value) return null;
-    return <span className={className}>{value}</span>;
+    return <span className={`${multiline ? styles.editableFieldMultiline : ""} ${className ?? ""}`}>{value}</span>;
   }
 
   // Filtered suggestions

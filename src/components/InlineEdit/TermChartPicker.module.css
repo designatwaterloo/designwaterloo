@@ -1,0 +1,128 @@
+/* ===== Term Chart Picker ===== */
+
+.container {
+  position: relative;
+}
+
+.chart {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-md);
+  background: var(--background);
+  animation: chartIn 0.15s ease;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+}
+
+@keyframes chartIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Grid rows */
+.headerRow,
+.seasonRow {
+  display: grid;
+  grid-template-columns: 60px repeat(5, 1fr);
+  gap: 4px;
+  align-items: center;
+}
+
+.headerRow {
+  margin-bottom: 4px;
+}
+
+.seasonRow {
+  margin-bottom: 4px;
+}
+
+.seasonRow:last-child {
+  margin-bottom: 0;
+}
+
+/* Labels */
+.yearLabel {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  padding: 4px 0;
+}
+
+.seasonLabel {
+  font-size: 12px;
+  color: var(--muted-text);
+  font-weight: 500;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+/* Cells */
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  border: 1.5px solid var(--muted);
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  padding: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  .cell:hover {
+    border-color: var(--foreground);
+    background-color: var(--hover-bg);
+  }
+}
+
+.cellSelected {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+@media (hover: hover) {
+  .cellSelected:hover {
+    background: var(--foreground);
+    opacity: 0.85;
+  }
+}
+
+.cellPast {
+  opacity: 0.3;
+}
+
+.cellPast.cellSelected {
+  opacity: 0.45;
+}
+
+.cellCurrent {
+  border-color: var(--foreground);
+  border-style: dashed;
+}
+
+.cellCurrent.cellSelected {
+  border-style: solid;
+}
+
+/* Responsive: scroll horizontally on small screens */
+@media (max-width: 480px) {
+  .headerRow,
+  .seasonRow {
+    grid-template-columns: 50px repeat(5, 48px);
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useInlineEdit, ExperienceEntry, LeadershipEntry } from "./InlineEditProvider";
 import { ensureHttps } from "@/lib/urlUtils";
 import styles from "./InlineEdit.module.css";
@@ -40,22 +40,59 @@ const MONTHS = [
 function EntryForm({
   entry,
   type,
-  onChange,
+  onSave,
   onRemove,
+  onDirtyChange,
 }: {
   entry: Entry;
   type: "experience" | "leadership";
-  onChange: (updated: Entry) => void;
+  onSave: (updated: Entry) => void;
   onRemove: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
+  const [draft, setDraft] = useState<Entry>(() => ({ ...entry }));
+  const [showError, setShowError] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const orgLabel = type === "experience" ? "Company" : "Organization";
-  const org = getOrg(entry);
+  const org = getOrg(draft);
+
+  const titleValid = !!draft.positionTitle?.trim();
+  const orgValid = !!getOrg(draft).trim();
+  const yearValid = !!draft.startYear && draft.startYear.length === 4;
+  const monthValid = !!draft.isIncoming || !!draft.startMonth;
+
+  const getErrors = () => {
+    const missing: string[] = [];
+    if (!titleValid) missing.push("title");
+    if (!orgValid) missing.push(orgLabel.toLowerCase());
+    if (!monthValid) missing.push("start month");
+    if (!draft.startYear) missing.push("start year");
+
+    const errors: string[] = [];
+    if (missing.length === 1) {
+      errors.push(`${missing[0][0].toUpperCase() + missing[0].slice(1)} is required.`);
+    } else if (missing.length > 1) {
+      const last = missing.pop()!;
+      const list = missing.join(", ") + ", and " + last;
+      errors.push(`${list[0].toUpperCase() + list.slice(1)} are required.`);
+    }
+    if (draft.startYear && !yearValid) {
+      errors.push("Year must be 4 digits.");
+    }
+    return errors;
+  };
+  const hasErrors = !titleValid || !orgValid || !yearValid || !monthValid;
+
+  const update = (updated: Entry) => {
+    setDraft(updated);
+    onDirtyChange?.(JSON.stringify(updated) !== JSON.stringify(entry));
+  };
 
   const setOrg = (val: string) => {
     if (type === "experience") {
-      onChange({ ...entry, company: val } as ExperienceEntry);
+      update({ ...draft, company: val } as ExperienceEntry);
     } else {
-      onChange({ ...entry, org: val } as LeadershipEntry);
+      update({ ...draft, org: val } as LeadershipEntry);
     }
   };
 
@@ -64,24 +101,24 @@ function EntryForm({
       <div className={styles.entryRow}>
         <input
           type="text"
-          value={entry.positionTitle ?? ""}
-          onChange={(e) => onChange({ ...entry, positionTitle: e.target.value || null })}
+          value={draft.positionTitle ?? ""}
+          onChange={(e) => update({ ...draft, positionTitle: e.target.value || null })}
           placeholder="Title"
-          className={styles.entryInput}
+          className={`${styles.entryInput} ${showError && !titleValid ? styles.entryInputError : ""}`}
         />
         <input
           type="text"
           value={org}
           onChange={(e) => setOrg(e.target.value)}
           placeholder={orgLabel}
-          className={styles.entryInput}
+          className={`${styles.entryInput} ${showError && !orgValid ? styles.entryInputError : ""}`}
         />
       </div>
       <div className={styles.entryRow}>
         <input
           type="text"
-          value={entry.link ?? ""}
-          onChange={(e) => onChange({ ...entry, link: e.target.value || null })}
+          value={draft.link ?? ""}
+          onChange={(e) => update({ ...draft, link: e.target.value || null })}
           placeholder="Link (optional)"
           className={styles.entryInput}
           style={{ flex: 1 }}
@@ -89,10 +126,10 @@ function EntryForm({
       </div>
       <div className={styles.entryRow}>
         <select
-          value={entry.startMonth ?? ""}
-          onChange={(e) => onChange({ ...entry, startMonth: e.target.value || null })}
-          className={styles.entrySelect}
-          disabled={!!entry.isIncoming}
+          value={draft.startMonth ?? ""}
+          onChange={(e) => update({ ...draft, startMonth: e.target.value || null })}
+          className={`${styles.entrySelect} ${showError && !monthValid ? styles.entryInputError : ""}`}
+          disabled={!!draft.isIncoming}
         >
           {MONTHS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -102,38 +139,87 @@ function EntryForm({
         </select>
         <input
           type="text"
-          value={entry.startYear ?? ""}
-          onChange={(e) => onChange({ ...entry, startYear: e.target.value || null })}
+          value={draft.startYear ?? ""}
+          onChange={(e) => update({ ...draft, startYear: e.target.value.slice(0, 4) || null })}
           placeholder="Year"
-          className={`${styles.entryInput} ${styles.entryInputSmall}`}
+          className={`${styles.entryInput} ${styles.entryInputSmall} ${showError && !yearValid ? styles.entryInputError : ""}`}
         />
         <label className={styles.entryCheckbox}>
           <input
             type="checkbox"
-            checked={entry.isCurrent}
-            onChange={(e) => onChange({ ...entry, isCurrent: e.target.checked, isIncoming: false })}
+            checked={draft.isCurrent}
+            onChange={(e) => update({ ...draft, isCurrent: e.target.checked, isIncoming: false })}
           />
           Current
         </label>
         <label className={styles.entryCheckbox}>
           <input
             type="checkbox"
-            checked={!!entry.isIncoming}
-            onChange={(e) => onChange({ ...entry, isIncoming: e.target.checked, isCurrent: false, startMonth: null })}
+            checked={!!draft.isIncoming}
+            onChange={(e) => update({ ...draft, isIncoming: e.target.checked, isCurrent: false, startMonth: null })}
           />
           Incoming
         </label>
-        <button
-          type="button"
-          onClick={onRemove}
-          className={styles.entryRemove}
-          aria-label="Remove entry"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          </svg>
-        </button>
+        {!confirmingDelete && (
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            className={styles.entryRemove}
+            aria-label="Remove entry"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        )}
+        {!confirmingDelete && (
+          <button
+            type="button"
+            onClick={() => {
+              if (hasErrors) {
+                setShowError(true);
+                return;
+              }
+              onSave(draft);
+            }}
+            className={styles.entrySave}
+            style={{ marginLeft: "auto" }}
+          >
+            Save changes
+          </button>
+        )}
       </div>
+      {confirmingDelete && (
+        <div className={styles.entryConfirmDelete}>
+          <span>Delete this {type === "experience" ? "experience" : "leadership"} entry?</span>
+          <div className={styles.entryConfirmActions}>
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(false)}
+              className={styles.entryConfirmCancel}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onRemove}
+              className={styles.entryConfirmDeleteBtn}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+      {showError && hasErrors && (
+        <div className={styles.entryError}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          {getErrors().join(" ")}
+        </div>
+      )}
     </div>
   );
 }
@@ -141,6 +227,49 @@ function EntryForm({
 export default function InlineExperienceForm({ type, label }: InlineExperienceFormProps) {
   const { isOwner, editMode, experiences, leadership, setExperiences, setLeadership } = useInlineEdit();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const activeEntryRef = useRef<HTMLDivElement>(null);
+
+  const isEntryBlank = (entry: Entry) => {
+    const org = getOrg(entry);
+    return (
+      !entry.positionTitle?.trim() &&
+      !org.trim() &&
+      !entry.startMonth &&
+      !entry.startYear &&
+      !entry.link?.trim() &&
+      !entry.isCurrent &&
+      !entry.isIncoming
+    );
+  };
+
+  const tryClose = () => {
+    // Auto-delete blank entries on click-out
+    if (editingIndex !== null && editingIndex < entries.length && isEntryBlank(entries[editingIndex])) {
+      setEntries(entries.filter((_, i) => i !== editingIndex));
+      setIsDirty(false);
+      setEditingIndex(null);
+      return;
+    }
+    if (isDirty) {
+      const discard = window.confirm("You have unsaved changes. Discard them?");
+      if (!discard) return;
+    }
+    setIsDirty(false);
+    setEditingIndex(null);
+  };
+
+  useEffect(() => {
+    if (editingIndex === null) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (activeEntryRef.current && !activeEntryRef.current.contains(e.target as Node)) {
+        tryClose();
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingIndex, isDirty]);
 
   const entries = type === "experience" ? experiences : leadership;
 
@@ -152,13 +281,31 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
     }
   };
 
-  const sorted = [...entries].map((e, i) => ({ entry: e, originalIndex: i })).sort((a, b) => {
-    if (a.entry.isCurrent && !b.entry.isCurrent) return -1;
-    if (!a.entry.isCurrent && b.entry.isCurrent) return 1;
-    const yearA = a.entry.startYear ? parseInt(a.entry.startYear) : 0;
-    const yearB = b.entry.startYear ? parseInt(b.entry.startYear) : 0;
-    return yearB - yearA;
-  });
+  const sortEntries = (es: Entry[]) =>
+    [...es].map((e, i) => ({ entry: e, originalIndex: i })).sort((a, b) => {
+      if (a.entry.isCurrent && !b.entry.isCurrent) return -1;
+      if (!a.entry.isCurrent && b.entry.isCurrent) return 1;
+      const yearA = a.entry.startYear ? parseInt(a.entry.startYear) : 0;
+      const yearB = b.entry.startYear ? parseInt(b.entry.startYear) : 0;
+      return yearB - yearA;
+    });
+
+  const [frozenOrder, setFrozenOrder] = useState<number[] | null>(null);
+  const [prevEditingIndex, setPrevEditingIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (editingIndex !== prevEditingIndex) {
+      // Re-sort when switching away from an entry, then freeze for the new one
+      const newOrder = sortEntries(entries).map((x) => x.originalIndex);
+      setFrozenOrder(editingIndex !== null ? newOrder : null);
+      setPrevEditingIndex(editingIndex);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingIndex]);
+
+  const sorted = frozenOrder
+    ? frozenOrder.filter((idx) => idx < entries.length).map((idx) => ({ entry: entries[idx], originalIndex: idx }))
+    : sortEntries(entries);
 
   const handleUpdate = (originalIndex: number, updated: Entry) => {
     const next = [...entries];
@@ -242,16 +389,22 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
         )}
         {sorted.map(({ entry, originalIndex }, i) =>
           editingIndex === originalIndex ? (
-            <EntryForm
-              key={i}
-              entry={entry}
-              type={type}
-              onChange={(updated) => handleUpdate(originalIndex, updated)}
-              onRemove={() => handleRemove(originalIndex)}
-            />
+            <div key={originalIndex} ref={activeEntryRef}>
+              <EntryForm
+                entry={entry}
+                type={type}
+                onSave={(updated) => {
+                  handleUpdate(originalIndex, updated);
+                  setIsDirty(false);
+                  setEditingIndex(null);
+                }}
+                onRemove={() => handleRemove(originalIndex)}
+                onDirtyChange={setIsDirty}
+              />
+            </div>
           ) : (
             <div
-              key={i}
+              key={originalIndex}
               className={`${pageStyles.experienceItem} ${styles.editableField}`}
               style={sorted[i + 1]?.originalIndex === editingIndex ? { borderBottom: "none" } : undefined}
               onClick={() => setEditingIndex(originalIndex)}

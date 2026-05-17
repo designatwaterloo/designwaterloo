@@ -21,6 +21,12 @@ export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgrou
     player.on("play", () => setIsPlaying(true));
     player.on("pause", () => setIsPlaying(false));
 
+    // Ensure playback starts on client-side navigations where
+    // the iframe's autoplay URL param alone isn't enough.
+    player.ready().then(() => {
+      player.play().catch(() => {});
+    });
+
     return () => {
       player.off("play");
       player.off("pause");

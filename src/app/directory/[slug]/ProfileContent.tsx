@@ -11,6 +11,7 @@ import {
   ProfileImageEdit,
   SocialLinksModal,
   InlineExperienceForm,
+  TermChartPicker,
   useInlineEdit,
 } from "@/components/InlineEdit";
 import type {
@@ -21,38 +22,12 @@ import type {
 import type { ReviewStatus } from "@/types/database";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { ensureHttps } from "@/lib/urlUtils";
-import { decodeTermCode, getCurrentTermCode, getNextTermCode } from "@/lib/termUtils";
 import styles from "./page.module.css";
 import editStyles from "@/components/InlineEdit/InlineEdit.module.css";
 
 import { SPECIALTIES } from "@/lib/specialties";
 const ALL_SPECIALTIES = [...SPECIALTIES];
 
-// ===== Generate term code suggestions (next ~8 terms) =====
-function generateTermSuggestions(): string[] {
-  const now = new Date();
-  let year = now.getFullYear();
-  const monthIdx = now.getMonth();
-
-  const terms: string[] = [];
-  // Current term season
-  let season: number;
-  if (monthIdx < 4) season = 1;      // Winter
-  else if (monthIdx < 8) season = 5;  // Spring
-  else season = 9;                     // Fall
-
-  for (let i = 0; i < 8; i++) {
-    const yy = year.toString().slice(-2);
-    terms.push(`1${yy}${season}`);
-    // Next term
-    if (season === 1) { season = 5; }
-    else if (season === 5) { season = 9; }
-    else { season = 1; year++; }
-  }
-  return terms;
-}
-
-const TERM_SUGGESTIONS = generateTermSuggestions();
 
 // ===== Props for the profile content =====
 interface ProfileContentProps {
@@ -202,12 +177,17 @@ function ProfileContentInner({
             {firstName} {lastName}
           </h1>
           {isOwner && !editMode && (
-            <Button
-              variant="small"
+            <button
+              type="button"
+              className={styles.editButton}
               onClick={() => setEditMode(true)}
+              data-cursor="button"
+              data-cursor-label="Edit profile"
+              aria-label="Edit profile"
             >
-              Edit profile
-            </Button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/pencil.svg" alt="" />
+            </button>
           )}
         </div>
 
@@ -407,15 +387,7 @@ function ProfileContentInner({
                 <div className={styles.infoRow}>
                   <dt className={styles.label}>Work terms</dt>
                   <dd>
-                    <PillInput
-                      field="work_schedule"
-                      suggestions={TERM_SUGGESTIONS}
-                      placeholder="Type to add a term..."
-                      addLabel="Add work term"
-                      renderPill={decodeTermCode}
-                      isPast={(code) => code <= getCurrentTermCode()}
-                      isHighlighted={(code) => code === getNextTermCode(workSchedule)}
-                    />
+                    <TermChartPicker />
                   </dd>
                 </div>
               </EditableRow>

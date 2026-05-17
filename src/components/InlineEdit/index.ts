@@ -6,3 +6,4 @@ export { default as PillInput } from "./PillInput";
 export { default as ProfileImageEdit } from "./ProfileImageEdit";
 export { default as SocialLinksModal } from "./SocialLinksModal";
 export { default as InlineExperienceForm } from "./InlineExperienceForm";
+export { default as TermChartPicker } from "./TermChartPicker";
