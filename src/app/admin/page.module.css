@@ -96,3 +96,61 @@
   }
 }
 
+.searchInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: var(--small);
+  margin-bottom: var(--gap);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--foreground);
+}
+
+.actionButton {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: var(--smallest);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (hover: hover) {
+  .actionButton:hover {
+    border-color: var(--foreground);
+  }
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actionButtonDanger {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.adminBadge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #facc15;
+  color: #000;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 600;
+}
+
+.statusError {
+  color: #e74c3c;
+  font-size: var(--smallest);
+  margin-top: 8px;
+}

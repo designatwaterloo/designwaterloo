@@ -7,6 +7,7 @@ import { TransitionProvider } from "@/context/TransitionContext";
 import PageTransition from "@/components/PageTransition";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import CursorFollower from "@/components/CursorFollower";
+import ImpersonationBanner from "@/components/ImpersonationBanner";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://designwaterloo.com'),
@@ -54,6 +55,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
+          <ImpersonationBanner />
           <TransitionProvider>
             <SmoothScroll>
               <ConsoleEasterEgg />
