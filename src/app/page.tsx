@@ -7,6 +7,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import VimeoBackground from "@/components/VimeoBackground";
 import { createClient } from "@/lib/supabase/server";
 import { Member } from "@/types/database";
+import { TEST_ACCOUNT_EMAIL_SUFFIX } from "@/lib/supabase/test-accounts";
 
 export const revalidate = 30;
 
@@ -17,7 +18,8 @@ export default async function Home() {
     .from("members")
     .select("id, member_id, first_name, last_name, slug, profile_image_url")
     .eq("onboarding_completed", true)
-    .eq("is_approved", true);
+    .eq("is_approved", true)
+    .not("school_email", "ilike", `%${TEST_ACCOUNT_EMAIL_SUFFIX}`);
 
   const allMembers = (data || []) as Pick<Member, "id" | "member_id" | "first_name" | "last_name" | "slug" | "profile_image_url">[];
 

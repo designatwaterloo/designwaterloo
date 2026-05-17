@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Member } from "@/sanity/types";
 import { Member as SupabaseMember } from "@/types/database";
+import { TEST_ACCOUNT_EMAIL_SUFFIX } from "@/lib/supabase/test-accounts";
 import DirectoryClient from "./DirectoryClient";
 import type { Metadata } from "next";
 
@@ -26,6 +27,7 @@ export default async function DirectoryPage() {
     .select("*")
     .eq("onboarding_completed", true)
     .eq("is_approved", true)
+    .not("school_email", "ilike", `%${TEST_ACCOUNT_EMAIL_SUFFIX}`)
     .order("member_id", { ascending: true });
 
   const supabaseMembers = (data || []) as SupabaseMember[];

@@ -16,6 +16,7 @@ import ProfileContent from "./ProfileContent";
 import AdminReviewBar from "@/components/AdminReviewBar";
 import type { EditableFields, ExperienceEntry, LeadershipEntry } from "@/components/InlineEdit";
 import { PROGRAMS } from "@/data/programs";
+import { TEST_ACCOUNT_EMAIL_SUFFIX } from "@/lib/supabase/test-accounts";
 
 export const revalidate = 30;
 
@@ -30,7 +31,8 @@ export async function generateStaticParams() {
     .from("members")
     .select("slug")
     .eq("onboarding_completed", true)
-    .eq("is_approved", true);
+    .eq("is_approved", true)
+    .not("school_email", "ilike", `%${TEST_ACCOUNT_EMAIL_SUFFIX}`);
 
   return ((members || []) as { slug: string }[]).map((member) => ({
     slug: member.slug,
