@@ -74,7 +74,12 @@ export default function TableView<T>({
         const isHovered = hoveredItemId === itemId;
 
         return (
-          <ScrollReveal key={itemId} index={index} direction="left">
+          <ScrollReveal
+            key={itemId}
+            index={index}
+            direction="left"
+            className={isHovered ? styles.rowOuterHovered : ""}
+          >
             <div
               className={styles.tableRowWrapper}
               onMouseEnter={() => setHoveredItemId(itemId)}
