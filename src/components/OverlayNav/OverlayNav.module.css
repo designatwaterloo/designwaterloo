@@ -41,34 +41,6 @@
   transition-delay: 0s;
 }
 
-/* Columns Container */
-.columnsContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  z-index: 1;
-}
-
-/* Individual Column */
-.column {
-  flex: 1;
-  background: var(--black);
-  transform: translateY(-100%);
-  transition: transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-
-.column.columnOpening {
-  transform: translateY(0);
-}
-
-.column.columnClosing {
-  transform: translateY(-100%);
-  transition: transform 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-
 /* Content Layer */
 .contentLayer {
   position: relative;
@@ -209,6 +181,20 @@
 .navItem.navItemOpening {
   opacity: 1;
   transform: translateY(0);
+  /* Stagger: anchored after columns settle. --stagger-index set on the
+     element; mobile bumps the base via media query below. */
+  --stagger-base: 0.65s;
+  --stagger-step: 0.08s;
+  transition-delay:
+    calc(var(--stagger-base) + var(--stagger-index, 0) * var(--stagger-step)),
+    calc(var(--stagger-base) + var(--stagger-index, 0) * var(--stagger-step)),
+    0s, 0s;
+}
+
+@media (max-width: 768px) {
+  .navItem.navItemOpening {
+    --stagger-base: 0.85s;
+  }
 }
 
 .navItem.navItemClosing {
@@ -414,5 +400,44 @@
 @media (max-width: 768px) {
   .userInfo {
     display: none;
+  }
+}
+
+/* Reduced motion: drop all translates and stagger delays; keep short fades. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay::before,
+  .overlay.opening::before,
+  .overlay.closing::before {
+    transition-duration: 0.15s !important;
+    transition-delay: 0s !important;
+  }
+
+  .navItem,
+  .navItem.navItemOpening,
+  .navItem.navItemClosing {
+    transform: none !important;
+    transition: opacity 0.15s ease !important;
+    transition-delay: 0s !important;
+  }
+
+  .logo,
+  .opening .logo,
+  .closing .logo {
+    transition-duration: 0.15s !important;
+    transition-delay: 0s !important;
+  }
+
+  .userInfo,
+  .userInfoOpening,
+  .userInfoClosing,
+  .footerSection,
+  .footerSection.footerOpening,
+  .footerSection.footerClosing,
+  .overlayProfileButton,
+  .overlayProfileOpening,
+  .overlayProfileClosing {
+    transform: none !important;
+    transition: opacity 0.15s ease !important;
+    transition-delay: 0s !important;
   }
 }

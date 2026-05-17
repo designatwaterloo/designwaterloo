@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect, useRef } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 type TransitionStage = "idle" | "entering" | "exiting";
@@ -9,6 +9,8 @@ interface TransitionContextType {
   startTransition: (href: string) => void;
   stage: TransitionStage;
   isTransitioning: boolean;
+  /** Called by the rendered curtain once its close transition has finished. */
+  endExit: () => void;
 }
 
 const TransitionContext = createContext<TransitionContextType | undefined>(undefined);
@@ -103,17 +105,20 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (stage === "exiting") {
       document.body.style.cursor = "";
-      const timer = setTimeout(() => {
-        setStage("idle");
-        setNextHref(null);
-        startPathRef.current = null;
-      }, 550);
-      return () => clearTimeout(timer);
     }
   }, [stage]);
 
+  // Called from PageTransition when the curtain's close transition fires
+  // its own onAnimationComplete — replaces the parallel 550ms timer that
+  // had to be kept in sync with the curtain's close duration by hand.
+  const endExit = useCallback(() => {
+    setStage(s => (s === "exiting" ? "idle" : s));
+    setNextHref(null);
+    startPathRef.current = null;
+  }, []);
+
   return (
-    <TransitionContext.Provider value={{ startTransition, stage, isTransitioning: stage !== "idle" }}>
+    <TransitionContext.Provider value={{ startTransition, stage, isTransitioning: stage !== "idle", endExit }}>
       {children}
     </TransitionContext.Provider>
   );

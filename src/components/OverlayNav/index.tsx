@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "@/components/Link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
@@ -22,14 +22,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const { user, member, loading, signOut } = useAuth();
   const [directoryCount, setDirectoryCount] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 769);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   // Fetch counts when nav opens
   useEffect(() => {
@@ -54,19 +46,19 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   }, [isOpen, member?.is_admin]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsAnimating(true);
-        });
+        setIsAnimating(true);
       });
-    } else {
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    });
   }, [isOpen]);
+
+  // Unmount once the curtain's close transition has fully finished —
+  // sourced from the curtain itself rather than a parallel magic-number timer.
+  const handleCurtainComplete = useCallback(() => {
+    setIsAnimating(false);
+  }, []);
 
   if (!isOpen && !isAnimating) return null;
 
@@ -88,11 +80,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
     }
   }
 
-  // Nav item delays: start after columns finish
-  const allNavItemDelays = isMobile
-    ? [0.85, 0.92, 1.00, 1.08, 1.16, 1.24, 1.32]
-    : [0.65, 0.72, 0.80, 0.88, 0.96, 1.04, 1.12];
-
   const isClosing = !isOpen;
 
   // Only close menu if navigating to the same page
@@ -107,6 +94,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
       <Curtain
         isOpen={isOpen}
         className={styles.curtainOverride}
+        onAnimationComplete={handleCurtainComplete}
       />
 
       {/* Profile button inside overlay — animates with nav content */}
@@ -172,11 +160,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   href={item.href}
                   onClick={() => handleNavClick(item.href)}
                   className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                  style={{
-                    transitionDelay: isClosing
-                      ? '0s, 0s, 0s, 0s'
-                      : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
-                  }}
+                  style={{ '--stagger-index': index } as React.CSSProperties}
                   data-cursor="nav"
                   data-cursor-label={`${item.label} →`}
                 >
@@ -184,18 +168,14 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                 </Link>
               ))}
               {userNavItems.map((item, index) => {
-                const delayIndex = navItems.length + index;
+                const staggerIndex = navItems.length + index;
                 return item.href ? (
                   <Link
                     key={item.label}
                     href={item.href}
                     onClick={() => handleNavClick(item.href!)}
                     className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                    style={{
-                      transitionDelay: isClosing
-                        ? '0s, 0s, 0s, 0s'
-                        : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
-                    }}
+                    style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
                     data-cursor="nav"
                     data-cursor-label={`${item.label} →`}
                   >
@@ -206,11 +186,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     key={item.label}
                     onClick={item.onClick}
                     className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                    style={{
-                      transitionDelay: isClosing
-                        ? '0s, 0s, 0s, 0s'
-                        : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
-                    }}
+                    style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
                     data-cursor="nav"
                     data-cursor-label={`${item.label} →`}
                   >
@@ -231,11 +207,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                 href={item.href}
                 onClick={() => handleNavClick(item.href)}
                 className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                style={{
-                  transitionDelay: isClosing
-                    ? '0s, 0s, 0s, 0s'
-                    : `${allNavItemDelays[index]}s, ${allNavItemDelays[index]}s, 0s, 0s`
-                }}
+                style={{ '--stagger-index': index } as React.CSSProperties}
                 data-cursor="nav"
                 data-cursor-label={item.label}
               >
@@ -243,18 +215,14 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
               </Link>
             ))}
             {userNavItems.map((item, index) => {
-              const delayIndex = navItems.length + index;
+              const staggerIndex = navItems.length + index;
               return item.href ? (
                 <Link
                   key={item.label}
                   href={item.href}
                   onClick={() => handleNavClick(item.href!)}
                   className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                  style={{
-                    transitionDelay: isClosing
-                      ? '0s, 0s, 0s, 0s'
-                      : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
-                  }}
+                  style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
                   data-cursor="nav"
                   data-cursor-label={`${item.label} →`}
                 >
@@ -265,11 +233,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   key={item.label}
                   onClick={item.onClick}
                   className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
-                  style={{
-                    transitionDelay: isClosing
-                      ? '0s, 0s, 0s, 0s'
-                      : `${allNavItemDelays[delayIndex]}s, ${allNavItemDelays[delayIndex]}s, 0s, 0s`
-                    }}
+                  style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
                   data-cursor="nav"
                   data-cursor-label={`${item.label} →`}
                 >

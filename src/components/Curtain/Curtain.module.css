@@ -62,7 +62,8 @@
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Logo Layer */
+/* Logo Layer — BloomingLogo handles its own fade/draw; this wrapper just
+   positions and tints (stroke uses currentColor) and rises subtly. */
 .logoLayer {
   position: absolute;
   top: 0;
@@ -74,26 +75,50 @@
   justify-content: center;
   z-index: 2;
   pointer-events: none;
+  color: var(--white);
 }
 
 .centerLogo {
-  width: 100px;
-  height: auto;
-  opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  filter: brightness(0) invert(1);
+  transform: scale(0.94);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .logoLayer.logoOpening .centerLogo {
-  opacity: 1;
   transform: scale(1);
-  transition-delay: 0.6s;
+  transition-delay: 0.35s;
 }
 
 .logoLayer.logoClosing .centerLogo {
-  opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.94);
   transition-duration: 0.2s;
   transition-delay: 0s;
+}
+
+/* Reduced motion: collapse the slide-stagger into a single short fade.
+   Columns still transition opacity so the sentinel's transitionend fires. */
+@media (prefers-reduced-motion: reduce) {
+  .column {
+    transform: none !important;
+    opacity: 0;
+    transition: opacity 0.15s ease !important;
+  }
+  .column.columnOpening {
+    opacity: 1;
+  }
+  .column.columnClosing {
+    opacity: 0;
+  }
+  .backgroundLayer,
+  .backgroundLayer.opening,
+  .backgroundLayer.closing {
+    transition-duration: 0.15s !important;
+    transition-delay: 0s !important;
+  }
+  .centerLogo,
+  .logoLayer.logoOpening .centerLogo,
+  .logoLayer.logoClosing .centerLogo {
+    transform: none !important;
+    transition-duration: 0.15s !important;
+    transition-delay: 0s !important;
+  }
 }

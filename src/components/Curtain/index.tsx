@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./Curtain.module.css";
-
-import Image from "next/image";
+import BloomingLogo from "../BloomingLogo";
 
 interface CurtainProps {
   isOpen: boolean;
@@ -14,16 +13,22 @@ interface CurtainProps {
   overlayColor?: string;
 }
 
-export default function Curtain({ 
-  isOpen, 
-  onAnimationStart, 
-  onAnimationComplete, 
+// Fallback if transitionend is lost (tab backgrounded, display:none, etc).
+// Should comfortably exceed the longest close: delay 0.3s + duration 0.2s.
+const CLOSE_SAFETY_MS = 800;
+
+export default function Curtain({
+  isOpen,
+  onAnimationStart,
+  onAnimationComplete,
   className = "",
   showLogo = false,
   overlayColor
 }: CurtainProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  // Column 0 has the largest close delay, so it finishes the close last.
+  const sentinelColumnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -43,14 +48,36 @@ export default function Curtain({
           setIsAnimating(true);
         });
       });
-    } else {
-      onAnimationStart?.();
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-        onAnimationComplete?.();
-      }, 500);
-      return () => clearTimeout(timer);
+      return;
     }
+
+    onAnimationStart?.();
+    const el = sentinelColumnRef.current;
+    if (!el) {
+      setIsAnimating(false);
+      onAnimationComplete?.();
+      return;
+    }
+
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      setIsAnimating(false);
+      onAnimationComplete?.();
+    };
+    const handleEnd = (e: TransitionEvent) => {
+      if (e.target !== el) return;
+      finish();
+    };
+
+    el.addEventListener('transitionend', handleEnd);
+    const safety = setTimeout(finish, CLOSE_SAFETY_MS);
+
+    return () => {
+      el.removeEventListener('transitionend', handleEnd);
+      clearTimeout(safety);
+    };
   }, [isOpen, onAnimationStart, onAnimationComplete]);
 
   const columnCount = isMobile ? 4 : 6;
@@ -80,13 +107,11 @@ export default function Curtain({
       {/* Logo Layer - centered */}
       {showLogo && (
         <div className={`${styles.logoLayer} ${isAnimating && isOpen ? styles.logoOpening : ''} ${isClosing ? styles.logoClosing : ''}`}>
-           <Image
-              src="/Design Waterloo Logo.svg"
-              alt="Design Waterloo"
-              width={100}
-              height={80}
-              className={styles.centerLogo}
-            />
+          <BloomingLogo
+            show={isAnimating && isOpen}
+            size={120}
+            className={styles.centerLogo}
+          />
         </div>
       )}
       
@@ -95,6 +120,7 @@ export default function Curtain({
         {Array.from({ length: columnCount }, (_, index) => (
           <div
             key={index}
+            ref={index === 0 ? sentinelColumnRef : undefined}
             className={`${styles.column} ${isAnimating && isOpen ? styles.columnOpening : ''} ${isClosing ? styles.columnClosing : ''}`}
             style={{
               transitionDelay: isClosing

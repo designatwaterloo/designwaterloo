@@ -1,0 +1,41 @@
+.svg {
+  overflow: visible;
+}
+
+.petal {
+  /* pathLength normalized to 100 on the element — dasharray/dashoffset
+     speak in percent of perimeter regardless of actual rx/ry. */
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  /* Wilt: when .show is removed, the petal retracts back to invisible. */
+  transition: stroke-dashoffset 0.25s ease-in;
+}
+
+.svg.show .petal {
+  animation: drawPetal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes drawPetal {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Sweep left-to-right by each oval's lowest-point x: petal3 (x≈110),
+   petal4 (≈170), petal2 (≈250), petal1 (≈310). */
+.svg.show .petal3 { animation-delay: 0s; }    /* far-left low */
+.svg.show .petal4 { animation-delay: 0.1s; }  /* left low */
+.svg.show .petal2 { animation-delay: 0.2s; }  /* right low */
+.svg.show .petal1 { animation-delay: 0.3s; }  /* far-right low */
+
+@media (prefers-reduced-motion: reduce) {
+  .petal {
+    transition: opacity 0.2s ease;
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+  .svg.show .petal {
+    animation: none;
+    opacity: 1;
+  }
+}
