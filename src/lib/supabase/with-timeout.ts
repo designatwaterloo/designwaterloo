@@ -40,19 +40,29 @@ export function withTimeout<T>(
 
 // Run `fn(signal)` with an AbortController that fires on timeout. The signal
 // can be threaded into anything that honors it (fetch, Supabase v2 query
-// builders via `.abortSignal()`). Use this whenever possible — it actually
-// cancels the in-flight work instead of just abandoning the promise.
+// builders via `.abortSignal()`). The race against `timeoutPromise` is the
+// belt-and-suspenders — if `fn` ignores the signal (e.g. supabase.auth.getUser,
+// which has no signal parameter), the race still rejects on schedule so the
+// caller is never left hanging.
 export async function withAbortableTimeout<T>(
   fn: (signal: AbortSignal) => PromiseLike<T>,
   ms: number,
   label: string,
 ): Promise<T> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ms);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new AuthTimeoutError(label, ms));
+    }, ms);
+  });
   try {
-    return await fn(controller.signal);
+    return await Promise.race([fn(controller.signal), timeoutPromise]);
   } catch (err) {
-    if (controller.signal.aborted) {
+    if (controller.signal.aborted && !(err instanceof AuthTimeoutError)) {
+      // Operation honored the signal and rejected on abort — surface as a
+      // timeout so callers can treat both paths uniformly.
       throw new AuthTimeoutError(label, ms);
     }
     throw err;

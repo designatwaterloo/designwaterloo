@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
 function SignInContent() {
-  const { signInWithMicrosoft, signInWithLaurierOtp, verifyLaurierOtp, loading } = useAuth();
+  const { signInWithMicrosoft, signInWithLaurierOtp, verifyLaurierOtp } = useAuth();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   const reset = searchParams.get("reset");
@@ -145,7 +145,6 @@ function SignInContent() {
       <button
         className={styles.microsoftButton}
         onClick={() => signInWithMicrosoft(redirectTo || undefined)}
-        disabled={loading}
         data-cursor="button"
         data-cursor-label="UWaterloo SSO →"
       >
@@ -258,9 +257,9 @@ function SignInContent() {
         Use your @uwaterloo.ca or @mylaurier.ca email
       </p>
 
-      <p className={styles.hint} style={{ marginTop: "1rem", opacity: 0.6 }}>
-        Having trouble?{" "}
-        <a href="/auth/reset" style={{ textDecoration: "underline" }}>
+      <p className={styles.hint} style={{ marginTop: "1rem" }}>
+        Stuck or signed in to the wrong account?{" "}
+        <a href="/auth/reset" style={{ textDecoration: "underline", fontWeight: 600 }}>
           Reset auth state
         </a>
       </p>
