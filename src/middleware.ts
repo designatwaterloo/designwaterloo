@@ -89,6 +89,15 @@ export async function middleware(request: NextRequest) {
     (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
   );
 
+  // Status codes that mean the session is *definitely* invalid (not a
+  // transient backend hiccup).  Only these justify nuking the user's
+  // cookies and bouncing to sign-in.  For anything else (network blips,
+  // 5xx, timeouts), we pass through and let the client-side AuthProvider
+  // do its own bounded validation — it has its own timeouts and will
+  // redirect to /sign-in if it can't validate either.
+  const DEFINITE_AUTH_REJECTION = (err: { status?: number } | null | undefined) =>
+    err?.status === 401 || err?.status === 403;
+
   let user = null;
   try {
     const { data, error: getUserError } = await withTimeout(
@@ -98,11 +107,11 @@ export async function middleware(request: NextRequest) {
     );
     user = data.user;
 
-    // getUser failed but cookies exist — try one active refresh. If that
-    // works, continue with the new user. If it fails (expired, revoked,
-    // network), clear the poison cookies and bounce to sign-in so the next
-    // request starts clean.
-    if (getUserError && hasAuthCookies) {
+    // getUser came back with a definite 401/403 AND cookies exist — try
+    // one active refresh.  If that also returns a definite rejection,
+    // clear the poison cookies; otherwise pass through and let the
+    // client retry.
+    if (getUserError && hasAuthCookies && DEFINITE_AUTH_REJECTION(getUserError)) {
       try {
         const { data: refreshed, error: refreshError } = await withTimeout(
           supabase.auth.refreshSession(),
@@ -110,42 +119,38 @@ export async function middleware(request: NextRequest) {
           "mw-refresh",
         );
 
-        // `refresh_token_already_used` happens when a concurrent tab already
-        // refreshed and rotated the cookies. The new cookies are in
-        // request.cookies via the setAll callback — retry getUser once.
+        // `refresh_token_already_used` means a concurrent tab already
+        // rotated the cookies — retry getUser once with the new ones.
         if (
           refreshError &&
           /already.?used/i.test(refreshError.message)
         ) {
-          const { data: retry } = await withTimeout(
-            supabase.auth.getUser(),
-            MW_GET_USER_MS,
-            "mw-getUser-retry",
-          );
-          user = retry.user;
-          if (!user) {
-            return expiredRedirect(request, "session-expired");
+          try {
+            const { data: retry } = await withTimeout(
+              supabase.auth.getUser(),
+              MW_GET_USER_MS,
+              "mw-getUser-retry",
+            );
+            user = retry.user;
+          } catch {
+            // fall through to passthrough; client will retry
           }
-        } else if (refreshError || !refreshed?.user) {
-          return expiredRedirect(request, "session-expired");
-        } else {
+        } else if (refreshed?.user) {
           user = refreshed.user;
+        } else if (refreshError && DEFINITE_AUTH_REJECTION(refreshError)) {
+          // Both getUser and refresh definitively rejected — session is dead.
+          return expiredRedirect(request, "session-expired");
         }
+        // any other refresh error: fall through; client will retry
       } catch {
-        return expiredRedirect(request, "session-expired");
+        // refresh threw/timed out — pass through; client will retry
       }
     }
   } catch {
-    // getUser itself hung or threw. Without a validated user, the safe
-    // default for protected/admin paths is sign-in. Public paths can pass.
-    const pathname = request.nextUrl.pathname;
-    const needsAuth =
-      PROTECTED_PATHS.some((p) => pathname.startsWith(p)) ||
-      ADMIN_PATHS.some((p) => pathname.startsWith(p));
-    if (needsAuth) {
-      return expiredRedirect(request, "session-expired");
-    }
-    return supabaseResponse;
+    // getUser itself hung or threw transiently. Don't nuke cookies; let
+    // the request through and let the client handle it.  Protected pages
+    // still gate on `user`, so unauthenticated requests will redirect to
+    // sign-in below.
   }
 
   const pathname = request.nextUrl.pathname;

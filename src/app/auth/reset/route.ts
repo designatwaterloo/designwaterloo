@@ -21,10 +21,11 @@ export async function GET(request: NextRequest) {
   const origin = new URL(request.url).origin;
   const response = NextResponse.redirect(`${origin}/sign-in?reset=1`);
 
-  // Sweep every sb-* cookie.  `delete` plus an explicit zero-Max-Age set:
-  // `delete` alone can miss cookies with a Domain attribute.
+  // Sweep every sb-* cookie AND any leftover impersonation stash.
+  // `delete` plus an explicit zero-Max-Age set: `delete` alone can miss
+  // cookies with a Domain attribute.
   request.cookies.getAll().forEach((c) => {
-    if (c.name.startsWith("sb-")) {
+    if (c.name.startsWith("sb-") || c.name.startsWith("dw-imp")) {
       response.cookies.delete(c.name);
       response.cookies.set(c.name, "", { maxAge: 0, path: "/" });
     }
