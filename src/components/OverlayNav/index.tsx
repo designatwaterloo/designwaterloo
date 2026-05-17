@@ -8,7 +8,6 @@ import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
 import Curtain from "../Curtain";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -21,7 +20,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
   const { user, member, loading, signOut } = useAuth();
-  const { startTransition } = useTransition();
   const [directoryCount, setDirectoryCount] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -141,11 +139,10 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     View profile
                   </Link>
                   <button
-                    onClick={async () => {
+                    onClick={() => {
                       triggerHaptic();
                       onClose();
-                      await signOut();
-                      startTransition("/");
+                      signOut();
                     }}
                     className={styles.userLink}
                     data-cursor="button"

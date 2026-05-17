@@ -13,7 +13,6 @@ import { createClient } from "@/lib/supabase/client";
 import { isLaurierEmail } from "@/lib/supabase/auth-utils";
 import {
   withAbortableTimeout,
-  withTimeout,
   AuthTimeoutError,
 } from "@/lib/supabase/with-timeout";
 import type { User, Session } from "@supabase/supabase-js";
@@ -31,7 +30,7 @@ interface AuthContextType {
   signInWithMicrosoft: (redirectTo?: string) => Promise<void>;
   signInWithLaurierOtp: (email: string) => Promise<{ error: string | null }>;
   verifyLaurierOtp: (email: string, token: string) => Promise<{ error: string | null; user: User | null }>;
-  signOut: () => Promise<void>;
+  signOut: () => void;
   refreshMember: () => Promise<void>;
 }
 
@@ -185,66 +184,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase.auth, fetchMember]);
 
-  const signInWithMicrosoft = async (redirectTo?: string) => {
-    const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
-    if (redirectTo) callbackUrl.searchParams.set("next", redirectTo);
+  const signInWithMicrosoft = useCallback(
+    async (redirectTo?: string) => {
+      const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+      if (redirectTo) callbackUrl.searchParams.set("next", redirectTo);
 
-    await supabase.auth.signInWithOAuth({
-      provider: "azure",
-      options: {
-        scopes: "email profile openid",
-        redirectTo: callbackUrl.toString(),
-        queryParams: {
-          domain_hint: "uwaterloo.ca",
-          // Force the Microsoft account picker so users with multiple accounts
-          // (or a stale SSO session) can choose the right one.
-          prompt: "select_account",
+      await supabase.auth.signInWithOAuth({
+        provider: "azure",
+        options: {
+          scopes: "email profile openid",
+          redirectTo: callbackUrl.toString(),
+          queryParams: {
+            // Bias toward the user's UWaterloo account if multiple Microsoft
+            // accounts are signed in. No `prompt` param means Microsoft will
+            // silently reuse the active session if there is one — matches
+            // Crowdmark / learn.uwaterloo.ca behavior. Users who need to
+            // switch accounts can sign out first.
+            domain_hint: "uwaterloo.ca",
+          },
         },
-      },
-    });
-  };
+      });
+    },
+    [supabase.auth],
+  );
 
-  const signInWithLaurierOtp = async (email: string): Promise<{ error: string | null }> => {
-    if (!isLaurierEmail(email)) {
-      return { error: "Please use a @mylaurier.ca email address." };
-    }
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) {
-      return { error: error.message };
-    }
-    return { error: null };
-  };
+  const signInWithLaurierOtp = useCallback(
+    async (email: string): Promise<{ error: string | null }> => {
+      if (!isLaurierEmail(email)) {
+        return { error: "Please use a @mylaurier.ca email address." };
+      }
+      const { error } = await supabase.auth.signInWithOtp({ email });
+      if (error) {
+        return { error: error.message };
+      }
+      return { error: null };
+    },
+    [supabase.auth],
+  );
 
-  const verifyLaurierOtp = async (email: string, token: string): Promise<{ error: string | null; user: User | null }> => {
-    const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-    if (error) {
-      return { error: error.message, user: null };
-    }
-    return { error: null, user: data.user };
-  };
+  const verifyLaurierOtp = useCallback(
+    async (
+      email: string,
+      token: string,
+    ): Promise<{ error: string | null; user: User | null }> => {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: "email",
+      });
+      if (error) {
+        return { error: error.message, user: null };
+      }
+      return { error: null, user: data.user };
+    },
+    [supabase.auth],
+  );
 
-  const signOut = useCallback(async () => {
+  // Sync, instant sign-out. Clears React state + browser cookies immediately,
+  // fires the server-side sign-out as a keepalive POST (continues even after
+  // navigation), then hard-navigates. No await, no curtain, no Loading flash.
+  // Caller doesn't pass a destination — sign-out always goes to "/".
+  const signOut = useCallback(() => {
     setUser(null);
     setSession(null);
     setMember(null);
-    try {
-      // Time-bound the network sign-out so a flaky connection doesn't leave
-      // the user stuck on a "signing out…" spinner.
-      await withTimeout(supabase.auth.signOut(), 5000, "signOut");
-    } catch (err) {
-      console.error("[Auth] Global sign-out failed, falling back to local:", err);
-      try {
-        await withTimeout(
-          supabase.auth.signOut({ scope: "local" }),
-          2000,
-          "signOut-local",
-        );
-      } catch {
-        // Even local sign-out failed — cookie sweep below is the safety net.
-      }
-    }
     sweepAuthCookies();
-  }, [supabase.auth]);
+    try {
+      fetch("/auth/sign-out", {
+        method: "POST",
+        keepalive: true,
+        credentials: "include",
+      }).catch(() => {
+        // Network failure during sign-out is fine — cookies are already gone
+        // client-side; the server-side session will expire naturally.
+      });
+    } catch {
+      // ignore — navigation continues regardless
+    }
+    if (typeof window !== "undefined") {
+      window.location.replace("/");
+    }
+  }, []);
 
   const refreshMember = useCallback(async () => {
     if (user) {
@@ -252,23 +272,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchMember]);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        member,
-        loading,
-        signInWithMicrosoft,
-        signInWithLaurierOtp,
-        verifyLaurierOtp,
-        signOut,
-        refreshMember,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      session,
+      member,
+      loading,
+      signInWithMicrosoft,
+      signInWithLaurierOtp,
+      verifyLaurierOtp,
+      signOut,
+      refreshMember,
+    }),
+    [
+      user,
+      session,
+      member,
+      loading,
+      signOut,
+      refreshMember,
+      signInWithMicrosoft,
+      signInWithLaurierOtp,
+      verifyLaurierOtp,
+    ],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

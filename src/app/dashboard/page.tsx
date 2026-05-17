@@ -16,13 +16,12 @@ export default function DashboardPage() {
   const router = useRouter();
   const { submitForReview, submitting, submitError } = useSubmitForReview();
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
 
   const hasMember = !!member;
 
   useEffect(() => {
-    if (authLoading || signingOut) return;
+    if (authLoading) return;
 
     // Auth-recovery redirects use router.replace, not the cinematic
     // transition. If TransitionContext stalls, we still escape the
@@ -35,7 +34,7 @@ export default function DashboardPage() {
     if (!hasMember) {
       router.replace("/profile/edit");
     }
-  }, [authLoading, user, hasMember, signingOut, router]);
+  }, [authLoading, user, hasMember, router]);
 
   // Show a manual escape hatch if we've been stuck on Loading for too long.
   useEffect(() => {
@@ -182,11 +181,7 @@ export default function DashboardPage() {
             className={styles.signOutButton}
             data-cursor="button"
             data-cursor-label="Sign Out"
-            onClick={async () => {
-              setSigningOut(true);
-              await signOut();
-              window.location.href = "/";
-            }}
+            onClick={() => signOut()}
           >
             Sign out
           </button>

@@ -37,24 +37,28 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (stage === "entering") {
       document.body.style.cursor = "wait";
-      const delay = isMobile ? 1500 : 1200;
+      // Push delay = ~time for the column curtain to visually cover the page.
+      // Look at Curtain.tsx — last column finishes sliding at ~745ms desktop,
+      // but the page is meaningfully obscured by ~500ms. Going tighter than
+      // that risks a flash of the new page through partial coverage.
+      const delay = isMobile ? 700 : 500;
       const timer = setTimeout(() => {
         if (nextHref) {
-          // Scroll to top regardless of whether it's same-page or different page
           window.scrollTo(0, 0);
           router.push(nextHref);
           setIsWaitingForPush(false);
         }
       }, delay);
 
-      // Safety: if we're still in "entering" after 5s, force reset
-      // (handles cases where middleware redirects elsewhere and pathname never matches)
+      // Safety: if we're still "entering" longer than the curtain+push budget
+      // (e.g. middleware redirected elsewhere and pathname never matches),
+      // force the curtain back to idle so the user isn't staring at it.
       const safetyTimer = setTimeout(() => {
         setStage("idle");
         setNextHref(null);
         setIsWaitingForPush(false);
         document.body.style.cursor = "";
-      }, 5000);
+      }, 2000);
 
       return () => {
         clearTimeout(timer);
