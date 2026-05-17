@@ -68,7 +68,7 @@
 
 .editablePlaceholder {
   color: var(--muted);
-  font-style: italic;
+  font-weight: 400;
   cursor: pointer;
 }
 
@@ -88,17 +88,34 @@
 
 .editableInput {
   width: 100%;
-  padding: 2px 6px;
-  margin: -2px -6px;
+  /* Padding/margin pair preserves the text's original position so the
+     input slides in around the same baseline as the placeholder text. */
+  padding: 3px 7px;
+  margin: -3px -7px;
   font: inherit;
   font-size: inherit;
   line-height: inherit;
   color: inherit;
-  background: transparent;
-  border: 2px solid var(--foreground);
+  background: var(--hover-bg);
+  border: 1px solid color-mix(in srgb, var(--foreground) 40%, transparent);
   border-radius: var(--radius-small);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  animation: editableInputIn 0.18s ease;
+}
+
+.editableInput:focus {
+  border-color: var(--foreground);
+}
+
+@keyframes editableInputIn {
+  from {
+    opacity: 0.4;
+    border-color: transparent;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .editableTextarea {
@@ -107,10 +124,15 @@
   padding: calc(var(--tinier) + 2px);
   margin: calc((var(--tinier) + 2px) * -1);
   width: calc(100% + (var(--tinier) + 2px) * 2);
-  border: none;
+  border: 1px solid color-mix(in srgb, var(--foreground) 40%, transparent);
   border-radius: var(--radius-large);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12), 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06), 0 2px 16px rgba(0, 0, 0, 0.04);
   background: var(--background);
+  animation: editableInputIn 0.18s ease;
+}
+
+.editableTextarea:focus {
+  border-color: var(--foreground);
 }
 
 /* ===== Suggestions Dropdown ===== */
@@ -245,7 +267,7 @@
 
 .pillInput::placeholder {
   color: var(--muted);
-  font-style: italic;
+  font-weight: 400;
 }
 
 .pillHint {
