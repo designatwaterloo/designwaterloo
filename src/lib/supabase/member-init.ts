@@ -27,7 +27,10 @@ export async function findOrInitMember(
   /** Full name from OAuth provider metadata — may be empty for OTP users */
   fullName?: string
 ): Promise<MemberInitResult> {
-  // Run both lookups in parallel
+  // Run both lookups in parallel. Use `ilike` for the email lookup so
+  // pre-migration rows that stored `school_email` with different casing
+  // than what Supabase Auth returns still match — otherwise those users
+  // get a fresh draft row instead of being linked to their existing profile.
   const [linkedResult, emailResult] = await Promise.all([
     supabase
       .from("members")
@@ -37,7 +40,7 @@ export async function findOrInitMember(
     supabase
       .from("members")
       .select("id, slug, auth_user_id, onboarding_completed")
-      .eq("school_email", email)
+      .ilike("school_email", email)
       .maybeSingle(),
   ]);
 

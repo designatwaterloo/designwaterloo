@@ -122,15 +122,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Validate against the auth server for both initial load (localStorage
       // could be stale) and token refreshes (SDK can fire spuriously if the
       // refresh actually failed). Past validation, trust the session.
+      //
+      // Mirror the middleware's transient-vs-definite distinction: only a
+      // null user from a successful call is a definite "session is dead"
+      // signal. Timeouts, aborts, and network failures are transient — keep
+      // the session from the event and let the next RLS query surface a real
+      // auth failure if there is one. Clearing on transient errors caused
+      // users to be randomly signed out on flaky networks.
       if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
-        let validatedUser: User | null = null;
         try {
           const { data } = await withAbortableTimeout(
             () => supabase.auth.getUser(),
             GET_USER_MS,
             "getUser",
           );
-          validatedUser = data.user;
+          if (!mounted) return;
+          if (!data.user) {
+            // Definite: auth server says the session does not exist.
+            setUser(null);
+            setSession(null);
+            setMember(null);
+            setLoading(false);
+            clearTimeout(watchdog);
+            return;
+          }
         } catch (err) {
           if (!mounted) return;
           if (err instanceof DOMException && err.name === "AbortError") {
@@ -140,28 +155,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
             return;
           }
-          // Network failure / timeout / explicit auth error.  We must NOT
-          // trust the local session here — doing so leads to the
-          // "Loading forever" bug where the page renders with user set but
-          // RLS rejects all queries.
-          console.warn("[Auth] getUser validation failed; clearing session", err);
-          setUser(null);
-          setSession(null);
-          setMember(null);
-          setLoading(false);
-          clearTimeout(watchdog);
-          return;
-        }
-
-        if (!mounted) return;
-
-        if (!validatedUser) {
-          setUser(null);
-          setSession(null);
-          setMember(null);
-          setLoading(false);
-          clearTimeout(watchdog);
-          return;
+          // Transient (timeout / network / 5xx). Trust the session from the
+          // event for now; the next authenticated query will fail loudly if
+          // the session is actually invalid.
+          console.warn("[Auth] getUser validation transient failure; trusting session from event", err);
         }
       }
 
