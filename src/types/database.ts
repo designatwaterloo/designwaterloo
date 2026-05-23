@@ -181,8 +181,74 @@ export interface Database {
         };
         Relationships: [];
       };
+      works: {
+        Row: {
+          id: string;
+          member_id: string;
+          slug: string;
+          title: string;
+          description: string | null;
+          year: number | null;
+          external_url: string | null;
+          cover_image_url: string | null;
+          images: WorkImage[];
+          cover_aspect_ratio: number | null;
+          review_status: "draft" | "pending_review" | "approved" | "rejected";
+          rejection_feedback: string | null;
+          submitted_at: string | null;
+          approved_at: string | null;
+          rejected_at: string | null;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          member_id: string;
+          slug: string;
+          title: string;
+          description?: string | null;
+          year?: number | null;
+          external_url?: string | null;
+          cover_image_url?: string | null;
+          images?: WorkImage[];
+          cover_aspect_ratio?: number | null;
+          review_status?: "draft" | "pending_review" | "approved" | "rejected";
+          rejection_feedback?: string | null;
+          submitted_at?: string | null;
+          approved_at?: string | null;
+          rejected_at?: string | null;
+          published_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          member_id?: string;
+          slug?: string;
+          title?: string;
+          description?: string | null;
+          year?: number | null;
+          external_url?: string | null;
+          cover_image_url?: string | null;
+          images?: WorkImage[];
+          cover_aspect_ratio?: number | null;
+          review_status?: "draft" | "pending_review" | "approved" | "rejected";
+          rejection_feedback?: string | null;
+          submitted_at?: string | null;
+          approved_at?: string | null;
+          rejected_at?: string | null;
+          published_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
   };
+}
+
+// Stored shape of one image in `works.images` (jsonb array).
+export interface WorkImage {
+  url: string;
+  aspectRatio: number;
+  alt?: string;
 }
 
 // Review status
@@ -203,8 +269,18 @@ export type MemberLeadership =
 export type MemberLeadershipInsert =
   Database["public"]["Tables"]["member_leadership"]["Insert"];
 
+export type Work = Database["public"]["Tables"]["works"]["Row"];
+export type WorkInsert = Database["public"]["Tables"]["works"]["Insert"];
+export type WorkUpdate = Database["public"]["Tables"]["works"]["Update"];
+
 // Full member with relations
 export interface MemberWithRelations extends Member {
   experiences: MemberExperience[];
   leadership: MemberLeadership[];
+}
+
+// A work with its author surfaced from the join — used in feed cards
+// and detail pages so we don't need a second round-trip per item.
+export interface WorkWithAuthor extends Work {
+  author: Pick<Member, "id" | "slug" | "first_name" | "last_name" | "profile_image_url">;
 }

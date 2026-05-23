@@ -1,0 +1,54 @@
+.section {
+  width: 100%;
+  padding: 3rem var(--margin);
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subhead {
+  color: var(--muted);
+  max-width: 56ch;
+}
+
+/* CSS-only masonry — column-count distributes children top-down per column.
+   Variable aspect ratios fall out naturally; column rebalancing is "good
+   enough" without the cost of a JS layout pass. */
+.masonry {
+  column-count: 3;
+  column-gap: var(--gap);
+}
+
+@media (max-width: 1100px) {
+  .masonry {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .masonry {
+    column-count: 1;
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 6rem var(--margin);
+  text-align: center;
+  border: 1px dashed var(--muted);
+  border-radius: var(--radius-large);
+}
+
+.emptyHint {
+  color: var(--muted);
+}

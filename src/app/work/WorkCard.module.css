@@ -1,0 +1,52 @@
+.card {
+  display: block;
+  /* Required for column-count masonry: keeps a card on one column. */
+  break-inside: avoid;
+  margin-bottom: var(--gap);
+  color: inherit;
+  text-decoration: none;
+}
+
+.media {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-small);
+  background: var(--hover-bg);
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .card:hover .image {
+    transform: scale(1.02);
+  }
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--hover-bg), var(--muted));
+  opacity: 0.4;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 0.75rem;
+  line-height: 1.2;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.author {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+}

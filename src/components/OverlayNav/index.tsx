@@ -21,6 +21,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const { user, member, loading, signOut } = useAuth();
   const [directoryCount, setDirectoryCount] = useState<number | null>(null);
+  const [workCount, setWorkCount] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
 
   // Fetch counts when nav opens
@@ -34,6 +35,12 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
       .eq("onboarding_completed", true)
       .eq("is_approved", true)
       .then(({ count }) => setDirectoryCount(count));
+
+    supabase
+      .from("works")
+      .select("*", { count: "exact", head: true })
+      .eq("review_status", "approved")
+      .then(({ count }) => setWorkCount(count));
 
     if (member?.is_admin) {
       supabase
@@ -65,6 +72,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   const navItems = [
     { label: "Home", href: "/", sup: null as number | null },
     { label: "Directory", href: "/directory", sup: directoryCount },
+    { label: "Work", href: "/work", sup: workCount },
     { label: "About", href: "/about", sup: null as number | null },
   ];
 
