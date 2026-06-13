@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { withTimeout } from "@/lib/supabase/with-timeout";
+import { getRequestOrigin } from "@/lib/supabase/request-origin";
 
 // User-visible recovery route.  Anyone can hit this; it only deletes their
 // own cookies via the response, so there is no auth gate by design.
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     // ignore — cookie sweep below is the source of truth
   }
 
-  const origin = new URL(request.url).origin;
+  const origin = getRequestOrigin(request);
   const response = NextResponse.redirect(`${origin}/sign-in?reset=1`);
 
   // Sweep every sb-* cookie AND any leftover impersonation stash.

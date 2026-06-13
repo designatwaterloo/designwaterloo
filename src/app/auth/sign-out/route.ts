@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { getRequestOrigin } from "@/lib/supabase/request-origin";
 
 /**
  * POST /auth/sign-out
@@ -14,7 +15,7 @@ import { NextResponse } from "next/server";
  * browser history replays, or bots crawling href links.
  */
 export async function POST(request: Request) {
-  const { origin } = new URL(request.url);
+  const origin = getRequestOrigin(request);
   const supabase = await createClient();
 
   // signOut() clears the session cookies through the server client's setAll

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
 import { findOrInitMember } from "@/lib/supabase/member-init";
 import { withTimeout } from "@/lib/supabase/with-timeout";
+import { getRequestOrigin } from "@/lib/supabase/request-origin";
 
 const EXCHANGE_MS = 10000;
 const MEMBER_INIT_MS = 5000;
@@ -25,7 +26,7 @@ const ALLOWED_ERROR_CODES = new Set([
 // behind after a failure breaks the user's next attempt.
 function errorRedirect(request: Request, reason: string): NextResponse {
   const safeReason = ALLOWED_ERROR_CODES.has(reason) ? reason : "auth-failed";
-  const origin = new URL(request.url).origin;
+  const origin = getRequestOrigin(request);
   const response = NextResponse.redirect(`${origin}/sign-in?error=${safeReason}`);
 
   const cookieHeader = request.headers.get("cookie") || "";
@@ -40,13 +41,26 @@ function errorRedirect(request: Request, reason: string): NextResponse {
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  // Always resolve the *public* origin from forwarded headers. Cookies set by
+  // exchangeCodeForSession below are host-only for this request's host, so the
+  // success redirect has to land the browser back on the same host or the
+  // session won't be sent on the next request.
+  const origin = getRequestOrigin(request);
 
   // Microsoft (and Supabase OAuth in general) returns ?error=... when the
   // user cancels, the tenant denies, or upstream exchange fails. Handle
   // these BEFORE the code check so we surface meaningful messages.
   const providerError = searchParams.get("error");
   if (providerError) {
+    // Surface the upstream detail (e.g. error_description) so a misconfigured
+    // Azure tenant or Supabase redirect-allowlist shows up in Vercel logs
+    // instead of disappearing behind a generic "auth-failed".
+    console.error(
+      "[auth/callback] provider returned error:",
+      providerError,
+      searchParams.get("error_description") || "",
+    );
     return errorRedirect(request, providerError);
   }
 
@@ -69,12 +83,20 @@ export async function GET(request: Request) {
       "exchangeCode",
     );
     if (error || !data.user) {
+      // The real reason the session never persists usually lives in this
+      // error (PKCE verifier missing, code already used, redirect-url
+      // mismatch). Log it — don't bury it under a generic code.
+      console.error(
+        "[auth/callback] exchangeCodeForSession failed:",
+        error?.message || "no user returned",
+      );
       return errorRedirect(request, "auth-failed");
     }
     userId = data.user.id;
     email = data.user.email!;
     fullName = (data.user.user_metadata?.full_name as string) || "";
-  } catch {
+  } catch (err) {
+    console.error("[auth/callback] exchangeCodeForSession threw:", err);
     return errorRedirect(request, "auth-failed");
   }
 
