@@ -91,16 +91,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Last-resort safety: if no code path clears loading within 10s, force
-    // it to false AND clear user/session/member so the page's `!user`
-    // redirect activates. Watchdog should never be the primary mechanism;
-    // it exists for truly unexpected hangs.
+    // Last-resort safety: if no code path clears loading within the watchdog
+    // window, just unblock the UI. It must NEVER destroy the session — a slow
+    // network (getUser up to 8s + fetchMember up to 5s can exceed this window)
+    // must not look like a sign-out. If we genuinely never authenticated,
+    // `user` is still null and protected pages redirect to sign-in anyway.
     const watchdog = setTimeout(() => {
       if (!mounted) return;
-      console.warn("[Auth] Watchdog fired — clearing auth state");
-      setUser(null);
-      setSession(null);
-      setMember(null);
+      console.warn("[Auth] Watchdog fired — unblocking UI (session preserved)");
       setLoading(false);
     }, WATCHDOG_MS);
 
@@ -122,15 +120,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Validate against the auth server for both initial load (localStorage
       // could be stale) and token refreshes (SDK can fire spuriously if the
       // refresh actually failed). Past validation, trust the session.
+      //
+      // Policy (mirrors the middleware): ONLY a *definite* auth rejection
+      // (401/403, or a successful call that returns no user) means the session
+      // is dead. Transient failures — timeouts, network blips, 5xx — must NOT
+      // sign the user out; we trust the session we just received and move on.
+      // A genuinely invalid token surfaces as a definite 401 here, or gets
+      // cleared by the middleware's definite-rejection path on the next
+      // navigation, so a real sign-out still resolves quickly.
       if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
-        let validatedUser: User | null = null;
         try {
-          const { data } = await withAbortableTimeout(
+          const { data, error } = await withAbortableTimeout(
             () => supabase.auth.getUser(),
             GET_USER_MS,
             "getUser",
           );
-          validatedUser = data.user;
+          if (!mounted) return;
+          if (error) {
+            if (error.status === 401 || error.status === 403) {
+              console.warn("[Auth] getUser definitively rejected session; clearing", error);
+              setUser(null);
+              setSession(null);
+              setMember(null);
+              setLoading(false);
+              clearTimeout(watchdog);
+              return;
+            }
+            // Transient (5xx / network). Don't sign out — trust the session.
+            console.warn("[Auth] getUser transient failure; trusting current session", error);
+          } else if (!data.user) {
+            // Clean response with no user → genuinely signed out.
+            setUser(null);
+            setSession(null);
+            setMember(null);
+            setLoading(false);
+            clearTimeout(watchdog);
+            return;
+          }
         } catch (err) {
           if (!mounted) return;
           if (err instanceof DOMException && err.name === "AbortError") {
@@ -140,28 +166,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setLoading(false);
             return;
           }
-          // Network failure / timeout / explicit auth error.  We must NOT
-          // trust the local session here — doing so leads to the
-          // "Loading forever" bug where the page renders with user set but
-          // RLS rejects all queries.
-          console.warn("[Auth] getUser validation failed; clearing session", err);
-          setUser(null);
-          setSession(null);
-          setMember(null);
-          setLoading(false);
-          clearTimeout(watchdog);
-          return;
-        }
-
-        if (!mounted) return;
-
-        if (!validatedUser) {
-          setUser(null);
-          setSession(null);
-          setMember(null);
-          setLoading(false);
-          clearTimeout(watchdog);
-          return;
+          // Timeout / network failure — transient. Do NOT clear the session;
+          // trust the session from this event. (This is the fix for random
+          // sign-outs on a slow network or token-refresh blip.)
+          console.warn("[Auth] getUser validation failed transiently; trusting session", err);
         }
       }
 
