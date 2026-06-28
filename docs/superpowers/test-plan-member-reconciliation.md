@@ -32,8 +32,19 @@ Run with `TEST_LOGIN_ENABLED=true npm run dev` unless noted. Record actual resul
 - [ ] Non-admin gets 403 from approve/reject endpoints. (actual: ___)
 
 ## Unit 5 — Data issues + migration
-- [ ] Panel lists 3 duplicate pairs, 2 junk rows, orphan logins (pre-migration). (actual: ___)
-- [ ] reconcile_existing_members before/after snapshots (paste): ___
-- [ ] After migration: panel shows 0 known duplicates, 0 junk rows. (actual: ___)
+- [x] `add_slug_confirmed` column migration APPLIED (2026-06-28).
+- [x] Reconcile APPLIED (2026-06-28): merged Frances Zhao / Raghav Agarwal / Victoria Feng
+      (draft auth link → approved row via `DELETE … RETURNING` CTE to respect the
+      `members_auth_user_id_key` unique constraint; empty drafts deleted). Verified:
+      each is now a single approved+linked row.
+- [x] Hyunjin Kim (`hkim22@uoguelph.ca`) DELETED per instruction.
+- [x] Aileen Luo (`aileen-luo@placeholder.edu`) KEPT per instruction (still approved, unlinked).
+- [ ] OUTSTANDING: Spark Mark (`s5mark@uwaterloo.ca`) orphan login `spark.mark@uwaterloo.ca`
+      not yet linked — same class, fixable via Data Issues panel or one UPDATE. (actual: ___)
 - [ ] Merge action on a fresh test dup pair works + reversible check. (actual: ___)
 - [ ] Delete action on a test junk row works. (actual: ___)
+
+## Repair verification (the 3 people can now edit)
+- [ ] Log in as Frances/Raghav/Victoria (their real Azure accounts) → fast-path matches
+      `auth_user_id` → lands on their approved profile, NOT a new account. (actual: ___)
+- [ ] They can open `/profile/edit` and SAVE changes (slug_confirmed column present). (actual: ___)
