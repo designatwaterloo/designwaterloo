@@ -253,6 +253,9 @@ export default function AdminPage() {
           <p className={styles.subtitle}>
             Manage member approvals and site content.
           </p>
+          <p className={styles.subtitle}>
+            <Link href="/admin/data-issues">→ Data Issues</Link>
+          </p>
 
           <div className={styles.card}>
             <h2>Pending Approvals ({pendingMembers.length})</h2>
