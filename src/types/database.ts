@@ -34,6 +34,7 @@ export interface Database {
           specialties: string[];
           work_schedule: string[];
           onboarding_completed: boolean;
+          slug_confirmed: boolean;
           is_approved: boolean;
           is_admin: boolean;
           review_status: "draft" | "pending_review" | "approved" | "rejected";
@@ -70,6 +71,7 @@ export interface Database {
           specialties?: string[];
           work_schedule?: string[];
           onboarding_completed?: boolean;
+          slug_confirmed?: boolean;
           is_approved?: boolean;
           is_admin?: boolean;
           review_status?: "draft" | "pending_review" | "approved" | "rejected";
@@ -104,6 +106,7 @@ export interface Database {
           specialties?: string[];
           work_schedule?: string[];
           onboarding_completed?: boolean;
+          slug_confirmed?: boolean;
           is_approved?: boolean;
           is_admin?: boolean;
           review_status?: "draft" | "pending_review" | "approved" | "rejected";
