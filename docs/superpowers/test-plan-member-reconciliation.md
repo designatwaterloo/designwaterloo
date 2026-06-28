@@ -39,8 +39,8 @@ Run with `TEST_LOGIN_ENABLED=true npm run dev` unless noted. Record actual resul
       each is now a single approved+linked row.
 - [x] Hyunjin Kim (`hkim22@uoguelph.ca`) DELETED per instruction.
 - [x] Aileen Luo (`aileen-luo@placeholder.edu`) KEPT per instruction (still approved, unlinked).
-- [ ] OUTSTANDING: Spark Mark (`s5mark@uwaterloo.ca`) orphan login `spark.mark@uwaterloo.ca`
-      not yet linked — same class, fixable via Data Issues panel or one UPDATE. (actual: ___)
+- [x] Spark Mark (`s5mark@uwaterloo.ca`) linked to orphan login `spark.mark@uwaterloo.ca`
+      (2026-06-28, no duplicate existed — plain UPDATE).
 - [ ] Merge action on a fresh test dup pair works + reversible check. (actual: ___)
 - [ ] Delete action on a test junk row works. (actual: ___)
 
