@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import styles from "./ConfirmDialog.module.css";
 
 interface ConfirmDialogProps {
@@ -11,6 +12,7 @@ interface ConfirmDialogProps {
   loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  children?: ReactNode;
 }
 
 export default function ConfirmDialog({
@@ -22,12 +24,14 @@ export default function ConfirmDialog({
   loading = false,
   onConfirm,
   onCancel,
+  children,
 }: ConfirmDialogProps) {
   return (
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h2 className={styles.title}>{title}</h2>
         <p className={styles.message}>{message}</p>
+        {children}
         <div className={styles.actions}>
           <button
             type="button"
