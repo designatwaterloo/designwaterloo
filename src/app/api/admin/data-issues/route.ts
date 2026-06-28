@@ -90,12 +90,17 @@ export async function POST(request: NextRequest) {
       .eq("id", body.dropId)
       .maybeSingle();
 
+    // auth_user_id has a UNIQUE constraint, so the dropped row must be removed
+    // BEFORE the kept row adopts its link — otherwise both briefly hold the
+    // same id and the update fails.
+    const { error: delErr } = await admin
+      .from("members")
+      .delete()
+      .eq("id", body.dropId);
+    if (delErr)
+      return NextResponse.json({ error: delErr.message }, { status: 500 });
+
     if (drop?.auth_user_id) {
-      // Clear the link on the kept row first to avoid a unique conflict, then set it.
-      await admin
-        .from("members")
-        .update({ auth_user_id: null })
-        .eq("id", body.keepId);
       const { error: linkErr } = await admin
         .from("members")
         .update({ auth_user_id: drop.auth_user_id })
@@ -103,12 +108,6 @@ export async function POST(request: NextRequest) {
       if (linkErr)
         return NextResponse.json({ error: linkErr.message }, { status: 500 });
     }
-    const { error: delErr } = await admin
-      .from("members")
-      .delete()
-      .eq("id", body.dropId);
-    if (delErr)
-      return NextResponse.json({ error: delErr.message }, { status: 500 });
     return NextResponse.json({ ok: true });
   }
 
