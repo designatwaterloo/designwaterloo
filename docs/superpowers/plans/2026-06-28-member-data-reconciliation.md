@@ -8,6 +8,11 @@
 
 **Tech Stack:** Next.js 15 (App Router), TypeScript, Supabase (`@supabase/ssr`, service-role admin client), CSS Modules. No test framework — verification is a manual checklist per the spec ([2026-06-27-member-data-reconciliation-design.md](../specs/2026-06-27-member-data-reconciliation-design.md)).
 
+**Execution approach:** Subagent-driven (chosen). A fresh subagent implements each
+task in order; the orchestrator reviews between tasks before dispatching the next.
+DB-touching steps (the `slug_confirmed` migration and the `reconcile_existing_members`
+cleanup) require explicit user sign-off before they run.
+
 **Reference reading before starting:**
 - Spec: `docs/superpowers/specs/2026-06-27-member-data-reconciliation-design.md`
 - `src/lib/supabase/member-init.ts` — the matching logic being refactored
