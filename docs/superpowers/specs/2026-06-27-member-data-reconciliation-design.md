@@ -260,8 +260,24 @@ Each unit is independently shippable.
 
 ## Testing
 
-No automated test framework is configured (per CLAUDE.md, do not add one without
-discussion). Verification is manual via the Unit 1 test account against each flow:
-test login on/off, claim vs. fresh onboarding, username pick/edit/collision, admin
-approve/reject, and each Data Issues action. The reviewed cleanup migration is
-validated on the known three duplicate pairs before and after.
+**Decision:** manual checklist only — no test framework is added (keeps the CLAUDE.md
+"no framework without discussion" constraint intact). "Extensive testing" means a
+detailed, repeatable manual test plan plus SQL verification, executed via the Unit 1
+test account. The implementation plan carries the full case-by-case checklist; the
+shape of it:
+
+- **Identifier matching (Unit 2):** verify each path with representative real rows —
+  link via `email` claim (Shape 2, e.g. `winston.zhao`), link via `preferred_username`
+  (Shapes 1/3, e.g. `f54zhao`, `adnardi`), fresh draft for a genuine new user
+  (`a34xie`-style with no backfill), and claim fallback for a no-identifier-match row.
+- **Test login (Unit 1):** `424242` works only for the allowlisted email and only when
+  `TEST_LOGIN_ENABLED=true`; 404/disabled otherwise; no effect on real OTP.
+- **Usernames (Unit 3):** pick at onboarding, edit later, collision rejection,
+  reserved-word rejection, `slug_confirmed` prompt on a backfilled row's first edit.
+- **Admin (Unit 4):** approve → appears in directory; reject + feedback → visible to
+  user; guard blocks non-admins.
+- **Data Issues + migration (Unit 5):** SQL before/after snapshots for the three
+  duplicate merges and the two junk rows; each panel action (link/merge/delete)
+  verified; reversibility confirmed.
+
+All destructive DB steps are dry-run/SELECT-verified first and require sign-off.
