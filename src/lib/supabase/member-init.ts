@@ -114,7 +114,14 @@ export async function findClaimCandidates(
   const pool = exact.length > 0 ? exact : rows;
   const scoped = school ? pool.filter((m) => m.school === school) : pool;
   const chosen = scoped.length > 0 ? scoped : pool;
-  return chosen.map(({ auth_user_id: _ignore, ...rest }) => rest);
+  return chosen.map((m) => ({
+    id: m.id,
+    slug: m.slug,
+    first_name: m.first_name,
+    last_name: m.last_name,
+    school: m.school,
+    program: m.program,
+  }));
 }
 
 /** Insert a fresh draft row with a collision-free slug. */
