@@ -46,11 +46,14 @@ export async function findAndLinkByIdentifiers(
   userId: string,
   identifiers: string[],
 ): Promise<{ slug: string; onboarding_completed: boolean } | null> {
-  const { data: linked } = await supabase
+  const { data: linked, error: linkedErr } = await supabase
     .from("members")
     .select("slug, onboarding_completed")
     .eq("auth_user_id", userId)
     .maybeSingle();
+  if (linkedErr) {
+    console.error("[member-init] auth_user_id lookup failed:", linkedErr);
+  }
   if (linked) return linked;
 
   const ids = Array.from(
@@ -58,28 +61,31 @@ export async function findAndLinkByIdentifiers(
   );
   if (ids.length === 0) return null;
 
-  // Match on any identifier. Prefer an unlinked row; ignore rows already linked
-  // to a different auth user. order+limit keeps it robust if >1 row matches.
-  const { data: matches } = await supabase
+  // Match on any identifier. order+limit keeps it robust if >1 row matches
+  // (avoids .maybeSingle() throwing).
+  const { data: matches, error: matchErr } = await supabase
     .from("members")
     .select("id, slug, auth_user_id, onboarding_completed")
     .in("school_email", ids)
     .order("created_at", { ascending: true })
     .limit(5);
+  if (matchErr) {
+    console.error("[member-init] identifier lookup failed:", matchErr);
+  }
 
-  const candidate =
-    matches?.find((m) => !m.auth_user_id) ?? matches?.[0] ?? null;
+  // Only adopt an UNLINKED row. Rows already linked belong to a different auth
+  // user (this user's own row was handled by the fast path above), so we must
+  // not return someone else's profile — fall through to claim/create instead.
+  const candidate = matches?.find((m) => !m.auth_user_id) ?? null;
   if (!candidate) return null;
 
-  if (!candidate.auth_user_id) {
-    const { error } = await supabase
-      .from("members")
-      .update({ auth_user_id: userId })
-      .eq("id", candidate.id)
-      .is("auth_user_id", null); // guard against a race linking it first
-    if (error) {
-      console.error("[member-init] Failed to link by identifier:", error);
-    }
+  const { error } = await supabase
+    .from("members")
+    .update({ auth_user_id: userId })
+    .eq("id", candidate.id)
+    .is("auth_user_id", null); // guard against a race linking it first
+  if (error) {
+    console.error("[member-init] Failed to link by identifier:", error);
   }
   return {
     slug: candidate.slug,
@@ -91,29 +97,37 @@ export async function findAndLinkByIdentifiers(
 export async function findClaimCandidates(
   supabase: SupabaseClient<Database>,
   fullName: string,
-  school: string | null,
+  school: "University of Waterloo" | "Wilfrid Laurier University" | null,
 ): Promise<ClaimCandidate[]> {
   const parts = (fullName || "").trim().split(/\s+/);
   const first = parts[0] ?? "";
   const last = parts.length >= 2 ? parts.slice(1).join(" ") : "";
   if (!first && !last) return [];
 
-  const { data } = await supabase
+  // Single-name people are stored as first_name with an empty last_name, so
+  // match against the right column. Scope to school in-query when known so the
+  // row cap can't discard the correct same-school candidate.
+  let query = supabase
     .from("members")
-    .select("id, slug, first_name, last_name, school, program, auth_user_id")
+    .select("id, slug, first_name, last_name, school, program")
     .is("auth_user_id", null)
-    .ilike("last_name", last || first)
-    .limit(20);
+    .limit(50);
+  query = last ? query.ilike("last_name", last) : query.ilike("first_name", first);
+  if (school) query = query.eq("school", school);
 
-  const rows = (data ?? []).filter((m) => !m.auth_user_id);
+  const { data, error } = await query;
+  if (error) {
+    console.error("[member-init] claim-candidate lookup failed:", error);
+  }
+
+  const rows = data ?? [];
   const exact = rows.filter(
     (m) =>
       normName(m.first_name) === normName(first) &&
       normName(m.last_name) === normName(last),
   );
-  const pool = exact.length > 0 ? exact : rows;
-  const scoped = school ? pool.filter((m) => m.school === school) : pool;
-  const chosen = scoped.length > 0 ? scoped : pool;
+  // School scoping already applied in-query; prefer exact full-name matches.
+  const chosen = exact.length > 0 ? exact : rows;
   return chosen.map((m) => ({
     id: m.id,
     slug: m.slug,
