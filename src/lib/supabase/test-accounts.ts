@@ -9,3 +9,14 @@ export const TEST_ACCOUNT_EMAIL_SUFFIX = `@${TEST_EMAIL_DOMAIN}`;
 export function isTestAccountEmail(email: string | null | undefined): boolean {
   return !!email?.toLowerCase().endsWith(TEST_ACCOUNT_EMAIL_SUFFIX);
 }
+
+// Single allowlisted email for the gated fixed-OTP test login (Unit 1).
+// Not a secret — the server-side TEST_LOGIN_ENABLED flag is the actual gate.
+// Uses a real @mylaurier.ca shape so it flows through the existing Laurier
+// OTP UI. The fixed code is 424242.
+export const TEST_LOGIN_EMAIL = "dwtest@mylaurier.ca";
+export const TEST_LOGIN_CODE = "424242";
+
+export function isTestLoginEmail(email: string | null | undefined): boolean {
+  return email?.trim().toLowerCase() === TEST_LOGIN_EMAIL;
+}
