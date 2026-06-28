@@ -114,7 +114,9 @@ function SignInContent() {
 
     try {
       const result = await findOrInitMember(supabase, user.id, user.email!);
-      if (result.onboardingCompleted) {
+      if (result.outcome === "claim") {
+        startTransition("/claim");
+      } else if (result.onboardingCompleted) {
         startTransition(redirectTo || `/directory/${result.slug}`);
       } else {
         startTransition(redirectTo || "/profile/edit");
