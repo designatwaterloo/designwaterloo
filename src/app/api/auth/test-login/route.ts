@@ -5,7 +5,6 @@ import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 import { generateSlug } from "@/lib/supabase/auth-utils";
 import {
-  TEST_LOGIN_EMAIL,
   TEST_LOGIN_CODE,
   isTestLoginEmail,
 } from "@/lib/supabase/test-accounts";
