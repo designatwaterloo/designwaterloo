@@ -107,8 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, sessionFromEvent) => {
       if (!mounted) return;
 
-      // No session: clear and exit.
+      // Instrumentation: every session clear below logs its trigger so a
+      // future "randomly signed out" report names the exact event/branch
+      // instead of being silent.
+      console.info(
+        `[Auth] event=${event} session=${sessionFromEvent ? "yes" : "no"}`,
+      );
+
+      // No session: clear and exit. This fires on a real sign-out
+      // (SIGNED_OUT / USER_DELETED). The server logs confirm a real /logout,
+      // so if this ever fires without one, it's a spurious client event worth
+      // investigating — hence the explicit log.
       if (!sessionFromEvent) {
+        console.warn(`[Auth] clearing session — no-session event: ${event}`);
         setUser(null);
         setSession(null);
         setMember(null);

@@ -242,8 +242,18 @@ export async function middleware(request: NextRequest) {
   return supabaseResponse;
 }
 
+// Only run middleware on routes that actually need an auth decision. The old
+// catch-all matcher ran on every page, RSC fetch, and <Link> prefetch, firing a
+// getUser() network round-trip each time — a storm (tens/sec) that overloaded
+// Supabase Auth and made client queries time out. Public pages (home,
+// directory, profile views) need no auth gating, so they're excluded entirely.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/sign-in",
+    "/onboarding",
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/pending-approval/:path*",
+    "/admin/:path*",
   ],
 };
