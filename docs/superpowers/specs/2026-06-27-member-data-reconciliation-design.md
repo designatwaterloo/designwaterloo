@@ -29,15 +29,39 @@ Snapshot: **58 member rows, 23 auth users.**
   backfilled row by **exact `school_email`**, and this works: `fxfang@`, `g3tran@`,
   `dstirlin@`, `m2tannahill@`, `szehuang@`, `l3vu@` all linked cleanly.
 
-### Why issue #2 still happens
+### Why issue #2 still happens — and the key discovery
 
 Waterloo accounts have **two valid email forms** for the same person: the WatIAM id
 (e.g. `f54zhao@uwaterloo.ca`) and the first.last alias (e.g.
-`frances.zhao@uwaterloo.ca`). Azure (LEARN) returns one form; the Sanity backfill
-stored the other. Exact-email match misses, and `findOrInitMember` creates a new
-empty draft — orphaning the real, approved backfill profile. There is no derivable
-relationship between `f54zhao` and `frances.zhao`, so email normalization cannot
-bridge them.
+`frances.zhao@uwaterloo.ca`). The WatIAM id is standard in *format* but **not
+derivable** from a name — it encodes initials + a collision-disambiguation digit + a
+truncated surname (e.g. Brayden Mo Petersen → `bm2peter`), so it cannot be computed
+from directory data.
+
+**The discovery:** Azure (LEARN) returns *both* identifiers in the OAuth token, but
+the current code only uses one of them:
+
+- `email` claim = the **first.last alias** → Supabase stores this in
+  `auth.users.email` → this is what `findOrInitMember` currently matches on.
+- `preferred_username` claim = the **WatIAM id** → ignored today → but this is
+  exactly what the Sanity backfill stored in `school_email`.
+
+Verified directly in `auth.users.raw_user_meta_data`:
+
+| Person | `email` claim (matched today) | `preferred_username` (ignored) | Backfill `school_email` |
+|---|---|---|---|
+| Frances Zhao | `frances.zhao@` | `f54zhao@` | `f54zhao@` — matches `preferred_username` |
+| Raghav Agarwal | `raghav.agarwal@` | `r37agarw@` | `r37agarw@` — matches `preferred_username` |
+| Victoria Feng | `victoria.feng@` | `v9feng@` | `v9feng@` — matches `preferred_username` |
+| Spark Mark | `spark.mark@` | `s5mark@` | `s5mark@` — matches `preferred_username` |
+| Aaryn Xie | `a34xie@` | `a34xie@` | *(none — genuinely new)* |
+| Chavi Sharma | `chavi.sharma@` | `c36sharm@` | *(none — genuinely new)* |
+
+So exact match *does* work; we were just comparing against the alias field instead of
+the WatIAM field. Matching on **both** identifiers fixes the entire WatIAM/alias
+mismatch class deterministically, with no UI. Only true residue (typos like
+`woong5970`↔`wong5970`, or backfills whose stored email is neither identifier) needs
+a fuzzy fallback.
 
 **Three confirmed duplicate pairs already exist from this exact mechanism:**
 
@@ -69,7 +93,9 @@ empty draft created at first login.
 
 ## Decisions (from brainstorming)
 
-- **#2 reconciliation:** user-facing **claim-your-profile** flow.
+- **#2 reconciliation:** deterministic **dual-identifier matching** (email + WatIAM
+  `preferred_username`) as the primary fix, with a user-facing **claim-your-profile**
+  flow as the fallback for the residue.
 - **#3 usernames:** user picks once at onboarding, editable anytime; old URL **not**
   preserved on change.
 - **#1 test account:** single hardcoded email + fixed OTP `424242`, gated behind a
@@ -100,20 +126,38 @@ email** with the fixed code `424242`, active only when `TEST_LOGIN_ENABLED=true`
 **Boundary:** one endpoint + a small hook in the sign-in page. Depends on env flag
 and service-role key only.
 
-### Unit 2 — Claim-your-profile (#2)
+### Unit 2 — Dual-identifier matching + claim-your-profile fallback (#2)
 
-Refactor `findOrInitMember` so first login resolves in this order:
+The primary fix is **deterministic dual-identifier matching**; the claim flow is a
+fallback for the small residue.
+
+Both auth entry points must forward the extra identifier into `findOrInitMember`:
+
+- OAuth callback (`src/app/auth/callback/route.ts`): pass
+  `data.user.user_metadata.preferred_username` (the WatIAM id) alongside `email`.
+- OTP flow (`src/app/sign-in/page.tsx`): Laurier OTP has no `preferred_username`;
+  pass `email` only (no alias problem there).
+
+Refactor `findOrInitMember(supabase, userId, email, fullName?, altIdentifiers?)` so
+first login resolves in this order:
 
 1. `auth_user_id` match → fast path (returning user). *(unchanged)*
-2. Exact `school_email` match, unlinked → link `auth_user_id`. *(unchanged — the
-   common, working path)*
-3. **No exact match → find unlinked candidate rows by name** (normalized
+2. **Exact match on any known identifier, unlinked → link `auth_user_id`.** Match
+   `school_email IN (email, ...altIdentifiers)` (i.e. alias *and* WatIAM id). This is
+   the deterministic fix and resolves the entire WatIAM/alias class (Frances, Raghav,
+   Victoria, Spark, and future logins) with no UI. On link, optionally normalize
+   `school_email` to the verified login email — `auth_user_id` is canonical regardless.
+3. **No identifier match → find unlinked candidate rows by name** (normalized
    `first_name`+`last_name`, plus trigram similarity for near matches), scoped to the
    same school. **Do not create a draft yet.** Return a signal that routes the user
-   to `/claim`.
-4. No candidates → create a draft as today (genuinely new user). This path is also
-   fixed so a draft is reliably persisted (addresses the missing-draft bug seen for
-   Aaryn Xie / Chavi Sharma).
+   to `/claim`. This catches the residue (e.g. typos like `woong5970`↔`wong5970`).
+4. No candidates → create a draft (genuinely new user, e.g. Aaryn Xie, Chavi Sharma).
+   This path is also fixed so a draft is reliably persisted (addresses the
+   missing-draft bug observed for those two).
+
+Guard: when matching multiple identifiers, ensure at most one unlinked row is chosen
+deterministically (avoid `.maybeSingle()` throwing if two backfill rows somehow share
+identifiers — none do today, but the query must be robust).
 
 New `/claim` page: *"Is this you?"* lists candidate profiles (name, school, program).
 
@@ -129,13 +173,9 @@ claimed profile re-enters review before going public; every claim is logged and 
 in the admin Data Issues panel (Unit 5). Admin-gating claims before they take effect
 is a deferred v1.1 option if abuse appears.
 
-**Open implementation detail for the plan:** after a claim, whether to overwrite
-`school_email` with the verified login email (so future logins exact-match) or leave
-it and rely on the `auth_user_id` fast path. Default recommendation: set
-`school_email` to the login email; `auth_user_id` is canonical regardless.
-
-**Boundary:** changes to `member-init.ts`, a new `/claim` route + server action, and
-a name-candidate query helper.
+**Boundary:** changes to `member-init.ts` (dual-identifier match + claim signal),
+both auth entry points forwarding `preferred_username`, a new `/claim` route + server
+action, and a name-candidate query helper.
 
 ### Unit 3 — User-chosen usernames (#3)
 
