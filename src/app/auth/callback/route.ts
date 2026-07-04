@@ -62,6 +62,7 @@ export async function GET(request: Request) {
   let userId: string;
   let email: string;
   let fullName = "";
+  let preferredUsername = "";
   try {
     const { data, error } = await withTimeout(
       supabase.auth.exchangeCodeForSession(code),
@@ -74,6 +75,9 @@ export async function GET(request: Request) {
     userId = data.user.id;
     email = data.user.email!;
     fullName = (data.user.user_metadata?.full_name as string) || "";
+    // Azure returns the WatIAM id here while `email` is the first.last alias.
+    preferredUsername =
+      (data.user.user_metadata?.preferred_username as string) || "";
   } catch {
     return errorRedirect(request, "auth-failed");
   }
@@ -90,7 +94,13 @@ export async function GET(request: Request) {
   let result;
   try {
     result = await withTimeout(
-      findOrInitMember(supabase, userId, email, fullName),
+      findOrInitMember(
+        supabase,
+        userId,
+        email,
+        fullName,
+        preferredUsername ? [preferredUsername] : [],
+      ),
       MEMBER_INIT_MS,
       "memberInit",
     );
@@ -105,9 +115,14 @@ export async function GET(request: Request) {
     return errorRedirect(request, "init-failed");
   }
 
+  // No identifier match but name candidates exist — let the user claim.
+  if (result.outcome === "claim") {
+    return NextResponse.redirect(`${origin}/claim`);
+  }
+
   if (result.onboardingCompleted) {
     return NextResponse.redirect(
-      `${origin}${explicitNext || `/directory/${result.slug}`}`
+      `${origin}${explicitNext || `/directory/${result.slug}`}`,
     );
   }
 

@@ -1,87 +1,150 @@
 /**
- * Shared logic for finding or creating a member record after authentication.
+ * Shared logic for finding, linking, or creating a member after authentication.
  *
- * Called from both the OAuth callback (server-side) and the OTP verification
- * flow (client-side, after the user is already authenticated).  Keeping this
- * in one place means a bug fix or schema change only needs to happen once.
- *
- * Returns the slug to redirect to and whether a new draft was created.
+ * Matching order:
+ *   1. auth_user_id (returning user — fast path)
+ *   2. exact match on ANY known identifier (alias email + WatIAM
+ *      preferred_username) against school_email → link the backfilled row
+ *   3. no identifier match but name candidates exist → signal claim flow
+ *   4. no candidates → create a draft (genuinely new user)
  */
 
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 
-interface MemberInitResult {
+export interface ClaimCandidate {
+  id: string;
   slug: string;
-  isNewMember: boolean;
-  /** true when the profile is fully onboarded and ready for directory redirect */
+  first_name: string;
+  last_name: string;
+  school: string | null;
+  program: string | null;
+}
+
+export interface MemberInitResult {
+  /** "linked" | "created" | "claim" */
+  outcome: "linked" | "created" | "claim";
+  slug: string;
   onboardingCompleted: boolean;
+  candidates?: ClaimCandidate[];
   error?: string;
 }
 
-export async function findOrInitMember(
+/** Normalize a name for case-insensitive comparison. */
+function normName(s: string): string {
+  return s.trim().toLowerCase();
+}
+
+/**
+ * Match the login to a backfilled/existing row by auth_user_id first, then by
+ * exact school_email against any of the supplied identifiers. Links the row to
+ * the auth user when matched by identifier. Returns the row or null.
+ */
+export async function findAndLinkByIdentifiers(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  identifiers: string[],
+): Promise<{ slug: string; onboarding_completed: boolean } | null> {
+  const { data: linked, error: linkedErr } = await supabase
+    .from("members")
+    .select("slug, onboarding_completed")
+    .eq("auth_user_id", userId)
+    .maybeSingle();
+  if (linkedErr) {
+    console.error("[member-init] auth_user_id lookup failed:", linkedErr);
+  }
+  if (linked) return linked;
+
+  const ids = Array.from(
+    new Set(identifiers.map((e) => e.trim().toLowerCase()).filter(Boolean)),
+  );
+  if (ids.length === 0) return null;
+
+  // Match on any identifier. order+limit keeps it robust if >1 row matches
+  // (avoids .maybeSingle() throwing).
+  const { data: matches, error: matchErr } = await supabase
+    .from("members")
+    .select("id, slug, auth_user_id, onboarding_completed")
+    .in("school_email", ids)
+    .order("created_at", { ascending: true })
+    .limit(5);
+  if (matchErr) {
+    console.error("[member-init] identifier lookup failed:", matchErr);
+  }
+
+  // Only adopt an UNLINKED row. Rows already linked belong to a different auth
+  // user (this user's own row was handled by the fast path above), so we must
+  // not return someone else's profile — fall through to claim/create instead.
+  const candidate = matches?.find((m) => !m.auth_user_id) ?? null;
+  if (!candidate) return null;
+
+  const { error } = await supabase
+    .from("members")
+    .update({ auth_user_id: userId })
+    .eq("id", candidate.id)
+    .is("auth_user_id", null); // guard against a race linking it first
+  if (error) {
+    console.error("[member-init] Failed to link by identifier:", error);
+  }
+  return {
+    slug: candidate.slug,
+    onboarding_completed: candidate.onboarding_completed,
+  };
+}
+
+/** Unlinked rows whose name matches, scoped to the same school when known. */
+export async function findClaimCandidates(
+  supabase: SupabaseClient<Database>,
+  fullName: string,
+  school: "University of Waterloo" | "Wilfrid Laurier University" | null,
+): Promise<ClaimCandidate[]> {
+  const parts = (fullName || "").trim().split(/\s+/);
+  const first = parts[0] ?? "";
+  const last = parts.length >= 2 ? parts.slice(1).join(" ") : "";
+  if (!first && !last) return [];
+
+  // Single-name people are stored as first_name with an empty last_name, so
+  // match against the right column. Scope to school in-query when known so the
+  // row cap can't discard the correct same-school candidate.
+  let query = supabase
+    .from("members")
+    .select("id, slug, first_name, last_name, school, program")
+    .is("auth_user_id", null)
+    .limit(50);
+  query = last ? query.ilike("last_name", last) : query.ilike("first_name", first);
+  if (school) query = query.eq("school", school);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("[member-init] claim-candidate lookup failed:", error);
+  }
+
+  const rows = data ?? [];
+  const exact = rows.filter(
+    (m) =>
+      normName(m.first_name) === normName(first) &&
+      normName(m.last_name) === normName(last),
+  );
+  // School scoping already applied in-query; prefer exact full-name matches.
+  const chosen = exact.length > 0 ? exact : rows;
+  return chosen.map((m) => ({
+    id: m.id,
+    slug: m.slug,
+    first_name: m.first_name,
+    last_name: m.last_name,
+    school: m.school,
+    program: m.program,
+  }));
+}
+
+/** Insert a fresh draft row with a collision-free slug. */
+export async function createDraftMember(
   supabase: SupabaseClient<Database>,
   userId: string,
   email: string,
-  /** Full name from OAuth provider metadata — may be empty for OTP users */
-  fullName?: string
+  fullName?: string,
 ): Promise<MemberInitResult> {
-  // Run both lookups in parallel
-  const [linkedResult, emailResult] = await Promise.all([
-    supabase
-      .from("members")
-      .select("slug, onboarding_completed")
-      .eq("auth_user_id", userId)
-      .maybeSingle(),
-    supabase
-      .from("members")
-      .select("id, slug, auth_user_id, onboarding_completed")
-      .eq("school_email", email)
-      .maybeSingle(),
-  ]);
-
-  const linkedMember = linkedResult.data;
-  const existingByEmail = emailResult.data;
-
-  // Already linked — fast path for returning users
-  if (linkedMember) {
-    return {
-      slug: linkedMember.slug,
-      isNewMember: false,
-      onboardingCompleted: linkedMember.onboarding_completed,
-    };
-  }
-
-  // Migrated / pre-existing profile by email — link it to this auth account
-  if (existingByEmail && !existingByEmail.auth_user_id) {
-    const { error } = await supabase
-      .from("members")
-      .update({ auth_user_id: userId })
-      .eq("id", existingByEmail.id);
-
-    if (error) {
-      console.error("[member-init] Failed to link migrated profile:", error);
-    }
-
-    return {
-      slug: existingByEmail.slug,
-      isNewMember: false,
-      onboardingCompleted: existingByEmail.onboarding_completed,
-    };
-  }
-
-  // Profile exists by email and is already linked to a different auth account
-  // (shouldn't happen in practice — treat it like a new user)
-  if (existingByEmail) {
-    return {
-      slug: existingByEmail.slug,
-      isNewMember: false,
-      onboardingCompleted: existingByEmail.onboarding_completed,
-    };
-  }
-
-  // No existing profile — create a draft member row
   const school = getSchoolFromEmail(email);
   const nameParts = (fullName || "").trim().split(/\s+/);
   const firstName = nameParts[0] || "";
@@ -92,7 +155,6 @@ export async function findOrInitMember(
     : generateSlug(email.split("@")[0].replace(/\./g, "-"), "");
   const safeSlug = baseSlug || "member";
 
-  // Find an available slug in one query
   let finalSlug = safeSlug;
   const { data: similar } = await supabase
     .from("members")
@@ -124,8 +186,44 @@ export async function findOrInitMember(
 
   if (insertError) {
     console.error("[member-init] Failed to create draft member:", insertError);
-    return { slug: "", isNewMember: false, onboardingCompleted: false, error: insertError.message };
+    return {
+      outcome: "created",
+      slug: "",
+      onboardingCompleted: false,
+      error: insertError.message,
+    };
+  }
+  return { outcome: "created", slug: finalSlug, onboardingCompleted: false };
+}
+
+/**
+ * Orchestrator used by the OAuth callback and the OTP flow.
+ * `altIdentifiers` carries the WatIAM `preferred_username` (Azure) when present.
+ */
+export async function findOrInitMember(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  email: string,
+  fullName?: string,
+  altIdentifiers: string[] = [],
+): Promise<MemberInitResult> {
+  const matched = await findAndLinkByIdentifiers(supabase, userId, [
+    email,
+    ...altIdentifiers,
+  ]);
+  if (matched) {
+    return {
+      outcome: "linked",
+      slug: matched.slug,
+      onboardingCompleted: matched.onboarding_completed,
+    };
   }
 
-  return { slug: finalSlug, isNewMember: true, onboardingCompleted: false };
+  const school = getSchoolFromEmail(email);
+  const candidates = await findClaimCandidates(supabase, fullName || "", school);
+  if (candidates.length > 0) {
+    return { outcome: "claim", slug: "", onboardingCompleted: false, candidates };
+  }
+
+  return createDraftMember(supabase, userId, email, fullName);
 }

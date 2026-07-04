@@ -3,6 +3,7 @@
 import { Suspense, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { isLaurierEmail } from "@/lib/supabase/auth-utils";
+import { isTestLoginEmail } from "@/lib/supabase/test-accounts";
 import { useSearchParams } from "next/navigation";
 import { useTransition } from "@/context/TransitionContext";
 import Header from "@/components/Header";
@@ -34,6 +35,13 @@ function SignInContent() {
       setLaurierError("Please enter your Laurier username.");
       return;
     }
+    // Test login: no real OTP is sent; just reveal the code box. The server
+    // endpoint enforces the gate + fixed code on verify.
+    if (isTestLoginEmail(laurierEmail)) {
+      setOtpSent(true);
+      return;
+    }
+
     setSendingOtp(true);
     const { error } = await signInWithLaurierOtp(laurierEmail);
     setSendingOtp(false);
@@ -53,6 +61,38 @@ function SignInContent() {
       return;
     }
     setVerifyingOtp(true);
+
+    // Test login path: POST the fixed code to the gated endpoint.
+    if (isTestLoginEmail(laurierEmail)) {
+      try {
+        const res = await fetch("/api/auth/test-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: laurierEmail,
+            code: otpCode,
+            redirectTo: redirectTo || undefined,
+          }),
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          ok?: boolean;
+          redirectTo?: string;
+          error?: string;
+        };
+        if (!res.ok || !data.ok) {
+          setVerifyingOtp(false);
+          setLaurierError(data.error || "Test login failed.");
+          return;
+        }
+        window.location.assign(data.redirectTo || "/profile/edit");
+        return;
+      } catch {
+        setVerifyingOtp(false);
+        setLaurierError("Test login failed. Please try again.");
+        return;
+      }
+    }
+
     const { error, user } = await verifyLaurierOtp(laurierEmail, otpCode);
     if (error) {
       setVerifyingOtp(false);
@@ -74,7 +114,9 @@ function SignInContent() {
 
     try {
       const result = await findOrInitMember(supabase, user.id, user.email!);
-      if (result.onboardingCompleted) {
+      if (result.outcome === "claim") {
+        startTransition("/claim");
+      } else if (result.onboardingCompleted) {
         startTransition(redirectTo || `/directory/${result.slug}`);
       } else {
         startTransition(redirectTo || "/profile/edit");

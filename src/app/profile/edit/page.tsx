@@ -6,6 +6,7 @@ import { useTransition } from "@/context/TransitionContext";
 import { createClient } from "@/lib/supabase/client";
 import { findOrInitMember } from "@/lib/supabase/member-init";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
+import { validateUsername } from "@/lib/usernames";
 import { PROGRAMS } from "@/data/programs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -24,6 +25,7 @@ export default function EditProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsUsernamePrompt, setNeedsUsernamePrompt] = useState(false);
   const submittingRef = useRef(false);
 
   // Loader
@@ -96,6 +98,7 @@ export default function EditProfilePage() {
       setSlug(member.slug || "");
       setSlugManuallyEdited(true);
       setSlugStatus("available");
+      setNeedsUsernamePrompt(member.slug_confirmed === false);
     } else if (user && !member && fullName) {
       console.log("[Onboarding] Prefill from OAuth name:", fullName);
       const parts = fullName.trim().split(/\s+/);
@@ -199,6 +202,15 @@ export default function EditProfilePage() {
     if (slugCheckRef.current) clearTimeout(slugCheckRef.current);
     if (!value) { setSlugStatus("idle"); return; }
 
+    // Synchronous validity gate before scheduling the availability network check.
+    const check = validateUsername(value);
+    if (!check.ok) {
+      setSlugStatus("taken");
+      setError(check.error ?? null);
+      return;
+    }
+    setError(null);
+
     setSlugStatus("checking");
     slugCheckRef.current = setTimeout(async () => {
       if (member?.slug === value) { setSlugStatus("available"); return; }
@@ -234,12 +246,20 @@ export default function EditProfilePage() {
 
     const result = await findOrInitMember(supabase, user.id, user.email, fullName || undefined);
 
+    // No row for this user but backfilled name matches exist — send them to the
+    // claim flow instead of rendering an empty form / creating a fresh draft.
+    if (result.outcome === "claim") {
+      console.log("[Onboarding] Claim candidates found, redirecting to /claim");
+      startTransition("/claim");
+      return;
+    }
+
     if (result.error) {
       console.error("[Onboarding] Draft creation failed:", result.error);
     }
 
     await safeRefresh();
-  }, [user, fullName, supabase, safeRefresh]);
+  }, [user, fullName, supabase, safeRefresh, startTransition]);
 
   // Skip loader if member appears
   useEffect(() => {
@@ -278,12 +298,19 @@ export default function EditProfilePage() {
     console.log("[Onboarding] handleSubmit — slug:", slug, "member:", member?.id);
 
     try {
-      const finalSlug = slug.replace(/^-|-$/g, "");
+      const usernameCheck = validateUsername(slug);
+      if (!usernameCheck.ok) {
+        setError(usernameCheck.error ?? "Invalid username.");
+        setSaving(false);
+        return;
+      }
+      const finalSlug = usernameCheck.normalized;
 
       const updatePayload = {
         first_name: firstName,
         last_name: lastName,
         slug: finalSlug,
+        slug_confirmed: true,
         program: program || null,
         graduating_class: graduatingClass || null,
         onboarding_completed: true,
@@ -348,6 +375,7 @@ export default function EditProfilePage() {
               first_name: firstName,
               last_name: lastName,
               slug: finalSlug,
+              slug_confirmed: true,
               school_email: user.email,
               school,
               program: program || null,
@@ -453,6 +481,13 @@ export default function EditProfilePage() {
                     onChange={(e) => setLastName(e.target.value)} required />
                 </div>
               </div>
+
+              {needsUsernamePrompt && (
+                <p className={styles.hint}>
+                  Pick the username for your public profile URL — you can change
+                  it anytime.
+                </p>
+              )}
 
               <div className={styles.field}>
                 <label htmlFor="slug">Profile URL</label>

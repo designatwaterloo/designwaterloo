@@ -1,0 +1,9 @@
+.section { max-width: 880px; margin: 0 auto; padding: 3rem var(--margin); display: flex; flex-direction: column; gap: 1.5rem; }
+.card { border: 1px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.group { border-top: 1px solid rgba(0,0,0,0.08); padding-top: 0.5rem; }
+.groupTitle { font-weight: 600; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: 0.9rem; }
+.actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.row button { padding: 0.35rem 0.6rem; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer; }
+.note { font-size: 0.8rem; opacity: 0.6; }
+.error { color: #c0392b; }

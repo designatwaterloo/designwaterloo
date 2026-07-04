@@ -42,6 +42,12 @@ export default function AdminPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actioning, setActioning] = useState(false);
 
+  // Review-action state
+  const [reviewing, setReviewing] = useState<string | null>(null);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [rejectFor, setRejectFor] = useState<Member | null>(null);
+  const [rejectFeedback, setRejectFeedback] = useState("");
+
   useEffect(() => {
     if (!authLoading && (!member || !member.is_admin)) {
       router.replace("/");
@@ -147,6 +153,50 @@ export default function AdminPage() {
     }
   };
 
+  const runApprove = async (m: Member) => {
+    setReviewing(m.id);
+    setReviewError(null);
+    try {
+      const res = await fetch(`/api/admin/members/${m.id}/approve`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const b = (await res.json().catch(() => ({}))) as { error?: string };
+        setReviewError(b.error || `Failed (${res.status})`);
+      } else {
+        setPendingMembers((prev) => prev.filter((p) => p.id !== m.id));
+      }
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : "Request failed");
+    }
+    setReviewing(null);
+  };
+
+  const runReject = async () => {
+    if (!rejectFor) return;
+    setReviewing(rejectFor.id);
+    setReviewError(null);
+    try {
+      const res = await fetch(`/api/admin/members/${rejectFor.id}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedback: rejectFeedback }),
+      });
+      if (!res.ok) {
+        const b = (await res.json().catch(() => ({}))) as { error?: string };
+        setReviewError(b.error || `Failed (${res.status})`);
+      } else {
+        const rejectedId = rejectFor.id;
+        setPendingMembers((prev) => prev.filter((p) => p.id !== rejectedId));
+        setRejectFor(null);
+        setRejectFeedback("");
+      }
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : "Request failed");
+    }
+    setReviewing(null);
+  };
+
   const onConfirm = async () => {
     if (!pendingAction) return;
     if (pendingAction.kind === "promote") {
@@ -203,6 +253,9 @@ export default function AdminPage() {
           <p className={styles.subtitle}>
             Manage member approvals and site content.
           </p>
+          <p className={styles.subtitle}>
+            <Link href="/admin/data-issues">→ Data Issues</Link>
+          </p>
 
           <div className={styles.card}>
             <h2>Pending Approvals ({pendingMembers.length})</h2>
@@ -231,11 +284,31 @@ export default function AdminPage() {
                       >
                         Preview
                       </Link>
+                      <button
+                        type="button"
+                        className={styles.actionButton}
+                        disabled={reviewing === m.id}
+                        onClick={() => runApprove(m)}
+                      >
+                        {reviewing === m.id ? "…" : "Approve"}
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                        disabled={reviewing === m.id}
+                        onClick={() => {
+                          setRejectFor(m);
+                          setRejectFeedback("");
+                        }}
+                      >
+                        Reject
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             )}
+            {reviewError && <p className={styles.statusError}>{reviewError}</p>}
           </div>
 
           <div className={styles.card}>
@@ -324,6 +397,28 @@ export default function AdminPage() {
           }}
           loading={actioning}
         />
+      )}
+
+      {rejectFor && (
+        <ConfirmDialog
+          title={`Reject ${rejectFor.first_name} ${rejectFor.last_name}`}
+          message="Explain what needs to change. This is shown to the member on their dashboard."
+          confirmLabel="Send rejection"
+          onConfirm={runReject}
+          onCancel={() => {
+            setRejectFor(null);
+            setRejectFeedback("");
+          }}
+          loading={reviewing === rejectFor.id}
+        >
+          <textarea
+            className={styles.searchInput}
+            rows={4}
+            placeholder="Feedback for the member…"
+            value={rejectFeedback}
+            onChange={(e) => setRejectFeedback(e.target.value)}
+          />
+        </ConfirmDialog>
       )}
     </div>
   );
