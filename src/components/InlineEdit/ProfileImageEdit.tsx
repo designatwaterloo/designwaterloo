@@ -56,11 +56,10 @@ export default function ProfileImageEdit() {
           <SkeletonImage
             src={imageUrl}
             alt="Profile"
-            width={800}
-            height={1000}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
             className={pageStyles.image}
             wrapperClassName="w-full h-full"
-            style={{ aspectRatio: "4 / 5" }}
             priority
           />
         ) : (
@@ -90,8 +89,8 @@ export default function ProfileImageEdit() {
             <Image
               src={imageUrl}
               alt="Profile"
-              width={800}
-              height={1000}
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
               className={pageStyles.image}
               priority
             />

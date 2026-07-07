@@ -118,6 +118,7 @@
   grid-row: 1 / 4;
   display: block;
   justify-content: flex-end;
+  min-width: 0;
 }
 
 /* Mobile: Stack layout (0-768px) */
@@ -208,6 +209,11 @@
 }
 
 .imageWrapper {
+  /* Single source of truth for the image's size. Children must not set
+     their own aspect-ratio or percentage heights that feed back into this
+     box — Safari resolves that cycle iteratively and the image grows on
+     every relayout (iOS aspect-ratio auto-resolution loop). */
+  position: relative;
   aspect-ratio: 4 / 5;
   width: 100%;
   overflow: hidden;
