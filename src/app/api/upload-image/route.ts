@@ -86,7 +86,10 @@ export async function POST(request: NextRequest) {
     const hashAndDimensions = idParts.join("-");
     const imageUrl = `https://cdn.sanity.io/images/${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}/${process.env.NEXT_PUBLIC_SANITY_DATASET}/${hashAndDimensions}.${format}`;
 
-    // Persist the new image URL on the member record
+    // Persist the new image URL on the member record. If this fails — error
+    // OR zero rows matched (RLS denial / missing member row) — the upload did
+    // NOT stick, and saying "success" here makes the photo silently revert on
+    // reload. Verified 10/10 reproducible before this fix. Report the truth.
     let slug: string | null = null;
     try {
       const { data: updatedMember, error: updateError } = await supabase
@@ -98,11 +101,27 @@ export async function POST(request: NextRequest) {
 
       if (updateError) {
         console.error("Failed to update member profile_image_url:", updateError);
-      } else {
-        slug = updatedMember?.slug ?? null;
+        return NextResponse.json(
+          { error: "Your photo was uploaded but couldn't be saved to your profile. Please try again." },
+          { status: 500 },
+        );
       }
+      if (!updatedMember) {
+        console.error(
+          `Image upload persisted nothing: no member row matched auth_user_id ${user.id}`,
+        );
+        return NextResponse.json(
+          { error: "Your photo couldn't be saved — we couldn't find your profile. Try refreshing the page." },
+          { status: 409 },
+        );
+      }
+      slug = updatedMember.slug;
     } catch (err) {
       console.error("Unexpected error updating member profile_image_url:", err);
+      return NextResponse.json(
+        { error: "Your photo was uploaded but couldn't be saved to your profile. Please try again." },
+        { status: 500 },
+      );
     }
 
     if (slug) {

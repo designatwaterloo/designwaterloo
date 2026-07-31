@@ -330,7 +330,9 @@ export default function EditProfilePage() {
           return;
         }
         if (!data || data.length === 0) {
-          setError("Update failed — your session may have expired. Please refresh and try again.");
+          // Zero rows = RLS refused the update (row not linked to this auth
+          // user), not an expired session — don't send people to re-login.
+          setError("Couldn't save — your account isn't linked to this profile. Refresh the page; if this keeps happening, contact us.");
           setSaving(false);
           return;
         }

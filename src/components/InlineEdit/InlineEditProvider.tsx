@@ -237,8 +237,11 @@ export function InlineEditProvider({
         throw new Error(updateError.message);
       }
       if (!data || data.length === 0) {
+        // Zero rows from an UPDATE under RLS means the policy refused it (the
+        // row isn't linked to this auth user) — NOT an expired session. Saying
+        // "session expired" here sent people into pointless sign-out loops.
         throw new Error(
-          "Update failed — your session may have expired. Please refresh the page and try again."
+          "Couldn't save — your account isn't linked to this profile. Refresh the page; if this keeps happening, contact us."
         );
       }
       console.log("[InlineEdit] Update done, rows:", data.length);

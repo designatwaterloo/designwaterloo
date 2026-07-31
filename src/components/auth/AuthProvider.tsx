@@ -15,7 +15,7 @@ import {
   withAbortableTimeout,
   AuthTimeoutError,
 } from "@/lib/supabase/with-timeout";
-import type { User, Session } from "@supabase/supabase-js";
+import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import type { Member } from "@/types/database";
 
 const GET_USER_MS = 8000;
@@ -57,33 +57,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = useMemo(() => createClient(), []);
 
   const fetchMember = useCallback(
-    async (userId: string) => {
-      try {
-        const { data, error } = await withAbortableTimeout(
-          (signal) =>
-            supabase
-              .from("members")
-              .select("*")
-              .eq("auth_user_id", userId)
-              .abortSignal(signal)
-              .maybeSingle(),
-          FETCH_MEMBER_MS,
-          "fetchMember",
-        );
-        if (error) {
-          console.error("[Auth] Error fetching member:", error);
-          setMember(null);
+    async (userId: string, shouldApply: () => boolean = () => true) => {
+      // Two attempts: a transient timeout on the first try shouldn't blank out
+      // `member` (that hides the whole edit UI). Only a clean no-row response
+      // ever sets member to null; query errors and timeouts keep the last
+      // known member so a slow network can't masquerade as "not the owner".
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const { data, error } = await withAbortableTimeout(
+            (signal) =>
+              supabase
+                .from("members")
+                .select("*")
+                .eq("auth_user_id", userId)
+                .abortSignal(signal)
+                .maybeSingle(),
+            FETCH_MEMBER_MS,
+            "fetchMember",
+          );
+          if (!shouldApply()) return;
+          if (error) {
+            console.error("[Auth] Error fetching member (keeping previous):", error);
+            return;
+          }
+          setMember(data as Member | null);
           return;
+        } catch (err) {
+          if (!shouldApply()) return;
+          if (err instanceof AuthTimeoutError) {
+            console.warn(`[Auth] fetchMember timed out (attempt ${attempt})`);
+          } else {
+            console.error("[Auth] fetchMember failed:", err);
+          }
         }
-        setMember(data as Member | null);
-      } catch (err) {
-        if (err instanceof AuthTimeoutError) {
-          console.warn("[Auth] fetchMember timed out");
-        } else {
-          console.error("[Auth] fetchMember failed:", err);
-        }
-        setMember(null);
       }
+      console.warn("[Auth] fetchMember gave up; keeping previous member state");
     },
     [supabase]
   );
@@ -102,31 +110,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }, WATCHDOG_MS);
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, sessionFromEvent) => {
-      if (!mounted) return;
+    // Monotonic id per auth event. A newer event supersedes any still-running
+    // handler, so a slow handler for an old event can never clobber state set
+    // by a newer one.
+    let eventSeq = 0;
 
-      // Instrumentation: every session clear below logs its trigger so a
-      // future "randomly signed out" report names the exact event/branch
-      // instead of being silent.
-      console.info(
-        `[Auth] event=${event} session=${sessionFromEvent ? "yes" : "no"}`,
-      );
-
-      // No session: clear and exit. This fires on a real sign-out
-      // (SIGNED_OUT / USER_DELETED). The server logs confirm a real /logout,
-      // so if this ever fires without one, it's a spurious client event worth
-      // investigating — hence the explicit log.
-      if (!sessionFromEvent) {
-        console.warn(`[Auth] clearing session — no-session event: ${event}`);
-        setUser(null);
-        setSession(null);
-        setMember(null);
-        setLoading(false);
-        clearTimeout(watchdog);
-        return;
-      }
+    // The real work for an auth event. MUST run outside the SDK's
+    // onAuthStateChange dispatch: supabase-js holds its auth lock
+    // (navigator.locks) while notifying subscribers, and every Supabase call
+    // in here — getUser() and the PostgREST query in fetchMember (which reads
+    // the access token via getSession) — needs that same lock. Awaiting them
+    // inside the callback deadlocks until our timeouts fire, which is what
+    // used to blank out `member` (and with it the entire edit UI) whenever a
+    // token refresh coincided with a page load.
+    const handleAuthEvent = async (
+      event: AuthChangeEvent,
+      sessionFromEvent: Session,
+      seq: number,
+    ) => {
+      const stale = () => !mounted || seq !== eventSeq;
 
       // Validate against the auth server for both initial load (localStorage
       // could be stale) and token refreshes (SDK can fire spuriously if the
@@ -146,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             GET_USER_MS,
             "getUser",
           );
-          if (!mounted) return;
+          if (stale()) return;
           if (error) {
             if (error.status === 401 || error.status === 403) {
               console.warn("[Auth] getUser definitively rejected session; clearing", error);
@@ -169,7 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
           }
         } catch (err) {
-          if (!mounted) return;
+          if (stale()) return;
           if (err instanceof DOMException && err.name === "AbortError") {
             // React Strict Mode double-mount aborted the request.
             // This instance is stale — bail out completely and let the
@@ -187,13 +189,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setSession(sessionFromEvent);
         setUser(sessionFromEvent.user);
-        await fetchMember(sessionFromEvent.user.id);
+        await fetchMember(sessionFromEvent.user.id, () => !stale());
       } finally {
         if (mounted) {
           setLoading(false);
           clearTimeout(watchdog);
         }
       }
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, sessionFromEvent) => {
+      if (!mounted) return;
+
+      // Instrumentation: every session clear below logs its trigger so a
+      // future "randomly signed out" report names the exact event/branch
+      // instead of being silent.
+      console.info(
+        `[Auth] event=${event} session=${sessionFromEvent ? "yes" : "no"}`,
+      );
+
+      const seq = ++eventSeq;
+
+      // No session: clear and exit. This fires on a real sign-out
+      // (SIGNED_OUT / USER_DELETED). Pure state updates are safe inside the
+      // callback — only Supabase calls must be deferred.
+      if (!sessionFromEvent) {
+        console.warn(`[Auth] clearing session — no-session event: ${event}`);
+        setUser(null);
+        setSession(null);
+        setMember(null);
+        setLoading(false);
+        clearTimeout(watchdog);
+        return;
+      }
+
+      // Defer to a macrotask so the SDK finishes dispatch and releases its
+      // auth lock before we make any Supabase calls (see handleAuthEvent).
+      setTimeout(() => {
+        if (!mounted || seq !== eventSeq) return;
+        void handleAuthEvent(event, sessionFromEvent, seq);
+      }, 0);
     });
 
     return () => {

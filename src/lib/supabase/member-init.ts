@@ -61,31 +61,55 @@ export async function findAndLinkByIdentifiers(
   );
   if (ids.length === 0) return null;
 
-  // Match on any identifier. order+limit keeps it robust if >1 row matches
-  // (avoids .maybeSingle() throwing).
-  const { data: matches, error: matchErr } = await supabase
-    .from("members")
-    .select("id, slug, auth_user_id, onboarding_completed")
-    .in("school_email", ids)
-    .order("created_at", { ascending: true })
-    .limit(5);
-  if (matchErr) {
-    console.error("[member-init] identifier lookup failed:", matchErr);
+  // Match each identifier CASE-INSENSITIVELY: backfilled rows can store
+  // `First.Last@uwaterloo.ca` while the login supplies the lowercased form —
+  // an exact .in() match silently misses those and creates a duplicate draft.
+  // ilike with escaped wildcards is a case-insensitive equality test. At most
+  // ~2 identifiers (alias email + WatIAM id), so per-id queries are fine.
+  const matches: {
+    id: string;
+    slug: string;
+    auth_user_id: string | null;
+    onboarding_completed: boolean;
+  }[] = [];
+  for (const id of ids) {
+    const pattern = id.replace(/([\\%_])/g, "\\$1");
+    const { data, error: matchErr } = await supabase
+      .from("members")
+      .select("id, slug, auth_user_id, onboarding_completed")
+      .ilike("school_email", pattern)
+      .order("created_at", { ascending: true })
+      .limit(5);
+    if (matchErr) {
+      console.error("[member-init] identifier lookup failed:", matchErr);
+    }
+    if (data) matches.push(...data);
   }
 
   // Only adopt an UNLINKED row. Rows already linked belong to a different auth
   // user (this user's own row was handled by the fast path above), so we must
   // not return someone else's profile — fall through to claim/create instead.
-  const candidate = matches?.find((m) => !m.auth_user_id) ?? null;
+  const candidate = matches.find((m) => !m.auth_user_id) ?? null;
   if (!candidate) return null;
 
-  const { error } = await supabase
+  const { data: linkedRows, error } = await supabase
     .from("members")
     .update({ auth_user_id: userId })
     .eq("id", candidate.id)
-    .is("auth_user_id", null); // guard against a race linking it first
+    .is("auth_user_id", null) // guard against a race linking it first
+    .select("id");
   if (error) {
     console.error("[member-init] Failed to link by identifier:", error);
+    return null;
+  }
+  if (!linkedRows || linkedRows.length === 0) {
+    // Zero rows means RLS refused the update or a concurrent login claimed the
+    // row first. Either way the link did NOT happen — do not pretend it did
+    // (the old behavior handed back a profile the user can't actually edit).
+    console.warn(
+      "[member-init] link matched 0 rows (RLS or race); falling through",
+    );
+    return null;
   }
   return {
     slug: candidate.slug,
