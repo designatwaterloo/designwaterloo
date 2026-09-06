@@ -1,3 +1,4 @@
+import Wordmark from "@/components/Wordmark";
 import Image from "next/image";
 import FooterClock from "./FooterClock";
 
@@ -66,13 +67,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
 
       {/* Large horizontal wordmark - hidden on mobile in menu variant */}
       <div className={`w-full ${variant === "menu" ? "max-sm:hidden" : ""}`}>
-        <Image
-          src="/Design Waterloo Wordmark Horizontal.svg"
-          alt="Design Waterloo"
-          width={470}
-          height={65}
-          className={`w-full h-auto ${wordmarkClass}`}
-        />
+        <Wordmark className={`w-full h-auto ${wordmarkClass}`} />
       </div>
 
       {/* Bottom row */}

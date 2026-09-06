@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
+import { createRouteClient } from "@/lib/supabase/route-client";
+import { NextResponse, type NextRequest } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
 import { findOrInitMember } from "@/lib/supabase/member-init";
 import { safeRedirect } from "@/lib/auth/redirect";
@@ -27,7 +26,7 @@ function errorRedirect(request: Request, reason: string): NextResponse {
   return response;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
 
   // Microsoft (and Supabase OAuth in general) returns ?error=... when the
@@ -39,27 +38,34 @@ export async function GET(request: Request) {
   }
 
   const code = searchParams.get("code");
-  const cookieStore = await cookies();
+  const cookieStore = request.cookies;
   let savedNext = "";
   try { savedNext = decodeURIComponent(cookieStore.get("dw-auth-next")?.value ?? ""); } catch { /* invalid cookie */ }
-  cookieStore.delete("dw-auth-next");
+
   const explicitNext = safeRedirect(searchParams.get("next") ?? savedNext, "/dashboard");
 
   if (!code) {
     return errorRedirect(request, "auth-failed");
   }
 
-  const supabase = await createClient();
+  const { client: supabase, waitForSessionCookies, applyCookies } = createRouteClient(request);
+  const finish = (response: NextResponse) => {
+    response.cookies.delete("dw-auth-next");
+    return applyCookies(response);
+  };
 
   let email: string;
   try {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error || !data.user) {
-      return errorRedirect(request, "auth-failed");
+    if (error || !data.user || !data.session) {
+      return finish(errorRedirect(request, "auth-failed"));
     }
+    // auth-js emits SIGNED_IN on a later task after exchange resolves. SSR
+    // flushes its cookie buffer from that event; never redirect before it runs.
+    await waitForSessionCookies(data.session.access_token);
     email = data.user.email ?? "";
   } catch {
-    return errorRedirect(request, "auth-failed");
+    return finish(errorRedirect(request, "auth-failed"));
   }
 
   if (!isValidStudentEmail(email)) {
@@ -68,7 +74,7 @@ export async function GET(request: Request) {
     } catch {
       // ignore
     }
-    return errorRedirect(request, "invalid-email");
+    return finish(errorRedirect(request, "invalid-email"));
   }
 
   let result;
@@ -79,14 +85,12 @@ export async function GET(request: Request) {
     // Auth succeeded but the member init failed/timed out.  Send the user
     // to /profile/edit where the page can retry rather than booting them
     // back to sign-in with a confusing error.
-    return NextResponse.redirect(`${origin}/profile/edit`);
+    return finish(NextResponse.redirect(`${origin}/profile/edit`));
   }
 
   if (result.onboardingCompleted) {
-    return NextResponse.redirect(
-      `${origin}${explicitNext}`,
-    );
+    return finish(NextResponse.redirect(`${origin}${explicitNext}`));
   }
 
-  return NextResponse.redirect(`${origin}/profile/edit`);
+  return finish(NextResponse.redirect(`${origin}/profile/edit`));
 }

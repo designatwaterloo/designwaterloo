@@ -1,4 +1,5 @@
 "use client";
+import Wordmark from "@/components/Wordmark";
 
 import Image from "next/image";
 import Link from "@/components/Link";
@@ -54,14 +55,7 @@ export default function Header() {
         <div className={styles.headerInner}>
           {/* Desktop: 12-col grid, wordmark spans 2 cols | Mobile: 4-col grid, each spans 1 col (handled by CSS) */}
           <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2`}>
-            <Image
-              src="/Design Waterloo Wordmark.svg"
-              alt="Design Waterloo"
-              width={200}
-              height={36}
-              className="h-full w-auto"
-              priority
-            />
+            <Wordmark variant="stacked" className="h-full w-auto" />
           </Link>
           <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
             <Image

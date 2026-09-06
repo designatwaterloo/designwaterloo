@@ -43,3 +43,8 @@ next-env.d.ts
 # Local planning docs (specs/plans) — not part of the PR diff
 docs/superpowers/
 .env*.local
+
+# Isolated browser-test build and artifacts
+/.next-e2e/
+/playwright-report/
+/test-results/

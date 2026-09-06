@@ -476,6 +476,11 @@
 }
 
 .socialClose {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
   background: none;
   border: none;
   font-size: 18px;
@@ -625,6 +630,9 @@
 }
 
 .entryRemove {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;

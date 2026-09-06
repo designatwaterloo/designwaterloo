@@ -7,9 +7,11 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "test:browser": "playwright test"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@sanity/client": "^7.12.1",
     "@sanity/image-url": "^1.2.0",
     "@supabase/ssr": "^0.8.0",
@@ -24,6 +26,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

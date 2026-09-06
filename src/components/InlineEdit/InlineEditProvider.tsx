@@ -192,14 +192,12 @@ export function InlineEditProvider({
   }, []);
 
   const saveProfile = useCallback(async (submit: boolean) => {
-    console.log("[InlineEdit] save called, isOwner:", isOwner, "member:", member?.id);
     if (!isOwner || !member) {
-      console.error("[InlineEdit] save aborted: isOwner=", isOwner, "member=", member);
+      console.warn("[profile] save_not_authorized");
       return;
     }
     // Synchronous concurrency guard — prevents rapid double-clicks
     if (savingRef.current) {
-      console.log("[InlineEdit] save blocked by concurrency guard");
       return;
     }
     savingRef.current = true;

@@ -72,6 +72,10 @@
 
 /* Icon-only variant */
 .icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  justify-content: center;
   background: transparent;
   border: none;
   padding: var(--tinier) !important;

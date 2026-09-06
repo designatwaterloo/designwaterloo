@@ -8,6 +8,7 @@ Supabase owns authentication and refresh-token persistence. React owns a view of
 - Session and profile-loading state are separate. Transient errors retain the same user's last profile and offer retry. Account switches and sign-out invalidate outstanding requests.
 - Middleware awaits the complete SDK refresh and forwards every cookie write, including redirect responses. No application timer may abandon a rotating refresh token. Network/service failures return a retryable 503 rather than redirecting to sign-in.
 - Public homepage/directory queries use an anonymous client. Session-dependent profile rendering passes through refresh middleware. Session responses are not publicly cacheable.
+- OAuth code exchange explicitly waits for the SSR cookie-write callback before redirecting. The installed auth-js SDK schedules SIGNED_IN after exchange resolves; a successful exchange alone does not mean cookies were persisted. Route-handler cookies are attached directly to the response and marked private/no-store.
 - OAuth uses an exact callback URL without query parameters so Supabase does not fall back to the Site URL. A short-lived, validated destination cookie carries the return path. OAuth and OTP use validated local redirects and a full navigation after cookies change. Onboarding errors preserve successful authentication.
 - `ensure_member()` resolves the authenticated user's existing account, verified email, or server-maintained Azure identity alias in one transaction. User-editable metadata and matching names cannot prove ownership. Ambiguous/already-linked matches fail for manual resolution. Existing profile IDs and URLs are preserved.
 - `save_my_profile()` saves the profile, experiences, leadership and optional review submission together. Any failure rolls everything back. RLS applies; the RPC cannot write another user's profile.
@@ -26,7 +27,7 @@ For application rollback, revert the deployment first. The additive RPCs can rem
 
 ## Verification
 
-Run `npm test`, `npx tsc --noEmit --incremental false`, `npm run lint -- --quiet`, and `npm run build`.
+Run `npm test`, `npm run test:browser`, `npx tsc --noEmit --incremental false`, `npm run lint -- --quiet`, and `npm run build`. See `tests/browser/README.md` for the isolated browser fixture and external checks.
 
 Tests exercise the installed Supabase SDK's refresh event lock, slow/transient middleware validation, cookie forwarding on redirects, cross-account stale requests, remount recovery, safe redirect targets, and PostgreSQL account/RLS/transaction behavior using PGlite. The SQL fixture contains schema only and synthetic identities.
 
@@ -42,13 +43,13 @@ Menu-to-profile navigation verification: the View profile link previously closed
 
 ## Motion and navigation
 
-The timer-driven route-transition context and page curtain have been removed. Shared links delegate to Next; imperative account redirects use the router directly. Pages have a subtle 140ms opacity entrance with no transforms or routing delays. The homepage gets a decorative CSS curtain/logo entrance once per document, not on return navigation. CSS always reveals the page even without hydration; reduced motion skips the entrance.
+The timer-driven route-transition context and page curtain have been removed. Shared links delegate to Next; imperative account redirects use the router directly. The page template and its 140ms opacity entrance have also been removed; internal navigation has no page fade. The homepage gets a decorative CSS curtain/logo entrance once per document, not on return navigation. CSS always reveals the page even without hydration; reduced motion skips the entrance.
 
 The navigation menu retains its curtain. Animation frames are cancelled on reversal/unmount, responsive column count is CSS-owned (six desktop/four mobile), transition completion filters the sentinel property, and the safety fallback derives from computed CSS timing. Verified first-load reveal/completion, home-directory-home without replay, rapid menu reversal, reduced motion and the mobile four-column layout in-browser.
 
 Native scrolling and cursors: Lenis, its root wrapper, the cursor follower, and their component props/data attributes have been removed. Next.js owns navigation scroll behavior. The social-links modal locks body scrolling while open and restores the prior inline overflow value on cleanup. The initial entrance and menu animations remain independent of scrolling and pointer movement.
 
-The site header belongs to the root layout, inside AuthProvider but outside the page template and AuthRecovery. Pages must not mount their own Header: doing so resets its menu/avatar DOM on navigation and puts difference-blended logos inside the template's animated opacity stacking context. The shared header remains mounted across routes and loading/account-recovery states; its pathname effect closes the menu. There is one menu trigger, with no duplicate desktop button.
+The site header belongs to the root layout, inside AuthProvider but outside AuthRecovery. Pages must not mount their own Header: doing so resets its menu/avatar DOM on navigation and puts difference-blended logos inside the template's animated opacity stacking context. The shared header remains mounted across routes and loading/account-recovery states; its pathname effect closes the menu. There is one menu trigger, with no duplicate desktop button.
 
 Navigation performance follow-up:
 - Directory cards/rows render immediately; ScrollReveal is now only a layout wrapper, with no shared queue, observer, timer, or opacity gate. SkeletonImage retains loading placeholders but no post-load wipe, and tracks loaded state by source.
@@ -56,3 +57,23 @@ Navigation performance follow-up:
 - Profile metadata and content share a React request-scoped cached lookup through the authenticated Supabase client, never a cross-user cache. Directory reads select only displayed/filter fields.
 - Vimeo iframe and SDK initialize within 200px of the viewport, with async/unmount cleanup. The pause/play button no longer bubbles into a second toggle.
 - FooterClock owns the one-second state updates; the surrounding footer does not rerender for clock ticks. Removed the unused next-view-transitions dependency.
+
+
+## Browser regression follow-up (2026-09-06)
+
+A repeatable browser run reproduced intermittent successful code exchanges that redirected without any session cookie. The root cause is the installed `@supabase/auth-js` deferred `SIGNED_IN` notification: `@supabase/ssr` flushes cookie storage from that event after `exchangeCodeForSession()` has already resolved. Waiting for profile initialization was not a reliable persistence barrier.
+
+`createRouteClient()` captures actual cookie writes, waits for the exchanged access token to appear in those writes, and applies all cookie chunks/deletions directly to the callback response. Its bounded failure path does not falsely report a successful login. An installed-SDK regression verifies deferred persistence and chunked cookies. The browser suite uses the real app, SDK, callback, middleware, and profile UI against a loopback-only synthetic service. It does not prove Microsoft tenant policies, email delivery, or production RLS; those remain external checks, with RLS covered separately by PGlite tests.
+
+The latest local UI includes the revised semibold font settings, thinner dividers, responsive homepage actions, square icon targets, and custom Vimeo controls. The wordmark hover/click orbit plays precomputed SVG paths; no runtime WebGL is used. Video playback and external-provider interactions still need a deployed-preview smoke check.
+
+Validation of this follow-up: 17 unit/database tests passed; all eight browser
+scenarios passed three consecutive runs (24 browser executions); TypeScript,
+quiet lint, and the production build passed. The browser suite also verifies
+profile Publish/reload persistence. These results do not replace the external
+Microsoft/Laurier/device release checks above.
+
+Dependency release follow-up: `npm audit --omit=dev` recommends Next.js 15.5.25.
+The local npm release-age policy rejects that August 31 patch until it ages out;
+a one-command exception has been requested but not applied. Do not interpret
+this branch's passing functional tests as a clean dependency security audit.
