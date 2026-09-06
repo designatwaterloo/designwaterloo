@@ -25,7 +25,7 @@ export default async function DirectoryPage() {
 
   const { data } = await supabase
     .from("members")
-    .select("*")
+    .select("id, created_at, member_id, first_name, last_name, slug, profile_image_url, school, program, graduating_class, specialties, work_schedule")
     .eq("onboarding_completed", true)
     .eq("is_approved", true)
     .not("school_email", "ilike", `%${TEST_ACCOUNT_EMAIL_SUFFIX}`)

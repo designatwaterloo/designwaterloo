@@ -10,9 +10,7 @@
   position: relative;
 }
 
-/* ScrollReveal applies an inline transform per row, creating a stacking
-   context that traps the hover preview's z-index inside its own row.
-   Elevate the hovered row above its siblings so the preview can overflow. */
+/* Keep the hovered row and its preview above neighboring rows. */
 .rowOuterHovered {
   position: relative;
   z-index: 10;

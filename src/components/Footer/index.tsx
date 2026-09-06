@@ -1,51 +1,11 @@
-"use client";
-
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import FooterClock from "./FooterClock";
 
 interface FooterProps {
   variant?: "default" | "menu";
 }
 
 export default function Footer({ variant = "default" }: FooterProps) {
-  const [currentTime, setCurrentTime] = useState<string>("");
-  const [currentDate, setCurrentDate] = useState<string>("");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-
-      // Format date: "October 25, 2025"
-      const dateOptions: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        timeZone: 'America/Toronto'
-      };
-      const formattedDate = now.toLocaleDateString('en-US', dateOptions);
-
-      // Format time: "00:23"
-      const timeOptions: Intl.DateTimeFormatOptions = {
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZone: 'America/Toronto',
-      };
-      const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
-
-      setCurrentDate(formattedDate);
-      setCurrentTime(`${formattedTime}`);
-    };
-
-    // Update immediately
-    updateTime();
-
-    // Update every second
-    const interval = setInterval(updateTime, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const bgColor = variant === "menu" ? "bg-[var(--black)]" : "bg-white";
   const textColor = variant === "menu" ? "text-white" : "text-black";
   const linkColor = variant === "menu" ? "!text-white" : "text-black";
@@ -64,16 +24,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
       <div className={`w-full flex flex-col ${mobileGap} sm:grid sm:grid-cols-12 sm:gap-[var(--gap)] ${mobileMb}`}>
 
         {/* Local Time - Mobile: full width, Desktop: Columns 1-3 */}
-        <dl className="flex flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">
-          <dt className="text-muted-light">Local Time</dt>
-          <dd className="flex flex-col m-0">
-            <p suppressHydrationWarning>{currentDate || "Loading..."}</p>
-            <p suppressHydrationWarning className="tabular-nums">
-              {currentTime || "Loading..."} Eastern Time
-            </p>
-            <p>Waterloo, ON, Canada</p>
-          </dd>
-        </dl>
+        <FooterClock />
 
         {/* About - Hidden on mobile, Desktop: Columns 4-6 */}
         <dl className="hidden sm:flex sm:flex-col gap-[10px] sm:col-span-3 sm:pr-[4px]">

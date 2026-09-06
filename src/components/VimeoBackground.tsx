@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import Player from "@vimeo/player";
+import type Player from "@vimeo/player";
 
 interface VimeoBackgroundProps {
   videoId: string;
@@ -9,30 +9,47 @@ interface VimeoBackgroundProps {
 }
 
 export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgroundProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activated, setActivated] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerRef = useRef<Player | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    if (!iframeRef.current) return;
-    const player = new Player(iframeRef.current);
-    playerRef.current = player;
-
-    player.on("play", () => setIsPlaying(true));
-    player.on("pause", () => setIsPlaying(false));
-
-    // Ensure playback starts on client-side navigations where
-    // the iframe's autoplay URL param alone isn't enough.
-    player.ready().then(() => {
-      player.play().catch(() => {});
-    });
-
-    return () => {
-      player.off("play");
-      player.off("pause");
-      player.destroy();
-    };
+    const element = containerRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setActivated(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: "200px" });
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!activated || !iframeRef.current) return;
+    let cancelled = false;
+    let activePlayer: Player | null = null;
+    const iframe = iframeRef.current;
+    void import("@vimeo/player").then(({ default: Player }) => {
+      if (cancelled) return;
+      const player = new Player(iframe);
+      activePlayer = player;
+      playerRef.current = player;
+      player.on("play", () => setIsPlaying(true));
+      player.on("pause", () => setIsPlaying(false));
+      void player.ready().then(() => {
+        if (!cancelled) return player.play();
+      }).catch(() => {});
+    }).catch(() => {});
+    return () => {
+      cancelled = true;
+      playerRef.current = null;
+      if (activePlayer) void activePlayer.destroy().catch(() => {});
+    };
+  }, [activated]);
 
   const togglePlay = useCallback(() => {
     const player = playerRef.current;
@@ -46,6 +63,7 @@ export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgrou
 
   return (
     <div
+      ref={containerRef}
       onClick={togglePlay}
       className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative bg-[var(--black)] cursor-pointer"
       style={{
@@ -54,7 +72,7 @@ export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgrou
         backgroundPosition: "center",
       }}
     >
-      <iframe
+      {activated && <iframe
         ref={iframeRef}
         src={`https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0`}
         frameBorder="0"
@@ -69,10 +87,10 @@ export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgrou
           pointerEvents: "none",
         }}
         title="BYODP | Design Waterloo & Figma"
-      />
+      />}
 
-      <button
-        onClick={togglePlay}
+      {activated && <button
+        onClick={(event) => { event.stopPropagation(); togglePlay(); }}
         aria-label={isPlaying ? "Pause video" : "Play video"}
         className="absolute bottom-4 right-4 z-10 flex items-center gap-[10px] px-5 py-2 rounded-2xl border-2 border-white text-white cursor-pointer transition-all duration-200 hover:opacity-80"
         style={{ background: "rgba(14, 14, 14, 0.5)", backdropFilter: "blur(8px)" }}
@@ -93,7 +111,7 @@ export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgrou
             <span className="text-base leading-tight tracking-tight">Play</span>
           </>
         )}
-      </button>
+      </button>}
     </div>
   );
 }

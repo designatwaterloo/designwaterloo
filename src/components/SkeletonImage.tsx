@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Image, { ImageProps } from "next/image";
 
 /** Track which src URLs have already been revealed in this session */
@@ -23,12 +23,12 @@ export default function SkeletonImage({
 }: SkeletonImageProps) {
   const src = typeof props.src === "string" ? props.src : "";
   const alreadyRevealed = revealedSrcs.has(src);
-  const [loaded, setLoaded] = useState(alreadyRevealed);
-  const skipAnimation = useRef(alreadyRevealed);
+  const [loadedSrc, setLoadedSrc] = useState(alreadyRevealed ? src : null);
+  const loaded = loadedSrc === src;
 
   const handleLoad = useCallback(() => {
     if (src) revealedSrcs.add(src);
-    setLoaded(true);
+    setLoadedSrc(src);
   }, [src]);
 
   // Derive aspect ratio: explicit style > computed from width/height props
@@ -58,15 +58,6 @@ export default function SkeletonImage({
         onLoad={handleLoad}
       />
 
-      {/* Black wipe overlay — covers image, then sweeps down to reveal */}
-      {loaded && !skipAnimation.current && (
-        <div
-          className="absolute inset-0 bg-skeleton"
-          style={{
-            animation: "wipeReveal 0.8s cubic-bezier(0.76, 0, 0.24, 1) forwards",
-          }}
-        />
-      )}
     </div>
   );
 }

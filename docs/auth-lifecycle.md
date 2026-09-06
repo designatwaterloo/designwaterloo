@@ -49,3 +49,10 @@ The navigation menu retains its curtain. Animation frames are cancelled on rever
 Native scrolling and cursors: Lenis, its root wrapper, the cursor follower, and their component props/data attributes have been removed. Next.js owns navigation scroll behavior. The social-links modal locks body scrolling while open and restores the prior inline overflow value on cleanup. The initial entrance and menu animations remain independent of scrolling and pointer movement.
 
 The site header belongs to the root layout, inside AuthProvider but outside the page template and AuthRecovery. Pages must not mount their own Header: doing so resets its menu/avatar DOM on navigation and puts difference-blended logos inside the template's animated opacity stacking context. The shared header remains mounted across routes and loading/account-recovery states; its pathname effect closes the menu. There is one menu trigger, with no duplicate desktop button.
+
+Navigation performance follow-up:
+- Directory cards/rows render immediately; ScrollReveal is now only a layout wrapper, with no shared queue, observer, timer, or opacity gate. SkeletonImage retains loading placeholders but no post-load wipe, and tracks loaded state by source.
+- Directory URL filters initialize render state. Browser preferences and responsive filter layout restore in a layout effect; persistence waits for restoration, storage errors are tolerated, and search/resize override timers are cancelled on unmount. Cold server HTML cannot know localStorage preferences; this is not a guarantee of zero pre-hydration layout change.
+- Profile metadata and content share a React request-scoped cached lookup through the authenticated Supabase client, never a cross-user cache. Directory reads select only displayed/filter fields.
+- Vimeo iframe and SDK initialize within 200px of the viewport, with async/unmount cleanup. The pause/play button no longer bubbles into a second toggle.
+- FooterClock owns the one-second state updates; the surrounding footer does not rerender for clock ticks. Removed the unused next-view-transitions dependency.
