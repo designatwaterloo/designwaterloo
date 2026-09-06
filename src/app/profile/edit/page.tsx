@@ -223,43 +223,25 @@ export default function EditProfilePage() {
     }, 400);
   };
 
-  // refreshMember with timeout
+  // Refresh the shared profile snapshot after account initialization.
   const safeRefresh = useCallback(async () => {
-    try {
-      await Promise.race([
-        refreshMember(),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("refreshMember timed out")), 5000)
-        ),
-      ]);
-      console.log("[Onboarding] refreshMember succeeded");
-    } catch (err) {
-      console.warn("[Onboarding] refreshMember timed out, continuing:", err);
-    }
+    await refreshMember();
   }, [refreshMember]);
 
   // Create draft member row during loader — delegates to shared findOrInitMember
   const createDraftRow = useCallback(async () => {
     if (!user?.email || rowCreated.current) return;
     rowCreated.current = true;
-    console.log("[Onboarding] createDraftRow for", user.email);
 
-    const result = await findOrInitMember(supabase, user.id, user.email, fullName || undefined);
-
-    // No row for this user but backfilled name matches exist — send them to the
-    // claim flow instead of rendering an empty form / creating a fresh draft.
-    if (result.outcome === "claim") {
-      console.log("[Onboarding] Claim candidates found, redirecting to /claim");
-      startTransition("/claim");
-      return;
+    try {
+      await findOrInitMember(supabase);
+      await safeRefresh();
+    } catch (err) {
+      rowCreated.current = false;
+      setError(err instanceof Error ? err.message : "Could not set up your profile. Please retry.");
     }
 
-    if (result.error) {
-      console.error("[Onboarding] Draft creation failed:", result.error);
-    }
-
-    await safeRefresh();
-  }, [user, fullName, supabase, safeRefresh, startTransition]);
+  }, [user, supabase, safeRefresh]);
 
   // Skip loader if member appears
   useEffect(() => {
@@ -316,98 +298,17 @@ export default function EditProfilePage() {
         onboarding_completed: true,
       };
 
-      if (member) {
-        console.log("[Onboarding] PATCH update for member:", member.id);
-        const { data, error: updateErr } = await supabase
-          .from("members")
-          .update(updatePayload)
-          .eq("id", member.id)
-          .select();
+      // Resolve the one account row first; never infer permission to insert from a failed read.
+      await findOrInitMember(supabase);
+      const { data, error: updateErr } = await supabase.from("members")
+        .update(updatePayload).eq("auth_user_id", user.id).select("id").single();
+      if (updateErr || !data) throw new Error(updateErr?.message ?? "Profile could not be saved. Please retry.");
+      await refreshMember();
+      window.location.assign(`/directory/${finalSlug}`);
 
-        if (updateErr) {
-          setError(`Failed to save: ${updateErr.message}`);
-          setSaving(false);
-          return;
-        }
-        if (!data || data.length === 0) {
-          setError("Update failed — your session may have expired. Please refresh and try again.");
-          setSaving(false);
-          return;
-        }
-
-        console.log("[Onboarding] Update succeeded, redirecting...");
-        startTransition(`/directory/${finalSlug}`);
-      } else {
-        // Draft row may already exist (createDraftRow ran but refreshMember didn't propagate)
-        const { data: existing } = await supabase
-          .from("members")
-          .select("id")
-          .eq("auth_user_id", user.id)
-          .maybeSingle();
-
-        if (existing) {
-          console.log("[Onboarding] Found existing draft, PATCHing:", existing.id);
-          const { data, error: updateErr } = await supabase
-            .from("members")
-            .update(updatePayload)
-            .eq("id", existing.id)
-            .select();
-
-          if (updateErr) {
-            setError(`Failed to save: ${updateErr.message}`);
-            setSaving(false);
-            return;
-          }
-          if (!data || data.length === 0) {
-            setError("Update failed — please refresh and try again.");
-            setSaving(false);
-            return;
-          }
-
-          console.log("[Onboarding] Draft update succeeded, redirecting...");
-          startTransition(`/directory/${finalSlug}`);
-        } else {
-          console.log("[Onboarding] POST insert (no draft)");
-          const { data, error: insertErr } = await supabase
-            .from("members")
-            .insert({
-              auth_user_id: user.id,
-              first_name: firstName,
-              last_name: lastName,
-              slug: finalSlug,
-              slug_confirmed: true,
-              school_email: user.email,
-              school,
-              program: program || null,
-              graduating_class: graduatingClass || null,
-              onboarding_completed: true,
-              is_approved: false,
-              review_status: "draft" as const,
-            })
-            .select();
-
-          if (insertErr) {
-            setError(
-              insertErr.message.includes("slug")
-                ? "This profile URL was just taken. Please choose a different one."
-                : `Failed to create profile: ${insertErr.message}`
-            );
-            setSaving(false);
-            return;
-          }
-          if (!data || data.length === 0) {
-            setError("Insert failed — please refresh and try again.");
-            setSaving(false);
-            return;
-          }
-
-          console.log("[Onboarding] Insert succeeded, redirecting...");
-          startTransition(`/directory/${finalSlug}`);
-        }
-      }
     } catch (err) {
       console.error("[Onboarding] Unexpected error:", err);
-      setError("Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setSaving(false);
       submittingRef.current = false;
     }

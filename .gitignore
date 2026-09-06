@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Local planning docs (specs/plans) — not part of the PR diff
 docs/superpowers/
+.env*.local

@@ -1,0 +1,35 @@
+# Authentication and account lifecycle
+
+Supabase owns authentication and refresh-token persistence. React owns a view of that session; a failed profile request never means the user signed out.
+
+## Invariants
+
+- `SessionStore` subscribes with a synchronous auth-event callback. Member queries run on a later task, outside the Supabase auth lock. Never await another Supabase operation inside `onAuthStateChange`.
+- Session and profile-loading state are separate. Transient errors retain the same user's last profile and offer retry. Account switches and sign-out invalidate outstanding requests.
+- Middleware awaits the complete SDK refresh and forwards every cookie write, including redirect responses. No application timer may abandon a rotating refresh token. Network/service failures return a retryable 503 rather than redirecting to sign-in.
+- Public homepage/directory queries use an anonymous client. Session-dependent profile rendering passes through refresh middleware. Session responses are not publicly cacheable.
+- OAuth and OTP use validated local redirects and a full navigation after cookies change. Onboarding errors preserve successful authentication.
+- `ensure_member()` resolves the authenticated user's existing account, verified email, or server-maintained Azure identity alias in one transaction. User-editable metadata and matching names cannot prove ownership. Ambiguous/already-linked matches fail for manual resolution. Existing profile IDs and URLs are preserved.
+- `save_my_profile()` saves the profile, experiences, leadership and optional review submission together. Any failure rolls everything back. RLS applies; the RPC cannot write another user's profile.
+- Ordinary members cannot set administrator/approval flags or reassign an existing account. Service-role review routes retain admin access.
+- Normal sign-out is local to the current Supabase session; it does not invalidate the user's other devices. The reset endpoint requires POST rather than logging users out on GET.
+
+## Deployment and recovery
+
+Apply `supabase/migrations/20260906010000_account_lifecycle.sql` before deploying this application. It adds two RPCs and replaces the privilege trigger; it does not bulk-update/delete account records. This migration was applied to project `skalyworwmxcofolgnjs` on 2026-09-06 UTC after a transaction/rollback validation.
+
+Supabase URL configuration was corrected at the same time: Site URL is `https://www.designwaterloo.com`; the exact `https://www.designwaterloo.com/auth/callback` redirect is now allowed. Existing localhost, apex and preview entries remain. The apex redirects to www, so both application origin and callback allowlist must agree. Session settings remain unchanged (3600-second access token, no session timebox/inactivity cap, normal refresh-token replay protection).
+
+A private local logical snapshot was taken before migration: 27 public/auth tables, 1,992 rows, schema catalog and checksums. No credentials or data from that snapshot belong in Git. This is not a complete platform backup or a rehearsed full restore: storage objects and platform settings are excluded, and the free project has no listed managed backups/PITR.
+
+For application rollback, revert the deployment first. The additive RPCs can remain. Only if necessary, run the separate SQL under `supabase/rollback/`; it restores the old privilege trigger as well, so it also restores the old insert-protection weakness. Do not apply rollback SQL as a forward migration. No session purge or account recreation is needed.
+
+## Verification
+
+Run `npm test`, `npx tsc --noEmit --incremental false`, `npm run lint -- --quiet`, and `npm run build`.
+
+Tests exercise the installed Supabase SDK's refresh event lock, slow/transient middleware validation, cookie forwarding on redirects, cross-account stale requests, remount recovery, safe redirect targets, and PostgreSQL account/RLS/transaction behavior using PGlite. The SQL fixture contains schema only and synthetic identities.
+
+Before production promotion, complete real Microsoft OAuth, reload the dashboard/profile, open another tab, verify persisted identity, sign out, and sign in again. Real Laurier mailbox delivery and multi-hour browser/device persistence require separate real-world checks; the regression suite cannot prove those external services work.
+
+Diagnostics: `[auth] account_service_unavailable` records the route without tokens or identity data; `[auth] account_resolution_failed` records account initialization failure while preserving the session. Inspect Supabase auth logs and Vercel logs together when reports recur. Do not log session payloads or refresh tokens.

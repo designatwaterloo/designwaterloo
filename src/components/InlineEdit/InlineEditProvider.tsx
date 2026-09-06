@@ -191,7 +191,7 @@ export function InlineEditProvider({
     setSaveError(null);
   }, []);
 
-  const save = useCallback(async () => {
+  const save = useCallback(async (submit = false) => {
     console.log("[InlineEdit] save called, isOwner:", isOwner, "member:", member?.id);
     if (!isOwner || !member) {
       console.error("[InlineEdit] save aborted: isOwner=", isOwner, "member=", member);
@@ -225,78 +225,16 @@ export function InlineEditProvider({
         dribbble: fields.dribbble,
       };
 
-      console.log("[InlineEdit] Starting update...");
-      const { data, error: updateError } = await supabase
-        .from("members")
-        .update(updatePayload)
-        .eq("id", member.id)
-        .select();
+      const { error: saveError } = await supabase.rpc("save_my_profile", {
+        profile: updatePayload,
+        experiences: experiences.map(e => ({ position_title: e.positionTitle, company: e.company,
+          start_month: e.startMonth, start_year: e.startYear, is_current: e.isCurrent, link: e.link ?? null })),
+        leadership: leadership.map(l => ({ position_title: l.positionTitle, organization: l.org,
+          start_month: l.startMonth, start_year: l.startYear, is_current: l.isCurrent, link: l.link ?? null })),
+        submit,
+      });
+      if (saveError) throw new Error(saveError.message);
 
-      if (updateError) {
-        console.error("[InlineEdit] Update error:", updateError);
-        throw new Error(updateError.message);
-      }
-      if (!data || data.length === 0) {
-        throw new Error(
-          "Update failed — your session may have expired. Please refresh the page and try again."
-        );
-      }
-      console.log("[InlineEdit] Update done, rows:", data.length);
-
-      // 2. Sync experiences and leadership in parallel (independent tables)
-      console.log("[InlineEdit] Syncing experiences & leadership...");
-      await Promise.all([
-        (async () => {
-          const { error: delExpError } = await supabase
-            .from("member_experiences")
-            .delete()
-            .eq("member_id", member.id);
-          if (delExpError) throw new Error(delExpError.message);
-
-          if (experiences.length > 0) {
-            const { error: expError } = await supabase
-              .from("member_experiences")
-              .insert(
-                experiences.map((e) => ({
-                  member_id: member.id,
-                  position_title: e.positionTitle,
-                  company: e.company,
-                  start_month: e.startMonth,
-                  start_year: e.startYear,
-                  is_current: e.isCurrent,
-                  link: e.link ?? null,
-                }))
-              );
-            if (expError) throw new Error(expError.message);
-          }
-        })(),
-        (async () => {
-          const { error: delLeadError } = await supabase
-            .from("member_leadership")
-            .delete()
-            .eq("member_id", member.id);
-          if (delLeadError) throw new Error(delLeadError.message);
-
-          if (leadership.length > 0) {
-            const { error: leadError } = await supabase
-              .from("member_leadership")
-              .insert(
-                leadership.map((l) => ({
-                  member_id: member.id,
-                  position_title: l.positionTitle,
-                  organization: l.org,
-                  start_month: l.startMonth,
-                  start_year: l.startYear,
-                  is_current: l.isCurrent,
-                  link: l.link ?? null,
-                }))
-              );
-            if (leadError) throw new Error(leadError.message);
-          }
-        })(),
-      ]);
-
-      console.log("[InlineEdit] Experiences & leadership synced");
       // 3. Update saved snapshots
       savedFields.current = { ...fields };
       savedExperiences.current = [...experiences];
@@ -327,32 +265,8 @@ export function InlineEditProvider({
   }, [isOwner, member, supabase, fields, experiences, leadership, memberSlug, refreshMember]);
 
   const submitForReview = useCallback(async () => {
-    // First save any pending changes
-    await save();
-
-    // Then update review_status
-    if (!isOwner || !member) return;
-
-    const { error: submitError } = await supabase
-      .from("members")
-      .update({
-        review_status: "pending_review" as const,
-        submitted_at: new Date().toISOString(),
-        is_approved: false,
-      })
-      .eq("id", member.id);
-
-    if (submitError) {
-      setSaveError(submitError.message);
-      return;
-    }
-
-    setSavedRecently(true);
-    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-    savedTimerRef.current = setTimeout(() => setSavedRecently(false), 3000);
-
-    refreshMember().catch(() => {});
-  }, [save, isOwner, member, supabase, refreshMember]);
+    await save(true);
+  }, [save]);
 
   return (
     <InlineEditContext.Provider

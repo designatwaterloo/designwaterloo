@@ -83,7 +83,7 @@ export default async function PersonDetail({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: member } = await supabase
+  const { data: member, error: memberError } = await supabase
     .from("members")
     .select(
       `
@@ -95,6 +95,7 @@ export default async function PersonDetail({
     .eq("slug", slug)
     .single<MemberWithRelations>();
 
+  if (memberError && memberError.code !== "PGRST116") throw memberError;
   if (!member) {
     notFound();
   }

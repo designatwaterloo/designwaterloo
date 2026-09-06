@@ -5,14 +5,14 @@ import Link from "@/components/Link";
 import SkeletonImage from "@/components/SkeletonImage";
 import ScrollReveal from "@/components/ScrollReveal";
 import VimeoBackground from "@/components/VimeoBackground";
-import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import { Member } from "@/types/database";
 import { TEST_ACCOUNT_EMAIL_SUFFIX } from "@/lib/supabase/test-accounts";
 
 export const revalidate = 30;
 
 export default async function Home() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
 
   const { data } = await supabase
     .from("members")

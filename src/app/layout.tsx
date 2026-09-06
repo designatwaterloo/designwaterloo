@@ -5,6 +5,7 @@ import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import SmoothScroll from "@/components/SmoothScroll";
 import { TransitionProvider } from "@/context/TransitionContext";
 import PageTransition from "@/components/PageTransition";
+import { AuthRecovery } from "@/components/auth/AuthRecovery";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import CursorFollower from "@/components/CursorFollower";
 import ImpersonationBanner from "@/components/ImpersonationBanner";
@@ -60,7 +61,7 @@ export default function RootLayout({
             <SmoothScroll>
               <ConsoleEasterEgg />
               <PageTransition />
-              {children}
+              <AuthRecovery>{children}</AuthRecovery>
             </SmoothScroll>
           </TransitionProvider>
         </AuthProvider>
