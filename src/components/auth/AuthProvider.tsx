@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useCallback, useSyncExte
 import { createClient } from '@/lib/supabase/client';
 import { isLaurierEmail } from '@/lib/supabase/auth-utils';
 import { SessionStore } from '@/lib/auth/session-store';
-import { safeRedirect } from '@/lib/auth/redirect';
+import { oauthRedirect } from '@/lib/auth/redirect';
 import type { Session, User } from '@supabase/supabase-js';
 import type { Member } from '@/types/database';
 
@@ -42,10 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [store]);
 
   const signInWithMicrosoft = useCallback(async (redirectTo?: string) => {
-    const callback = new URL('/auth/callback', window.location.origin);
-    callback.searchParams.set('next', safeRedirect(redirectTo, '/dashboard'));
+    const callback = oauthRedirect(window.location.origin, redirectTo);
+    document.cookie = callback.cookie;
     const { error } = await client.auth.signInWithOAuth({ provider: 'azure', options: {
-      scopes: 'email profile openid', redirectTo: callback.toString(), queryParams: { domain_hint: 'uwaterloo.ca' },
+      scopes: 'email profile openid', redirectTo: callback.redirectTo, queryParams: { domain_hint: 'uwaterloo.ca' },
     }});
     if (error) throw error;
   }, [client]);

@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
@@ -38,7 +39,11 @@ export async function GET(request: Request) {
   }
 
   const code = searchParams.get("code");
-  const explicitNext = safeRedirect(searchParams.get("next"), "/dashboard");
+  const cookieStore = await cookies();
+  let savedNext = "";
+  try { savedNext = decodeURIComponent(cookieStore.get("dw-auth-next")?.value ?? ""); } catch { /* invalid cookie */ }
+  cookieStore.delete("dw-auth-next");
+  const explicitNext = safeRedirect(searchParams.get("next") ?? savedNext, "/dashboard");
 
   if (!code) {
     return errorRedirect(request, "auth-failed");
