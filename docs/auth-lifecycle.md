@@ -73,7 +73,7 @@ quiet lint, and the production build passed. The browser suite also verifies
 profile Publish/reload persistence. These results do not replace the external
 Microsoft/Laurier/device release checks above.
 
-Dependency release follow-up: `npm audit --omit=dev` recommends Next.js 15.5.25.
-The local npm release-age policy rejects that August 31 patch until it ages out;
-a one-command exception has been requested but not applied. Do not interpret
-this branch's passing functional tests as a clean dependency security audit.
+Dependency release follow-up: Next.js and eslint-config-next are pinned to
+15.5.25, installed with the approved one-command release-age exception. The
+global npm policy is unchanged. Other dependency advisories remain; passing
+functional tests do not imply a clean dependency security audit.

@@ -18,7 +18,7 @@
     "@supabase/supabase-js": "^2.91.0",
     "@vercel/analytics": "^1.6.1",
     "@vimeo/player": "^2.30.3",
-    "next": "15.5.9",
+    "next": "15.5.25",
     "next-sanity": "^11.6.5",
     "react": "19.1.2",
     "react-dom": "19.1.2"
@@ -33,7 +33,7 @@
     "@types/react-dom": "^19",
     "dotenv": "^17.2.3",
     "eslint": "^9",
-    "eslint-config-next": "15.5.7",
+    "eslint-config-next": "15.5.25",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"
