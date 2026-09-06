@@ -51,10 +51,26 @@
 }
 
 .identity .username {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 12px 6px 6px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--background));
   margin: 0;
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-size: 1rem;
   line-height: 1.35;
-  color: color-mix(in srgb, var(--foreground) 70%, var(--background));
+  color: var(--foreground);
+}
+
+.username img {
+  flex-shrink: 0;
+}
+
+.username span {
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
