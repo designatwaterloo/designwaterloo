@@ -49,7 +49,7 @@ export default function Header() {
       : styles.profileRingUnsubmitted;
 
   return (
-    <>
+    <div className={styles.chrome}>
       {/* Sticky Header Grid Container */}
       <header className={styles.headerContainer}>
         <div className={styles.headerInner}>
@@ -106,6 +106,6 @@ export default function Header() {
 
       {/* Full-screen Overlay Navigation */}
       <OverlayNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />
-    </>
+    </div>
   );
 }

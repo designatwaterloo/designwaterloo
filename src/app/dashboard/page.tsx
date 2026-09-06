@@ -68,7 +68,7 @@ export default function DashboardPage() {
   const status = (member.review_status ?? "draft") as ReviewStatus;
   const profileUrl = `/@${member.slug}`;
   const isProfileSparse = !member.profile_image_url || !member.bio;
-  const isDraftOrRejected = status === "draft" || status === "rejected";
+  const isRejected = status === "rejected";
 
   const handleConfirmSubmit = async () => {
     await submitForReview();
@@ -87,12 +87,12 @@ export default function DashboardPage() {
             {status === "draft" && (
               <>
                 <p className={styles.description}>
-                  Your profile hasn&apos;t been submitted yet. Fill out your details
-                  and submit for review to appear in the directory.
+                  Your draft is saved. Finish your introduction, preview your profile,
+                  and submit it for review to join the directory.
                 </p>
                 <div className={styles.actions}>
-                  <Link href={profileUrl} className={styles.primaryButton}>
-                    Edit profile
+                  <Link href="/profile/edit" className={styles.primaryButton}>
+                    Continue your profile
                   </Link>
                 </div>
               </>
@@ -158,13 +158,13 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {isDraftOrRejected && (
+          {isRejected && (
             <button
               type="button"
               className={styles.submitButton}
               onClick={() => setShowSubmitConfirm(true)}
             >
-              {status === "rejected" ? "Resubmit now" : "Submit for review"}
+              Resubmit now
             </button>
           )}
 

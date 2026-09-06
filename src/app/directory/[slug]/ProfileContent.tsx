@@ -305,6 +305,12 @@ function ProfileContentInner({
           </div>
         )}
 
+        {isOwner && effectiveStatus === "draft" && (
+          <p className="py-4">
+            Your profile is still a draft. <Link href="/profile/edit" className="underline">Continue setup and submit for review</Link>
+          </p>
+        )}
+
         {/* Rejection banner for owners */}
         {isOwner && effectiveStatus === "rejected" && rejectionFeedback && (
           <div className={styles.rejectionBanner}>

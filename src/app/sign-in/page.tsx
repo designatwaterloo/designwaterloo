@@ -118,7 +118,7 @@ function SignInContent() {
       if (result.onboardingCompleted) {
         window.location.assign(safeRedirect(redirectTo, `/@${result.slug}`));
       } else {
-        window.location.assign(safeRedirect(redirectTo, "/profile/edit"));
+        window.location.assign("/profile/edit");
       }
     } catch (err) {
       console.error("[OTP] Failed to initialise member record:", err);
@@ -129,10 +129,10 @@ function SignInContent() {
 
   return (
     <div className={styles.content}>
-      <h1 className={styles.title}>Join the Directory</h1>
+      <h1 className={styles.title}>Your work belongs here.</h1>
       <p className={styles.description}>
-        Sign in with your university account to create your profile and join the
-        Design Waterloo community.
+        Join the directory of creatives at Waterloo and Laurier. Connect your
+        university account, make a short profile, and submit it for review.
       </p>
 
       {error === "invalid-email" && (
@@ -223,6 +223,8 @@ function SignInContent() {
           <div className={styles.emailInputGroup}>
             <input
               type="text"
+              name="laurier-username"
+              aria-label="Laurier username"
               className={styles.emailInput}
               placeholder="username"
               value={laurierUsername}
@@ -252,6 +254,8 @@ function SignInContent() {
           >
             <input
               ref={otpRef}
+              name="verification-code"
+              aria-label="Six-digit verification code"
               type="text"
               className={styles.otpHiddenInput}
               inputMode="numeric"
@@ -294,18 +298,9 @@ function SignInContent() {
         </div>
       )}
 
-      <p className={styles.hint}>
-        Use your @uwaterloo.ca or @mylaurier.ca email
-      </p>
 
-      <p className={styles.hint} style={{ marginTop: "1rem" }}>
-        Stuck or signed in to the wrong account?{" "}
-        {/* Full navigation resets both server cookies and the in-memory auth store. */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/auth/reset" style={{ textDecoration: "underline", fontWeight: 600 }}>
-          Reset auth state
-        </a>
-      </p>
+
+
     </div>
   );
 }

@@ -8,6 +8,8 @@
 }
 
 .title {
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--margin));
   font-size: 48px;
   letter-spacing: -0.025em;
   margin: 0;

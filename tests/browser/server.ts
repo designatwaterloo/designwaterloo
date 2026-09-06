@@ -3,8 +3,8 @@ import http from "node:http";
 import { createHash, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 const HOST = "127.0.0.1",
-  PORT = 54329,
-  APP = "http://localhost:3100";
+  PORT = Number(process.env.DW_TEST_DB_PORT || 54329),
+  APP = `http://localhost:${process.env.DW_TEST_APP_PORT || 3100}`;
 const id = "11111111-1111-4111-8111-111111111111";
 const user = {
   id,
@@ -47,6 +47,7 @@ const handles = new Set([original.slug]);
 let member = { ...original },
   failUser = false,
   failMember = false,
+  failSave = false,
   refreshes = 0,
   exchanges = 0,
   saves = 0;
@@ -116,6 +117,7 @@ const server = http.createServer(async (req, res) => {
       handles.clear(); handles.add(original.slug);
       failUser = false;
       failMember = false;
+      failSave = false;
       refreshes = 0;
       exchanges = 0;
       saves = 0;
@@ -125,7 +127,9 @@ const server = http.createServer(async (req, res) => {
     }
     if ("failUser" in body) failUser = Boolean(body.failUser);
     if ("failMember" in body) failMember = Boolean(body.failMember);
-    send({ refreshes, exchanges, saves });
+    if ("failSave" in body) failSave = Boolean(body.failSave);
+    if (body.member) member = { ...member, ...(body.member as object) };
+    send({ refreshes, exchanges, saves, member });
     return;
   }
   if (url.pathname === "/auth/v1/authorize") {
@@ -206,7 +210,7 @@ const server = http.createServer(async (req, res) => {
     send(member.slug); return;
   }
   if (url.pathname === "/rest/v1/rpc/ensure_member") {
-    send({ outcome: "linked", slug: member.slug, onboardingCompleted: true });
+    send({ outcome: "linked", slug: member.slug, onboardingCompleted: member.onboarding_completed });
     return;
   }
   if (url.pathname === "/rest/v1/rpc/save_my_profile") {
@@ -231,11 +235,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (req.method === "PATCH") {
+      if (failSave) { send({ message: "Synthetic save outage" }, 503); return; }
       if (!token || !tokens.has(token)) {
         send({ message: "No session" }, 401);
         return;
       }
+      const expectedStatus = url.searchParams.get("review_status");
+      if (expectedStatus && expectedStatus !== `eq.${member.review_status}`) { send([]); return; }
       member = { ...member, ...body };
+      handles.add(member.slug);
       send([member]);
       return;
     }
@@ -269,18 +277,19 @@ server.listen(PORT, HOST, () => {
       "--hostname",
       HOST,
       "--port",
-      "3100",
+      String(new URL(APP).port),
     ],
     {
       stdio: "inherit",
       env: {
         ...process.env,
-        NEXT_BUILD_DIR: ".next-e2e",
+        NEXT_BUILD_DIR: process.env.NEXT_BUILD_DIR || ".next-e2e",
         NEXT_PUBLIC_SUPABASE_URL: `http://${HOST}:${PORT}`,
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "synthetic-anon-key",
         SUPABASE_SERVICE_ROLE_KEY: "synthetic-service-key",
         TEST_LOGIN_ENABLED: "false",
         NEXT_TELEMETRY_DISABLED: "1",
+        SANITY_API_TOKEN: "",
         NEXT_PUBLIC_SANITY_PROJECT_ID: "synthetic",
         NEXT_PUBLIC_SANITY_DATASET: "production",
       },

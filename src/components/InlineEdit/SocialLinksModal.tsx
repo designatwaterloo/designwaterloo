@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { normalizePortfolioUrl } from "@/lib/portfolio-url";
 import { useInlineEdit } from "./InlineEditProvider";
 import styles from "./InlineEdit.module.css";
 
@@ -76,6 +77,8 @@ export default function SocialLinksModal({ isOpen, onClose }: SocialLinksModalPr
                 type="text"
                 value={(fields[key] as string) ?? ""}
                 onChange={(e) => setField(key, e.target.value || null)}
+                onBlur={key === "portfolio" ? () => { const normalized = normalizePortfolioUrl(fields.portfolio || ""); if (normalized !== null) setField("portfolio", normalized || null); } : undefined}
+                onPaste={key === "portfolio" ? event => { const normalized = normalizePortfolioUrl(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); setField("portfolio", normalized); } } : undefined}
                 placeholder={placeholder}
                 className={styles.socialInput}
               />

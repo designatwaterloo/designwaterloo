@@ -46,6 +46,7 @@ docs/superpowers/
 
 # Isolated browser-test build and artifacts
 /.next-e2e/
+/.next-onboarding/
 /playwright-report/
 /test-results/
 

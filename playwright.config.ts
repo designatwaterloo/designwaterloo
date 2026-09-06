@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+const app = `http://localhost:${process.env.DW_TEST_APP_PORT || 3100}`;
 export default defineConfig({
   testDir: "./tests/browser",
   fullyParallel: false,
@@ -7,7 +8,7 @@ export default defineConfig({
   expect: { timeout: 15000 },
   retries: 0,
   use: {
-    baseURL: "http://localhost:3100",
+    baseURL: app,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -19,7 +20,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npx tsx tests/browser/server.ts",
-    url: "http://localhost:3100/sign-in",
+    url: `${app}/sign-in`,
     reuseExistingServer: false,
     timeout: 120000,
   },

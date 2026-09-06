@@ -308,3 +308,6 @@
   }
 
 }
+
+.chrome { display: contents; }
+:global(body:has([data-onboarding-intro])) .chrome { display: none; }

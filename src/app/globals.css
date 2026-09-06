@@ -434,3 +434,8 @@ button {
   0% { transform: scale(1); opacity: 0.6; }
   100% { transform: scale(2.5); opacity: 0; }
 }
+
+/* Keep handles legible: Inter's disambiguation set distinguishes I, l, and 1. */
+input[autocomplete="username"] {
+  font-feature-settings: 'liga' 1, 'calt' 1, 'ss01' 1, 'ss02' 1, 'ss07' 1;
+}

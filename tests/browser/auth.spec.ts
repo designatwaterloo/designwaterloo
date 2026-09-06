@@ -8,8 +8,8 @@ import {
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-const APP = "http://localhost:3100";
-const CONTROL = "http://127.0.0.1:54329/__control";
+const APP = `http://localhost:${process.env.DW_TEST_APP_PORT || 3100}`;
+const CONTROL = `http://127.0.0.1:${process.env.DW_TEST_DB_PORT || 54329}/__control`;
 async function login(page: Page, destination = "/dashboard") {
   await page.goto(`/sign-in?redirectTo=${encodeURIComponent(destination)}`);
   await page.getByRole("button", { name: "Sign in with LEARN" }).click();
