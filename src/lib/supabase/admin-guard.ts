@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { withAbortableTimeout, withTimeout } from "@/lib/supabase/with-timeout";
 import { fetchWithCeiling } from "@/lib/supabase/fetch-with-ceiling";
 import type { Database } from "@/types/database";
 
-const GET_USER_MS = 3000;
-const MEMBER_MS = 2000;
 
 export interface AdminCaller {
   userId: string;
@@ -24,16 +21,13 @@ export async function requireAdmin(): Promise<
 
   let user;
   try {
-    const result = await withTimeout(
-      supabase.auth.getUser(),
-      GET_USER_MS,
-      "admin-getUser",
-    );
+    const result = await supabase.auth.getUser();
+    if (result.error && result.error.status !== 401 && result.error.status !== 403 && result.error.name !== 'AuthSessionMissingError') throw result.error;
     user = result.data.user;
   } catch {
     return {
       ok: false,
-      response: NextResponse.json({ error: "Auth check failed" }, { status: 401 }),
+      response: NextResponse.json({ error: "Auth service unavailable. Please retry." }, { status: 503 }),
     };
   }
 
@@ -46,17 +40,9 @@ export async function requireAdmin(): Promise<
 
   let memberRow;
   try {
-    const { data } = await withAbortableTimeout(
-      (signal) =>
-        supabase
-          .from("members")
-          .select("id, is_admin")
-          .eq("auth_user_id", user!.id)
-          .abortSignal(signal)
-          .maybeSingle(),
-      MEMBER_MS,
-      "admin-member",
-    );
+    const { data, error } = await supabase.from("members").select("id, is_admin")
+      .eq("auth_user_id", user.id).maybeSingle();
+    if (error) throw error;
     memberRow = data;
   } catch {
     return {

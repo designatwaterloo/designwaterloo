@@ -1,0 +1,71 @@
+.player { position: relative; width: 100%; background: #000; color: #fff; border-radius: min(2vw, 16px); overflow: hidden; container-type: inline-size; color-scheme: dark; }
+.visual { position: relative; width: 100%; aspect-ratio: 4 / 3; background-size: cover; background-position: center; }
+.poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.visual iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.surfaceButton { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; border: 0; cursor: pointer; }
+.controls { position: absolute; z-index: 1; left: 50%; bottom: 8px; transform: translateX(-50%); width: calc(100% - 16px); background: #000; padding: 4px; border-radius: 8px; }
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.iconButton { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; padding: 0; border: 0; background: transparent; color: #fff; cursor: pointer; border-radius: 6px; }
+.iconButton svg { width: 24px; height: 24px; flex-shrink: 0; fill: currentColor; }
+.iconButton:hover { background: #202020; }
+.iconButton:disabled { opacity: .4; cursor: default; }
+.player button:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+.time { font-weight: 400; font-size: 14px; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.time { flex-shrink: 0; }
+.duration { color: #999; }
+.seek, .volume { appearance: none; display: block; padding: 0; border: 0; border-radius: 0; margin: 0; cursor: pointer; height: 28px; background: transparent; accent-color: #fff; }
+.seekArea { position: relative; flex: 1; min-width: 24px; }
+.seek { width: 100%; --progress: 0%; }
+.seekTooltip { font-weight: 400; position: absolute; bottom: calc(100% + 20px); left: clamp(28px, var(--hover-position), calc(100% - 28px)); transform: translateX(-50%); padding: 5px 8px; border-radius: 999px; background: #000; color: #fff; font-size: 14px; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+.seek::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(to right, #fff var(--progress), #444 var(--progress)); border-radius: 3px; }
+.seek::-moz-range-track { height: 3px; background: #444; border-radius: 3px; }
+.seek::-moz-range-progress { height: 3px; background: #fff; }
+.seek::-webkit-slider-thumb, .volume::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; margin-top: -4.5px; }
+.seek::-moz-range-thumb, .volume::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+.audio { position: relative; flex-shrink: 0; }
+.audioPopover { position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%); width: 32px; height: 132px; padding: 12px 8px; border-radius: 999px; background: #000; display: grid; place-items: center; }
+.volumeArea { position: relative; width: 16px; height: 108px; }
+.volume { writing-mode: vertical-lr; direction: rtl; width: 16px; height: 108px; }
+.volume::-webkit-slider-runnable-track { width: 3px; height: 100%; background: linear-gradient(to top, #fff var(--progress), #444 var(--progress)); border-radius: 3px; }
+.volume::-moz-range-track { width: 3px; height: 100%; background: #444; border-radius: 3px; }
+.volume::-moz-range-progress { width: 3px; background: #fff; border-radius: 3px; }
+.player input:focus-visible { outline: 2px solid #fff; outline-offset: -1px; }
+.player input:disabled { opacity: .4; cursor: default; }
+.error { padding: 8px; font-size: 14px; line-height: 1.5; color: #bbb; }
+.error a { color: #fff; text-decoration: underline; }
+.player:fullscreen { display: flex; flex-direction: column; height: 100%; border-radius: 0; }
+.player:fullscreen .visual { flex: 1; min-height: 0; aspect-ratio: auto; background-size: contain; background-repeat: no-repeat; }
+@container (max-width: 500px) { .controls { bottom: 8px; width: calc(100% - 16px); padding: 4px; border-radius: 8px; } .time { font-size: 16px; } }
+
+/* Keep the track quiet until the user interacts; retain keyboard visibility. */
+.seek::-webkit-slider-thumb { opacity: 0; transform: scale(0); transition: transform 140ms ease-out, opacity 140ms ease-out; }
+.seek::-moz-range-thumb { opacity: 0; transform: scale(0); transition: transform 140ms ease-out, opacity 140ms ease-out; }
+.seek:hover::-webkit-slider-thumb, .seek:focus-visible::-webkit-slider-thumb, .seek:active::-webkit-slider-thumb, .volume:hover::-webkit-slider-thumb, .volume:focus-visible::-webkit-slider-thumb, .volume:active::-webkit-slider-thumb { opacity: 1; transform: scale(1); }
+.seek:hover::-moz-range-thumb, .seek:focus-visible::-moz-range-thumb, .seek:active::-moz-range-thumb, .volume:hover::-moz-range-thumb, .volume:focus-visible::-moz-range-thumb, .volume:active::-moz-range-thumb { opacity: 1; transform: scale(1); }
+
+@media (pointer: coarse) { .iconButton { width: 48px; height: 48px; } }
+
+.hoverDot { position: absolute; left: var(--hover-position); top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #aaa; pointer-events: none; transform: translate(-50%, -50%); animation: seekDotIn 140ms ease-out; }
+@keyframes seekDotIn { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .hoverDot { animation: none; }
+  .seek::-webkit-slider-thumb, .volume::-webkit-slider-thumb { transition: none; }
+  .seek::-moz-range-thumb, .volume::-moz-range-thumb { transition: none; }
+}
+
+/* Reveal controls on video hover; keyboard focus also keeps them available. */
+@media (hover: hover) and (pointer: fine) {
+  .controls { opacity: 0; pointer-events: none; }
+  .player:hover .controls,
+  .player:has(:focus-visible) .controls { opacity: 1; pointer-events: auto; }
+}
+
+/* Touch devices show the muted looping video without custom controls. */
+@media (hover: none), (pointer: coarse) {
+  .controls, .surfaceButton { display: none; }
+}
+
+.player:fullscreen .poster { object-fit: contain; }
+
+.volume::-webkit-slider-thumb { margin-top: 0; margin-left: -4.5px; }
+.volumeHoverDot { left: 50%; top: var(--hover-position); }

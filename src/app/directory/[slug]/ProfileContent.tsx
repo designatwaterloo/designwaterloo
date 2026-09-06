@@ -181,8 +181,6 @@ function ProfileContentInner({
               type="button"
               className={styles.editButton}
               onClick={() => setEditMode(true)}
-              data-cursor="button"
-              data-cursor-label="Edit profile"
               aria-label="Edit profile"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -475,14 +473,6 @@ function ProfileContentInner({
 
 // ===== Helper: Trading Card Link =====
 
-const ICON_TO_CURSOR: Record<string, string> = {
-  "/globe.svg": "globe",
-  "/twitter_logo.svg": "twitter",
-  "/linkedin_logo.svg": "linkedin",
-  "/instagram_logo.svg": "instagram",
-  "/github_logo.svg": "github",
-};
-
 function TradingCardLink({
   href,
   icon,
@@ -498,17 +488,12 @@ function TradingCardLink({
     if (preventNav) e.preventDefault();
   };
 
-  const cursorIcon = icon ? ICON_TO_CURSOR[icon] || "" : "";
-
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
-      data-cursor="external-link"
-      data-cursor-label={label}
-      {...(cursorIcon && { "data-cursor-icon": cursorIcon })}
     >
       {icon && (
         // eslint-disable-next-line @next/next/no-img-element

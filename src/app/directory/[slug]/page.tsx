@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import { cache } from "react";
 import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import styles from "./page.module.css";
@@ -25,6 +25,17 @@ interface MemberWithRelations extends SupabaseMember {
   member_leadership: MemberLeadership[];
 }
 
+// Deduplicate metadata and page reads only within this server render.
+// This uses the request's authenticated client; no cross-user data cache.
+const getProfile = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("members")
+    .select("*, member_experiences (*), member_leadership (*)")
+    .eq("slug", slug).single<MemberWithRelations>();
+  if (error && error.code !== "PGRST116") throw error;
+  return data;
+});
+
 export async function generateStaticParams() {
   const supabase = createStaticClient();
   const { data: members } = await supabase
@@ -45,15 +56,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
-
-  const { data: member } = (await supabase
-    .from("members")
-    .select("first_name, last_name, profile_image_url")
-    .eq("slug", slug)
-    .single()) as {
-    data: { first_name: string; last_name: string; profile_image_url: string | null } | null;
-  };
+  const member = await getProfile(slug);
 
   if (!member) {
     return { title: "Member Not Found | Design Waterloo" };
@@ -83,18 +86,7 @@ export default async function PersonDetail({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: member } = await supabase
-    .from("members")
-    .select(
-      `
-      *,
-      member_experiences (*),
-      member_leadership (*)
-    `
-    )
-    .eq("slug", slug)
-    .single<MemberWithRelations>();
-
+  const member = await getProfile(slug);
   if (!member) {
     notFound();
   }
@@ -165,8 +157,6 @@ export default async function PersonDetail({
 
   return (
     <div>
-      <Header />
-
       <main className="w-full">
         {member.is_approved && (
           <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton}>

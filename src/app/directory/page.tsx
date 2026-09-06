@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
+import { createStaticClient } from "@/lib/supabase/static";
 import { Member } from "@/sanity/types";
 import { Member as SupabaseMember } from "@/types/database";
 import { TEST_ACCOUNT_EMAIL_SUFFIX } from "@/lib/supabase/test-accounts";
@@ -20,11 +21,11 @@ export const metadata: Metadata = {
 export const revalidate = 30;
 
 export default async function DirectoryPage() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
 
   const { data } = await supabase
     .from("members")
-    .select("*")
+    .select("id, created_at, member_id, first_name, last_name, slug, profile_image_url, school, program, graduating_class, specialties, work_schedule")
     .eq("onboarding_completed", true)
     .eq("is_approved", true)
     .not("school_email", "ilike", `%${TEST_ACCOUNT_EMAIL_SUFFIX}`)
@@ -56,5 +57,5 @@ export default async function DirectoryPage() {
     workSchedule: m.work_schedule,
   }));
 
-  return <DirectoryClient members={members} />;
+  return <Suspense fallback={<main className="min-h-screen" aria-label="Loading directory" />}><DirectoryClient members={members} /></Suspense>;
 }

@@ -55,7 +55,6 @@ export default function GridView<T>({
   className,
   onItemClick,
   gridColumns,
-  getCursorLabel,
 }: GridViewProps<T>) {
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +98,6 @@ export default function GridView<T>({
           key={getItemKey(item)}
           className={styles.gridItem}
           onClick={() => onItemClick?.(item)}
-          {...(getCursorLabel ? { "data-cursor": "grid-item", "data-cursor-label": getCursorLabel(item) } : {})}
         >
           {renderItem(item, index)}
         </div>

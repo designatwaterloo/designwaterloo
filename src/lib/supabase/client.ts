@@ -12,11 +12,12 @@ import { fetchWithCeiling } from "./fetch-with-ceiling";
 let browserClient: SupabaseClient<Database> | undefined;
 
 export function createClient() {
-  if (browserClient) return browserClient;
-  browserClient = createBrowserClient<Database>(
+  if (typeof window !== "undefined" && browserClient) return browserClient;
+  const client = createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { global: { fetch: fetchWithCeiling } },
   );
-  return browserClient;
+  if (typeof window !== "undefined") browserClient = client;
+  return client;
 }

@@ -23,7 +23,7 @@ export default function ViewModeToggle({
 
   return (
     <div className={className}>
-      <span data-cursor="button" data-cursor-label="Grid view">
+      <span>
         <Button
           onClick={() => onChange("grid")}
           variant="icon"
@@ -32,7 +32,7 @@ export default function ViewModeToggle({
           active={mode === "grid"}
         />
       </span>
-      <span data-cursor="button" data-cursor-label="List view">
+      <span>
         <Button
           onClick={() => onChange("table")}
           variant="icon"

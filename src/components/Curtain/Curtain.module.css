@@ -122,3 +122,14 @@
     transition-delay: 0s !important;
   }
 }
+/* CSS owns the responsive column count and timing; no post-hydration resize state. */
+.column { transition-delay: calc(75ms + (5 - var(--column)) * 80ms); transition-duration: 350ms; }
+.column.columnClosing { transition-delay: calc((5 - var(--column)) * 45ms); transition-duration: 200ms; }
+@media (max-width: 768px) {
+  .column:nth-child(n + 5) { display: none; }
+  .column { transition-delay: calc(60ms + (3 - var(--column)) * 70ms); transition-duration: 420ms; }
+  .column.columnClosing { transition-delay: calc((3 - var(--column)) * 40ms); transition-duration: 200ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .column, .column.columnClosing { transition-delay: 0ms !important; transition-duration: 100ms !important; }
+}

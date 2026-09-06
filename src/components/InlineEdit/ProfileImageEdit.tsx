@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import SkeletonImage from "@/components/SkeletonImage";
 import { useInlineEdit } from "./InlineEditProvider";
 import styles from "./InlineEdit.module.css";
@@ -58,6 +57,7 @@ export default function ProfileImageEdit() {
             alt="Profile"
             width={800}
             height={1000}
+            sizes="(max-width: 768px) 100vw, 33vw"
             className={pageStyles.image}
             wrapperClassName="w-full h-full"
             style={{ aspectRatio: "4 / 5" }}
@@ -87,18 +87,28 @@ export default function ProfileImageEdit() {
       >
         {imageUrl ? (
           <div className={pageStyles.imageWrapper}>
-            <Image
+            <SkeletonImage
               src={imageUrl}
               alt="Profile"
               width={800}
               height={1000}
+              sizes="(max-width: 768px) 100vw, 33vw"
               className={pageStyles.image}
+              wrapperClassName="w-full h-full"
+              style={{ aspectRatio: "4 / 5" }}
               priority
             />
           </div>
         ) : (
           <div className={styles.imagePlaceholder}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="17 8 12 3 7 8" />
               <line x1="12" y1="3" x2="12" y2="15" />
@@ -107,12 +117,23 @@ export default function ProfileImageEdit() {
           </div>
         )}
         {/* Persistent edit overlay icon */}
-        <div className={`${styles.imageEditOverlay} ${uploading ? styles.imageEditOverlayActive : ""}`}>
+        <div
+          className={`${styles.imageEditOverlay} ${uploading ? styles.imageEditOverlayActive : ""}`}
+        >
           {uploading ? (
             <span className={styles.imageEditLabel}>Uploading...</span>
           ) : (
             <>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                 <circle cx="12" cy="13" r="4" />
               </svg>

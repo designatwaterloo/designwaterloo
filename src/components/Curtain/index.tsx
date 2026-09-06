@@ -13,9 +13,6 @@ interface CurtainProps {
   overlayColor?: string;
 }
 
-// Fallback if transitionend is lost (tab backgrounded, display:none, etc).
-// Should comfortably exceed the longest close: delay 0.3s + duration 0.2s.
-const CLOSE_SAFETY_MS = 800;
 
 export default function Curtain({
   isOpen,
@@ -26,36 +23,26 @@ export default function Curtain({
   overlayColor
 }: CurtainProps) {
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const callbacks = useRef({ onAnimationStart, onAnimationComplete });
+  callbacks.current = { onAnimationStart, onAnimationComplete };
   // Column 0 has the largest close delay, so it finishes the close last.
   const sentinelColumnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 769);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  useEffect(() => {
     if (isOpen) {
-      onAnimationStart?.();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsAnimating(true);
-        });
+      callbacks.current.onAnimationStart?.();
+      let secondFrame = 0;
+      const firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => setIsAnimating(true));
       });
-      return;
+      return () => { cancelAnimationFrame(firstFrame); cancelAnimationFrame(secondFrame); };
     }
 
-    onAnimationStart?.();
+    callbacks.current.onAnimationStart?.();
     const el = sentinelColumnRef.current;
     if (!el) {
       setIsAnimating(false);
-      onAnimationComplete?.();
+      callbacks.current.onAnimationComplete?.();
       return;
     }
 
@@ -64,35 +51,26 @@ export default function Curtain({
       if (done) return;
       done = true;
       setIsAnimating(false);
-      onAnimationComplete?.();
+      callbacks.current.onAnimationComplete?.();
     };
     const handleEnd = (e: TransitionEvent) => {
-      if (e.target !== el) return;
+      if (e.target !== el || !['transform', 'opacity'].includes(e.propertyName)) return;
       finish();
     };
 
     el.addEventListener('transitionend', handleEnd);
-    const safety = setTimeout(finish, CLOSE_SAFETY_MS);
+    // Derive the fallback from the actual CSS, including reduced-motion overrides.
+    const css = getComputedStyle(el);
+    const seconds = (value: string) => parseFloat(value) * (value.trim().endsWith("ms") ? 1 : 1000);
+    const duration = Math.max(...css.transitionDuration.split(",").map(seconds));
+    const delay = Math.max(...css.transitionDelay.split(",").map(seconds));
+    const safety = setTimeout(finish, duration + delay + 100);
 
     return () => {
       el.removeEventListener('transitionend', handleEnd);
       clearTimeout(safety);
     };
-  }, [isOpen, onAnimationStart, onAnimationComplete]);
-
-  const columnCount = isMobile ? 4 : 6;
-
-  const columnDelaysOpen = isMobile
-    ? [0.53, 0.40, 0.26, 0.10]
-    : [0.575, 0.495, 0.405, 0.305, 0.195, 0.075];
-
-  const columnDelaysClose = isMobile
-    ? [0.18, 0.12, 0.07, 0.03]
-    : [0.3, 0.24, 0.18, 0.12, 0.07, 0.03];
-
-  const columnDurationsOpen = isMobile
-    ? [0.42, 0.47, 0.55, 0.65]
-    : [0.17, 0.19, 0.22, 0.25, 0.30, 0.35];
+  }, [isOpen]);
 
   const isClosing = !isOpen;
 
@@ -117,19 +95,12 @@ export default function Curtain({
       
       {/* Columns Container */}
       <div className={styles.columnsContainer}>
-        {Array.from({ length: columnCount }, (_, index) => (
+        {Array.from({ length: 6 }, (_, index) => (
           <div
             key={index}
             ref={index === 0 ? sentinelColumnRef : undefined}
             className={`${styles.column} ${isAnimating && isOpen ? styles.columnOpening : ''} ${isClosing ? styles.columnClosing : ''}`}
-            style={{
-              transitionDelay: isClosing
-                ? `${columnDelaysClose[index]}s`
-                : `${columnDelaysOpen[index]}s`,
-              transitionDuration: isClosing
-                ? '0.2s'
-                : `${columnDurationsOpen[index]}s`
-            }}
+            style={{ "--column": index } as React.CSSProperties}
           />
         ))}
       </div>

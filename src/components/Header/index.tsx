@@ -1,4 +1,5 @@
 "use client";
+import Wordmark from "@/components/Wordmark";
 
 import Image from "next/image";
 import Link from "@/components/Link";
@@ -41,9 +42,6 @@ export default function Header() {
     setIsNavOpen(false);
   }, [pathname]);
 
-  // Badge label for desktop
-  const badgeLabel = reviewStatus === "pending_review" ? "Under review" : "Unsubmitted";
-
   // Ring color class for mobile
   const ringClass =
     reviewStatus === "pending_review"
@@ -57,14 +55,7 @@ export default function Header() {
         <div className={styles.headerInner}>
           {/* Desktop: 12-col grid, wordmark spans 2 cols | Mobile: 4-col grid, each spans 1 col (handled by CSS) */}
           <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2`}>
-            <Image
-              src="/Design Waterloo Wordmark.svg"
-              alt="Design Waterloo"
-              width={200}
-              height={36}
-              className="h-full w-auto"
-              priority
-            />
+            <Wordmark variant="stacked" className="h-full w-auto" />
           </Link>
           <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
             <Image
@@ -76,18 +67,6 @@ export default function Header() {
               priority
             />
           </Link>
-          <div className={`${styles.headerActions} hidden sm:flex col-start-11 col-span-2`}>
-            <button
-              onClick={() => setIsNavOpen(true)}
-              className={`btn-menu ${styles.menuButton}`}
-              aria-label="Open navigation"
-            >
-              <div className={styles.menuIcon}>
-                <span></span>
-                <span></span>
-              </div>
-            </button>
-          </div>
         </div>
       </header>
 
@@ -105,8 +84,9 @@ export default function Header() {
           <Image
             src={avatarSrc}
             alt={hasProfile ? "Your profile" : "Sign in"}
-            width={20}
-            height={20}
+            width={32}
+            height={32}
+            loading="eager"
           />
         </Link>
       </div>
@@ -116,8 +96,6 @@ export default function Header() {
         onClick={() => { triggerHaptic(); setIsNavOpen(!isNavOpen); }}
         className={`${styles.menuButton} ${isNavOpen ? styles.menuButtonOpen : ''}`}
         aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
-        data-cursor="menu"
-        data-cursor-label="Menu"
       >
         <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
           <span></span>

@@ -1,12 +1,24 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import Image, { ImageProps } from "next/image";
+import { useState, useCallback } from "react";
+import Image, { ImageProps, ImageLoaderProps } from "next/image";
+import styles from "./SkeletonImage.module.css";
 
-/** Track which src URLs have already been revealed in this session */
-const revealedSrcs = new Set<string>();
+// Sanity already provides a resizing CDN. Avoid fetching the full original
+// into Next's optimizer before the browser can receive a profile image.
+function sanityLoader({ src, width, quality }: ImageLoaderProps) {
+  const url = new URL(src);
+  url.searchParams.set("w", String(width));
+  url.searchParams.set("q", String(quality ?? 75));
+  url.searchParams.set("auto", "format");
+  url.searchParams.set("fit", "max");
+  return url.toString();
+}
 
-type SkeletonImageProps = Omit<ImageProps, "placeholder" | "blurDataURL" | "onLoad"> & {
+type SkeletonImageProps = Omit<
+  ImageProps,
+  "placeholder" | "blurDataURL" | "onLoad"
+> & {
   skeletonClassName?: string;
   wrapperClassName?: string;
 };
@@ -21,14 +33,19 @@ export default function SkeletonImage({
   height,
   ...props
 }: SkeletonImageProps) {
-  const src = typeof props.src === "string" ? props.src : "";
-  const alreadyRevealed = revealedSrcs.has(src);
-  const [loaded, setLoaded] = useState(alreadyRevealed);
-  const skipAnimation = useRef(alreadyRevealed);
+  const src =
+    typeof props.src === "string"
+      ? props.src
+      : "default" in props.src
+        ? props.src.default.src
+        : props.src.src;
+  // A thumbnail and a full-size photo can share a source URL but require
+  // separate downloads. Let this image instance report when it is ready.
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const loaded = loadedSrc === src;
 
   const handleLoad = useCallback(() => {
-    if (src) revealedSrcs.add(src);
-    setLoaded(true);
+    setLoadedSrc(src);
   }, [src]);
 
   // Derive aspect ratio: explicit style > computed from width/height props
@@ -41,15 +58,22 @@ export default function SkeletonImage({
       className={`relative overflow-hidden ${wrapperClassName ?? ""}`}
       style={{ aspectRatio }}
     >
-      {/* Skeleton pulse — visible until image loads */}
+      {/* A soft sweep makes the pending image visible without flashing. */}
       {!loaded && (
         <div
-          className={`absolute inset-0 animate-pulse ${skeletonClassName ?? "bg-skeleton"}`}
+          aria-hidden="true"
+          className={`absolute inset-0 ${styles.skeleton} ${skeletonClassName ?? "bg-skeleton"}`}
         />
       )}
 
       <Image
         {...props}
+        loader={
+          props.loader ??
+          (src.startsWith("https://cdn.sanity.io/images/")
+            ? sanityLoader
+            : undefined)
+        }
         alt={alt}
         width={width}
         height={height}
@@ -57,16 +81,6 @@ export default function SkeletonImage({
         style={style}
         onLoad={handleLoad}
       />
-
-      {/* Black wipe overlay — covers image, then sweeps down to reveal */}
-      {loaded && !skipAnimation.current && (
-        <div
-          className="absolute inset-0 bg-skeleton"
-          style={{
-            animation: "wipeReveal 0.8s cubic-bezier(0.76, 0, 0.24, 1) forwards",
-          }}
-        />
-      )}
     </div>
   );
 }

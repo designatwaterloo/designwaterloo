@@ -12,8 +12,6 @@ interface ButtonProps {
   onClick?: () => void;
   href?: string;
   target?: "_blank" | "_self";
-  dataCursor?: string;
-  dataCursorLabel?: string;
 }
 
 export default function Button({
@@ -25,13 +23,7 @@ export default function Button({
   onClick,
   href,
   target,
-  dataCursor,
-  dataCursorLabel,
 }: ButtonProps) {
-  const cursorProps = {
-    ...(dataCursor && { "data-cursor": dataCursor }),
-    ...(dataCursorLabel && { "data-cursor-label": dataCursorLabel }),
-  };
   const variantClass = variant === "primary"
     ? styles.primary
     : variant === "secondary"
@@ -51,15 +43,15 @@ export default function Button({
       const isExternal = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || target === "_blank";
       if (isExternal) {
         return (
-          <a href={href} className={className} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined} {...cursorProps}>
+          <a href={href} className={className} target={target} rel={target === "_blank" ? "noopener noreferrer" : undefined}>
             {iconContent}
           </a>
         );
       }
-      return <Link href={href} className={className} {...cursorProps}>{iconContent}</Link>;
+      return <Link href={href} className={className}>{iconContent}</Link>;
     }
     
-    return <button className={className} onClick={onClick} {...cursorProps}>{iconContent}</button>;
+    return <button className={className} onClick={onClick}>{iconContent}</button>;
   }
   
   const content = (
@@ -80,16 +72,15 @@ export default function Button({
           className={className}
           target={target}
           rel={target === "_blank" ? "noopener noreferrer" : undefined}
-          {...cursorProps}
         >
           {content}
         </a>
       );
     }
 
-    // Internal link with page transition
+    // Internal link
     return (
-      <Link href={href} className={className} {...cursorProps}>
+      <Link href={href} className={className}>
         {content}
       </Link>
     );
@@ -99,7 +90,6 @@ export default function Button({
     <button
       className={className}
       onClick={onClick}
-      {...cursorProps}
     >
       {content}
     </button>

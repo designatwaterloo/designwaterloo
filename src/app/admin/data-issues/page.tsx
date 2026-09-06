@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
@@ -71,7 +70,6 @@ export default function DataIssuesPage() {
   if (loading || !member?.is_admin) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
           <p>Loading…</p>
         </main>
@@ -82,7 +80,6 @@ export default function DataIssuesPage() {
 
   return (
     <div>
-      <Header />
       <main className="w-full">
         <section className={styles.section}>
           <h1>Data Issues</h1>

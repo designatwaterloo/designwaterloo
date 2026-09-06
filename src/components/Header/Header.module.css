@@ -46,6 +46,12 @@
   cursor: pointer;
 }
 
+/* Inline wordmarks must not inherit the muted text-link color. */
+.headerLogo,
+.headerLogo:hover {
+  color: var(--foreground);
+}
+
 /* ─── Profile Bar ─── */
 .profileBar {
   position: fixed;
@@ -105,8 +111,8 @@
 }
 
 .primaryButtonDefault {
-  width: 24px;
-  height: 24px;
+  /* Reserve the same footprint before and after the profile loads. */
+  padding: 4px;
 }
 
 .primaryButton :global(img),
@@ -150,9 +156,11 @@
 /* Fixed-positioned independently so blend mode composites against the page */
 .menuButton {
   position: fixed;
-  top: var(--margin);
+  top: calc(var(--margin) - 11px);
   right: var(--margin);
   z-index: 1001;
+  width: 56px;
+  height: 56px;
   padding: 10px;
   margin: 0;
   margin-right: -10px;
@@ -262,10 +270,11 @@
   }
 
   .menuButton {
-    top: 0;
-    height: var(--header-height);
+    top: calc((var(--header-height) - 48px) / 2);
+    width: 48px;
+    height: 48px;
     padding: 6px;
-    margin-right: -6px;
+    margin-right: -11px;
     mix-blend-mode: normal;
   }
 

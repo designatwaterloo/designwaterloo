@@ -117,9 +117,6 @@ export default function TermChartPicker() {
               href={`/directory?a=${encodeURIComponent(item)}`}
               className={baseClass}
               style={{ ...pillStyle, display: "inline-flex", alignItems: "center" }}
-              data-cursor="grid-item"
-              data-cursor-label={label}
-              data-cursor-icon="search"
             >
               {dot}{label}
             </Link>
@@ -166,7 +163,7 @@ export default function TermChartPicker() {
 
       {/* Chart picker popover */}
       {open && (
-        <div className={styles.chart} data-lenis-prevent>
+        <div className={styles.chart}>
           {/* Header row: year labels */}
           <div className={styles.headerRow}>
             <div className={styles.seasonLabel} />

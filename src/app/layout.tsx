@@ -2,11 +2,10 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
-import SmoothScroll from "@/components/SmoothScroll";
-import { TransitionProvider } from "@/context/TransitionContext";
-import PageTransition from "@/components/PageTransition";
+import Header from "@/components/Header";
+import InitialEntrance from "@/components/InitialEntrance";
+import { AuthRecovery } from "@/components/auth/AuthRecovery";
 import { AuthProvider } from "@/components/auth/AuthProvider";
-import CursorFollower from "@/components/CursorFollower";
 import ImpersonationBanner from "@/components/ImpersonationBanner";
 
 export const metadata: Metadata = {
@@ -56,15 +55,11 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <ImpersonationBanner />
-          <TransitionProvider>
-            <SmoothScroll>
-              <ConsoleEasterEgg />
-              <PageTransition />
-              {children}
-            </SmoothScroll>
-          </TransitionProvider>
+          <ConsoleEasterEgg />
+          <InitialEntrance />
+          <Header />
+          <AuthRecovery>{children}</AuthRecovery>
         </AuthProvider>
-        <CursorFollower />
         <Analytics />
       </body>
     </html>
