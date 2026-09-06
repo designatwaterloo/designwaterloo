@@ -177,8 +177,6 @@ export default function DashboardPage() {
           <button
             type="button"
             className={styles.signOutButton}
-            data-cursor="button"
-            data-cursor-label="Sign Out"
             onClick={() => signOut()}
           >
             Sign out

@@ -466,7 +466,7 @@ export default function EditProfilePage() {
                     )}
                   </div>
                   {programOpen && filteredPrograms.length > 0 && (
-                    <div className={styles.comboboxDropdown} data-lenis-prevent data-cursor="default">
+                    <div className={styles.comboboxDropdown}>
                       {filteredPrograms.map((p) => (
                         <button
                           key={p}

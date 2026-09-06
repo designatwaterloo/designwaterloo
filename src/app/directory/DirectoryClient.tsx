@@ -92,7 +92,6 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
             storageKey="directoryViewMode"
             initialFilters={initialFilters}
             onFiltersChange={handleFiltersChange}
-            getCursorLabel={(member) => `${member.firstName} ${member.lastName} →`}
             renderGridItem={(member, index) => (
               <MemberGridCard member={member} index={index} />
             )}

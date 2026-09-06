@@ -97,8 +97,6 @@ export default async function Home() {
                   href={`/directory/${member.slug}`}
                   className="group block p-[calc(var(--gap)/2)]"
                   underline={false}
-                  data-cursor="internal-link"
-                  data-cursor-label={`${member.first_name} ${member.last_name} →`}
                 >
                   {member.profile_image_url ? (
                     <SkeletonImage

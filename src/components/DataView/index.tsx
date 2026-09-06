@@ -73,7 +73,6 @@ export default function DataView<T>({
   gridColumns,
   onItemClick,
   storageKey,
-  getCursorLabel,
   initialFilters,
   onFiltersChange,
 }: DataViewProps<T>) {
@@ -360,7 +359,7 @@ export default function DataView<T>({
               />
             )}
             {filterConfig.length > 0 && (
-              <div className={styles.filterButtonWrapper} data-cursor="button" data-cursor-label="Filters">
+              <div className={styles.filterButtonWrapper}>
                 <Button
                   onClick={() => {
                     if (isDesktop) {
@@ -460,7 +459,6 @@ export default function DataView<T>({
               className={gridClassName}
               onItemClick={onItemClick}
               gridColumns={gridColumns}
-              getCursorLabel={getCursorLabel}
             />
           ) : (
             <TableView
@@ -473,7 +471,6 @@ export default function DataView<T>({
               sortDirection={sortDirection}
               onItemClick={onItemClick}
               renderHoverPreview={renderHoverPreview}
-              getCursorLabel={getCursorLabel}
             />
           )}
         </div>

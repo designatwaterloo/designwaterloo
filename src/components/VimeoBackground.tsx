@@ -47,8 +47,6 @@ export default function VimeoBackground({ videoId, thumbnailUrl }: VimeoBackgrou
   return (
     <div
       onClick={togglePlay}
-      data-cursor="button"
-      data-cursor-label={isPlaying ? "⏸ Pause" : "▶ Play"}
       className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative bg-[var(--black)] cursor-pointer"
       style={{
         backgroundImage: `url(${thumbnailUrl})`,

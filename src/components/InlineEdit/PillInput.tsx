@@ -158,9 +158,6 @@ export default function PillInput({
                 href={`/directory?${filterMapping.param}=${encodeURIComponent(encoded)}`}
                 className={baseClass}
                 style={{ ...pillStyle, display: "inline-flex", alignItems: "center" }}
-                data-cursor="grid-item"
-                data-cursor-label={label}
-                data-cursor-icon="search"
               >
                 {dot}{label}
               </Link>
@@ -247,7 +244,7 @@ export default function PillInput({
         )}
       </div>
       {showDropdown && (
-        <div className={styles.suggestions} data-lenis-prevent data-cursor="default">
+        <div className={styles.suggestions}>
           {filtered.slice(0, 8).map((s) => (
             <button
               key={s}

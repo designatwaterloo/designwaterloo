@@ -117,8 +117,6 @@ export default function Header() {
         onClick={() => { triggerHaptic(); setIsNavOpen(!isNavOpen); }}
         className={`${styles.menuButton} ${isNavOpen ? styles.menuButtonOpen : ''}`}
         aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
-        data-cursor="menu"
-        data-cursor-label="Menu"
       >
         <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
           <span></span>

@@ -93,9 +93,9 @@ export default function Footer({ variant = "default" }: FooterProps) {
         <dl className={`flex flex-col gap-[10px] sm:col-span-2 ${variant === "menu" ? "max-sm:hidden" : ""}`}>
           <dt className="text-muted-light">Follow</dt>
           <dd className="m-0 flex flex-col gap-[10px]">
-            <a href="https://www.instagram.com/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`} data-cursor="external-link" data-cursor-label="@designwaterloo" data-cursor-icon="instagram">Instagram</a>
-            <a href="https://twitter.com/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`} data-cursor="external-link" data-cursor-label="@designwaterloo" data-cursor-icon="twitter">Twitter</a>
-            <a href="https://www.linkedin.com/company/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`} data-cursor="external-link" data-cursor-label="/designwaterloo" data-cursor-icon="linkedin">LinkedIn</a>
+            <a href="https://www.instagram.com/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Instagram</a>
+            <a href="https://twitter.com/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>Twitter</a>
+            <a href="https://www.linkedin.com/company/designwaterloo/?utm_source=designwaterloo" target="_blank" rel="noopener noreferrer" className={`${linkColor} ${linkHoverColor} underline`}>LinkedIn</a>
           </dd>
         </dl>
 

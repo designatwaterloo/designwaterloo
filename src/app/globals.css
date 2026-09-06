@@ -151,12 +151,6 @@ html {
   }
 } */
 
-@media (pointer: fine) {
-  * {
-    cursor: none !important;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);

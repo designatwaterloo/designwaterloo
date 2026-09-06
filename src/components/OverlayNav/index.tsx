@@ -139,8 +139,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                       signOut();
                     }}
                     className={styles.userLink}
-                    data-cursor="button"
-                    data-cursor-label="Sign Out"
                   >
                     Sign out
                   </button>
@@ -167,8 +165,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   onClick={() => handleNavClick(item.href)}
                   className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                   style={{ '--stagger-index': index } as React.CSSProperties}
-                  data-cursor="nav"
-                  data-cursor-label={`${item.label} →`}
                 >
                   {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
@@ -182,8 +178,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     onClick={() => handleNavClick(item.href!)}
                     className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                     style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
-                    data-cursor="nav"
-                    data-cursor-label={`${item.label} →`}
                   >
                     {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                   </Link>
@@ -193,8 +187,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                     onClick={item.onClick}
                     className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                     style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
-                    data-cursor="nav"
-                    data-cursor-label={`${item.label} →`}
                   >
                     {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                   </button>
@@ -214,8 +206,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                 onClick={() => handleNavClick(item.href)}
                 className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                 style={{ '--stagger-index': index } as React.CSSProperties}
-                data-cursor="nav"
-                data-cursor-label={item.label}
               >
                 {item.label}{item.sup != null && <sup>{item.sup}</sup>}
               </Link>
@@ -229,8 +219,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   onClick={() => handleNavClick(item.href!)}
                   className={`${styles.navItem} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                   style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
-                  data-cursor="nav"
-                  data-cursor-label={`${item.label} →`}
                 >
                   {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </Link>
@@ -240,8 +228,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   onClick={item.onClick}
                   className={`${styles.navItem} ${styles.navButton} ${isAnimating && isOpen ? styles.navItemOpening : ''} ${isClosing ? styles.navItemClosing : ''}`}
                   style={{ '--stagger-index': staggerIndex } as React.CSSProperties}
-                  data-cursor="nav"
-                  data-cursor-label={`${item.label} →`}
                 >
                   {item.label}{item.sup != null && <sup>{item.sup}</sup>}
                 </button>

@@ -193,8 +193,6 @@ function SignInContent() {
           try { await signInWithMicrosoft(redirectTo || undefined); }
           catch { setOauthError("Could not start Microsoft sign-in. Please retry."); setOauthBusy(false); }
         }}
-        data-cursor="button"
-        data-cursor-label="UWaterloo SSO →"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -218,8 +216,6 @@ function SignInContent() {
         <button
           className={styles.laurierButton}
           onClick={() => setShowLaurierFlow(true)}
-          data-cursor="button"
-          data-cursor-label="Email Code →"
         >
           Sign in with @mylaurier.ca
         </button>
@@ -254,8 +250,6 @@ function SignInContent() {
           <div
             className={styles.otpBoxes}
             onClick={() => otpRef.current?.focus()}
-            data-cursor="text"
-            data-cursor-label="Enter Code"
           >
             <input
               ref={otpRef}
