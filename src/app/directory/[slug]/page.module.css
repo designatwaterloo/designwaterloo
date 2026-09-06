@@ -60,7 +60,12 @@
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--foreground) 6%, var(--background));
   margin: 0;
+  font-family: InterVariable, Inter, sans-serif;
   font-size: 1rem;
+  font-weight: 400;
+  font-optical-sizing: none;
+  font-variation-settings: 'opsz' 14;
+  font-feature-settings: 'liga' 0, 'calt' 0, 'ss02' 1, 'zero' 1, 'ss07' 1;
   line-height: 1.35;
   color: color-mix(in srgb, var(--foreground) 65%, var(--background));
 }
