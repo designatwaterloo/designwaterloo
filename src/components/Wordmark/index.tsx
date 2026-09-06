@@ -1,9 +1,12 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { magneticSettle, sampleSettle } from "./settle";
 import { wordmarks } from "./paths";
+import styles from "./Wordmark.module.css";
 
 let orbitFrames: Promise<string[]> | undefined;
+let touchEntrancePlayed = false;
+const MOUSE_INPUT = "(hover: hover) and (pointer: fine)";
 function loadOrbitFrames() {
   return (orbitFrames ??= import("./orbit-frames.json").then(
     (module) => module.default,
@@ -27,9 +30,11 @@ function frameAtAngle(angle: number, count: number) {
 export default function Wordmark({
   variant = "horizontal",
   className,
+  autoplayOnTouch = false,
 }: {
   variant?: "horizontal" | "stacked";
   className?: string;
+  autoplayOnTouch?: boolean;
 }) {
   const data = wordmarks[variant];
   const exact = useRef<SVGGElement>(null);
@@ -66,11 +71,11 @@ export default function Wordmark({
     return () => {
       cancelAnimationFrame(frame.current);
       query.removeEventListener("change", update);
-      generation.current++;
+      rest();
     };
   }, []);
 
-  async function play() {
+  const play = useCallback(async () => {
     if (running.current || reduced.current || !animated.current) return;
     running.current = true;
     const run = ++generation.current;
@@ -130,7 +135,24 @@ export default function Wordmark({
       frame.current = requestAnimationFrame(tick);
     }
     frame.current = requestAnimationFrame(tick);
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!autoplayOnTouch || touchEntrancePlayed || reduced.current ||
+        window.matchMedia(MOUSE_INPUT).matches) return;
+
+    let active = true;
+    // Let the page entrance uncover the wordmark before playing its one orbit.
+    const entrance = document.querySelector('[data-initial-entrance]');
+    const animations = entrance?.getAnimations() ?? [];
+    void Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+      if (!active || touchEntrancePlayed || reduced.current) return;
+      touchEntrancePlayed = true;
+      motion.current = { kind: "hover", start: 0 };
+      void play();
+    });
+    return () => { active = false; };
+  }, [autoplayOnTouch, play]);
 
   function hover() {
     if (running.current || reduced.current) return;
@@ -176,9 +198,11 @@ export default function Wordmark({
       role="img"
       aria-label="Design Waterloo"
       style={{ overflow: "visible" }}
-      onPointerLeave={leave}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse" && window.matchMedia(MOUSE_INPUT).matches) leave();
+      }}
       onPointerEnter={(event) => {
-        if (event.pointerType === "mouse") hover();
+        if (event.pointerType === "mouse" && window.matchMedia(MOUSE_INPUT).matches) hover();
       }}
     >
       <g dangerouslySetInnerHTML={{ __html: data.base }} />
@@ -197,8 +221,10 @@ export default function Wordmark({
         width="72"
         height="40"
         fill="transparent"
-        style={{ cursor: "pointer" }}
+        className={styles.spinTarget}
         onClick={(event) => {
+          if (!window.matchMedia(MOUSE_INPUT).matches ||
+              ("pointerType" in event.nativeEvent && event.nativeEvent.pointerType !== "mouse")) return;
           event.preventDefault();
           event.stopPropagation();
           const bounds = event.currentTarget.getBoundingClientRect();

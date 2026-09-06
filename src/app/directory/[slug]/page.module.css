@@ -130,13 +130,12 @@
   .nameRow {
     grid-column: 1;
     grid-row: 1;
-    flex-direction: column;
-    align-items: flex-start;
     margin-bottom: var(--smaller);
   }
 
   .name {
-    margin-bottom: var(--smaller);
+    min-width: 0;
+    flex: 1;
   }
 
   .editButton {

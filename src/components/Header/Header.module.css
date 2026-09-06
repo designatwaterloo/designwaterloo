@@ -219,7 +219,7 @@
 }
 
 /* Hover — lines spread apart */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .menuButton:hover .menuIcon:not(.menuIconOpen) span:first-child {
     top: -3px;
   }
