@@ -176,9 +176,15 @@ function ProfileContentInner({
       <section className={`${styles.section} ${editMode ? styles.editMode : ""}`}>
         {/* Name Row */}
         <div className={styles.nameRow}>
-          <h1 className={styles.name}>
-            {firstName} {lastName}
-          </h1>
+          <div className={styles.identity}>
+            <h1 className={styles.name}>
+              {firstName} {lastName}
+            </h1>
+            <p className={styles.username} aria-label={`Design Waterloo username: @${memberSlug}`}>
+              <span className={styles.usernameIcon} aria-hidden="true" />
+              <span>{memberSlug}</span>
+            </p>
+          </div>
           {isOwner && !editMode && (
             <button
               type="button"
