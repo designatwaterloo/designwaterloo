@@ -6,7 +6,6 @@ import { safeRedirect } from "@/lib/auth/redirect";
 import { isTestLoginEmail } from "@/lib/supabase/test-accounts";
 import { useSearchParams } from "next/navigation";
 
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
@@ -312,7 +311,6 @@ function SignInContent() {
 export default function SignInPage() {
   return (
     <div>
-      <Header />
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-8 min-h-[60vh] justify-center items-center">
           <Suspense fallback={<div className={styles.content}>Loading...</div>}>

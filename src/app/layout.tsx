@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
+import Header from "@/components/Header";
 import InitialEntrance from "@/components/InitialEntrance";
 import { AuthRecovery } from "@/components/auth/AuthRecovery";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -56,6 +57,7 @@ export default function RootLayout({
           <ImpersonationBanner />
           <ConsoleEasterEgg />
           <InitialEntrance />
+          <Header />
           <AuthRecovery>{children}</AuthRecovery>
         </AuthProvider>
         <Analytics />

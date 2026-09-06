@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import styles from "./page.module.css";
@@ -166,8 +165,6 @@ export default async function PersonDetail({
 
   return (
     <div>
-      <Header />
-
       <main className="w-full">
         {member.is_approved && (
           <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton}>

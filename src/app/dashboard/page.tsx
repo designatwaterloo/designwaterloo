@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -47,7 +46,6 @@ export default function DashboardPage() {
   if (authLoading || !user || !member) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex flex-col items-center justify-center gap-4">
           <p>Loading...</p>
           {showFallback && (
@@ -77,7 +75,6 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <Header />
       <main className="w-full min-h-[60vh]">
         <section className={styles.section}>
           <h1 className={styles.title}>{member.first_name} {member.last_name}</h1>

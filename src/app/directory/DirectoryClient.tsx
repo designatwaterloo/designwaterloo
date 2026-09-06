@@ -2,7 +2,6 @@
 
 import { useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Member } from "@/sanity/types";
 import { decodeTermCode } from "@/lib/termUtils";
@@ -75,8 +74,6 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
 
   return (
     <div className="w-full">
-      <Header />
-
       <main className="w-full">
         <section className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
           <div className="flex justify-between items-center">

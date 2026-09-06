@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
 import Link from "@/components/Link";
@@ -31,7 +30,7 @@ export default async function Home() {
 
   return (
     <div className="w-full">
-      <Header />
+
 
       {/* Main Content */}
       <main className="w-full">

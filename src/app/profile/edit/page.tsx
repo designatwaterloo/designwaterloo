@@ -8,7 +8,6 @@ import { findOrInitMember } from "@/lib/supabase/member-init";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import { validateUsername } from "@/lib/usernames";
 import { PROGRAMS } from "@/data/programs";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
@@ -319,7 +318,6 @@ export default function EditProfilePage() {
   if (loaderPhase < 5) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
           <div className={styles.loader}>
             <p className={`${styles.loaderLine} ${loaderPhase >= 1 ? styles.loaderLineVisible : ""}`}>
@@ -344,7 +342,6 @@ export default function EditProfilePage() {
   if (member?.onboarding_completed) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
           <p>Redirecting to your profile...</p>
         </main>
@@ -355,7 +352,6 @@ export default function EditProfilePage() {
 
   return (
     <div>
-      <Header />
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-8">
           <div className={styles.header}>

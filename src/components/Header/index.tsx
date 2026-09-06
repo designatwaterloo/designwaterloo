@@ -41,9 +41,6 @@ export default function Header() {
     setIsNavOpen(false);
   }, [pathname]);
 
-  // Badge label for desktop
-  const badgeLabel = reviewStatus === "pending_review" ? "Under review" : "Unsubmitted";
-
   // Ring color class for mobile
   const ringClass =
     reviewStatus === "pending_review"
@@ -76,18 +73,6 @@ export default function Header() {
               priority
             />
           </Link>
-          <div className={`${styles.headerActions} hidden sm:flex col-start-11 col-span-2`}>
-            <button
-              onClick={() => setIsNavOpen(true)}
-              className={`btn-menu ${styles.menuButton}`}
-              aria-label="Open navigation"
-            >
-              <div className={styles.menuIcon}>
-                <span></span>
-                <span></span>
-              </div>
-            </button>
-          </div>
         </div>
       </header>
 
