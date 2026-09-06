@@ -105,8 +105,8 @@
 }
 
 .primaryButtonDefault {
-  width: 24px;
-  height: 24px;
+  /* Reserve the same footprint before and after the profile loads. */
+  padding: 4px;
 }
 
 .primaryButton :global(img),

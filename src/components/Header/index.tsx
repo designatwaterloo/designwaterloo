@@ -105,8 +105,9 @@ export default function Header() {
           <Image
             src={avatarSrc}
             alt={hasProfile ? "Your profile" : "Sign in"}
-            width={20}
-            height={20}
+            width={32}
+            height={32}
+            loading="eager"
           />
         </Link>
       </div>

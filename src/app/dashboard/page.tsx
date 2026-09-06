@@ -80,7 +80,7 @@ export default function DashboardPage() {
   return (
     <div>
       <Header />
-      <main className="w-full">
+      <main className="w-full min-h-[60vh]">
         <section className={styles.section}>
           <h1 className={styles.title}>{member.first_name} {member.last_name}</h1>
 

@@ -191,7 +191,7 @@ export function InlineEditProvider({
     setSaveError(null);
   }, []);
 
-  const save = useCallback(async (submit = false) => {
+  const saveProfile = useCallback(async (submit: boolean) => {
     console.log("[InlineEdit] save called, isOwner:", isOwner, "member:", member?.id);
     if (!isOwner || !member) {
       console.error("[InlineEdit] save aborted: isOwner=", isOwner, "member=", member);
@@ -264,9 +264,9 @@ export function InlineEditProvider({
     }).catch(() => {});
   }, [isOwner, member, supabase, fields, experiences, leadership, memberSlug, refreshMember]);
 
-  const submitForReview = useCallback(async () => {
-    await save(true);
-  }, [save]);
+  // DOM handlers pass an event; never expose the RPC submission flag as a handler argument.
+  const save = useCallback(() => saveProfile(false), [saveProfile]);
+  const submitForReview = useCallback(() => saveProfile(true), [saveProfile]);
 
   return (
     <InlineEditContext.Provider
