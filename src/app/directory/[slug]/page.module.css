@@ -177,7 +177,7 @@
     margin-bottom: var(--smaller);
   }
 
-  .name {
+  .identity {
     min-width: 0;
     flex: 1;
   }
