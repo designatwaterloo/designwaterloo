@@ -40,7 +40,7 @@ export default async function Home() {
         <section className="w-full px-[var(--margin)] pb-12 sm:pb-0 flex flex-col gap-8 sm:gap-12">
           {/* Wordmark */}
           <div className="w-full">
-            <Wordmark className="w-full h-auto" />
+            <Wordmark className="w-full h-auto" autoplayOnTouch />
           </div>
 
           <div className={styles.heroIntro}>

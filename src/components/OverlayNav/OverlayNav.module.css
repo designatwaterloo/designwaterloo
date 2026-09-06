@@ -88,10 +88,11 @@
   height: 100%;
 }
 
-/* Mobile: Keep logo at top left (0-768px) */
+/* Mobile: center the logo within the same header row as the controls. */
 @media (max-width: 768px) {
   .logoSection {
     flex: 0 0 auto;
+    justify-content: center;
   }
 }
 
@@ -106,6 +107,17 @@
 .opening .logo {
   opacity: 1;
   transition-delay: 0.725s;
+}
+
+/* Signed-in users see their name on desktop and the logo on mobile. */
+.authenticatedLogo {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .authenticatedLogo {
+    display: block;
+  }
 }
 
 .closing .logo {
@@ -203,7 +215,7 @@
   transition-duration: 0.2s, 0.2s, 0.6s, 0.6s;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .navItem:hover {
     background-color: var(--white);
     color: var(--black);
@@ -391,7 +403,7 @@
   transition: color 0.15s ease;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .userLink:hover {
     color: var(--white);
   }

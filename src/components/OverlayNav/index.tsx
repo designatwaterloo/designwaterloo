@@ -124,7 +124,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
         {/* Top Section - Logo + user info (desktop: also contains nav) */}
         <div className={styles.topSection}>
           <div className={styles.logoSection}>
-            {!loading && user && member ? (
+            {!loading && user && member && (
               <div className={`${styles.userInfo} ${isAnimating && isOpen ? styles.userInfoOpening : ''} ${isClosing ? styles.userInfoClosing : ''}`}>
                 <span className={styles.userName}>
                   {member.first_name} {member.last_name}
@@ -145,15 +145,14 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   </button>
                 </div>
               </div>
-            ) : (
-              <Image
-                src="/Design Waterloo Logo.svg"
-                alt="Design Waterloo"
-                width={45}
-                height={36}
-                className={styles.logo}
-              />
             )}
+            <Image
+              src="/Design Waterloo Logo.svg"
+              alt="Design Waterloo"
+              width={45}
+              height={36}
+              className={`${styles.logo} ${!loading && user && member ? styles.authenticatedLogo : ''}`}
+            />
           </div>
 
           {/* Desktop only: nav sits beside logo */}
