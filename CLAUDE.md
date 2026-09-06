@@ -86,8 +86,7 @@ src/
     supabase/
       server.ts         # Server-side Supabase client
       client.ts         # Browser-side Supabase client
-      with-timeout.ts   # Per-call timeout helpers (withTimeout / withAbortableTimeout)
-      fetch-with-ceiling.ts # 15s hard ceiling on every SDK fetch
+      rest.ts           # REST API helper with 8s timeout
       auth-utils.ts     # Email validation, school detection, slug generation
     haptics.ts
     specialties.ts      # 17 design specialties with URL codes
@@ -118,7 +117,7 @@ Other domains are rejected at the sign-in step.
 Members progress through: `draft` → `pending_review` → `approved` / `rejected`
 
 - Auth callback automatically creates a `draft` member row
-- Onboarding sets `onboarding_completed = true` but leaves status `draft`; the user must explicitly "Submit for review" (profile page or dashboard) to reach `pending_review`
+- After onboarding, status becomes `pending_review`
 - Admin approves/rejects from `/admin`
 - Only `approved` members appear in the public directory
 
@@ -135,7 +134,7 @@ Members progress through: `draft` → `pending_review` → `approved` / `rejecte
 Primary user profiles. Key fields:
 - `id`, `user_id` (auth foreign key), `slug` (unique URL identifier)
 - `first_name`, `last_name`, `email`, `school`, `program`, `grad_year`
-- `bio`, `profile_image_url`, `portfolio`, `linkedin`, `github`, `instagram`, `twitter`, `behance`, `dribbble`
+- `bio`, `avatar_url`, `portfolio_url`, `linkedin_url`, `github_url`
 - `specialties` (array), `work_schedule` (array)
 - `review_status` — `draft | pending_review | approved | rejected`
 - `onboarding_completed` (bool), `is_approved` (bool), `is_admin` (bool)
@@ -186,7 +185,7 @@ Codes are used as URL query parameters for filtering the directory.
 ## Data Flow Patterns
 
 1. **Directory page:** Server component fetches `approved` members from Supabase → passes to `DirectoryClient` for client-side filtering/search.
-2. **Profile update:** Client calls `/api/upload-image` → image stored on Sanity CDN → member `profile_image_url` updated in Supabase → `/api/revalidate-profile` triggers ISR.
+2. **Profile update:** Client calls `/api/upload-image` → image stored on Sanity CDN → member `avatar_url` updated in Supabase → `/api/revalidate-profile` triggers ISR.
 3. **Slug generation:** `auth-utils.ts` generates URL-safe slugs from names; appends numeric suffix if duplicate (e.g., `jane-doe-2`).
 
 ---

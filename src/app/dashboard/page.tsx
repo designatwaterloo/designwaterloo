@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -23,9 +22,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (authLoading) return;
 
-    // Auth-recovery redirects use router.replace, not the cinematic
-    // transition. If TransitionContext stalls, we still escape the
-    // loading screen.
+    // Replace recovery routes so Back does not return to a stale loading screen.
     if (!user) {
       router.replace("/sign-in");
       return;
@@ -49,7 +46,6 @@ export default function DashboardPage() {
   if (authLoading || !user || !member) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex flex-col items-center justify-center gap-4">
           <p>Loading...</p>
           {showFallback && (
@@ -79,8 +75,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <Header />
-      <main className="w-full">
+      <main className="w-full min-h-[60vh]">
         <section className={styles.section}>
           <h1 className={styles.title}>{member.first_name} {member.last_name}</h1>
 
@@ -179,8 +174,6 @@ export default function DashboardPage() {
           <button
             type="button"
             className={styles.signOutButton}
-            data-cursor="button"
-            data-cursor-label="Sign Out"
             onClick={() => signOut()}
           >
             Sign out

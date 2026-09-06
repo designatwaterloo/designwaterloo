@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLenis } from "lenis/react";
 import { useInlineEdit } from "./InlineEditProvider";
 import styles from "./InlineEdit.module.css";
 
@@ -22,16 +21,16 @@ interface SocialLinksModalProps {
 
 export default function SocialLinksModal({ isOpen, onClose }: SocialLinksModalProps) {
   const { fields, setField } = useInlineEdit();
-  const lenis = useLenis();
 
-  // Stop Lenis while modal is open
+  // Keep background scrolling locked while the modal is open.
   useEffect(() => {
-    if (!isOpen || !lenis) return;
-    lenis.stop();
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      lenis.start();
+      document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen, lenis]);
+  }, [isOpen]);
 
   // Close on Escape
   useEffect(() => {
@@ -54,7 +53,7 @@ export default function SocialLinksModal({ isOpen, onClose }: SocialLinksModalPr
       role="dialog"
       aria-modal="true"
     >
-      <div className={styles.socialModal} data-lenis-prevent>
+      <div className={styles.socialModal}>
         <div className={styles.socialHeader}>
           <h3 className={styles.socialTitle}>Edit Social Links</h3>
           <button

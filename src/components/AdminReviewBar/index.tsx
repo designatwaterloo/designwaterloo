@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useTransition } from "@/context/TransitionContext";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "@/components/Link";
 import RejectionModal from "./RejectionModal";
@@ -13,7 +13,7 @@ interface AdminReviewBarProps {
 }
 
 export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarProps) {
-  const { startTransition } = useTransition();
+  const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [visible, setVisible] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -34,7 +34,7 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
       .eq("id", memberId);
 
     if (!error) {
-      startTransition("/admin");
+      router.push("/admin");
     }
     setActionLoading(false);
   };
@@ -53,7 +53,7 @@ export default function AdminReviewBar({ memberId, memberName }: AdminReviewBarP
 
     if (!error) {
       setShowRejectModal(false);
-      startTransition("/admin");
+      router.push("/admin");
     }
     setActionLoading(false);
   };

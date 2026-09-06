@@ -1,7 +1,10 @@
 export interface Database {
   public: {
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      ensure_member: { Args: Record<string, never>; Returns: { slug: string; onboardingCompleted: boolean; outcome: "linked" | "created" } };
+      save_my_profile: { Args: { profile: Record<string, unknown>; experiences: Record<string, unknown>[]; leadership: Record<string, unknown>[]; submit?: boolean }; Returns: undefined };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
     Tables: {

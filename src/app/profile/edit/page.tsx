@@ -2,13 +2,12 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useTransition } from "@/context/TransitionContext";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { findOrInitMember } from "@/lib/supabase/member-init";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
 import { validateUsername } from "@/lib/usernames";
 import { PROGRAMS } from "@/data/programs";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
@@ -20,7 +19,7 @@ function useSupabase() {
 
 export default function EditProfilePage() {
   const { user, member, loading: authLoading, refreshMember } = useAuth();
-  const { startTransition } = useTransition();
+  const router = useRouter();
   const supabase = useSupabase();
 
   const [saving, setSaving] = useState(false);
@@ -75,15 +74,15 @@ export default function EditProfilePage() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) startTransition("/sign-in");
-  }, [authLoading, user, startTransition]);
+    if (!authLoading && !user) router.push("/sign-in");
+  }, [authLoading, user, router]);
 
   // If member exists AND onboarding is completed, redirect (unless we're mid-submit)
   useEffect(() => {
     if (!authLoading && member?.onboarding_completed && !submittingRef.current) {
-      startTransition("/dashboard");
+      router.push("/dashboard");
     }
-  }, [authLoading, member, startTransition]);
+  }, [authLoading, member, router]);
 
   // Pre-fill form from OAuth metadata or existing draft member
   useEffect(() => {
@@ -223,43 +222,25 @@ export default function EditProfilePage() {
     }, 400);
   };
 
-  // refreshMember with timeout
+  // Refresh the shared profile snapshot after account initialization.
   const safeRefresh = useCallback(async () => {
-    try {
-      await Promise.race([
-        refreshMember(),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("refreshMember timed out")), 5000)
-        ),
-      ]);
-      console.log("[Onboarding] refreshMember succeeded");
-    } catch (err) {
-      console.warn("[Onboarding] refreshMember timed out, continuing:", err);
-    }
+    await refreshMember();
   }, [refreshMember]);
 
   // Create draft member row during loader — delegates to shared findOrInitMember
   const createDraftRow = useCallback(async () => {
     if (!user?.email || rowCreated.current) return;
     rowCreated.current = true;
-    console.log("[Onboarding] createDraftRow for", user.email);
 
-    const result = await findOrInitMember(supabase, user.id, user.email, fullName || undefined);
-
-    // No row for this user but backfilled name matches exist — send them to the
-    // claim flow instead of rendering an empty form / creating a fresh draft.
-    if (result.outcome === "claim") {
-      console.log("[Onboarding] Claim candidates found, redirecting to /claim");
-      startTransition("/claim");
-      return;
+    try {
+      await findOrInitMember(supabase);
+      await safeRefresh();
+    } catch (err) {
+      rowCreated.current = false;
+      setError(err instanceof Error ? err.message : "Could not set up your profile. Please retry.");
     }
 
-    if (result.error) {
-      console.error("[Onboarding] Draft creation failed:", result.error);
-    }
-
-    await safeRefresh();
-  }, [user, fullName, supabase, safeRefresh, startTransition]);
+  }, [user, supabase, safeRefresh]);
 
   // Skip loader if member appears
   useEffect(() => {
@@ -316,100 +297,17 @@ export default function EditProfilePage() {
         onboarding_completed: true,
       };
 
-      if (member) {
-        console.log("[Onboarding] PATCH update for member:", member.id);
-        const { data, error: updateErr } = await supabase
-          .from("members")
-          .update(updatePayload)
-          .eq("id", member.id)
-          .select();
+      // Resolve the one account row first; never infer permission to insert from a failed read.
+      await findOrInitMember(supabase);
+      const { data, error: updateErr } = await supabase.from("members")
+        .update(updatePayload).eq("auth_user_id", user.id).select("id").single();
+      if (updateErr || !data) throw new Error(updateErr?.message ?? "Profile could not be saved. Please retry.");
+      await refreshMember();
+      window.location.assign(`/directory/${finalSlug}`);
 
-        if (updateErr) {
-          setError(`Failed to save: ${updateErr.message}`);
-          setSaving(false);
-          return;
-        }
-        if (!data || data.length === 0) {
-          // Zero rows = RLS refused the update (row not linked to this auth
-          // user), not an expired session — don't send people to re-login.
-          setError("Couldn't save — your account isn't linked to this profile. Refresh the page; if this keeps happening, contact us.");
-          setSaving(false);
-          return;
-        }
-
-        console.log("[Onboarding] Update succeeded, redirecting...");
-        startTransition(`/directory/${finalSlug}`);
-      } else {
-        // Draft row may already exist (createDraftRow ran but refreshMember didn't propagate)
-        const { data: existing } = await supabase
-          .from("members")
-          .select("id")
-          .eq("auth_user_id", user.id)
-          .maybeSingle();
-
-        if (existing) {
-          console.log("[Onboarding] Found existing draft, PATCHing:", existing.id);
-          const { data, error: updateErr } = await supabase
-            .from("members")
-            .update(updatePayload)
-            .eq("id", existing.id)
-            .select();
-
-          if (updateErr) {
-            setError(`Failed to save: ${updateErr.message}`);
-            setSaving(false);
-            return;
-          }
-          if (!data || data.length === 0) {
-            setError("Update failed — please refresh and try again.");
-            setSaving(false);
-            return;
-          }
-
-          console.log("[Onboarding] Draft update succeeded, redirecting...");
-          startTransition(`/directory/${finalSlug}`);
-        } else {
-          console.log("[Onboarding] POST insert (no draft)");
-          const { data, error: insertErr } = await supabase
-            .from("members")
-            .insert({
-              auth_user_id: user.id,
-              first_name: firstName,
-              last_name: lastName,
-              slug: finalSlug,
-              slug_confirmed: true,
-              school_email: user.email,
-              school,
-              program: program || null,
-              graduating_class: graduatingClass || null,
-              onboarding_completed: true,
-              is_approved: false,
-              review_status: "draft" as const,
-            })
-            .select();
-
-          if (insertErr) {
-            setError(
-              insertErr.message.includes("slug")
-                ? "This profile URL was just taken. Please choose a different one."
-                : `Failed to create profile: ${insertErr.message}`
-            );
-            setSaving(false);
-            return;
-          }
-          if (!data || data.length === 0) {
-            setError("Insert failed — please refresh and try again.");
-            setSaving(false);
-            return;
-          }
-
-          console.log("[Onboarding] Insert succeeded, redirecting...");
-          startTransition(`/directory/${finalSlug}`);
-        }
-      }
     } catch (err) {
       console.error("[Onboarding] Unexpected error:", err);
-      setError("Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setSaving(false);
       submittingRef.current = false;
     }
@@ -420,7 +318,6 @@ export default function EditProfilePage() {
   if (loaderPhase < 5) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
           <div className={styles.loader}>
             <p className={`${styles.loaderLine} ${loaderPhase >= 1 ? styles.loaderLineVisible : ""}`}>
@@ -445,7 +342,6 @@ export default function EditProfilePage() {
   if (member?.onboarding_completed) {
     return (
       <div>
-        <Header />
         <main className="w-full min-h-[60vh] flex items-center justify-center">
           <p>Redirecting to your profile...</p>
         </main>
@@ -456,7 +352,6 @@ export default function EditProfilePage() {
 
   return (
     <div>
-      <Header />
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-8">
           <div className={styles.header}>
@@ -567,7 +462,7 @@ export default function EditProfilePage() {
                     )}
                   </div>
                   {programOpen && filteredPrograms.length > 0 && (
-                    <div className={styles.comboboxDropdown} data-lenis-prevent data-cursor="default">
+                    <div className={styles.comboboxDropdown}>
                       {filteredPrograms.map((p) => (
                         <button
                           key={p}

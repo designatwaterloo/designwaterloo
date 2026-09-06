@@ -42,3 +42,13 @@ next-env.d.ts
 
 # Local planning docs (specs/plans) — not part of the PR diff
 docs/superpowers/
+.env*.local
+
+# Isolated browser-test build and artifacts
+/.next-e2e/
+/playwright-report/
+/test-results/
+
+# Regenerated offline wordmark distance fields
+scripts/wordmark/contours.f32
+scripts/wordmark/contours-size.json

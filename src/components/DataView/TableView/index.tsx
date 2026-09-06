@@ -37,7 +37,6 @@ export default function TableView<T>({
   sortDirection = "asc",
   onItemClick,
   renderHoverPreview,
-  getCursorLabel,
 }: TableViewProps<T>) {
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
 
@@ -85,7 +84,6 @@ export default function TableView<T>({
               onMouseEnter={() => setHoveredItemId(itemId)}
               onMouseLeave={() => setHoveredItemId(null)}
               onClick={() => onItemClick?.(item)}
-              {...(getCursorLabel ? { "data-cursor": "grid-item", "data-cursor-label": getCursorLabel(item) } : {})}
             >
               <Link
                 href={getItemHref(item)}

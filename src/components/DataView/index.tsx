@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { DataViewProps, GridColumnsConfig } from "./types";
 import GridView from "./GridView";
 import TableView from "./TableView";
@@ -73,15 +73,16 @@ export default function DataView<T>({
   gridColumns,
   onItemClick,
   storageKey,
-  getCursorLabel,
   initialFilters,
   onFiltersChange,
 }: DataViewProps<T>) {
+  const [preferencesReady, setPreferencesReady] = useState(false);
+
   // View mode state
   const [viewMode, setViewMode] = useState<"grid" | "table">(viewModeConfig.defaultMode);
   const [isDesktop, setIsDesktop] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
+  const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(() => !!initialFilters && Object.values(initialFilters).some(values => values.length > 0));
 
   const mainContentRef = useRef<HTMLDivElement>(null);
   const overrideTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
@@ -90,7 +91,12 @@ export default function DataView<T>({
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>(initialFilters ?? {});
+
+  useEffect(() => () => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (overrideTimerRef.current) clearTimeout(overrideTimerRef.current);
+  }, []);
 
   // Debounce search input
   const handleSearchChange = useCallback((value: string) => {
@@ -105,8 +111,8 @@ export default function DataView<T>({
     sortConfig?.defaultDirection || "asc"
   );
 
-  // Detect desktop/mobile
-  useEffect(() => {
+  // Detect desktop/mobile before painting the restored filter layout.
+  useLayoutEffect(() => {
     const checkDesktop = () => {
       setIsDesktop(window.innerWidth >= 769);
     };
@@ -117,16 +123,18 @@ export default function DataView<T>({
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Load view mode and filters from URL params (priority) or localStorage
-  useEffect(() => {
+  // Restore browser preferences before the hydration commit paints.
+  useLayoutEffect(() => {
     const hasInitialFilters = initialFilters && Object.values(initialFilters).some((v) => v.length > 0);
 
     // Always restore saved view mode
     if (storageKey && typeof window !== "undefined") {
-      const savedView = localStorage.getItem(storageKey);
-      if (savedView === "grid" || savedView === "table") {
-        setViewMode(savedView);
-      }
+      try {
+        const savedView = localStorage.getItem(storageKey);
+        if (savedView === "grid" || savedView === "table") {
+          setViewMode(savedView);
+        }
+      } catch { /* Storage may be unavailable. */ }
     }
 
     if (hasInitialFilters) {
@@ -145,7 +153,8 @@ export default function DataView<T>({
             setSearchTerm(parsed.searchTerm);
             setSearchInput(parsed.searchTerm);
           }
-          if (parsed.selectedFilters && typeof parsed.selectedFilters === "object") {
+          if (parsed.selectedFilters && !Array.isArray(parsed.selectedFilters) &&
+              Object.values(parsed.selectedFilters).every(values => Array.isArray(values) && values.every(value => typeof value === "string"))) {
             setSelectedFilters(parsed.selectedFilters);
           }
           if (parsed.filterPanelOpen === true) {
@@ -156,37 +165,39 @@ export default function DataView<T>({
         // Ignore parse errors
       }
     }
+    setPreferencesReady(true);
   }, [storageKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save view mode to localStorage
   const handleViewModeChange = (mode: "grid" | "table") => {
     setViewMode(mode);
-    if (storageKey && typeof window !== "undefined") {
-      localStorage.setItem(storageKey, mode);
-    }
+    try { if (storageKey) localStorage.setItem(storageKey, mode); } catch { /* Optional persistence. */ }
   };
 
   // Persist filters and filter panel state to localStorage when they change
   useEffect(() => {
-    if (storageKey && typeof window !== "undefined") {
-      const hasFilters =
-        searchTerm !== "" ||
-        Object.values(selectedFilters).some((vals) => vals.length > 0);
-      const filterPanelOpen = isFilterPanelVisible || isMobileFilterOpen;
-      if (hasFilters || filterPanelOpen) {
-        localStorage.setItem(
-          `${storageKey}.filters`,
-          JSON.stringify({
-            searchTerm,
-            selectedFilters,
-            filterPanelOpen,
-          })
-        );
-      } else {
-        localStorage.removeItem(`${storageKey}.filters`);
+    if (!preferencesReady) return;
+    try {
+      if (storageKey && typeof window !== "undefined") {
+        const hasFilters =
+          searchTerm !== "" ||
+          Object.values(selectedFilters).some((vals) => vals.length > 0);
+        const filterPanelOpen = isFilterPanelVisible || isMobileFilterOpen;
+        if (hasFilters || filterPanelOpen) {
+          localStorage.setItem(
+            `${storageKey}.filters`,
+            JSON.stringify({
+              searchTerm,
+              selectedFilters,
+              filterPanelOpen,
+            })
+          );
+        } else {
+          localStorage.removeItem(`${storageKey}.filters`);
+        }
       }
-    }
-  }, [storageKey, searchTerm, selectedFilters, isFilterPanelVisible, isMobileFilterOpen]);
+    } catch { /* Optional persistence. */ }
+  }, [preferencesReady, storageKey, searchTerm, selectedFilters, isFilterPanelVisible, isMobileFilterOpen]);
 
   // Filter items
   const filteredItems = useMemo(() => {
@@ -262,8 +273,8 @@ export default function DataView<T>({
       didMount.current = true;
       return;
     }
-    onFiltersChange?.(selectedFilters);
-  }, [selectedFilters]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (preferencesReady) onFiltersChange?.(selectedFilters);
+  }, [selectedFilters, preferencesReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle filter change
   const handleFilterChange = (filterKey: string, values: string[]) => {
@@ -360,7 +371,7 @@ export default function DataView<T>({
               />
             )}
             {filterConfig.length > 0 && (
-              <div className={styles.filterButtonWrapper} data-cursor="button" data-cursor-label="Filters">
+              <div className={styles.filterButtonWrapper}>
                 <Button
                   onClick={() => {
                     if (isDesktop) {
@@ -460,7 +471,6 @@ export default function DataView<T>({
               className={gridClassName}
               onItemClick={onItemClick}
               gridColumns={gridColumns}
-              getCursorLabel={getCursorLabel}
             />
           ) : (
             <TableView
@@ -473,7 +483,6 @@ export default function DataView<T>({
               sortDirection={sortDirection}
               onItemClick={onItemClick}
               renderHoverPreview={renderHoverPreview}
-              getCursorLabel={getCursorLabel}
             />
           )}
         </div>

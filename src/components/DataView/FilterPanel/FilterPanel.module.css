@@ -77,7 +77,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--margin);
-  border-bottom: 2px solid var(--foreground);
+  border-bottom: 1px solid var(--foreground);
 }
 
 .panelHeader h2 {

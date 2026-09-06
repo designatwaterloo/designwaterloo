@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
 import type { Metadata } from "next";
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div>
-      <Header />
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-12">
           <h1>The best designers go to Waterloo.</h1>

@@ -2,11 +2,10 @@
 
 import { Suspense, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { isLaurierEmail } from "@/lib/supabase/auth-utils";
+import { safeRedirect } from "@/lib/auth/redirect";
 import { isTestLoginEmail } from "@/lib/supabase/test-accounts";
 import { useSearchParams } from "next/navigation";
-import { useTransition } from "@/context/TransitionContext";
-import Header from "@/components/Header";
+
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 
@@ -17,6 +16,8 @@ function SignInContent() {
   const reset = searchParams.get("reset");
   const redirectTo = searchParams.get("redirectTo");
 
+  const [oauthError, setOauthError] = useState<string | null>(null);
+  const [oauthBusy, setOauthBusy] = useState(false);
   const [showLaurierFlow, setShowLaurierFlow] = useState(false);
   const [laurierUsername, setLaurierUsername] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -52,7 +53,7 @@ function SignInContent() {
     setOtpSent(true);
   };
 
-  const { startTransition } = useTransition();
+
 
   const handleVerifyOtp = async () => {
     setLaurierError(null);
@@ -84,7 +85,7 @@ function SignInContent() {
           setLaurierError(data.error || "Test login failed.");
           return;
         }
-        window.location.assign(data.redirectTo || "/profile/edit");
+        window.location.assign(safeRedirect(data.redirectTo, "/profile/edit"));
         return;
       } catch {
         setVerifyingOtp(false);
@@ -113,13 +114,11 @@ function SignInContent() {
     const supabase = createClient();
 
     try {
-      const result = await findOrInitMember(supabase, user.id, user.email!);
-      if (result.outcome === "claim") {
-        startTransition("/claim");
-      } else if (result.onboardingCompleted) {
-        startTransition(redirectTo || `/directory/${result.slug}`);
+      const result = await findOrInitMember(supabase);
+      if (result.onboardingCompleted) {
+        window.location.assign(safeRedirect(redirectTo, `/directory/${result.slug}`));
       } else {
-        startTransition(redirectTo || "/profile/edit");
+        window.location.assign(safeRedirect(redirectTo, "/profile/edit"));
       }
     } catch (err) {
       console.error("[OTP] Failed to initialise member record:", err);
@@ -184,11 +183,15 @@ function SignInContent() {
         </div>
       )}
 
+      {oauthError && <p role="alert">{oauthError}</p>}
       <button
         className={styles.microsoftButton}
-        onClick={() => signInWithMicrosoft(redirectTo || undefined)}
-        data-cursor="button"
-        data-cursor-label="UWaterloo SSO →"
+        disabled={oauthBusy}
+        onClick={async () => {
+          setOauthBusy(true); setOauthError(null);
+          try { await signInWithMicrosoft(redirectTo || undefined); }
+          catch { setOauthError("Could not start Microsoft sign-in. Please retry."); setOauthBusy(false); }
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -212,8 +215,6 @@ function SignInContent() {
         <button
           className={styles.laurierButton}
           onClick={() => setShowLaurierFlow(true)}
-          data-cursor="button"
-          data-cursor-label="Email Code →"
         >
           Sign in with @mylaurier.ca
         </button>
@@ -248,8 +249,6 @@ function SignInContent() {
           <div
             className={styles.otpBoxes}
             onClick={() => otpRef.current?.focus()}
-            data-cursor="text"
-            data-cursor-label="Enter Code"
           >
             <input
               ref={otpRef}
@@ -312,7 +311,6 @@ function SignInContent() {
 export default function SignInPage() {
   return (
     <div>
-      <Header />
       <main className="w-full">
         <section className="w-full px-(--margin) py-12 flex flex-col gap-8 min-h-[60vh] justify-center items-center">
           <Suspense fallback={<div className={styles.content}>Loading...</div>}>

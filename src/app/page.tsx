@@ -1,18 +1,19 @@
-import Header from "@/components/Header";
+import Wordmark from "@/components/Wordmark";
+import styles from "./Home.module.css";
 import Footer from "@/components/Footer";
 import Button from "@/components/Button";
 import Link from "@/components/Link";
 import SkeletonImage from "@/components/SkeletonImage";
 import ScrollReveal from "@/components/ScrollReveal";
 import VimeoBackground from "@/components/VimeoBackground";
-import { createClient } from "@/lib/supabase/server";
+import { createStaticClient } from "@/lib/supabase/static";
 import { Member } from "@/types/database";
 import { TEST_ACCOUNT_EMAIL_SUFFIX } from "@/lib/supabase/test-accounts";
 
 export const revalidate = 30;
 
 export default async function Home() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
 
   const { data } = await supabase
     .from("members")
@@ -31,7 +32,7 @@ export default async function Home() {
 
   return (
     <div className="w-full">
-      <Header />
+
 
       {/* Main Content */}
       <main className="w-full">
@@ -39,23 +40,14 @@ export default async function Home() {
         <section className="w-full px-[var(--margin)] pb-12 sm:pb-0 flex flex-col gap-8 sm:gap-12">
           {/* Wordmark */}
           <div className="w-full">
-            <img 
-              src="/Design Waterloo Wordmark Horizontal.svg" 
-              alt="Design Waterloo" 
-              className="w-full h-auto"
-            />
+            <Wordmark className="w-full h-auto" />
           </div>
 
-          {/* Mobile: Heading */}
-          <h1 className="hero-heading sm:hidden">
-            The home for design talent at Waterloo, and where to find them.
-          </h1>
-
-          <div className="flex flex-col items-start sm:grid sm:grid-cols-12 gap-[var(--gap)] w-full sm:items-center">
-            <h1 className="hero-heading hidden sm:block sm:col-span-6">
+          <div className={styles.heroIntro}>
+            <h1 className="hero-heading">
               The home for design talent at Waterloo, and where to find them.
             </h1>
-            <div className="flex flex-row-reverse sm:flex-row gap-[var(--tinier)] sm:gap-[var(--gap)] justify-start sm:col-span-6 sm:justify-end">
+            <div className={styles.heroActions}>
               <Button href="https://docs.google.com/forms/d/e/1FAIpQLSe39IpLj1jdWg54ZTnOlKrcDbitAfCq3G1Y7r7YPoFL1vyJCw/viewform?usp=sharing&ouid=111313787204079300834" variant="secondary" target="_blank">Get involved</Button>
               <Button href="/directory" variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
             </div>
@@ -97,8 +89,6 @@ export default async function Home() {
                   href={`/directory/${member.slug}`}
                   className="group block p-[calc(var(--gap)/2)]"
                   underline={false}
-                  data-cursor="internal-link"
-                  data-cursor-label={`${member.first_name} ${member.last_name} →`}
                 >
                   {member.profile_image_url ? (
                     <SkeletonImage
