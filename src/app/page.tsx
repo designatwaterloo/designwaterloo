@@ -86,7 +86,7 @@ export default async function Home() {
             {members.map((member, index) => (
               <ScrollReveal key={member.id} index={index}>
                 <Link
-                  href={`/directory/${member.slug}`}
+                  href={`/@${member.slug}`}
                   className="group block p-[calc(var(--gap)/2)]"
                   underline={false}
                 >

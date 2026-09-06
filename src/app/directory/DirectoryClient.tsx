@@ -85,7 +85,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
           <DataView<Member>
             items={members}
             getItemKey={(member) => member._id}
-            getItemHref={(member) => `/directory/${member.slug.current}`}
+            getItemHref={(member) => `/@${member.slug.current}`}
             storageKey="directoryViewMode"
             initialFilters={initialFilters}
             onFiltersChange={handleFiltersChange}

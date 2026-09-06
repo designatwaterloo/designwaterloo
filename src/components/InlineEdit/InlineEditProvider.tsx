@@ -98,6 +98,7 @@ const InlineEditContext = createContext<InlineEditContextType | null>(null);
 // ---------- Provider ----------
 
 interface ProviderProps {
+  memberId: string;
   memberSlug: string;
   initialFields: EditableFields;
   initialExperiences: ExperienceEntry[];
@@ -107,6 +108,7 @@ interface ProviderProps {
 }
 
 export function InlineEditProvider({
+  memberId,
   memberSlug,
   initialFields,
   initialExperiences,
@@ -117,7 +119,7 @@ export function InlineEditProvider({
   const { member, refreshMember } = useAuth();
   const supabase = useMemo(() => createClient(), []);
 
-  const isOwner = !!member && member.slug === memberSlug;
+  const isOwner = !!member && member.id === memberId;
   const reviewStatus: ReviewStatus = (member?.review_status as ReviewStatus) ?? initialReviewStatus;
 
   // Snapshot of the last-saved state (updated after successful save)

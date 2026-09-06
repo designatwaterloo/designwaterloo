@@ -276,7 +276,7 @@ export default function AdminPage() {
                     </div>
                     <div className={styles.memberActions}>
                       <Link
-                        href={`/directory/${m.slug}`}
+                        href={`/@${m.slug}`}
                         className={styles.previewLink}
                       >
                         Preview
@@ -341,7 +341,7 @@ export default function AdminPage() {
                     </div>
                     <div className={styles.memberActions}>
                       <Link
-                        href={`/directory/${m.slug}`}
+                        href={`/@${m.slug}`}
                         className={styles.previewLink}
                       >
                         View

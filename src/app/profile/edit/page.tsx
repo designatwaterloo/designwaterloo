@@ -113,45 +113,25 @@ export default function EditProfilePage() {
   // ─── Slug helpers using Supabase client ───
 
   const findAvailableSlug = useCallback(
-    async (baseSlug: string, excludeId?: string): Promise<string> => {
-      // Fast path: check exact match first
-      let query = supabase
-        .from("members")
-        .select("slug")
-        .eq("slug", baseSlug);
-      if (excludeId) query = query.neq("id", excludeId);
-      const { data: exact } = await query;
-      if (!exact || exact.length === 0) return baseSlug;
-
-      // Slug is taken — find next available variant
-      let likeQuery = supabase
-        .from("members")
-        .select("slug")
-        .like("slug", `${baseSlug}%`);
-      if (excludeId) likeQuery = likeQuery.neq("id", excludeId);
-      const { data: similar } = await likeQuery;
-
-      const escaped = baseSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const pattern = new RegExp(`^${escaped}-(\\d+)$`);
-      let maxN = 0;
-      for (const s of similar || []) {
-        const m = s.slug.match(pattern);
-        if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
+    async (baseSlug: string): Promise<string> => {
+      let base = baseSlug.slice(0, 32).replace(/-$/, "");
+      if (!validateUsername(base).ok) base = `person-${base || "member"}`;
+      for (let suffix = 0; suffix < 100; suffix++) {
+        const candidate = `${base}${suffix ? `-${suffix}` : ""}`;
+        const { data, error } = await supabase.rpc("username_available", { candidate });
+        if (error) throw error;
+        if (data) return candidate;
       }
-      return `${baseSlug}-${maxN + 1}`;
+      throw new Error("Please choose a username.");
     },
     [supabase]
   );
 
   const checkSlugTaken = useCallback(
-    async (slugVal: string, excludeId?: string): Promise<boolean> => {
-      let query = supabase
-        .from("members")
-        .select("slug")
-        .eq("slug", slugVal);
-      if (excludeId) query = query.neq("id", excludeId);
-      const { data } = await query;
-      return (data?.length ?? 0) > 0;
+    async (slugVal: string): Promise<boolean> => {
+      const { data, error } = await supabase.rpc("username_available", { candidate: slugVal });
+      if (error) throw error;
+      return data !== true;
     },
     [supabase]
   );
@@ -171,7 +151,7 @@ export default function EditProfilePage() {
 
     slugCheckRef.current = setTimeout(async () => {
       try {
-        const available = await findAvailableSlug(baseSlug, member?.id);
+        const available = await findAvailableSlug(baseSlug);
         if (!cancelled) {
           console.log("[Slug] Auto resolved:", available);
           setSlug(available);
@@ -179,7 +159,7 @@ export default function EditProfilePage() {
         }
       } catch (err) {
         console.error("[Slug] Auto check error:", err);
-        if (!cancelled) setSlugStatus("available"); // optimistic
+        if (!cancelled) { setSlugStatus("idle"); setError("Could not check availability. Please try again."); }
       }
     }, 300);
 
@@ -214,10 +194,11 @@ export default function EditProfilePage() {
     slugCheckRef.current = setTimeout(async () => {
       if (member?.slug === value) { setSlugStatus("available"); return; }
       try {
-        const taken = await checkSlugTaken(value, member?.id);
+        const taken = await checkSlugTaken(value);
         setSlugStatus(taken ? "taken" : "available");
       } catch {
-        setSlugStatus("available");
+        setSlugStatus("idle");
+        setError("Could not check availability. Please try again.");
       }
     }, 400);
   };
@@ -303,7 +284,7 @@ export default function EditProfilePage() {
         .update(updatePayload).eq("auth_user_id", user.id).select("id").single();
       if (updateErr || !data) throw new Error(updateErr?.message ?? "Profile could not be saved. Please retry.");
       await refreshMember();
-      window.location.assign(`/directory/${finalSlug}`);
+      window.location.assign(`/@${finalSlug}`);
 
     } catch (err) {
       console.error("[Onboarding] Unexpected error:", err);
@@ -387,10 +368,10 @@ export default function EditProfilePage() {
               )}
 
               <div className={styles.field}>
-                <label htmlFor="slug">Profile URL</label>
+                <label htmlFor="slug">Username</label>
                 <div className={styles.slugInput}>
-                  <span className={styles.slugPrefix}>/directory/</span>
-                  <input id="slug" type="text" value={slug}
+                  <span className={styles.slugPrefix}>/@</span>
+                  <input id="slug" name="username" type="text" value={slug}
                     onChange={(e) => handleSlugChange(e.target.value)}
                     placeholder="your-profile-url" required />
                 </div>
