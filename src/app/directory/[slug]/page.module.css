@@ -70,8 +70,12 @@
   color: color-mix(in srgb, var(--foreground) 65%, var(--background));
 }
 
-.username img {
+.usernameIcon {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  background-color: currentColor;
+  mask: url('/Design Waterloo Logo.svg') center / contain no-repeat;
 }
 
 .username span {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import Link from "@/components/Link";
 import Button from "@/components/Button";
@@ -182,7 +181,7 @@ function ProfileContentInner({
               {firstName} {lastName}
             </h1>
             <p className={styles.username} aria-label={`Design Waterloo username: @${memberSlug}`}>
-              <Image src="/Design Waterloo Logo.svg" alt="" width={20} height={20} aria-hidden="true" />
+              <span className={styles.usernameIcon} aria-hidden="true" />
               <span>{memberSlug}</span>
             </p>
           </div>
