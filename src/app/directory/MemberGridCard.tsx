@@ -13,7 +13,7 @@ export default function MemberGridCard({ member, index = 0 }: MemberGridCardProp
   return (
     <ScrollReveal index={index}>
       <Link
-        href={`/directory/${member.slug.current}`}
+        href={`/@${member.slug.current}`}
         className="flex flex-col gap-4 group"
         underline={false}
       >

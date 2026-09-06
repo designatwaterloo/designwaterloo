@@ -116,7 +116,7 @@ function SignInContent() {
     try {
       const result = await findOrInitMember(supabase);
       if (result.onboardingCompleted) {
-        window.location.assign(safeRedirect(redirectTo, `/directory/${result.slug}`));
+        window.location.assign(safeRedirect(redirectTo, `/@${result.slug}`));
       } else {
         window.location.assign(safeRedirect(redirectTo, "/profile/edit"));
       }
@@ -300,6 +300,8 @@ function SignInContent() {
 
       <p className={styles.hint} style={{ marginTop: "1rem" }}>
         Stuck or signed in to the wrong account?{" "}
+        {/* Full navigation resets both server cookies and the in-memory auth store. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a href="/auth/reset" style={{ textDecoration: "underline", fontWeight: 600 }}>
           Reset auth state
         </a>

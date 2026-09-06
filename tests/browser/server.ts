@@ -43,6 +43,7 @@ const original = {
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-01T00:00:00Z",
 };
+const handles = new Set([original.slug]);
 let member = { ...original },
   failUser = false,
   failMember = false,
@@ -112,6 +113,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/__control") {
     if (body.reset) {
       member = { ...original };
+      handles.clear(); handles.add(original.slug);
       failUser = false;
       failMember = false;
       refreshes = 0;
@@ -186,6 +188,22 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(204);
     res.end();
     return;
+  }
+  if (url.pathname === "/rest/v1/rpc/resolve_username") {
+    if (failMember) { send({ message: "Synthetic profile outage" }, 503); return; }
+    send(handles.has(String(body.requested_username).toLowerCase()) ? member.slug : null);
+    return;
+  }
+  if (url.pathname === "/rest/v1/rpc/username_available") {
+    send(String(body.candidate) !== "taken-name"); return;
+  }
+  if (url.pathname === "/rest/v1/rpc/change_my_username") {
+    if (!token || !tokens.has(token)) { send({ message: "No session" }, 401); return; }
+    if (body.expected_username !== member.slug) { send({ code: "40001" }, 409); return; }
+    if (body.new_username === "taken-name") { send({ code: "23505" }, 409); return; }
+    member = { ...member, slug: String(body.new_username) };
+    handles.add(member.slug);
+    send(member.slug); return;
   }
   if (url.pathname === "/rest/v1/rpc/ensure_member") {
     send({ outcome: "linked", slug: member.slug, onboardingCompleted: true });

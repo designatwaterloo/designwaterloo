@@ -2,6 +2,9 @@ export interface Database {
   public: {
     Views: Record<string, never>;
     Functions: {
+      username_available: { Args: { candidate: string }; Returns: boolean };
+      change_my_username: { Args: { new_username: string; expected_username: string }; Returns: string };
+      resolve_username: { Args: { requested_username: string }; Returns: string | null };
       ensure_member: { Args: Record<string, never>; Returns: { slug: string; onboardingCompleted: boolean; outcome: "linked" | "created" } };
       save_my_profile: { Args: { profile: Record<string, unknown>; experiences: Record<string, unknown>[]; leadership: Record<string, unknown>[]; submit?: boolean }; Returns: undefined };
     };

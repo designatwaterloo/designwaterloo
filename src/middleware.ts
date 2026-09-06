@@ -4,7 +4,7 @@ import { isValidStudentEmail } from '@/lib/supabase/auth-utils';
 import { fetchWithCeiling } from '@/lib/supabase/fetch-with-ceiling';
 import { safeRedirect } from '@/lib/auth/redirect';
 
-const protectedPath = (path: string) => /^\/(profile|pending-approval|dashboard|admin|claim)(\/|$)/.test(path);
+const protectedPath = (path: string) => /^\/(profile|pending-approval|dashboard|admin|claim|settings)(\/|$)/.test(path);
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const redirect = (path: string) => {
@@ -71,5 +71,5 @@ export async function middleware(request: NextRequest) {
 // Public pages with anonymous clients need no auth request. Profile/claim server
 // renders use a session, so refresh their cookies before the render starts.
 export const config = {
-  matcher: ['/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug'],
+  matcher: ['/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
 };

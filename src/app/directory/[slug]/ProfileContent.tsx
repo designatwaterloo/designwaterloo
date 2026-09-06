@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "@/components/Link";
 import Button from "@/components/Button";
 import {
   InlineEditProvider,
@@ -31,6 +32,7 @@ const ALL_SPECIALTIES = [...SPECIALTIES];
 
 // ===== Props for the profile content =====
 interface ProfileContentProps {
+  memberId: string;
   memberSlug: string;
   firstName: string;
   lastName: string;
@@ -51,6 +53,7 @@ interface ProfileContentProps {
 export default function ProfileContent(props: ProfileContentProps) {
   return (
     <InlineEditProvider
+      memberId={props.memberId}
       memberSlug={props.memberSlug}
       initialFields={props.initialFields}
       initialExperiences={props.initialExperiences}
@@ -307,7 +310,7 @@ function ProfileContentInner({
           <div className={styles.rejectionBanner}>
             <strong>Your profile was not approved.</strong> Feedback: {rejectionFeedback}
             <br />
-            <a href="/dashboard" className={styles.rejectionLink}>View details on your dashboard</a>
+            <Link href="/dashboard" className={styles.rejectionLink}>View details on your dashboard</Link>
           </div>
         )}
 

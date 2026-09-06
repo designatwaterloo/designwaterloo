@@ -20,7 +20,7 @@ import styles from "./TableView.module.css";
  *   items={members}
  *   columns={columnConfig}
  *   getItemKey={(member) => member._id}
- *   getItemHref={(member) => `/directory/${member.slug.current}`}
+ *   getItemHref={(member) => `/@${member.slug.current}`}
  *   sortField="name"
  *   sortDirection="asc"
  *   onSort={(field) => handleSort(field)}

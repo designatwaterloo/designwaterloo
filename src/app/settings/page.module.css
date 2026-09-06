@@ -1,0 +1,22 @@
+.main { padding: 100px var(--margin) var(--big); min-height: 70svh; }
+.content { display: flex; flex-direction: column; gap: 32px; }
+.content h1 { font-size: 2rem; font-weight: 500; letter-spacing: -0.025em; text-wrap: balance; }
+.section { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; max-width: 48ch; }
+.section h2 { font-size: 1.25rem; font-weight: 500; text-wrap: balance; }
+.section p { text-wrap: pretty; line-height: 1.5; }
+.form { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; max-width: 320px; }
+.form label { font-weight: 500; }
+.inputRow { display: flex; align-items: center; gap: 8px; border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent); border-radius: var(--radius-small); padding: 8px 12px; width: 100%; }
+.inputRow:focus-within { outline: 2px solid var(--foreground); outline-offset: -1px; }
+.inputRow span { flex-shrink: 0; }
+.inputRow input { min-width: 0; width: 100%; background: transparent; border: 0; outline: 0; color: inherit; font: inherit; font-size: 1rem; }
+.form button { position: relative; border: 0; border-radius: var(--radius-full); background: var(--foreground); color: var(--background); font-size: .875rem; font-weight: 500; padding: 8px 12px; cursor: pointer; }
+.form button:disabled { opacity: .4; cursor: default; }
+.form button:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+.form button:hover:not(:disabled) { opacity: .8; }
+.touchTarget { display: none; }
+.address { overflow-wrap: anywhere; }
+.address a { text-decoration: underline; text-underline-offset: 3px; }
+.error { color: var(--error); }
+@media (pointer: coarse) { .touchTarget { display: block; position: absolute; top: 50%; left: 50%; width: max(100%,48px); height: max(100%,48px); transform: translate(-50%,-50%); } }
+@media (min-width: 640px) { .content { font-size: .875rem; } }

@@ -52,7 +52,9 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center gap-2 text-sm opacity-70">
               <p>Trouble loading?</p>
               <div className="flex gap-3">
-                <a href="/sign-in" className="underline">Sign in</a>
+                <Link href="/sign-in" className="underline">Sign in</Link>
+                {/* Full navigation resets both server cookies and the in-memory auth store. */}
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
                 <a href="/auth/reset" className="underline">Reset auth state</a>
               </div>
             </div>
@@ -64,7 +66,7 @@ export default function DashboardPage() {
   }
 
   const status = (member.review_status ?? "draft") as ReviewStatus;
-  const profileUrl = `/directory/${member.slug}`;
+  const profileUrl = `/@${member.slug}`;
   const isProfileSparse = !member.profile_image_url || !member.bio;
   const isDraftOrRejected = status === "draft" || status === "rejected";
 
@@ -78,6 +80,7 @@ export default function DashboardPage() {
       <main className="w-full min-h-[60vh]">
         <section className={styles.section}>
           <h1 className={styles.title}>{member.first_name} {member.last_name}</h1>
+          <Link href="/settings">Account settings</Link>
 
           <div className={styles.card}>
 

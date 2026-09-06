@@ -81,6 +81,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
     // Still loading - don't show auth items yet to avoid flicker
   } else if (user && member) {
     userNavItems.push({ label: "Dashboard", href: "/dashboard" });
+    userNavItems.push({ label: "Account settings", href: "/settings" });
     if (member.is_admin) {
       userNavItems.push({ label: "Admin", href: "/admin", sup: pendingCount });
     }
@@ -129,7 +130,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
                   {member.first_name} {member.last_name}
                 </span>
                 <div className={styles.userLinks}>
-                  <Link href={`/directory/${member.slug}`} onClick={() => handleNavClick(`/directory/${member.slug}`)} className={styles.userLink}>
+                  <Link href={`/@${member.slug}`} onClick={() => handleNavClick(`/@${member.slug}`)} className={styles.userLink}>
                     <ProfileLinkLabel />
                   </Link>
                   <button
