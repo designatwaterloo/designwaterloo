@@ -11,10 +11,10 @@ const data = JSON.parse(
     .split("export const wordmarks = ")[1]
     .replace(/ as const;\s*$/, ""),
 ).horizontal;
-const path = data.oo.match(/ d="([^"]+)"/)[1],
-  parts = path.match(/M[^M]+/g);
-const W = 768,
-  H = 480,
+const outline = data.oo.match(/ d="([^"]+)"/)[1],
+  parts = outline.match(/M[^M]+/g);
+const W = 3072,
+  H = 1920,
   scale = W / 96;
 async function mask(d) {
   return sharp(
@@ -71,7 +71,7 @@ function edt(mask, target) {
 (async () => {
   const outer = await mask(parts[0]),
     holes = await mask(parts.slice(1).join(""));
-  const output = Buffer.alloc(W * H * 4);
+  const output = new Float32Array(W * H * 2);
   for (let channel = 0; channel < 2; channel++) {
     const img = channel ? holes : outer,
       m = new Uint8Array(W * H);
@@ -82,14 +82,16 @@ function edt(mask, target) {
       const d =
         (m[i] ? -Math.sqrt(inside[i]) + 0.5 : Math.sqrt(outside[i]) - 0.5) /
         scale;
-      output[i * 4 + channel] = Math.round(
-        Math.max(0, Math.min(255, 128 + d * 8)),
-      );
+      output[i * 2 + channel] = d / 20;
     }
   }
-  for (let i = 0; i < W * H; i++) output[i * 4 + 3] = 255;
-  await sharp(output, { raw: { width: W, height: H, channels: 4 } })
-    .png()
-    .toFile(root + "scripts/wordmark/contours.png");
+  fs.writeFileSync(
+    root + "scripts/wordmark/contours.f32",
+    Buffer.from(output.buffer),
+  );
+  fs.writeFileSync(
+    root + "scripts/wordmark/contours-size.json",
+    JSON.stringify({ width: W, height: H }),
+  );
   console.log({ subpaths: parts.length, width: W, height: H });
 })();

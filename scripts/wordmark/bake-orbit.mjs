@@ -3,11 +3,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import sharp from "sharp";
+import { createInnerContours } from "./inner-contours.mjs";
+import { fitClosedContour } from "./fit-curves.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "../.."),
-  W = 600,
-  H = 375,
+  W = 1200,
+  H = 750,
   frames = 121;
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const smooth = (v) => {
@@ -15,11 +16,20 @@ const smooth = (v) => {
   return v * v * (3 - 2 * v);
 };
 (async () => {
-  const { data, info } = await sharp(
-    path.join(root, "scripts/wordmark/contours.png"),
-  )
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  const bytes = fs.readFileSync(
+    path.join(root, "scripts/wordmark/contours.f32"),
+  );
+  const data = new Float32Array(
+    bytes.buffer,
+    bytes.byteOffset,
+    bytes.byteLength / 4,
+  );
+  const info = JSON.parse(
+    fs.readFileSync(
+      path.join(root, "scripts/wordmark/contours-size.json"),
+      "utf8",
+    ),
+  );
   function sample(x, y, c) {
     let u = clamp((x / 4.8 + 0.5) * info.width - 0.5, 0, info.width - 1),
       v = clamp((0.5 - y / 3) * info.height - 0.5, 0, info.height - 1),
@@ -31,16 +41,21 @@ const smooth = (v) => {
       data[
         (Math.min(info.height - 1, b) * info.width +
           Math.min(info.width - 1, a)) *
-          4 +
+          2 +
           c
       ];
     return (
-      ((at(ix, iy) * (1 - fx) + at(ix + 1, iy) * fx) * (1 - fy) +
-        (at(ix, iy + 1) * (1 - fx) + at(ix + 1, iy + 1) * fx) * fy -
-        128) /
-      160
+      (at(ix, iy) * (1 - fx) + at(ix + 1, iy) * fx) * (1 - fy) +
+      (at(ix, iy + 1) * (1 - fx) + at(ix + 1, iy + 1) * fx) * fy
     );
   }
+  const mark = JSON.parse(
+    fs
+      .readFileSync(path.join(root, "src/components/Wordmark/paths.ts"), "utf8")
+      .split("export const wordmarks = ")[1]
+      .replace(/ as const;\s*$/, ""),
+  ).horizontal;
+  const inner = createInnerContours(mark);
   function renderer(angle) {
     const oz = 0.914 * Math.sin(angle),
       ox = 0.914 * Math.cos(angle),
@@ -90,8 +105,8 @@ const smooth = (v) => {
         }
       }
       if (z < -10) return 0;
-      const ca = sample(ax - 0.914, ay, 1),
-        cb = sample(bx + 0.914, by, 1);
+      const ca = inner(ax - 0.914, ay),
+        cb = inner(bx + 0.914, by);
       return Math.max(
         da > 0 && db > 0 ? 1 : 0,
         da <= 0 ? smooth((ca + 2.4 / W) / (4.8 / W)) : 0,
@@ -99,41 +114,25 @@ const smooth = (v) => {
       );
     };
   }
-  function simplify(points, tol) {
-    if (points.length < 3) return points;
-    const a = points[0],
-      b = points[points.length - 1],
-      dx = b[0] - a[0],
-      dy = b[1] - a[1],
-      length = dx * dx + dy * dy;
-    let best = tol * tol,
-      index = -1;
-    for (let i = 1; i < points.length - 1; i++) {
-      const p = points[i],
-        t = length
-          ? clamp(((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / length)
-          : 0,
-        d = (p[0] - a[0] - t * dx) ** 2 + (p[1] - a[1] - t * dy) ** 2;
-      if (d > best) {
-        best = d;
-        index = i;
-      }
-    }
-    return index < 0
-      ? [a, b]
-      : [
-          ...simplify(points.slice(0, index + 1), tol).slice(0, -1),
-          ...simplify(points.slice(index), tol),
-        ];
-  }
-  function trace(field) {
+  function trace(field, render) {
     const nodes = new Map();
     function edge(x, y, dir) {
       const id = dir === "h" ? `h${x},${y}` : `v${x},${y}`;
       if (!nodes.has(id)) {
-        const a = field[y * (W + 1) + x],
-          b = field[(y + (dir === "v")) * (W + 1) + x + (dir === "h")],
-          t = clamp((0.5 - a) / (b - a));
+        const b = field[(y + (dir === "v")) * (W + 1) + x + (dir === "h")],
+          increasing = b >= 0.5;
+        let low = 0,
+          high = 1;
+        for (let step = 0; step < 14; step++) {
+          const mid = (low + high) / 2;
+          const value = render(
+            ((x + (dir === "h" ? mid : 0)) / W - 0.5) * 4.8,
+            (0.5 - (y + (dir === "v" ? mid : 0)) / H) * 3,
+          );
+          if (value >= 0.5 === increasing) high = mid;
+          else low = mid;
+        }
+        const t = (low + high) / 2;
         nodes.set(id, {
           point: [
             ((x + (dir === "h" ? t : 0)) * 96) / W,
@@ -189,16 +188,7 @@ const smooth = (v) => {
         if (!cur) throw Error("Open contour");
       }
       if (points.length < 4) continue;
-      const middle = Math.floor(points.length / 2),
-        simple = [
-          ...simplify(points.slice(0, middle + 1), 0.05).slice(0, -1),
-          ...simplify([...points.slice(middle), points[0]], 0.05).slice(0, -1),
-        ];
-      paths.push(
-        "M" +
-          simple.map((p) => p.map((n) => +n.toFixed(3)).join(" ")).join("L") +
-          "Z",
-      );
+      paths.push(fitClosedContour(points));
     }
     return paths.join("");
   }
@@ -210,7 +200,8 @@ const smooth = (v) => {
     for (let y = 0; y <= H; y++)
       for (let x = 0; x <= W; x++)
         field[y * (W + 1) + x] = render((x / W - 0.5) * 4.8, (0.5 - y / H) * 3);
-    result.push(trace(field));
+    // The final full turn must be byte-identical to the first frame.
+    result.push(frame === frames - 1 ? result[0] : trace(field, render));
     if (frame % 30 === 0) console.log(`Baked ${frame}/${frames - 1}`);
   }
   fs.writeFileSync(

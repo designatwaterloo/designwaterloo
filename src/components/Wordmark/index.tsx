@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { magneticSettle, sampleSettle } from "./settle";
 import { wordmarks } from "./paths";
 
 let orbitFrames: Promise<string[]> | undefined;
@@ -13,13 +14,7 @@ const HOVER_DURATION = 1200;
 type Motion =
   | { kind: "hover"; start: number }
   | { kind: "spin" }
-  | {
-      kind: "settle";
-      start: number;
-      from: number;
-      to: number;
-      duration: number;
-    };
+  | ReturnType<typeof magneticSettle>;
 
 // The bake contains eased frames. Undo that timing to address it by angle,
 // so momentum and reverse playback have a consistent angular speed.
@@ -41,6 +36,7 @@ export default function Wordmark({
   const animated = useRef<SVGPathElement>(null);
   const frame = useRef(0);
   const running = useRef(false);
+  const generation = useRef(0);
   const reduced = useRef(false);
   const angle = useRef(0);
   const velocity = useRef(0);
@@ -49,6 +45,7 @@ export default function Wordmark({
 
   function rest() {
     running.current = false;
+    generation.current++;
     angle.current = 0;
     velocity.current = 0;
     exact.current?.setAttribute("opacity", "1");
@@ -69,12 +66,14 @@ export default function Wordmark({
     return () => {
       cancelAnimationFrame(frame.current);
       query.removeEventListener("change", update);
+      generation.current++;
     };
   }, []);
 
   async function play() {
     if (running.current || reduced.current || !animated.current) return;
     running.current = true;
+    const run = ++generation.current;
     let paths: string[];
     try {
       paths = await loadOrbitFrames();
@@ -83,6 +82,7 @@ export default function Wordmark({
       rest();
       return;
     }
+    if (run !== generation.current) return;
     if (!animated.current || reduced.current) {
       rest();
       return;
@@ -92,6 +92,7 @@ export default function Wordmark({
       motion.current.start = previous.current;
 
     function tick(now: number) {
+      if (run !== generation.current) return;
       const dt = Math.min((now - previous.current) / 1000, 0.05);
       previous.current = now;
       const current = motion.current;
@@ -109,30 +110,13 @@ export default function Wordmark({
         angle.current += (velocity.current * (1 - drag)) / 1.6;
         velocity.current *= drag;
         if (Math.abs(velocity.current) < 3) {
-          const to =
-            velocity.current > 0
-              ? (Math.floor(angle.current / TURN) + 1) * TURN
-              : (Math.ceil(angle.current / TURN) - 1) * TURN;
-          motion.current = {
-            kind: "settle",
-            start: now,
-            from: angle.current,
-            to,
-            duration: Math.max(
-              120,
-              (3000 * Math.abs(to - angle.current)) /
-                Math.abs(velocity.current),
-            ),
-          };
+          motion.current = magneticSettle(angle.current, velocity.current, now);
         }
       } else {
-        const t = Math.min(1, (now - current.start) / current.duration);
-        angle.current =
-          current.from + (current.to - current.from) * (1 - (1 - t) ** 3);
-        velocity.current =
-          ((current.to - current.from) * 3 * (1 - t) ** 2) /
-          (current.duration / 1000);
-        if (t === 1) {
+        const sample = sampleSettle(current, now);
+        angle.current = sample.angle;
+        velocity.current = sample.velocity;
+        if (sample.done) {
           rest();
           return;
         }
@@ -152,6 +136,20 @@ export default function Wordmark({
     if (running.current || reduced.current) return;
     motion.current = { kind: "hover", start: 0 };
     void play();
+  }
+
+  function leave() {
+    if (!running.current || reduced.current) return;
+    // Leaving before the lazy frame import finishes must not start a late orbit.
+    if (angle.current === 0 && velocity.current === 0) {
+      rest();
+      return;
+    }
+    motion.current = magneticSettle(
+      angle.current,
+      velocity.current,
+      performance.now(),
+    );
   }
 
   function spin(direction: number) {
@@ -178,6 +176,7 @@ export default function Wordmark({
       role="img"
       aria-label="Design Waterloo"
       style={{ overflow: "visible" }}
+      onPointerLeave={leave}
       onPointerEnter={(event) => {
         if (event.pointerType === "mouse") hover();
       }}

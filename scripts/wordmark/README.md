@@ -20,6 +20,15 @@ node scripts/wordmark/bake-orbit.mjs
 traces the ink into SVG contours. The rear lobe's ink remains visible through
 the front opening. All holes are transparent; paths use the even-odd fill rule.
 
-The bake samples at 600 × 375, simplifies to a 0.05 SVG-unit tolerance, and
-stores coordinates to three decimal places. Playback is a sequence of vector
-frames, not a runtime 3D simulation or raster sprite sheet.
+The offline source field uses 3072 × 1920 floating-point signed distances,
+removing the old 8-bit PNG quantization. These generated fields are ignored by
+Git and rebuilt with the command above; contours.png is only a legacy reference.
+The inner openings come directly from the original SVG cubic curves via
+monotonic horizontal intersections; they no longer use the raster distance map.
+The bake samples at 1200 × 750 and refines each edge crossing with 14 bisection
+steps against the geometry, then resamples contours by arclength, applies a small
+symmetric smoothing kernel, and fits cubic Bézier segments to a 0.035 SVG-unit
+tolerance against the smoothed contour. Coordinates retain four decimal places.
+Separate closed contours preserve transparent openings with even-odd filling.
+Playback remains a sequence of vector frames, not a runtime 3D simulation or
+raster sprite sheet.
