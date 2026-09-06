@@ -39,6 +39,25 @@
   margin: 0;
 }
 
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.identity .name {
+  margin: 0;
+}
+
+.identity .username {
+  margin: 0;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--foreground) 70%, var(--background));
+  overflow-wrap: anywhere;
+}
+
 .editButton {
   display: inline-flex;
   align-items: center;
@@ -516,4 +535,3 @@ a.experienceItem {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
