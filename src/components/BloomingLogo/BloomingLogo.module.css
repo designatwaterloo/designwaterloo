@@ -12,7 +12,7 @@
 }
 
 .svg.show .petal {
-  animation: drawPetal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: drawPetal var(--bloom-duration, 0.9s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes drawPetal {
@@ -24,9 +24,9 @@
 /* Sweep left-to-right by each oval's lowest-point x: petal3 (x≈110),
    petal4 (≈170), petal2 (≈250), petal1 (≈310). */
 .svg.show .petal3 { animation-delay: 0s; }    /* far-left low */
-.svg.show .petal4 { animation-delay: 0.1s; }  /* left low */
-.svg.show .petal2 { animation-delay: 0.2s; }  /* right low */
-.svg.show .petal1 { animation-delay: 0.3s; }  /* far-right low */
+.svg.show .petal4 { animation-delay: var(--bloom-step, 0.1s); }  /* left low */
+.svg.show .petal2 { animation-delay: calc(var(--bloom-step, 0.1s) * 2); }  /* right low */
+.svg.show .petal1 { animation-delay: calc(var(--bloom-step, 0.1s) * 3); }  /* far-right low */
 
 @media (prefers-reduced-motion: reduce) {
   .petal {

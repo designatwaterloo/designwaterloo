@@ -1,0 +1,29 @@
+.entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+  color: white;
+  animation: finish 1.35s linear forwards;
+}
+.columns { position: absolute; inset: 0; display: flex; }
+.columns > div {
+  flex: 1;
+  background: var(--black);
+  animation: reveal 550ms cubic-bezier(.22, 1, .36, 1) forwards;
+  animation-delay: calc(550ms + var(--column) * 35ms);
+}
+.logo {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  --bloom-duration: 350ms;
+  --bloom-step: 40ms;
+  animation: logoOut 250ms ease 500ms forwards;
+}
+@keyframes reveal { to { transform: translateY(-101%); } }
+@keyframes logoOut { to { opacity: 0; } }
+@keyframes finish { 99% { visibility: visible; } 100% { visibility: hidden; } }
+@media (max-width: 768px) { .columns > div:nth-child(n + 5) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .entrance { display: none; } }

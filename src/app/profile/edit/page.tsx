@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useTransition } from "@/context/TransitionContext";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { findOrInitMember } from "@/lib/supabase/member-init";
 import { getSchoolFromEmail, generateSlug } from "@/lib/supabase/auth-utils";
@@ -20,7 +20,7 @@ function useSupabase() {
 
 export default function EditProfilePage() {
   const { user, member, loading: authLoading, refreshMember } = useAuth();
-  const { startTransition } = useTransition();
+  const router = useRouter();
   const supabase = useSupabase();
 
   const [saving, setSaving] = useState(false);
@@ -75,15 +75,15 @@ export default function EditProfilePage() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) startTransition("/sign-in");
-  }, [authLoading, user, startTransition]);
+    if (!authLoading && !user) router.push("/sign-in");
+  }, [authLoading, user, router]);
 
   // If member exists AND onboarding is completed, redirect (unless we're mid-submit)
   useEffect(() => {
     if (!authLoading && member?.onboarding_completed && !submittingRef.current) {
-      startTransition("/dashboard");
+      router.push("/dashboard");
     }
-  }, [authLoading, member, startTransition]);
+  }, [authLoading, member, router]);
 
   // Pre-fill form from OAuth metadata or existing draft member
   useEffect(() => {

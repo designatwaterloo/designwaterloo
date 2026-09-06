@@ -3,8 +3,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import SmoothScroll from "@/components/SmoothScroll";
-import { TransitionProvider } from "@/context/TransitionContext";
-import PageTransition from "@/components/PageTransition";
+import InitialEntrance from "@/components/InitialEntrance";
 import { AuthRecovery } from "@/components/auth/AuthRecovery";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import CursorFollower from "@/components/CursorFollower";
@@ -57,13 +56,11 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <ImpersonationBanner />
-          <TransitionProvider>
             <SmoothScroll>
               <ConsoleEasterEgg />
-              <PageTransition />
+              <InitialEntrance />
               <AuthRecovery>{children}</AuthRecovery>
             </SmoothScroll>
-          </TransitionProvider>
         </AuthProvider>
         <CursorFollower />
         <Analytics />

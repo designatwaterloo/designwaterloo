@@ -53,11 +53,11 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
   useEffect(() => {
     if (!isOpen) return;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setIsAnimating(true);
-      });
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => setIsAnimating(true));
     });
+    return () => { cancelAnimationFrame(firstFrame); cancelAnimationFrame(secondFrame); };
   }, [isOpen]);
 
   // Unmount once the curtain's close transition has fully finished —

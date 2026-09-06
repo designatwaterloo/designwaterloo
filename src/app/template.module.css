@@ -1,0 +1,3 @@
+.content { animation: appear 140ms ease-out; }
+@keyframes appear { from { opacity: .94; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .content { animation: none; } }

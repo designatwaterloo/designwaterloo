@@ -23,9 +23,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (authLoading) return;
 
-    // Auth-recovery redirects use router.replace, not the cinematic
-    // transition. If TransitionContext stalls, we still escape the
-    // loading screen.
+    // Replace recovery routes so Back does not return to a stale loading screen.
     if (!user) {
       router.replace("/sign-in");
       return;
