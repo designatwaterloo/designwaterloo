@@ -15,7 +15,7 @@ export default function StudiesFields({ school, program, year, onProgram, onYear
   const input = useRef<HTMLInputElement>(null);
   const yearInput = useRef<HTMLInputElement>(null);
   const options = (PROGRAMS[school] || []).filter(name => `${name} ${shortProgramName(name)}`.toLowerCase().includes(program.toLowerCase()));
-  const choices = program.trim() && !options.some(name => name.toLowerCase() === program.trim().toLowerCase()) ? [...options, program.trim()] : options;
+  const choices = options;
   const choose = (name: string) => { onProgram(name); setOpen(false); setActive("year"); yearInput.current?.focus(); };
   return <div className={styles.studyChips} data-active={active}>
     <div className={`${styles.inputChip} ${styles.programChip}`} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false); }}>
@@ -28,7 +28,7 @@ export default function StudiesFields({ school, program, year, onProgram, onYear
         }} />
         <button type="button" aria-label="Show programs" tabIndex={-1} onMouseDown={event => event.preventDefault()} onClick={() => { if (open) setOpen(false); else { input.current?.focus(); setOpen(true); } }}><ChevronDownIcon aria-hidden="true" /></button>
       </div>
-      {open && <ul id="program-options" role="listbox" aria-label="Programs" className={styles.programOptions}>{choices.map((name, index) => <li id={`program-option-${index}`} key={name} role="option" aria-selected={index === highlight} onMouseDown={event => event.preventDefault()} onClick={() => choose(name)} onMouseEnter={() => setHighlight(index)}><span>{name}</span><small>{shortProgramName(name) !== name ? shortProgramName(name) : ""}</small></li>)}{!choices.length && <li role="presentation">Type your program</li>}</ul>}
+      {open && <ul id="program-options" role="listbox" aria-label="Programs" className={styles.programOptions}>{choices.map((name, index) => <li id={`program-option-${index}`} key={name} role="option" aria-selected={index === highlight} onMouseDown={event => event.preventDefault()} onClick={() => choose(name)} onMouseEnter={() => setHighlight(index)}><span>{name}</span><small>{shortProgramName(name) !== name ? shortProgramName(name) : ""}</small></li>)}{!choices.length && <li role="presentation">No matching programs</li>}</ul>}
     </div>
     <div className={`${styles.inputChip} ${styles.yearChip}`} onClick={() => yearInput.current?.focus()}>
       <label htmlFor="onboarding-year">Graduation year</label><input ref={yearInput} id="onboarding-year" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={year} onFocus={() => { setActive("year"); setOpen(false); }} onChange={event => onYear(event.target.value)} placeholder="2030" />

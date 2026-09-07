@@ -155,6 +155,7 @@ for (const width of [817, 390]) {
     expect((await yearChip.boundingBox())!.width).toBeGreaterThan((await programChip.boundingBox())!.width);
     await program.fill("SYDE");
     await expect(page.getByRole("listbox", { name: "Programs", exact: true })).toBeVisible();
+    await expect(page.getByRole("option", { name: "SYDE", exact: true })).toHaveCount(0);
     await program.press("Enter");
     await expect(program).toHaveValue("SYDE");
     await expect(page.getByLabel("Graduation year")).toBeFocused();
@@ -169,9 +170,9 @@ for (const width of [817, 390]) {
     const linkedin = page.getByLabel("LinkedIn", { exact: true });
     await linkedin.fill("in/alex");
     await linkedin.blur();
-    await expect(linkedin).toHaveValue("https://www.linkedin.com/in/alex");
+    await expect(linkedin).toHaveValue("alex");
     await linkedin.evaluate(el => { const data = new DataTransfer(); data.setData("text/plain", "https://www.linkedin.com/in/alex?utm_source=share#about"); el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true })); });
-    await expect(linkedin).toHaveValue("https://www.linkedin.com/in/alex");
+    await expect(linkedin).toHaveValue("alex");
     await request.post(CONTROL, { data: { failSave: true } });
     await next.click();
     await expect(page.locator('p[role="alert"]')).toContainText("couldn’t save");
@@ -188,5 +189,25 @@ for (const width of [817, 390]) {
     expect(saved.onboarding_completed).toBe(false);
     await page.getByRole("button", { name: "Previous slide" }).click();
     await expect(page.getByLabel("Program", { exact: true })).toHaveAttribute("title", "Systems Design Engineering");
+    await next.click();
+    await expect(page.getByRole("heading", { name: "What are your top skills?" })).toBeVisible();
+    await expect(next).toBeDisabled();
+    await page.getByRole("checkbox", { name: "Product Design", exact: true }).check();
+    await page.getByRole("checkbox", { name: "Photography", exact: true }).check();
+    await page.getByRole("checkbox", { name: "Motion Design", exact: true }).check();
+    await expect(page.getByRole("checkbox", { name: "Music", exact: true })).toBeDisabled();
+    await page.getByRole("checkbox", { name: "Photography", exact: true }).uncheck();
+    await page.getByRole("checkbox", { name: "Music", exact: true }).check();
+    await page.screenshot({ path: `test-results/skills-${width}.png` });
+    await request.post(CONTROL, { data: { failSave: true } });
+    await next.click();
+    await expect(page.locator('p[role="alert"]')).toContainText("couldn’t save");
+    await request.post(CONTROL, { data: { failSave: false } });
+    await next.click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+    saved = (await (await request.get(CONTROL)).json()).member;
+    expect(saved.specialties).toEqual(["Product Design", "Motion Design", "Music"]);
+    expect(saved.review_status).toBe("draft");
+    expect(saved.onboarding_completed).toBe(false);
   });
 }

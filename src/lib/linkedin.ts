@@ -17,3 +17,9 @@ export function normalizeLinkedIn(raw: string): string | null {
   if (!/^[\p{L}\p{N}][\p{L}\p{N}-]*$/u.test(handle) || handle.length > 200) return null;
   return `https://www.linkedin.com/in/${encodeURIComponent(handle)}`;
 }
+
+/** Keep the field editable as a handle alongside its fixed URL prefix. */
+export function linkedInHandle(raw: string): string {
+  const normalized = normalizeLinkedIn(raw);
+  return normalized ? decodeURIComponent(normalized.slice("https://www.linkedin.com/in/".length)) : raw;
+}

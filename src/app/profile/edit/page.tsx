@@ -14,7 +14,7 @@ import Link from "@/components/Link";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
 import StudiesFields from "./StudiesFields";
-import { normalizeLinkedIn } from "@/lib/linkedin";
+import { normalizeLinkedIn, linkedInHandle } from "@/lib/linkedin";
 import { normalizePortfolioUrl } from "@/lib/portfolio-url";
 
 const steps = ["Your details", "Creative profile", "Preview & submit"];
@@ -41,7 +41,8 @@ export default function EditProfilePage() {
 
   function changeCanvasStep(next: number) {
     if (slideLeaving) return;
-    if (canvasStep > 4 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (canvasStep > 5 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (next === 6) { router.push("/dashboard"); return; }
       setCanvasStep(next);
       canvasRef.current?.focus({ preventScroll: true });
     } else {
@@ -52,12 +53,13 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (nextCanvasStep === null) return;
     const timer = window.setTimeout(() => {
+      if (nextCanvasStep === 6) { router.push("/dashboard"); return; }
       setCanvasStep(nextCanvasStep);
       setNextCanvasStep(null);
       canvasRef.current?.focus({ preventScroll: true });
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [nextCanvasStep]);
+  }, [nextCanvasStep, router]);
   const [usernameStatus, setUsernameStatus] = useState("");
   const [checkedUsername, setCheckedUsername] = useState<string | null>(null);
   const [usernameRetry, setUsernameRetry] = useState(0);
@@ -293,7 +295,8 @@ export default function EditProfilePage() {
         if (normalizeLinkedIn(fields.linkedin) === null) throw new Error("Enter a LinkedIn username or profile link.");
         if (normalizePortfolioUrl(fields.portfolio) === null) throw new Error("Enter a valid portfolio website, like yourname.com.");
       }
-      const patch = canvasStep === 2
+      if (canvasStep === 5 && (!fields.specialties.length || fields.specialties.length > 3)) throw new Error("Pick one to three top skills.");
+      const patch = canvasStep === 5 ? { specialties: fields.specialties } : canvasStep === 2
         ? { slug: username.normalized, slug_confirmed: true }
         : canvasStep === 3 ? { profile_image_url: fields.profile_image_url || null }
         : { program: fields.program.trim() || null, graduating_class: fields.graduating_class || null, portfolio: normalizePortfolioUrl(fields.portfolio) || null, linkedin: normalizeLinkedIn(fields.linkedin) || null };
@@ -309,7 +312,7 @@ export default function EditProfilePage() {
   }
 
   const usernameReady = validateUsername(fields.slug).ok && checkedUsername === validateUsername(fields.slug).normalized;
-  const canvasNotReady = canvasStep === 2 && !usernameReady;
+  const canvasNotReady = (canvasStep === 2 && !usernameReady) || (canvasStep === 5 && (!fields.specialties.length || fields.specialties.length > 3));
   const usernameTone = usernameReady ? "good" : usernameStatus && usernameStatus !== "Checking availability…" ? "bad" : "neutral";
   const missing = [!fields.profile_image_url && "a photo", !fields.bio.trim() && "a short bio", !fields.specialties.length && "your creative interests"].filter(Boolean);
   const name = `${fields.first_name} ${fields.last_name}`.trim();
@@ -357,7 +360,8 @@ export default function EditProfilePage() {
               <div className={styles.onboardingPhoto}>
                 <input ref={photoInputRef} id="onboarding-photo" aria-label="Profile photo" className="sr-only" tabIndex={-1} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
                 <button type="button" className={styles.photoPreview} aria-label={fields.profile_image_url ? "Change profile photo" : "Upload profile photo"} onClick={() => photoInputRef.current?.click()}>
-                  {fields.profile_image_url ? <Image src={fields.profile_image_url} alt="Your profile photo" width={144} height={180} unoptimized /> : <span className={styles.photoPlaceholder}><span aria-hidden="true">+</span>Upload photo</span>}
+                  <span className={styles.cameraCorners} aria-hidden="true"><i /><i /><i /><i /></span>
+                  {fields.profile_image_url ? <Image src={fields.profile_image_url} alt="Your profile photo" width={192} height={240} unoptimized /> : <span className={styles.photoPlaceholder}><span aria-hidden="true">+</span>Upload photo</span>}
                   {fields.profile_image_url && <span className={styles.photoOverlay}>Change photo</span>}
                 </button>
                 <div><small role="status">{uploading ? "Uploading…" : ""}</small>{fields.profile_image_url && <button type="button" className={styles.removePhoto} onClick={() => change("profile_image_url", "")}>Remove photo</button>}</div>
@@ -365,14 +369,25 @@ export default function EditProfilePage() {
             </> : <>
               <StudiesFields school={school} program={fields.program} year={fields.graduating_class} onProgram={value => change("program", value)} onYear={value => change("graduating_class", value)} />
               <div className={`${styles.linkField} ${styles.inputChip}`}><label htmlFor="onboarding-portfolio">Portfolio</label><input id="onboarding-portfolio" type="text" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} onBlur={() => { const normalized = normalizePortfolioUrl(fields.portfolio); if (normalized !== null) change("portfolio", normalized); }} onPaste={event => { const normalized = normalizePortfolioUrl(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("portfolio", normalized); } }} maxLength={2048} placeholder="https://your-work.com" value={fields.portfolio} onChange={e => change("portfolio", e.target.value)} /></div>
-              <div className={`${styles.linkField} ${styles.inputChip}`}><label htmlFor="onboarding-linkedin">LinkedIn</label><input id="onboarding-linkedin" type="text" autoComplete="url" autoCapitalize="none" spellCheck={false} maxLength={2048} placeholder="Username or profile link" onBlur={() => { const normalized = normalizeLinkedIn(fields.linkedin); if (normalized !== null) change("linkedin", normalized); }} onPaste={event => { const normalized = normalizeLinkedIn(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("linkedin", normalized); } }} value={fields.linkedin} onChange={e => change("linkedin", e.target.value)} /></div>
+              <div className={`${styles.linkField} ${styles.inputChip}`}><label htmlFor="onboarding-linkedin">LinkedIn</label><div className={styles.linkedinEntry}><span id="linkedin-prefix">linkedin.com/in/</span><input id="onboarding-linkedin" aria-describedby="linkedin-prefix" type="text" autoComplete="url" autoCapitalize="none" spellCheck={false} maxLength={2048} placeholder="username" onBlur={() => change("linkedin", linkedInHandle(fields.linkedin))} onPaste={event => { const normalized = normalizeLinkedIn(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("linkedin", linkedInHandle(normalized)); } }} value={linkedInHandle(fields.linkedin)} onChange={e => change("linkedin", e.target.value)} /></div></div>
             </>}
           </fieldset>
           {error && <p className={styles.nameError} role="alert">{error}</p>}
         </form>
+      </section> : canvasStep === 5 ? <section key="skills" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="skills-heading">
+        <h1 id="skills-heading">What are your top skills?</h1>
+        <p>Pick up to three. You can always edit these—and any of your answers—later.</p>
+        <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
+          <fieldset disabled={busy || slideLeaving} className={styles.skillChoices}>
+            <legend className="sr-only">Top skills</legend>
+            {Array.from(new Set([...SPECIALTIES, ...fields.specialties])).map(skill => <label key={skill}><input type="checkbox" checked={fields.specialties.includes(skill)} disabled={!fields.specialties.includes(skill) && fields.specialties.length >= 3} onChange={event => change("specialties", event.target.checked ? [...fields.specialties, skill] : fields.specialties.filter(value => value !== skill))} /><span>{skill}</span></label>)}
+          </fieldset>
+          <small className={styles.skillCount} role="status">{fields.specialties.length} / 3 selected</small>
+          {error && <p className={styles.nameError} role="alert">{error}</p>}
+        </form>
       </section> : <div aria-label="Next step canvas" />}
-      <div className={styles.canvasAction} style={canvasStep > 4 ? { visibility: "hidden" } : undefined}>
-        <button type={canvasStep > 0 ? "submit" : "button"} form={canvasStep === 1 ? "onboarding-name" : canvasStep > 1 ? "onboarding-details" : undefined} className={styles.settleNext} aria-label="Continue" aria-busy={busy || uploading} data-unready={canvasNotReady} disabled={busy || uploading || slideLeaving || canvasStep > 4 || canvasNotReady} onClick={event => { if (canvasStep === 0) { event.preventDefault(); changeCanvasStep(1); canvasRef.current?.focus({ preventScroll: true }); } }}><span className={styles.settleArrow}><ArrowRightIcon className="size-6 shrink-0 fill-current" aria-hidden="true" /></span></button>
+      <div className={styles.canvasAction} style={canvasStep > 5 ? { visibility: "hidden" } : undefined}>
+        <button type={canvasStep > 0 ? "submit" : "button"} form={canvasStep === 1 ? "onboarding-name" : canvasStep > 1 ? "onboarding-details" : undefined} className={styles.settleNext} aria-label="Continue" aria-busy={busy || uploading} data-unready={canvasNotReady} disabled={busy || uploading || slideLeaving || canvasStep > 5 || canvasNotReady} onClick={event => { if (canvasStep === 0) { event.preventDefault(); changeCanvasStep(1); canvasRef.current?.focus({ preventScroll: true }); } }}><span className={styles.settleArrow}><ArrowRightIcon className="size-6 shrink-0 fill-current" aria-hidden="true" /></span></button>
       </div>
     </main>;
   }

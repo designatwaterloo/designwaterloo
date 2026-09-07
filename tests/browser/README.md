@@ -56,8 +56,8 @@ as an unsubmitted draft. The second step confirms a prefilled Waterloo name or c
 Tests cover saving, retry after failure, back navigation, and keeping the profile
 in draft status. Username and photo each have their own step, followed by program, graduation year,
 and links. Tests cover reserved/taken usernames, availability, photo selection with
-a mocked upload, the temporary photo-skip path, draft persistence, and save retries. The following
-step remains blank while its content is being designed. Studies checks cover the
+a mocked upload, the temporary photo-skip path, draft persistence, and save retries. The final skills step saves up to three specialties and returns to the dashboard
+without submitting the draft. Studies checks cover the
 custom keyboard-accessible program picker, compact abbreviations, year-first
 entry, and LinkedIn handle/URL normalization.
 No live student records are changed.

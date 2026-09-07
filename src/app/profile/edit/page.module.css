@@ -198,7 +198,7 @@
 .usernameEntry input { width: 100%; min-width: 0; background: transparent; color: #faf5ee; border: 0; outline: none; font-family: inherit; font-size: 26px; font-weight: 400; }
 .profileAddress { overflow-wrap: anywhere; }
 .onboardingPhoto { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.photoPreview { position: relative; width: 144px; aspect-ratio: 4 / 5; flex-shrink: 0; overflow: hidden; background: #5a4b40; color: #faf5ee; border: 0; padding: 0; cursor: pointer; display: grid; place-items: center; }
+.photoPreview { position: relative; width: 192px; aspect-ratio: 4 / 5; flex-shrink: 0; overflow: hidden; background: #5a4b40; color: #faf5ee; border: 0; padding: 0; cursor: pointer; display: grid; place-items: center; }
 .photoPreview img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
 .photoPreview:focus-visible { outline: 2px solid #faf5ee; outline-offset: 4px; }
 .photoPreview:disabled { cursor: wait; }
@@ -233,3 +233,26 @@
 @media (prefers-reduced-motion: reduce) { .studyChips { transition: none; } }
 
 .programChip, .yearChip { min-width: 0; }
+
+.usernameField { width: min(100%, 360px); align-self: center; }
+.usernameEntry > span { font-size: 26px; font-weight: 400; line-height: 1.35; }
+.cameraCorners { position: absolute; inset: 8px; pointer-events: none; z-index: 1; }
+.cameraCorners i { position: absolute; width: 18px; height: 18px; border-color: #faf5ee; border-style: solid; border-width: 0; }
+.cameraCorners i:nth-child(1) { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.cameraCorners i:nth-child(2) { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.cameraCorners i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+.cameraCorners i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+.linkedinEntry { display: flex; align-items: baseline; min-width: 0; font-size: 18px; font-weight: 400; }
+.linkedinEntry > span { flex-shrink: 0; color: #d8cec5; }
+.linkedinEntry input { flex: 1; min-width: 0; }
+.skillChoices { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-width: 0; padding: 0; border: 0; margin: 0; }
+.skillChoices label { position: relative; cursor: pointer; }
+.skillChoices input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; z-index: 1; }
+.skillChoices span { display: block; padding: 12px 18px; border: 1px solid transparent; border-radius: 999px; background: #5a4b40; color: #faf5ee; font-size: 16px; font-weight: 400; transition: background-color .2s ease, color .2s ease; }
+.skillChoices input:checked + span { background: #faf5ee; color: #443830; }
+.skillChoices input:focus-visible + span { outline: 2px solid #faf5ee; outline-offset: 3px; }
+.skillChoices input:disabled:not(:checked) + span { opacity: .45; cursor: not-allowed; }
+.skillCount { text-align: center; color: #d8cec5; font-size: 13px; font-weight: 400; }
+@media (max-height: 850px) { .onboardingCanvas:has(.skillChoices) { grid-template-rows: 40px auto 80px; gap: 24px; } }
+@media (prefers-reduced-motion: reduce) { .skillChoices span { transition: none; } }
+@media (max-width: 600px) { .skillChoices { gap: 8px; } .skillChoices span { padding: 10px 14px; font-size: 14px; } }
