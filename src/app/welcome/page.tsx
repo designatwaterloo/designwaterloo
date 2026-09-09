@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -19,7 +20,6 @@ import { workSequences } from "@/lib/work-sequences";
 import ExperienceFields from "./ExperienceFields";
 import { ImportedPosition, positionError } from "@/lib/experience-import";
 import StudiesFields from "./StudiesFields";
-import { normalizeLinkedIn, linkedInHandle } from "@/lib/linkedin";
 import { normalizePortfolioUrl } from "@/lib/portfolio-url";
 
 const steps = ["Your details", "Creative profile", "Preview & submit"];
@@ -163,6 +163,7 @@ function EditProfileContent() {
     if (introDone) canvasRef.current?.focus({ preventScroll: true });
   }, [introDone]);
   const [busy, setBusy] = useState(false);
+  const [photoWarning, setPhotoWarning] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -199,7 +200,7 @@ function EditProfileContent() {
         } catch { /* Start at the introduction if storage is unavailable. */ }
       }
       if (member.work_schedule?.length) setSchedule(member.work_schedule);
-      setFields({ first_name: member.first_name || "", last_name: member.last_name || "", slug: member.slug || "", program: member.program || "", graduating_class: member.graduating_class || "", bio: member.bio || "", portfolio: member.portfolio || "", linkedin: member.linkedin || "", profile_image_url: member.profile_image_url || "", specialties: member.specialties || [] });
+      setFields({ first_name: member.first_name || "", last_name: member.last_name || "", slug: member.slug_confirmed ? member.slug || "" : "", program: member.program || "", graduating_class: member.graduating_class || "", bio: member.bio || "", portfolio: member.portfolio || "", linkedin: member.linkedin || "", profile_image_url: member.profile_image_url || "", specialties: member.specialties || [] });
       setReady(true);
     }
   }, [loading, user, member, router, submitted, replay, finishing]);
@@ -322,9 +323,10 @@ function EditProfileContent() {
     } finally { inFlight.current = false; setBusy(false); }
   }
 
-  async function saveCanvasDetails(event: React.FormEvent) {
-    event.preventDefault();
+  async function saveCanvasDetails(event?: React.FormEvent, skipPhotoConfirmed = false) {
+    event?.preventDefault();
     if (!member || inFlight.current || uploading || slideLeaving) return;
+    if (canvasStep === 3 && !fields.profile_image_url && !skipPhotoConfirmed) { setPhotoWarning(true); return; }
     if (canvasStep === 6 && positionError(experiences)) { setError(positionError(experiences)); return; }
     if (replay) {
       if (canvasStep === 7) {
@@ -350,20 +352,20 @@ function EditProfileContent() {
         }
       } else if (canvasStep === 4) {
         if (fields.graduating_class && (!/^\d{4}$/.test(fields.graduating_class) || +fields.graduating_class < 2020 || +fields.graduating_class > new Date().getFullYear() + 6)) throw new Error("Check your graduating year.");
-        if (normalizeLinkedIn(fields.linkedin) === null) throw new Error("Enter a LinkedIn username or profile link.");
-        if (normalizePortfolioUrl(fields.portfolio) === null) throw new Error("Enter a valid portfolio website, like yourname.com.");
       }
       if (canvasStep === 7 && (!fields.specialties.length || fields.specialties.length > 5)) throw new Error("Pick one to five top skills.");
       const patch = canvasStep === 7 ? { specialties: fields.specialties, onboarding_completed: true } : canvasStep === 2
         ? { slug: username.normalized, slug_confirmed: true }
         : canvasStep === 5 ? { work_schedule: workSchedule }
         : canvasStep === 3 ? { profile_image_url: fields.profile_image_url || null }
-        : { program: fields.program.trim() || null, graduating_class: fields.graduating_class || null, portfolio: normalizePortfolioUrl(fields.portfolio) || null, linkedin: normalizeLinkedIn(fields.linkedin) || null };
+        : { program: fields.program.trim() || null, graduating_class: fields.graduating_class || null };
       const result = await supabase.from("members").update(patch).eq("id", member.id).eq("review_status", "draft").select("id");
-      if (result.error) throw new Error(result.error.code === "23505" ? "That username is taken. Choose another one." : "We couldn’t save your details. Please try again.");
+      if (result.error) {
+        const connectionError = !result.error.code || /fetch|network|timeout/i.test(result.error.message);
+        throw new Error(result.error.code === "23505" ? "That username is taken. Choose another one." : connectionError ? "We couldn’t save your changes because the connection failed. Your entries are still here—please try again." : "We couldn’t save your details. Please try again.");
+      }
       if (!result.data?.length) throw new Error("Your profile changed in another tab. Reload to continue.");
       if (canvasStep === 2) setFields(previous => ({ ...previous, slug: username.normalized }));
-      if (canvasStep === 4) setFields(previous => ({ ...previous, portfolio: normalizePortfolioUrl(previous.portfolio) || "", linkedin: normalizeLinkedIn(previous.linkedin) || "" }));
       if (canvasStep === 7) {
         const selected = Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []);
         setFinishing(true);
@@ -387,6 +389,7 @@ function EditProfileContent() {
 
   if (introDone) {
     return <main ref={canvasRef} tabIndex={-1} aria-label="Next onboarding step" data-account-workspace data-onboarding-intro data-finishing={finishing} className={styles.onboardingCanvas}>
+      {photoWarning && <ConfirmDialog title="Add a photo later?" message="You’ll need to add a real photo of yourself before your profile can go live. You can add it from your profile after onboarding." cancelLabel="Go back" confirmLabel="Continue without photo" onCancel={() => setPhotoWarning(false)} onConfirm={() => { setPhotoWarning(false); void saveCanvasDetails(undefined, true); }} />}
       {canvasStep > 0 && <button type="button" className={styles.canvasBack} aria-label="Previous slide" disabled={busy || uploading || slideLeaving} onClick={() => { setError(null); changeCanvasStep(Math.max(0, canvasStep - 1)); canvasRef.current?.focus({ preventScroll: true }); }}><ArrowLeftIcon className="size-6 fill-current" aria-hidden="true" /></button>}
       <ol className={styles.storyProgress} role="list" aria-label={`Onboarding step ${canvasStep + 1} of 8`}>
         {[0, 1, 2, 3, 4, 5, 6, 7].map(index => <li key={index} aria-current={canvasStep === index ? "step" : undefined}><span className="sr-only">Step {index + 1}</span></li>)}
@@ -412,13 +415,13 @@ function EditProfileContent() {
         </section>
       </> : canvasStep >= 2 && canvasStep <= 4 ? <section key={canvasStep} data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="details-heading">
         <h1 id="details-heading">{canvasStep === 2 ? "Pick a username." : canvasStep === 3 ? "Put a face to your name." : "A little more about you."}</h1>
-        <p>{canvasStep === 2 ? "Choose the handle for your profile." : canvasStep === 3 ? "Add a photo for your profile." : "Add your studies and where we can find your work. These are all optional."}</p>
+        <p>{canvasStep === 2 ? "Choose the handle for your profile." : canvasStep === 3 ? "Add a photo for your profile." : "Add your program and graduation year. You can update these later."}</p>
         <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
           <fieldset disabled={busy || uploading || slideLeaving} className={styles.detailsFields}>
-            <legend className="sr-only">{canvasStep === 2 ? "Username" : canvasStep === 3 ? "Profile photo" : "Studies and links"}</legend>
+            <legend className="sr-only">{canvasStep === 2 ? "Username" : canvasStep === 3 ? "Profile photo" : "Studies"}</legend>
             {canvasStep === 2 ? <>
               <div className={styles.usernameField}>
-                <div className={styles.inputChip}><label htmlFor="onboarding-username">Username</label><div className={styles.usernameEntry}><span aria-hidden="true">@</span><input id="onboarding-username" value={fields.slug} onChange={e => change("slug", e.target.value.toLowerCase())} required minLength={3} maxLength={40} pattern="[a-z0-9]+(-[a-z0-9]+)*" autoComplete="username" autoCapitalize="none" spellCheck={false} aria-describedby="username-rules username-status" /></div></div>
+                <div className={styles.inputChip}><label htmlFor="onboarding-username">Username</label><div className={styles.usernameEntry}><span aria-hidden="true">@</span><input id="onboarding-username" placeholder="username" value={fields.slug} onChange={e => change("slug", e.target.value.toLowerCase())} required minLength={3} maxLength={40} pattern="[a-z0-9]+(-[a-z0-9]+)*" autoComplete="username" autoCapitalize="none" spellCheck={false} aria-describedby="username-rules username-status" /></div></div>
                 <span id="username-rules" className="sr-only">3–40 characters. Letters, numbers, and single hyphens.</span>
                 <small id="username-status" role="status" data-tone={usernameTone} className={styles.usernameStatus}>{usernameStatus}</small>
                 {usernameCheckFailed && <button type="button" className={styles.retryUsername} onClick={() => setUsernameRetry(count => count + 1)}>Retry check</button>}
@@ -435,8 +438,6 @@ function EditProfileContent() {
               </div>
             </> : <>
               <StudiesFields school={school} program={fields.program} year={fields.graduating_class} onProgram={value => change("program", value)} onYear={value => change("graduating_class", value)} />
-              <div className={`${styles.linkField} ${styles.inputChip}`}><label htmlFor="onboarding-portfolio">Portfolio</label><input id="onboarding-portfolio" type="text" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} onBlur={() => { const normalized = normalizePortfolioUrl(fields.portfolio); if (normalized !== null) change("portfolio", normalized); }} onPaste={event => { const normalized = normalizePortfolioUrl(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("portfolio", normalized); } }} maxLength={2048} placeholder="https://your-work.com" value={fields.portfolio} onChange={e => change("portfolio", e.target.value)} /></div>
-              <div className={`${styles.linkField} ${styles.inputChip}`}><label id="onboarding-linkedin-label" htmlFor="onboarding-linkedin">LinkedIn</label><div className={styles.linkedinEntry}><label id="linkedin-prefix" htmlFor="onboarding-linkedin">linkedin.com/in/</label><input id="onboarding-linkedin" aria-labelledby="onboarding-linkedin-label" aria-describedby="linkedin-prefix" type="text" autoComplete="url" autoCapitalize="none" spellCheck={false} maxLength={2048} placeholder="username" onBlur={() => change("linkedin", linkedInHandle(fields.linkedin))} onPaste={event => { const normalized = normalizeLinkedIn(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("linkedin", linkedInHandle(normalized)); } }} value={linkedInHandle(fields.linkedin)} onChange={e => change("linkedin", e.target.value)} /></div></div>
             </>}
           </fieldset>
           {error && <p className={styles.nameError} role="alert">{error}</p>}
@@ -549,8 +550,6 @@ function EditProfileContent() {
                 </div>
                 <div className={styles.field}><label htmlFor="bio">A little about you <span>(recommended)</span></label><textarea id="bio" name="bio" rows={4} maxLength={600} placeholder="I’m a designer who loves… Lately, I’ve been working on…" value={fields.bio} onChange={e => change("bio", e.target.value)} aria-describedby="bio-hint" /><p className={styles.hint} id="bio-hint">A sentence or two is plenty. What are you making, learning or curious about?</p></div>
                 <fieldset className={styles.interests}><legend>What are you into? <span>(recommended)</span></legend><p className={styles.hint}>Pick the interests you’d like people to find you for.</p><div className={styles.chips}>{Array.from(new Set([...SPECIALTIES, ...fields.specialties])).map(s => <label key={s}><input type="checkbox" name="specialties" value={s} checked={fields.specialties.includes(s)} onChange={e => change("specialties", e.target.checked ? [...fields.specialties, s] : fields.specialties.filter(v => v !== s))} /><span>{s}</span></label>)}</div></fieldset>
-                <div className={styles.field}><label htmlFor="portfolio">Portfolio or a project <span>(optional)</span></label><input id="portfolio" name="portfolio" type="text" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} onBlur={() => { const normalized = normalizePortfolioUrl(fields.portfolio); if (normalized !== null) change("portfolio", normalized); }} onPaste={event => { const normalized = normalizePortfolioUrl(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("portfolio", normalized); } }} placeholder="https://your-work.com" value={fields.portfolio} onChange={e => change("portfolio", e.target.value)} /><p className={styles.hint}>A personal site, a project, a film or a collection of work. No portfolio yet? Leave this blank.</p></div>
-                <div className={styles.field}><label htmlFor="linkedin">LinkedIn <span>(optional)</span></label><input id="linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/you" value={fields.linkedin} onChange={e => change("linkedin", e.target.value)} /></div>
               </>}
               {step === 2 && <>
                 <article className={styles.preview} aria-label="Your profile preview">

@@ -110,6 +110,7 @@ for (const width of [817, 390]) {
   test(`username photo and studies save as drafts at ${width}px`, async ({ page, request }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width, height: 844 });
+    await request.post(CONTROL, { data: { member: { slug_confirmed: false } } });
     await page.goto("/sign-in");
     const next = page.getByRole("button", { name: /^(Continue|Confirm schedule)$/ });
     await page.getByRole("button", { name: "Sign in with LEARN" }).click();
@@ -119,6 +120,8 @@ for (const width of [817, 390]) {
     await expect(page.getByLabel("First name", { exact: true })).toBeVisible();
     await next.click();
     const username = page.getByLabel("Username", { exact: true });
+    await expect(username).toHaveValue("");
+    await expect(username).toHaveAttribute("placeholder", "username");
     await expect(username).toHaveAttribute("maxlength", "40");
     await username.fill("admin");
     await expect(page.locator("#username-status")).toContainText("reserved");
@@ -131,8 +134,12 @@ for (const width of [817, 390]) {
     await expect(next).toBeEnabled();
     await next.click();
     await expect(page.getByRole("heading", { name: "Put a face to your name." })).toBeVisible();
-    // Photo is temporarily skippable while this step is being designed.
     await next.click();
+    await expect(page.getByRole("dialog")).toContainText("before your profile can go live");
+    await page.getByRole("button", { name: "Go back", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Put a face to your name." })).toBeVisible();
+    await next.click();
+    await page.getByRole("button", { name: "Continue without photo", exact: true }).click();
     await expect(page.getByLabel("Program", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Previous slide" }).click();
     await expect(page.getByRole("heading", { name: "Put a face to your name." })).toBeVisible();
@@ -164,15 +171,8 @@ for (const width of [817, 390]) {
     await next.click();
     await expect(page.locator('p[role="alert"]')).toContainText("graduating year");
     await page.getByLabel("Graduation year").fill("2030");
-    await page.getByLabel("Portfolio", { exact: true }).fill("example.com/work?utm_source=share");
-    await page.getByLabel("Portfolio", { exact: true }).blur();
-    await expect(page.getByLabel("Portfolio", { exact: true })).toHaveValue("https://example.com/work");
-    const linkedin = page.getByLabel("LinkedIn", { exact: true });
-    await linkedin.fill("in/alex");
-    await linkedin.blur();
-    await expect(linkedin).toHaveValue("alex");
-    await linkedin.evaluate(el => { const data = new DataTransfer(); data.setData("text/plain", "https://www.linkedin.com/in/alex?utm_source=share#about"); el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true })); });
-    await expect(linkedin).toHaveValue("alex");
+    await expect(page.getByLabel("Portfolio", { exact: true })).toHaveCount(0);
+    await expect(page.getByLabel("LinkedIn", { exact: true })).toHaveCount(0);
     await request.post(CONTROL, { data: { failSave: true } });
     await next.click();
     await expect(page.locator('p[role="alert"]')).toContainText("couldn’t save");
@@ -183,8 +183,7 @@ for (const width of [817, 390]) {
     saved = (await (await request.get(CONTROL)).json()).member;
     expect(saved.program).toBe("Systems Design Engineering");
     expect(saved.graduating_class).toBe("2030");
-    expect(saved.portfolio).toBe("https://example.com/work");
-    expect(saved.linkedin).toBe("https://www.linkedin.com/in/alex");
+
     expect(saved.review_status).toBe("draft");
     expect(saved.onboarding_completed).toBe(false);
     await page.getByRole("button", { name: "Previous slide" }).click();
@@ -241,6 +240,7 @@ for (const [width, count] of [[817, 1], [390, 2], [390, 3]]) {
     await next.click();
     await expect(page.getByRole("heading", { name: "Put a face to your name." })).toBeVisible();
     await next.click();
+    await page.getByRole("button", { name: "Continue without photo", exact: true }).click();
     await expect(page.getByRole("combobox", { name: "Program", exact: true })).toBeVisible();
     await next.click();
     await expect(page.getByRole("heading", { name: /Does this schedule look right|When do you plan to work/ })).toBeVisible();
@@ -311,7 +311,7 @@ test("schedule supports stream choice, manual adjustment and back navigation", a
   await page.goto("/sign-in");
   await page.getByRole("button", { name: "Sign in with LEARN" }).click();
   const next = page.getByRole("button", { name: /^(Continue|Confirm schedule)$/ });
-  for (let i = 0; i < 6; i++) await next.click();
+  for (let i = 0; i < 6; i++) { await next.click(); if (i === 4) await page.getByRole("button", { name: "Continue without photo", exact: true }).click(); }
   await expect(page.getByRole("heading", { name: "Does this schedule look right?" })).toBeVisible();
   await page.getByRole("button", { name: "Stream 8", exact: true }).click();
   await expect(page.getByRole("button", { name: "Spring 2027", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -352,7 +352,7 @@ for (const [program, option, count] of [["Computer Science", "Sequence 4", 4], [
     await page.goto("/sign-in");
     await page.getByRole("button", { name: "Sign in with LEARN" }).click();
     const next = page.getByRole("button", { name: /^(Continue|Confirm schedule)$/ });
-    for (let i = 0; i < 6; i++) await next.click();
+    for (let i = 0; i < 6; i++) { await next.click(); if (i === 4) await page.getByRole("button", { name: "Continue without photo", exact: true }).click(); }
     await expect(page.getByRole("heading", { name: "Does this schedule look right?" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Fall 2025", exact: true }).locator("span").first()).toHaveText("1A");
     if (count) {
