@@ -17,8 +17,6 @@ import styles from "./page.module.css";
 import { useOnboardingFinale } from "@/components/OnboardingFinale";
 import ScheduleFields from "./ScheduleFields";
 import { workSequences } from "@/lib/work-sequences";
-import ExperienceFields from "./ExperienceFields";
-import { ImportedPosition, positionError } from "@/lib/experience-import";
 import StudiesFields from "./StudiesFields";
 import { normalizePortfolioUrl } from "@/lib/portfolio-url";
 
@@ -38,23 +36,6 @@ function EditProfileContent() {
   const startFinale = useOnboardingFinale();
   const [finishing, setFinishing] = useState(false);
   const supabase = useMemo(() => createClient(), []);
-  const experienceMemberId = member?.id;
-  const [experiences, setExperiences] = useState<ImportedPosition[]>([]);
-  const [experienceLoadError, setExperienceLoadError] = useState(false);
-  const [experienceRetry, setExperienceRetry] = useState(0);
-  const [experienceLoaded, setExperienceLoaded] = useState(false);
-  useEffect(() => {
-    if (!experienceMemberId) return;
-    let active = true;
-    supabase.from("member_experiences").select("*").eq("member_id", experienceMemberId).then(({ data, error }) => {
-      if (!active) return;
-      if (error) { setExperienceLoadError(true); return; }
-      setExperienceLoadError(false);
-      setExperiences((data || []).map(p => ({ ...p, position_title: p.position_title || "", start_year: p.start_year || "", description: p.description || "", location: p.location || "", employment_type: p.employment_type || "" })));
-      setExperienceLoaded(true);
-    });
-    return () => { active = false; };
-  }, [experienceMemberId, supabase, experienceRetry]);
   const [fields, setFields] = useState(empty);
   const [editingSchedule, setEditingSchedule] = useState(false);
   const [schedule, setSchedule] = useState<string[] | null>(null);
@@ -73,12 +54,12 @@ function EditProfileContent() {
     if (member && !replay) {
       try {
         const key = `dw-onboarding-step:${member.id}`;
-        if (next >= 8) sessionStorage.removeItem(key);
+        if (next >= 7) sessionStorage.removeItem(key);
         else sessionStorage.setItem(key, String(next));
       } catch { /* Onboarding still works when browser storage is disabled. */ }
     }
-    if (canvasStep > 7 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      if (next === 8) { router.push("/dashboard"); return; }
+    if (canvasStep > 6 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (next === 7) { router.push("/dashboard"); return; }
       setCanvasStep(next);
       canvasRef.current?.focus({ preventScroll: true });
     } else {
@@ -89,7 +70,7 @@ function EditProfileContent() {
   useEffect(() => {
     if (nextCanvasStep === null) return;
     const timer = window.setTimeout(() => {
-      if (nextCanvasStep === 8) { router.push("/dashboard"); return; }
+      if (nextCanvasStep === 7) { router.push("/dashboard"); return; }
       setCanvasStep(nextCanvasStep);
       setNextCanvasStep(null);
       canvasRef.current?.focus({ preventScroll: true });
@@ -196,7 +177,7 @@ function EditProfileContent() {
       if (!replay && !member.onboarding_completed) {
         try {
           const savedStep = Number(sessionStorage.getItem(`dw-onboarding-step:${member.id}`));
-          if (Number.isInteger(savedStep) && savedStep > 0 && savedStep <= 7) { setCanvasStep(savedStep); setIntroDone(true); }
+          if (Number.isInteger(savedStep) && savedStep > 0 && savedStep <= 7) { setCanvasStep(Math.min(savedStep, 6)); setIntroDone(true); }
         } catch { /* Start at the introduction if storage is unavailable. */ }
       }
       if (member.work_schedule?.length) setSchedule(member.work_schedule);
@@ -327,9 +308,8 @@ function EditProfileContent() {
     event?.preventDefault();
     if (!member || inFlight.current || uploading || slideLeaving) return;
     if (canvasStep === 3 && !fields.profile_image_url && !skipPhotoConfirmed) { setPhotoWarning(true); return; }
-    if (canvasStep === 6 && positionError(experiences)) { setError(positionError(experiences)); return; }
     if (replay) {
-      if (canvasStep === 7) {
+      if (canvasStep === 6) {
         setFinishing(true);
         startFinale(Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []));
       } else changeCanvasStep(canvasStep + 1);
@@ -337,11 +317,6 @@ function EditProfileContent() {
     }
     inFlight.current = true; setBusy(true); setError(null);
     try {
-      if (canvasStep === 6) {
-        const saved = await supabase.rpc("save_my_experiences", { experiences: experiences.map(p => ({ position_title:p.position_title, company:p.company, start_month:p.start_month, start_year:p.start_year, end_month:p.is_current?null:p.end_month, end_year:p.is_current?null:p.end_year, is_current:p.is_current, description:p.description, location:p.location, employment_type:p.employment_type, link:p.link })) });
-        if (saved.error) throw new Error("We couldn’t save your positions. Please try again.");
-        changeCanvasStep(7); return;
-      }
       const username = validateUsername(fields.slug);
       if (canvasStep === 2) {
         if (!username.ok) throw new Error(username.error);
@@ -353,8 +328,8 @@ function EditProfileContent() {
       } else if (canvasStep === 4) {
         if (fields.graduating_class && (!/^\d{4}$/.test(fields.graduating_class) || +fields.graduating_class < 2020 || +fields.graduating_class > new Date().getFullYear() + 6)) throw new Error("Check your graduating year.");
       }
-      if (canvasStep === 7 && (!fields.specialties.length || fields.specialties.length > 5)) throw new Error("Pick one to five top skills.");
-      const patch = canvasStep === 7 ? { specialties: fields.specialties, onboarding_completed: true } : canvasStep === 2
+      if (canvasStep === 6 && (!fields.specialties.length || fields.specialties.length > 5)) throw new Error("Pick one to five top skills.");
+      const patch = canvasStep === 6 ? { specialties: fields.specialties, onboarding_completed: true } : canvasStep === 2
         ? { slug: username.normalized, slug_confirmed: true }
         : canvasStep === 5 ? { work_schedule: workSchedule }
         : canvasStep === 3 ? { profile_image_url: fields.profile_image_url || null }
@@ -366,7 +341,7 @@ function EditProfileContent() {
       }
       if (!result.data?.length) throw new Error("Your profile changed in another tab. Reload to continue.");
       if (canvasStep === 2) setFields(previous => ({ ...previous, slug: username.normalized }));
-      if (canvasStep === 7) {
+      if (canvasStep === 6) {
         const selected = Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []);
         setFinishing(true);
         startFinale(selected);
@@ -377,7 +352,7 @@ function EditProfileContent() {
   }
 
   const usernameReady = validateUsername(fields.slug).ok && checkedUsername === validateUsername(fields.slug).normalized;
-  const canvasNotReady = (canvasStep === 6 && !experienceLoaded) || (canvasStep === 2 && !usernameReady) || (canvasStep === 7 && (!fields.specialties.length || fields.specialties.length > 5));
+  const canvasNotReady = (canvasStep === 2 && !usernameReady) || (canvasStep === 6 && (!fields.specialties.length || fields.specialties.length > 5));
   const usernameTone = usernameReady ? "good" : usernameStatus && usernameStatus !== "Checking availability…" ? "bad" : "neutral";
   const missing = [!fields.profile_image_url && "a photo", !fields.bio.trim() && "a short bio", !fields.specialties.length && "your creative interests"].filter(Boolean);
   const name = `${fields.first_name} ${fields.last_name}`.trim();
@@ -391,8 +366,8 @@ function EditProfileContent() {
     return <main ref={canvasRef} tabIndex={-1} aria-label="Next onboarding step" data-account-workspace data-onboarding-intro data-finishing={finishing} className={styles.onboardingCanvas}>
       {photoWarning && <ConfirmDialog title="Add a photo later?" message="You’ll need to add a real photo of yourself before your profile can go live. You can add it from your profile after onboarding." cancelLabel="Go back" confirmLabel="Continue without photo" onCancel={() => setPhotoWarning(false)} onConfirm={() => { setPhotoWarning(false); void saveCanvasDetails(undefined, true); }} />}
       {canvasStep > 0 && <button type="button" className={styles.canvasBack} aria-label="Previous slide" disabled={busy || uploading || slideLeaving} onClick={() => { setError(null); changeCanvasStep(Math.max(0, canvasStep - 1)); canvasRef.current?.focus({ preventScroll: true }); }}><ArrowLeftIcon className="size-6 fill-current" aria-hidden="true" /></button>}
-      <ol className={styles.storyProgress} role="list" aria-label={`Onboarding step ${canvasStep + 1} of 8`}>
-        {[0, 1, 2, 3, 4, 5, 6, 7].map(index => <li key={index} aria-current={canvasStep === index ? "step" : undefined}><span className="sr-only">Step {index + 1}</span></li>)}
+      <ol className={styles.storyProgress} role="list" aria-label={`Onboarding step ${canvasStep + 1} of 7`}>
+        {[0, 1, 2, 3, 4, 5, 6].map(index => <li key={index} aria-current={canvasStep === index ? "step" : undefined}><span className="sr-only">Step {index + 1}</span></li>)}
       </ol>
       {canvasStep === 0 ? <>
         <section key="welcome" data-leaving={slideLeaving} className={styles.welcomeCopy} aria-labelledby="welcome-heading">
@@ -451,14 +426,7 @@ function EditProfileContent() {
           </fieldset>
           {error && <p className={styles.nameError} role="alert">{error}</p>}
         </form>
-      </section> : canvasStep === 6 ? <section key="experience" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy} ${styles.experienceSlide}`} aria-labelledby="experience-heading">
-        <h1 id="experience-heading">What have you been working on?</h1>
-        <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
-          {experienceLoadError && <p className={styles.nameError} role="alert">We couldn’t load your positions. <button type="button" onClick={() => setExperienceRetry(v => v + 1)}>Try again</button></p>}
-          <ExperienceFields value={experiences} onChange={setExperiences} disabled={busy || !experienceLoaded} />
-          {error && <p className={styles.nameError} role="alert">{error}</p>}
-        </form>
-      </section> : canvasStep === 7 ? <section key="skills" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="skills-heading">
+      </section> : canvasStep === 6 ? <section key="skills" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="skills-heading">
         <h1 id="skills-heading">What are your top skills?</h1>
         <p>You can edit these later.</p>
         <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
@@ -470,12 +438,12 @@ function EditProfileContent() {
           {error && <p className={styles.nameError} role="alert">{error}</p>}
         </form>
       </section> : <div aria-label="Next step canvas" />}
-      <div className={styles.canvasAction} data-schedule-action={canvasStep === 5 || undefined} data-stream-picker={canvasStep === 5 || undefined} style={canvasStep > 7 ? { visibility: "hidden" } : undefined}>
+      <div className={styles.canvasAction} data-schedule-action={canvasStep === 5 || undefined} data-stream-picker={canvasStep === 5 || undefined} style={canvasStep > 6 ? { visibility: "hidden" } : undefined}>
         {canvasStep === 5 && scheduleChoices.length > 1 && <div className={styles.scheduleStreams} role="group" aria-label="Co-op sequence">
           {scheduleChoices.map((choice, index) => <button key={choice.label} type="button" style={{ "--choice-delay": `${850 + index * 65}ms` } as React.CSSProperties} disabled={busy || slideLeaving} aria-pressed={workSchedule.join() === choice.terms.join()} onClick={() => { setSchedule(choice.terms); }}><span className={styles.streamCheck} aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="m4 8 2.5 2.5L12 5" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" /></svg></span><span>{choice.label}{choice.recommended ? " (default)" : ""}</span></button>)}
         </div>}
         {canvasStep === 5 && scheduleChoices.length > 0 && <button type="button" className={styles.editScheduleButton} aria-pressed={editingSchedule} disabled={busy || slideLeaving} onClick={() => setEditingSchedule(value => !value)}>{editingSchedule ? "Done editing" : "Edit schedule"}</button>}
-        <button type={canvasStep > 0 ? "submit" : "button"} form={canvasStep === 1 ? "onboarding-name" : canvasStep > 1 ? "onboarding-details" : undefined} className={styles.settleNext} aria-label={canvasStep === 5 ? "Confirm schedule" : "Continue"} aria-busy={busy || uploading} data-unready={canvasNotReady} disabled={busy || uploading || slideLeaving || canvasStep > 7 || canvasNotReady} onClick={event => { if (canvasStep === 0) { event.preventDefault(); changeCanvasStep(1); canvasRef.current?.focus({ preventScroll: true }); } }}><span className={styles.settleArrow}><ArrowRightIcon className="size-6 shrink-0 fill-current" aria-hidden="true" /></span></button>
+        <button type={canvasStep > 0 ? "submit" : "button"} form={canvasStep === 1 ? "onboarding-name" : canvasStep > 1 ? "onboarding-details" : undefined} className={styles.settleNext} aria-label={canvasStep === 5 ? "Confirm schedule" : "Continue"} aria-busy={busy || uploading} data-unready={canvasNotReady} disabled={busy || uploading || slideLeaving || canvasStep > 6 || canvasNotReady} onClick={event => { if (canvasStep === 0) { event.preventDefault(); changeCanvasStep(1); canvasRef.current?.focus({ preventScroll: true }); } }}><span className={styles.settleArrow}><ArrowRightIcon className="size-6 shrink-0 fill-current" aria-hidden="true" /></span></button>
       </div>
     </main>;
   }

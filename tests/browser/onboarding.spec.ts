@@ -46,7 +46,7 @@ for (const width of [1440, 390]) {
     await expect(canvas).toHaveCSS("background-color", "rgb(68, 56, 48)");
     expect(await canvas.boundingBox()).toEqual({ x: 0, y: 0, width, height: 1000 });
     await expect(canvas.getByRole("heading", { name: "Welcome, Session." })).toBeVisible();
-    await expect(canvas.getByRole("list", { name: "Onboarding step 1 of 8" })).toBeVisible();
+    await expect(canvas.getByRole("list", { name: "Onboarding step 1 of 7" })).toBeVisible();
     expect(await canvas.locator('li[aria-current="step"]').evaluate(el => el.getBoundingClientRect().width)).toBe(30);
     await expect(page.getByRole("button", { name: "Open navigation" })).toBeHidden();
     const { member } = await (await request.get(CONTROL)).json();
@@ -55,11 +55,11 @@ for (const width of [1440, 390]) {
     await page.screenshot({ path: `test-results/onboarding-canvas-${width}.png`, animations: "disabled" });
     await canvas.getByRole("button", { name: /^(Continue|Confirm schedule)$/ }).click();
     await expect(canvas.getByRole("heading", { name: "Does this look right?" })).toBeVisible();
-    await expect(canvas.getByRole("list", { name: "Onboarding step 2 of 8" })).toBeVisible();
+    await expect(canvas.getByRole("list", { name: "Onboarding step 2 of 7" })).toBeVisible();
     await canvas.getByRole("button", { name: "Previous slide" }).click();
     await expect(canvas.getByRole("heading", { name: "Welcome, Session." })).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Previous slide" })).toHaveCount(0);
-    await expect(canvas.getByRole("list", { name: "Onboarding step 1 of 8" })).toBeVisible();
+    await expect(canvas.getByRole("list", { name: "Onboarding step 1 of 7" })).toBeVisible();
   });
 }
 
@@ -95,7 +95,7 @@ for (const school of ["University of Waterloo", "Wilfrid Laurier University"]) {
     await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Alex");
     await request.post(CONTROL, { data: { failSave: false } });
     await page.getByRole("button", { name: /^(Continue|Confirm schedule)$/ }).click();
-    await expect(page.getByRole("list", { name: "Onboarding step 3 of 8" })).toBeVisible();
+    await expect(page.getByRole("list", { name: "Onboarding step 3 of 7" })).toBeVisible();
     const { member } = await (await request.get(CONTROL)).json();
     expect(member.first_name).toBe("Alex");
     expect(member.last_name).toBe("Rivera");
@@ -179,7 +179,7 @@ for (const width of [817, 390]) {
     await request.post(CONTROL, { data: { failSave: false } });
     await page.screenshot({ path: `test-results/studies-${width}.png` });
     await next.click();
-    await expect(page.getByRole("list", { name: "Onboarding step 6 of 8" })).toBeVisible();
+    await expect(page.getByRole("list", { name: "Onboarding step 6 of 7" })).toBeVisible();
     saved = (await (await request.get(CONTROL)).json()).member;
     expect(saved.program).toBe("Systems Design Engineering");
     expect(saved.graduating_class).toBe("2030");
@@ -192,8 +192,6 @@ for (const width of [817, 390]) {
     await expect(page.getByRole("heading", { name: /Does this schedule look right|When do you plan to work/ })).toBeVisible();
     await page.screenshot({ path: `test-results/onboarding-schedule-${page.viewportSize()?.width}.png` });
     await next.click();
-    await expect(page.getByRole("heading", { name: "What have you been working on?" })).toBeVisible();
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("heading", { name: "What are your top skills?" })).toBeVisible();
     await expect(next).toBeDisabled();
     await page.getByRole("checkbox", { name: "Product Design", exact: true }).check();
@@ -246,8 +244,6 @@ for (const [width, count] of [[817, 1], [390, 2], [390, 3]]) {
     await expect(page.getByRole("heading", { name: /Does this schedule look right|When do you plan to work/ })).toBeVisible();
     await page.screenshot({ path: `test-results/onboarding-schedule-${page.viewportSize()?.width}.png` });
     await next.click();
-    await expect(page.getByRole("heading", { name: "What have you been working on?" })).toBeVisible();
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("heading", { name: "What are your top skills?" })).toBeVisible();
     const selected = ["Design Engineering", "Industrial Design", "Product Design"].slice(0, count);
     for (const name of selected) await page.getByRole("checkbox", { name, exact: true }).check();
@@ -320,14 +316,11 @@ test("schedule supports stream choice, manual adjustment and back navigation", a
   await page.getByRole("button", { name: "Spring 2027", exact: true }).click();
   await page.getByRole("button", { name: "Winter 2027", exact: true }).click();
   await next.click();
-  await expect(page.getByRole("heading", { name: "What have you been working on?" })).toBeVisible();
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("heading", { name: "What are your top skills?" })).toBeVisible();
   const { member } = await (await request.get(CONTROL)).json();
   expect(member.work_schedule).toContain("1271");
   expect(member.work_schedule).not.toContain("1275");
   expect(member.onboarding_completed).toBe(false);
-  await page.getByRole("button", { name: "Previous slide" }).click();
   await page.getByRole("button", { name: "Previous slide" }).click();
   await expect(page.getByRole("button", { name: "Winter 2027", exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Previous slide" }).click();
@@ -338,8 +331,6 @@ test("schedule supports stream choice, manual adjustment and back navigation", a
   await expect(page.getByRole("button", { name: "Winter 2027", exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Clear", exact: true }).click();
   await next.click();
-  await expect(page.getByRole("heading", { name: "What have you been working on?" })).toBeVisible();
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("heading", { name: "What are your top skills?" })).toBeVisible();
   expect((await (await request.get(CONTROL)).json()).member.work_schedule).toEqual([]);
 });
@@ -365,14 +356,12 @@ for (const [program, option, count] of [["Computer Science", "Sequence 4", 4], [
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     const slide = page.locator('[aria-labelledby="schedule-heading"]');
     const box = await slide.boundingBox();
-    const progress = await page.getByRole("list", { name: "Onboarding step 6 of 8" }).boundingBox();
+    const progress = await page.getByRole("list", { name: "Onboarding step 6 of 7" }).boundingBox();
     const button = await next.boundingBox();
     expect(box!.y).toBeGreaterThanOrEqual(progress!.y + progress!.height);
     expect(box!.y + box!.height).toBeLessThanOrEqual(button!.y);
     await page.screenshot({ path: `test-results/sequence-${count}.png`, fullPage: true });
     await next.click();
-    await expect(page.getByRole("heading", { name: "What have you been working on?" })).toBeVisible();
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("heading", { name: "What are your top skills?" })).toBeVisible();
     const { member } = await (await request.get(CONTROL)).json();
     expect(member.work_schedule.length).toBe(program === "Computer Science" ? 6 : 4);
