@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { FilterPanelProps, FilterConfig } from "../types";
 import FilterAccordion from "./FilterAccordion";
 import styles from "./FilterPanel.module.css";
@@ -26,6 +27,7 @@ import styles from "./FilterPanel.module.css";
  * ```
  */
 export default function FilterPanel<T>({
+  id,
   filters,
   selectedFilters,
   onFilterChange,
@@ -37,6 +39,14 @@ export default function FilterPanel<T>({
   isOpen,
   onClose,
 }: FilterPanelProps<T>) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (variant !== "mobile") return;
+    const element = dialog.current;
+    if (isOpen && element && !element.open) element.showModal();
+    if (!isOpen && element?.open) element.close();
+  }, [isOpen, variant]);
+
   const hasActiveFilters =
     searchTerm !== "" || Object.values(selectedFilters).some((vals) => vals.length > 0);
 
@@ -94,7 +104,7 @@ export default function FilterPanel<T>({
   if (variant === "mobile") {
     return (
       <>
-        <div className={`${styles.panelMobile} ${isOpen ? styles.panelOpen : ""}`}>
+        <dialog ref={dialog} id={id} aria-label="Filters" onCancel={(event) => { event.preventDefault(); onClose?.(); }} className={`${styles.panelMobile} ${isOpen ? styles.panelOpen : ""}`}>
           <div className={styles.panelHeader}>
             <h2>Filters</h2>
             <button
@@ -106,17 +116,17 @@ export default function FilterPanel<T>({
             </button>
           </div>
           <div className={styles.panelContent}>{content}</div>
-        </div>
+        </dialog>
       </>
     );
   }
 
   // Desktop variant
   return (
-    <aside className={`${styles.panelDesktop} ${isOpen ? styles.panelDesktopOpen : ""}`}>
+    <div id={id} role="group" aria-label="Filters" inert={!isOpen} aria-hidden={!isOpen} className={`${styles.panelDesktop} ${isOpen ? styles.panelDesktopOpen : ""}`}>
       <div className={styles.panelSticky}>
         {content}
       </div>
-    </aside>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-.main { padding: 100px var(--margin) var(--big); min-height: 70svh; }
+.main { padding: clamp(32px, 8vh, 96px) 24px 64px; max-width: 640px; margin-inline: auto; min-height: 70svh; }
 .content { display: flex; flex-direction: column; gap: 32px; }
 .content h1 { font-size: 2rem; font-weight: 500; letter-spacing: -0.025em; text-wrap: balance; }
 .section { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; max-width: 48ch; }

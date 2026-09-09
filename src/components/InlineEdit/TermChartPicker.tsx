@@ -73,7 +73,7 @@ export default function TermChartPicker() {
           const pillStyle: React.CSSProperties = past
             ? {
                 backgroundColor: "color-mix(in srgb, var(--foreground) 20%, transparent)",
-                color: "color-mix(in srgb, var(--foreground) 40%, transparent)",
+                color: "var(--foreground)",
                 textDecoration: "line-through",
               }
             : {

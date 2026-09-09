@@ -2,121 +2,46 @@ import { useState } from "react";
 import { TableViewProps } from "../types";
 import SortableHeader from "./SortableHeader";
 import Link from "@/components/Link";
-import ScrollReveal from "@/components/ScrollReveal";
 import styles from "./TableView.module.css";
 
-/**
- * TableView component - Renders items in a sortable table layout
- *
- * Features:
- * - 12-column grid layout with auto-generated cells from columns config
- * - Sortable column headers
- * - Optional hover image previews
- * - Row links using getItemHref
- *
- * @example
- * ```tsx
- * <TableView
- *   items={members}
- *   columns={columnConfig}
- *   getItemKey={(member) => member._id}
- *   getItemHref={(member) => `/@${member.slug.current}`}
- *   sortField="name"
- *   sortDirection="asc"
- *   onSort={(field) => handleSort(field)}
- * />
- * ```
- */
 export default function TableView<T>({
-  items,
-  columns,
-  getItemKey,
-  getItemHref,
-  onSort,
-  sortField,
-  sortDirection = "asc",
-  onItemClick,
-  renderHoverPreview,
+  items, columns, getItemKey, getItemHref, onSort, sortField,
+  sortDirection = "asc", onItemClick, renderHoverPreview,
 }: TableViewProps<T>) {
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-
-  // Helper to get alignment class
-  const getAlignClass = (align?: "left" | "center" | "right") => {
-    if (!align || align === "left") return styles.alignLeft;
-    if (align === "center") return styles.alignCenter;
-    return styles.alignRight;
-  };
-
   return (
-    <div className={styles.tableView}>
-      {/* Table Header */}
-      <div className={styles.tableHeader}>
-        {columns.map((column) => (
-          <SortableHeader
-            key={column.key}
-            label={column.label}
-            field={column.key}
-            active={sortField === column.key}
-            direction={sortDirection}
-            onClick={() => column.sortable && onSort?.(column.key)}
-            span={column.span}
-            mobileSpan={column.mobileSpan}
-            hideOnMobile={column.hideOnMobile}
-            align={column.align}
-          />
-        ))}
-      </div>
-
-      {/* Table Rows - Auto-generated from columns config */}
-      {items.map((item, index) => {
-        const itemId = getItemKey(item);
-        const isHovered = hoveredItemId === itemId;
-
-        return (
-          <ScrollReveal
-            key={itemId}
-            index={index}
-            direction="left"
-            className={isHovered ? styles.rowOuterHovered : ""}
-          >
-            <div
-              className={styles.tableRowWrapper}
-              onMouseEnter={() => setHoveredItemId(itemId)}
-              onMouseLeave={() => setHoveredItemId(null)}
-              onClick={() => onItemClick?.(item)}
-            >
-              <Link
-                href={getItemHref(item)}
-                className={styles.tableRow}
-                underline={false}
-              >
-                {columns.map((column) => (
-                  <div
-                    key={column.key}
-                    className={`
-                      ${styles[`span${column.span}`]}
-                      ${column.mobileSpan ? styles[`mobileSpan${column.mobileSpan}`] : ""}
-                      ${column.hideOnMobile ? styles.hideOnMobile : ""}
-                      ${getAlignClass(column.align)}
-                      ${column.className || ""}
-                    `.trim()}
-                    data-column={column.key}
-                  >
-                    {column.render(item)}
-                  </div>
-                ))}
-              </Link>
-
-              {/* Hover Preview - always rendered so images preload, shown/hidden via CSS */}
-              {renderHoverPreview && (
-                <div className={`${styles.hoverPreview} ${isHovered ? styles.hoverPreviewVisible : ""}`}>
+    <table className={styles.tableView}>
+      <caption className="sr-only">Directory members</caption>
+      <thead>
+        <tr className={styles.tableHeader}>
+          {columns.map(column => <SortableHeader key={column.key}
+            label={column.label} field={column.key} active={sortField === column.key}
+            direction={sortDirection} sortable={!!column.sortable && !!onSort}
+            onClick={() => onSort?.(column.key)} span={column.span}
+            mobileSpan={column.mobileSpan} hideOnMobile={column.hideOnMobile} align={column.align} />)}
+        </tr>
+      </thead>
+      <tbody>
+        {items.map(item => {
+          const id = getItemKey(item);
+          const isHovered = hoveredItemId === id;
+          return <tr key={id} className={`${styles.tableRow} ${isHovered ? styles.rowOuterHovered : ""}`}
+            onMouseEnter={() => setHoveredItemId(id)} onMouseLeave={() => setHoveredItemId(null)}
+            onFocus={() => setHoveredItemId(id)} onBlur={() => setHoveredItemId(null)}>
+            {columns.map((column, index) => <td key={column.key}
+              className={`${styles[`span${column.span}`]} ${column.mobileSpan ? styles[`mobileSpan${column.mobileSpan}`] : ""} ${column.hideOnMobile ? styles.hideOnMobile : ""} ${styles[`align${(column.align || "left").replace(/^./, c => c.toUpperCase())}`]} ${column.className || ""}`}
+              data-column={column.key}>
+              {index === 0 ? <>
+                <Link href={getItemHref(item)} className={styles.profileLink} underline={false}
+                  onClick={() => onItemClick?.(item)}>{column.render(item)}</Link>
+                {renderHoverPreview && <div aria-hidden="true" className={`${styles.hoverPreview} ${isHovered ? styles.hoverPreviewVisible : ""}`}>
                   {renderHoverPreview(item)}
-                </div>
-              )}
-            </div>
-          </ScrollReveal>
-        );
-      })}
-    </div>
+                </div>}
+              </> : column.render(item)}
+            </td>)}
+          </tr>;
+        })}
+      </tbody>
+    </table>
   );
 }

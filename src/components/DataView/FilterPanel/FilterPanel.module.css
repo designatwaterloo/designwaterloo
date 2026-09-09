@@ -223,7 +223,7 @@
   cursor: pointer;
   flex-shrink: 0;
   background: transparent;
-  border: 2px solid var(--muted);
+  border: 2px solid var(--muted-text);
   border-radius: 2px;
   appearance: none;
   -webkit-appearance: none;
@@ -257,7 +257,7 @@
 
 .count {
   margin-left: auto;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 0.9em;
 }
 
@@ -300,3 +300,6 @@
     color: var(--background);
   }
 }
+.panelMobile { margin: 0; max-width: none; max-height: none; height: 100dvh; border: 0; padding: 0; color: var(--foreground); }
+.panelMobile:not([open]) { display: none; }
+.panelMobile::backdrop { background: rgb(0 0 0 / 40%); }

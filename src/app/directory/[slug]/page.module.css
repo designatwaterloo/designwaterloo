@@ -1,12 +1,22 @@
 /* Back button */
 .backButton {
-  display: inline-block;
-  margin: 100px var(--smaller) 100px var(--smaller);
-  padding: 36px 48px 36px 6px;
-  font-size: var(--smallest);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 100px var(--margin) 32px;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--foreground);
   text-decoration: none;
 }
+.backButton svg { width: 18px; height: 18px; flex-shrink: 0; }
+.backButton:hover { background: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.backButton:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+
 
 .section {
   display: grid;
@@ -174,7 +184,13 @@
   .nameRow {
     grid-column: 1;
     grid-row: 1;
-    margin-bottom: var(--smaller);
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0;
+  }
+
+  .name {
+    margin-bottom: 0;
   }
 
   .identity {

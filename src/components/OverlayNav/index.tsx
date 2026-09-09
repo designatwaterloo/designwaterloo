@@ -3,10 +3,11 @@
 import Image from "next/image";
 import { useLinkStatus } from "next/link";
 import Link from "@/components/Link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "../Footer";
 import styles from "./OverlayNav.module.css";
+import headerStyles from "../Header/Header.module.css";
 import Curtain from "../Curtain";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +24,10 @@ interface OverlayNavProps {
 }
 
 export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (isOpen && dialog.current && !dialog.current.open) dialog.current.showModal();
+  }, [isOpen]);
   const pathname = usePathname();
   const [isAnimating, setIsAnimating] = useState(false);
   const { user, member, loading, signOut } = useAuth();
@@ -63,10 +68,10 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   // Unmount once the curtain's close transition has fully finished —
   // sourced from the curtain itself rather than a parallel magic-number timer.
   const handleCurtainComplete = useCallback(() => {
+    dialog.current?.close();
     setIsAnimating(false);
   }, []);
 
-  if (!isOpen && !isAnimating) return null;
 
   const navItems = [
     { label: "Home", href: "/", sup: null as number | null },
@@ -97,7 +102,10 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
   };
 
   return (
-    <div className={`${styles.overlay} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}>
+    <dialog ref={dialog} id="site-navigation" aria-label="Site navigation" onCancel={(event) => { event.preventDefault(); onClose(); }} className={`${styles.overlay} ${isAnimating && isOpen ? styles.opening : ''} ${isClosing ? styles.closing : ''}`}>
+      <button type="button" onClick={onClose} aria-label="Close navigation" className={`${headerStyles.menuButton} ${headerStyles.menuButtonOpen}`}>
+        <span aria-hidden="true" className={`${headerStyles.menuIcon} ${headerStyles.menuIconOpen}`}><span /><span className={headerStyles.menuIconMiddle} /><span /></span>
+      </button>
       <Curtain
         isOpen={isOpen}
         className={styles.curtainOverride}
@@ -157,7 +165,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
           {/* Desktop only: nav sits beside logo */}
           <div className={`${styles.navSection} ${styles.navSectionDesktop}`}>
-            <nav className={styles.navItems}>
+            <nav aria-label="Main" className={styles.navItems}>
               {navItems.map((item, index) => (
                 <Link
                   key={item.label}
@@ -198,7 +206,7 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
 
         {/* Mobile only: nav below header, fills middle */}
         <div className={`${styles.navSection} ${styles.navSectionMobile}`}>
-          <nav className={styles.navItems}>
+          <nav aria-label="Main" className={styles.navItems}>
             {navItems.map((item, index) => (
               <Link
                 key={item.label}
@@ -241,6 +249,6 @@ export default function OverlayNav({ isOpen, onClose }: OverlayNavProps) {
           <Footer variant="menu" />
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

@@ -285,9 +285,11 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
     [...es].map((e, i) => ({ entry: e, originalIndex: i })).sort((a, b) => {
       if (a.entry.isCurrent && !b.entry.isCurrent) return -1;
       if (!a.entry.isCurrent && b.entry.isCurrent) return 1;
-      const yearA = a.entry.startYear ? parseInt(a.entry.startYear) : 0;
-      const yearB = b.entry.startYear ? parseInt(b.entry.startYear) : 0;
-      return yearB - yearA;
+      const date = (entry: Entry) => {
+        const ended = !entry.isCurrent && "end_year" in entry && entry.end_year;
+        return Number((ended || entry.startYear || "0") + ((ended && "end_month" in entry ? entry.end_month : entry.startMonth) || "00"));
+      };
+      return date(b.entry) - date(a.entry) || Number(b.entry.startYear || 0) - Number(a.entry.startYear || 0) || Number(b.entry.startMonth || 0) - Number(a.entry.startMonth || 0);
     });
 
   const [frozenOrder, setFrozenOrder] = useState<number[] | null>(null);

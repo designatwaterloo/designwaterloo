@@ -6,5 +6,5 @@ export async function POST() {
   if (error || !user) return NextResponse.json({ error: 'Please sign in again.' }, { status: 401 });
   const { error: setupError } = await client.rpc('ensure_member', {});
   if (setupError) return NextResponse.json({ error: setupError.message }, { status: 409 });
-  return NextResponse.json({ ok: true, redirectTo: '/profile/edit' });
+  return NextResponse.json({ ok: true, redirectTo: '/welcome' });
 }

@@ -15,14 +15,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Debug: Log token info (first/last few chars only for security)
-    console.log("Sanity config:", {
-      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-      tokenPrefix: token.substring(0, 10),
-      tokenLength: token.length,
-    });
-
     // Verify user is authenticated
     const supabase = await createSupabaseClient();
     const {

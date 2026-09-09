@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
-import { magneticSettle, sampleSettle } from "./settle";
+import { magneticSettle, sampleSettle, ORBIT_STEP, coastSpin, clickImpulse } from "./settle";
 import { wordmarks } from "./paths";
 import styles from "./Wordmark.module.css";
 
@@ -12,28 +12,22 @@ function loadOrbitFrames() {
     (module) => module.default,
   ));
 }
-const TURN = Math.PI * 2;
+import { frameAtAngle } from "./frames";
 const HOVER_DURATION = 1200;
 type Motion =
-  | { kind: "hover"; start: number }
+  | { kind: "hover"; start: number; direction: number }
   | { kind: "spin" }
   | ReturnType<typeof magneticSettle>;
-
-// The bake contains eased frames. Undo that timing to address it by angle,
-// so momentum and reverse playback have a consistent angular speed.
-function frameAtAngle(angle: number, count: number) {
-  const phase = (((angle % TURN) + TURN) % TURN) / TURN;
-  const time = 0.5 - Math.sin(Math.asin(1 - 2 * phase) / 3);
-  return Math.round(time * (count - 1));
-}
 
 export default function Wordmark({
   variant = "horizontal",
   className,
+  interactive = true,
   autoplayOnTouch = false,
 }: {
   variant?: "horizontal" | "stacked";
   className?: string;
+  interactive?: boolean;
   autoplayOnTouch?: boolean;
 }) {
   const data = wordmarks[variant];
@@ -45,7 +39,8 @@ export default function Wordmark({
   const reduced = useRef(false);
   const angle = useRef(0);
   const velocity = useRef(0);
-  const motion = useRef<Motion>({ kind: "hover", start: 0 });
+  const nextHoverDirection = useRef(1);
+  const motion = useRef<Motion>({ kind: "hover", start: 0, direction: 1 });
   const previous = useRef(0);
 
   function rest() {
@@ -103,18 +98,18 @@ export default function Wordmark({
       const current = motion.current;
       if (current.kind === "hover") {
         const t = Math.min(1, (now - current.start) / HOVER_DURATION);
-        angle.current = TURN * t * t * (3 - 2 * t);
-        velocity.current = (TURN * 6 * t * (1 - t)) / (HOVER_DURATION / 1000);
+        angle.current = current.direction * ORBIT_STEP * t * t * (3 - 2 * t);
+        velocity.current = (current.direction * ORBIT_STEP * 6 * t * (1 - t)) / (HOVER_DURATION / 1000);
         if (t === 1) {
           rest();
           return;
         }
       } else if (current.kind === "spin") {
         // Exponential drag, integrated analytically so momentum is frame-rate independent.
-        const drag = Math.exp(-1.6 * dt);
-        angle.current += (velocity.current * (1 - drag)) / 1.6;
-        velocity.current *= drag;
-        if (Math.abs(velocity.current) < 3) {
+        const coast = coastSpin(angle.current, velocity.current, dt);
+        angle.current = coast.angle;
+        velocity.current = coast.velocity;
+        if (coast.settling) {
           motion.current = magneticSettle(angle.current, velocity.current, now);
         }
       } else {
@@ -138,7 +133,7 @@ export default function Wordmark({
   }, []);
 
   useEffect(() => {
-    if (!autoplayOnTouch || touchEntrancePlayed || reduced.current ||
+    if (!interactive || !autoplayOnTouch || touchEntrancePlayed || reduced.current ||
         window.matchMedia(MOUSE_INPUT).matches) return;
 
     let active = true;
@@ -148,20 +143,22 @@ export default function Wordmark({
     void Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
       if (!active || touchEntrancePlayed || reduced.current) return;
       touchEntrancePlayed = true;
-      motion.current = { kind: "hover", start: 0 };
+      motion.current = { kind: "hover", start: 0, direction: 1 };
       void play();
     });
     return () => { active = false; };
-  }, [autoplayOnTouch, play]);
+  }, [interactive, autoplayOnTouch, play]);
 
   function hover() {
     if (running.current || reduced.current) return;
-    motion.current = { kind: "hover", start: 0 };
+    motion.current = { kind: "hover", start: 0, direction: nextHoverDirection.current };
+    nextHoverDirection.current *= -1;
     void play();
   }
 
   function leave() {
-    if (!running.current || reduced.current) return;
+    if (!running.current || reduced.current || motion.current.kind !== "hover") return;
+    // Click momentum continues even when the pointer leaves the wordmark.
     // Leaving before the lazy frame import finishes must not start a late orbit.
     if (angle.current === 0 && velocity.current === 0) {
       rest();
@@ -176,18 +173,20 @@ export default function Wordmark({
 
   function spin(direction: number) {
     if (reduced.current) return;
-    const sameDirection = Math.sign(velocity.current) === direction;
-    velocity.current =
-      direction *
-      Math.min(
-        36,
-        (sameDirection
-          ? Math.abs(velocity.current)
-          : Math.abs(velocity.current) * 0.5) + 10,
-      );
+    velocity.current = clickImpulse(
+      motion.current.kind === "hover" ? 0 : velocity.current,
+      direction,
+    );
     motion.current = { kind: "spin" };
     void play();
   }
+
+  if (!interactive) return (
+    <svg viewBox={data.viewBox} width={data.width} height={data.height} className={className} role="img" aria-label="Design Waterloo">
+      <g dangerouslySetInnerHTML={{ __html: data.base }} />
+      <g dangerouslySetInnerHTML={{ __html: data.oo }} />
+    </svg>
+  );
 
   return (
     <svg

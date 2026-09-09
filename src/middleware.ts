@@ -4,7 +4,7 @@ import { isValidStudentEmail } from '@/lib/supabase/auth-utils';
 import { fetchWithCeiling } from '@/lib/supabase/fetch-with-ceiling';
 import { safeRedirect } from '@/lib/auth/redirect';
 
-const protectedPath = (path: string) => /^\/(profile|pending-approval|dashboard|admin|claim|settings)(\/|$)/.test(path);
+const protectedPath = (path: string) => /^\/(welcome|profile|pending-approval|dashboard|admin|claim|settings)(\/|$)/.test(path);
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const redirect = (path: string) => {
@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
     return result;
   };
   const path = request.nextUrl.pathname;
-  if (path === '/onboarding') return redirect('/profile/edit');
+  if (path === '/onboarding' || path === '/profile/edit') return redirect('/welcome' + request.nextUrl.search);
   const hasSession = request.cookies.getAll().some(c => /^sb-.+-auth-token(?:\.\d+)?$/.test(c.name));
   if (!hasSession) {
     return protectedPath(path) ? redirect(`/sign-in?redirectTo=${encodeURIComponent(path + request.nextUrl.search)}`) : response;
@@ -61,7 +61,10 @@ export async function middleware(request: NextRequest) {
     if (/^\/admin(\/|$)/.test(path)) {
       const { data: member, error: memberError } = await supabase.from('members').select('is_admin').eq('auth_user_id', user.id).maybeSingle();
       if (memberError) return unavailable();
-      if (!member?.is_admin) return redirect('/');
+      if (!member?.is_admin) {
+        if (user.app_metadata?.design_waterloo_role !== 'admin') return redirect('/');
+        if (path !== '/admin') return redirect('/admin');
+      }
     }
     response.headers.set('Cache-Control', 'private, no-store');
     return response;
@@ -71,5 +74,5 @@ export async function middleware(request: NextRequest) {
 // Public pages with anonymous clients need no auth request. Profile/claim server
 // renders use a session, so refresh their cookies before the render starts.
 export const config = {
-  matcher: ['/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
+  matcher: ['/welcome', '/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
 };

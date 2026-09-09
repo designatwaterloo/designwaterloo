@@ -8,15 +8,13 @@ import {
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-const APP = "http://localhost:3100";
-const CONTROL = "http://127.0.0.1:54329/__control";
+const APP = `http://localhost:${process.env.DW_TEST_APP_PORT || 3100}`;
+const CONTROL = `http://127.0.0.1:${process.env.DW_TEST_DB_PORT || 54329}/__control`;
 async function login(page: Page, destination = "/dashboard") {
   await page.goto(`/sign-in?redirectTo=${encodeURIComponent(destination)}`);
   await page.getByRole("button", { name: "Sign in with LEARN" }).click();
-  await expect(page).toHaveURL(`${APP}${destination}`);
-  await expect(
-    page.getByRole("link", { name: "Your dashboard", exact: true }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(`${APP}${destination === '/settings' ? '/dashboard#account' : destination}`);
+  await expect(page.getByRole('heading', { name: destination === '/settings' ? 'Account' : 'Your profile', exact: true })).toBeVisible();
 }
 async function expire(context: BrowserContext) {
   const cookies = await context.cookies();
@@ -57,10 +55,9 @@ test("OAuth callback persists identity across reload, profile navigation and a s
   await login(page);
   await page.reload();
   await expect(
-    page.getByRole("link", { name: "Your dashboard", exact: true }),
+    page.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.locator("a[class*=OverlayNav_userLink]").filter({hasText:"View profile"}).click();
+  await page.getByRole("link", { name: "View public profile ↗", exact: true }).click();
   await expect(page).toHaveURL(`${APP}/@session-fixture`);
   await expect(
     page.getByRole("heading", { name: "Session Fixture", exact: true }),
@@ -68,7 +65,7 @@ test("OAuth callback persists identity across reload, profile navigation and a s
   const other = await context.newPage();
   await other.goto("/dashboard");
   await expect(
-    other.getByRole("link", { name: "Your dashboard", exact: true }),
+    other.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
   expect((await (await request.get(CONTROL)).json()).exchanges).toBe(1);
 });
@@ -81,7 +78,7 @@ test("expired session rotates refresh cookie and remains signed in on another re
   await expire(context);
   await page.reload();
   await expect(
-    page.getByRole("link", { name: "Your dashboard", exact: true }),
+    page.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
   expect((await (await request.get(CONTROL)).json()).refreshes).toBeGreaterThan(
     0,
@@ -89,7 +86,7 @@ test("expired session rotates refresh cookie and remains signed in on another re
   await page.reload();
   await expect(page).toHaveURL(`${APP}/dashboard`);
   await expect(
-    page.getByRole("link", { name: "Your dashboard", exact: true }),
+    page.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
 });
 test("temporary auth outage returns retryable page without clearing the session", async ({
@@ -112,7 +109,7 @@ test("temporary auth outage returns retryable page without clearing the session"
   await request.post(CONTROL, { data: { failUser: false } });
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(
-    page.getByRole("link", { name: "Your dashboard", exact: true }),
+    page.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
 });
 test("profile service outage recovers without another login", async ({
@@ -129,7 +126,7 @@ test("profile service outage recovers without another login", async ({
   await request.post(CONTROL, { data: { failMember: false } });
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(
-    page.getByRole("link", { name: "Your dashboard", exact: true }),
+    page.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
   expect((await (await request.get(CONTROL)).json()).exchanges).toBe(1);
 });
@@ -141,7 +138,7 @@ test("sign-out propagates to another tab and protects reloads", async ({
   const other = await context.newPage();
   await other.goto("/dashboard");
   await expect(
-    other.getByRole("link", { name: "Your dashboard", exact: true }),
+    other.getByRole("heading", { name: "Your profile", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(page).toHaveURL(`${APP}/`);
@@ -175,7 +172,7 @@ test("persistent browser profile survives browser shutdown and relaunch", async 
     await page.goto("/dashboard");
     await expect(page).toHaveURL(`${APP}/dashboard`);
     await expect(
-      page.getByRole("link", { name: "Your dashboard", exact: true }),
+      page.getByRole("heading", { name: "Your profile", exact: true }),
     ).toBeVisible();
   } finally {
     await context?.close();
@@ -183,15 +180,15 @@ test("persistent browser profile survives browser shutdown and relaunch", async 
   }
 });
 
-test('profile edits persist through publish and reload without losing the session', async ({ page, request }) => {
-  await login(page, '/@session-fixture?edit=true');
-  await page.getByRole('button', { name: 'Synthetic browser test profile.', exact: true }).click();
-  await page.getByPlaceholder('Click to add bio...').fill('Updated synthetic profile.');
-  await page.getByRole('button', { name: 'Publish', exact: true }).click();
+test('profile edits persist through reload without losing the session', async ({ page, request }) => {
+  await login(page);
+  await page.getByRole('button', { name: 'Edit bio', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Bio', exact: true }).fill('Updated synthetic profile.');
+  await page.getByRole('button', { name: 'Save changes', exact: true }).click();
   await expect.poll(async () => (await (await request.get(CONTROL)).json()).saves).toBe(1);
   await page.reload();
   await expect(page.getByText('Updated synthetic profile.', { exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Your dashboard', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your profile', exact: true })).toBeVisible();
 });
 
 test('username settings save and retain both old URL formats across rename and reclaim', async ({ page, request }) => {
@@ -252,3 +249,27 @@ test('anonymous settings require sign-in and legacy public profile links still w
   });
   expect(foreign.status()).toBe(403);
 });
+
+for (const width of [390, 1440]) {
+  test(`account workspace stays brown and restores public chrome at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await login(page);
+    const checkWorkspace = async () => {
+      await expect(page.locator("body")).toHaveCSS("background-color", "rgb(68, 56, 48)");
+      await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Open navigation" })).toBeHidden();
+      await expect(page.locator("[data-site-footer]")).toBeHidden();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    };
+    await checkWorkspace();
+    await page.screenshot({ path: `test-results/account-dashboard-${width}.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Account', exact: true }).click();
+    await expect(page.getByRole('textbox', { name: 'Username', exact: true })).toBeVisible();
+    await checkWorkspace();
+    await page.getByRole('link', { name: 'Back to directory', exact: true }).click();
+    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
+    await expect(page.locator("[data-site-footer]").filter({visible:true})).toBeVisible();
+    await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toBeHidden();
+  });
+}

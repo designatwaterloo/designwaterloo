@@ -7,7 +7,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import Link from '@/components/Link';
 import styles from './page.module.css';
 
-export default function UsernameForm({ currentUsername }: { currentUsername: string }) {
+export default function UsernameForm({ currentUsername, compact = false }: { currentUsername: string; compact?: boolean }) {
   const [current, setCurrent] = useState(currentUsername);
   const [value, setValue] = useState(currentUsername);
   const [status, setStatus] = useState('');
@@ -20,6 +20,8 @@ export default function UsernameForm({ currentUsername }: { currentUsername: str
   const { refreshMember } = useAuth();
   const check = validateUsername(value);
   const changed = check.normalized !== current;
+
+  useEffect(() => { setCurrent(currentUsername); setValue(currentUsername); }, [currentUsername]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,11 +61,10 @@ export default function UsernameForm({ currentUsername }: { currentUsername: str
     } finally { busy.current = false; setSaving(false); }
   }
 
-  return <section className={styles.section} aria-labelledby="username-heading">
-    <h2 id="username-heading">Your username</h2>
-    <p>Your address on Design Waterloo. Your work and profile stay with you when it changes.</p>
+  return <section className={styles.section} aria-label={compact ? "Username" : undefined} aria-labelledby={compact ? undefined : "username-heading"}>
+    {!compact && <><h2 id="username-heading">Your username</h2><p>Your address on Design Waterloo. Your work and profile stay with you when it changes.</p></>}
     <form onSubmit={save} className={styles.form}>
-      <label htmlFor="username">Username</label>
+      <label className={compact ? "sr-only" : undefined} htmlFor="username">Username</label>
       <div className={styles.inputRow}>
         <span aria-hidden="true">@</span>
         <input id="username" name="username" type="text" value={value} maxLength={41}
@@ -81,6 +82,6 @@ export default function UsernameForm({ currentUsername }: { currentUsername: str
       {saved && <p role="status">Username saved.</p>}
     </form>
     <p className={styles.address}><Link href={profilePath(current)}>designwaterloo.com/@{current}</Link></p>
-    <p>Old profile links will still find you. Previous usernames stay reserved for your account.</p>
+    {!compact && <p>Old profile links will still find you. Previous usernames stay reserved for your account.</p>}
   </section>;
 }

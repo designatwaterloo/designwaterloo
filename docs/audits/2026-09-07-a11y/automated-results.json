@@ -1,0 +1,1258 @@
+[
+  {
+    "path": "/",
+    "url": "https://www.designwaterloo.com/",
+    "axe": {
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "html": "<p class=\"section-label\">Directory</p>",
+              "target": [
+                ".section-label"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.63 (foreground color: #cacaca, background color: #ffffff, font size: 15.0pt (20px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Local Time</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(1) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Colophon</dt>",
+              "target": [
+                ".sm\\:flex-col > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://rsms.me/inter/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Inter Semibold</a>",
+              "target": [
+                "p > .text-black.underline[target=\"_blank\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.figma.com/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Figma</a>",
+              "target": [
+                "p > .text-black.underline[target=\"_blank\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://nextjs.org/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Next.js</a>",
+              "target": [
+                "p > .text-black.underline[target=\"_blank\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://claude.ai/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Claude</a>",
+              "target": [
+                ".text-black.underline[target=\"_blank\"]:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.sanity.io/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Sanity</a>",
+              "target": [
+                ".text-black.underline[target=\"_blank\"]:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Contact</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"mailto:designatwaterloo@gmail.com\" class=\"text-black  underline\">here</a>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dd > .text-black.underline"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Follow</dt>",
+              "target": [
+                ".sm\\:col-span-2 > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.instagram.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Instagram</a>",
+              "target": [
+                "dd > .text-black.underline[target=\"_blank\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://twitter.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Twitter</a>",
+              "target": [
+                "dd > .text-black.underline[target=\"_blank\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.linkedin.com/company/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">LinkedIn</a>",
+              "target": [
+                "dd > .text-black.underline[target=\"_blank\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "description": "Ensure all page content is contained by landmarks",
+          "nodes": [
+            {
+              "html": "<div class=\"Header-module__ldgnoG__profileBar Header-module__ldgnoG__profileBarBlend\">",
+              "target": [
+                ".Header-module__ldgnoG__profileBar"
+              ],
+              "summary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "frame-tested",
+          "count": 1
+        }
+      ],
+      "passes": 46
+    },
+    "dom": {
+      "title": "Design Waterloo",
+      "headings": [
+        "The home for design talent at Waterloo, and where to find them.",
+        "The biggest design family on campus."
+      ],
+      "tables": 0,
+      "links": 42,
+      "bodyWidth": 1440,
+      "viewport": 1440
+    }
+  },
+  {
+    "path": "/directory",
+    "url": "https://www.designwaterloo.com/directory",
+    "axe": {
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "html": "<sup>47</sup>",
+              "target": [
+                "sup"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.63 (foreground color: #cacaca, background color: #ffffff, font size: 54.0pt (72px), font weight: normal). Expected contrast ratio of 3:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@bmp\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@bmp\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Business Administration</p>",
+              "target": [
+                "a[href$=\"@sheffield-wong\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@sheffield-wong\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@aileen-luo\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@aileen-luo\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@justin-wu\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2030</p>",
+              "target": [
+                "a[href$=\"@justin-wu\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@spark-mark\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@spark-mark\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@frances-zhao\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2029</p>",
+              "target": [
+                "a[href$=\"@frances-zhao\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@michelle-cheng\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@michelle-cheng\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@yousuf-zia\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@yousuf-zia\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Computational Mathematics</p>",
+              "target": [
+                "a[href$=\"@sahal-kalandan\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2025</p>",
+              "target": [
+                "a[href$=\"@sahal-kalandan\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Computer Science</p>",
+              "target": [
+                "a[href$=\"@jaryd-diamond\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@jaryd-diamond\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@horst-fang\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2030</p>",
+              "target": [
+                "a[href$=\"@horst-fang\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Mathematics</p>",
+              "target": [
+                "a[href$=\"@shalott-tam\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2029</p>",
+              "target": [
+                "a[href$=\"@shalott-tam\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Computer Engineering</p>",
+              "target": [
+                "a[href$=\"@kevin-zhang\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@kevin-zhang\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Kinesiology</p>",
+              "target": [
+                "a[href$=\"@nefise-akcakir\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@nefise-akcakir\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@natalie-fedorin\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@natalie-fedorin\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@kallie-zhang\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2029</p>",
+              "target": [
+                "a[href$=\"@kallie-zhang\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@raghav-agarwal\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2030</p>",
+              "target": [
+                "a[href$=\"@raghav-agarwal\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Management Engineering</p>",
+              "target": [
+                "a[href$=\"@jasmine-ju\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@jasmine-ju\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@dawson-jen\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@dawson-jen\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@giang-tran\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@giang-tran\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Psychology</p>",
+              "target": [
+                "a[href$=\"@angela-li\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@angela-li\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Mechatronics Engineering</p>",
+              "target": [
+                "a[href$=\"@olivia-zheng\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@olivia-zheng\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@david-stirling\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@david-stirling\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Business Administration &amp; Computer Science</p>",
+              "target": [
+                "a[href$=\"@rachel-wei\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2029</p>",
+              "target": [
+                "a[href$=\"@rachel-wei\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Business Administration &amp; Computer Science</p>",
+              "target": [
+                "a[href$=\"@michelle-xu\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@michelle-xu\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@justin-luu\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@justin-luu\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Computer Science</p>",
+              "target": [
+                "a[href$=\"@bonnie-chin\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2025</p>",
+              "target": [
+                "a[href$=\"@bonnie-chin\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@jayden-hsiao\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@jayden-hsiao\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Computer Science</p>",
+              "target": [
+                "a[href$=\"@wilbur-zhang\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@wilbur-zhang\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@ella-ye\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@ella-ye\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Communication Arts and Design Practices</p>",
+              "target": [
+                "a[href$=\"@julia-fedorin\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@julia-fedorin\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@aydan-nardi\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@aydan-nardi\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@david-lam\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@david-lam\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Communication Studies</p>",
+              "target": [
+                "a[href$=\"@tien-nguyen\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@tien-nguyen\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@mai-nguyen\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@mai-nguyen\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@jennifer-lin\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@jennifer-lin\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@max-wentzlaff\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2025</p>",
+              "target": [
+                "a[href$=\"@max-wentzlaff\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Software Engineering</p>",
+              "target": [
+                "a[href$=\"@sophie-liu\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2025</p>",
+              "target": [
+                "a[href$=\"@sophie-liu\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@winston-zhao\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2029</p>",
+              "target": [
+                "a[href$=\"@winston-zhao\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Management Engineering</p>",
+              "target": [
+                "a[href$=\"@jayleen-wu\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2029</p>",
+              "target": [
+                "a[href$=\"@jayleen-wu\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Geospatial Data Analysis</p>",
+              "target": [
+                "a[href$=\"@victoria-feng\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@victoria-feng\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@serena-li\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@serena-li\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Business Administration</p>",
+              "target": [
+                "a[href$=\"@nancy-zheng\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2026</p>",
+              "target": [
+                "a[href$=\"@nancy-zheng\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@keyan-virani\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@keyan-virani\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@tiffany-trinh\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2027</p>",
+              "target": [
+                "a[href$=\"@tiffany-trinh\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Systems Design Engineering</p>",
+              "target": [
+                "a[href$=\"@fionafang\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2030</p>",
+              "target": [
+                "a[href$=\"@fionafang\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">Global Business &amp; Digital Arts</p>",
+              "target": [
+                "a[href$=\"@emily-chan\"] > .gap-0.flex-col.flex > .opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100.transition-opacity:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300\">2028</p>",
+              "target": [
+                "a[href$=\"@emily-chan\"] > .gap-0.flex-col.flex > .py-2.opacity-50.\\[\\@media\\(hover\\:hover\\)\\]\\:group-hover\\:opacity-100"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.83 (foreground color: #bfbfbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Local Time</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(1) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Colophon</dt>",
+              "target": [
+                ".sm\\:flex-col > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://rsms.me/inter/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Inter Semibold</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.figma.com/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Figma</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://nextjs.org/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Next.js</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://claude.ai/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Claude</a>",
+              "target": [
+                ".underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.sanity.io/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Sanity</a>",
+              "target": [
+                ".underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Contact</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"mailto:designatwaterloo@gmail.com\" class=\"text-black  underline\">here</a>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dd > .underline.text-black"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Follow</dt>",
+              "target": [
+                ".sm\\:col-span-2 > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.instagram.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Instagram</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://twitter.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Twitter</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.linkedin.com/company/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">LinkedIn</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "landmark-complementary-is-top-level",
+          "impact": "moderate",
+          "description": "Ensure the complementary landmark or aside is at top level",
+          "nodes": [
+            {
+              "html": "<aside class=\"FilterPanel-module__Nxwo7G__panelDesktop \">",
+              "target": [
+                "aside"
+              ],
+              "summary": "Fix any of the following:\n  The null landmark is contained in another landmark."
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "description": "Ensure all page content is contained by landmarks",
+          "nodes": [
+            {
+              "html": "<div class=\"Header-module__ldgnoG__profileBar Header-module__ldgnoG__profileBarBlend\">",
+              "target": [
+                ".Header-module__ldgnoG__profileBar"
+              ],
+              "summary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        }
+      ],
+      "incomplete": [],
+      "passes": 44
+    },
+    "dom": {
+      "title": "Directory | Design Waterloo",
+      "headings": [
+        "Directory47",
+        "Filters"
+      ],
+      "tables": 0,
+      "links": 59,
+      "bodyWidth": 1440,
+      "viewport": 1440
+    }
+  },
+  {
+    "path": "/about",
+    "url": "https://www.designwaterloo.com/about",
+    "axe": {
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "html": "<dt class=\"text-muted-light\">Local Time</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(1) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Colophon</dt>",
+              "target": [
+                ".sm\\:flex-col > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://rsms.me/inter/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Inter Semibold</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.figma.com/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Figma</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://nextjs.org/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Next.js</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://claude.ai/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Claude</a>",
+              "target": [
+                ".underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.sanity.io/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Sanity</a>",
+              "target": [
+                ".underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Contact</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"mailto:designatwaterloo@gmail.com\" class=\"text-black  underline\">here</a>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dd > .underline.text-black"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Follow</dt>",
+              "target": [
+                ".sm\\:col-span-2 > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.instagram.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Instagram</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://twitter.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Twitter</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.linkedin.com/company/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">LinkedIn</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "description": "Ensure all page content is contained by landmarks",
+          "nodes": [
+            {
+              "html": "<div class=\"Header-module__ldgnoG__profileBar Header-module__ldgnoG__profileBarBlend\">",
+              "target": [
+                ".Header-module__ldgnoG__profileBar"
+              ],
+              "summary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        }
+      ],
+      "incomplete": [],
+      "passes": 42
+    },
+    "dom": {
+      "title": "About | Design Waterloo",
+      "headings": [
+        "The best designers go to Waterloo."
+      ],
+      "tables": 0,
+      "links": 13,
+      "bodyWidth": 1440,
+      "viewport": 1440
+    }
+  },
+  {
+    "path": "/sign-in",
+    "url": "https://www.designwaterloo.com/sign-in",
+    "axe": {
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": [
+            {
+              "html": "<p class=\"page-module___OM3uq__description\">Sign in with your university account to create your profile and join the Design Waterloo community.</p>",
+              "target": [
+                ".page-module___OM3uq__description"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.63 (foreground color: #cacaca, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<span>or</span>",
+              "target": [
+                ".page-module___OM3uq__divider > span"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.63 (foreground color: #cacaca, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"page-module___OM3uq__hint\">Use your @uwaterloo.ca or @mylaurier.ca email</p>",
+              "target": [
+                ".page-module___OM3uq__hint:nth-child(6)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.63 (foreground color: #cacaca, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<p class=\"page-module___OM3uq__hint\" style=\"margin-top: 1rem;\">Stuck or signed in to the wrong account? <a href=\"/auth/reset\" style=\"text-decoration: underline; font-weight: 600;\">Reset auth state</a></p>",
+              "target": [
+                ".page-module___OM3uq__hint:nth-child(7)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.63 (foreground color: #cacaca, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"/auth/reset\" style=\"text-decoration: underline; font-weight: 600;\">Reset auth state</a>",
+              "target": [
+                "a[href$=\"reset\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Local Time</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(1) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Colophon</dt>",
+              "target": [
+                ".sm\\:flex-col > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://rsms.me/inter/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Inter Semibold</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.figma.com/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Figma</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://nextjs.org/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Next.js</a>",
+              "target": [
+                "p > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://claude.ai/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Claude</a>",
+              "target": [
+                ".underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(4)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.sanity.io/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Sanity</a>",
+              "target": [
+                ".underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(5)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Contact</dt>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"mailto:designatwaterloo@gmail.com\" class=\"text-black  underline\">here</a>",
+              "target": [
+                ".sm\\:col-span-3.sm\\:pr-\\[4px\\]:nth-child(3) > dd > .underline.text-black"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<dt class=\"text-muted-light\">Follow</dt>",
+              "target": [
+                ".sm\\:col-span-2 > dt"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.05 (foreground color: #b5b5b5, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.instagram.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Instagram</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(1)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://twitter.com/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">Twitter</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "html": "<a href=\"https://www.linkedin.com/company/designwaterloo/?utm_source=designwaterloo\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-black  underline\">LinkedIn</a>",
+              "target": [
+                "dd > .underline[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(3)"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "description": "Ensure all page content is contained by landmarks",
+          "nodes": [
+            {
+              "html": "<div class=\"Header-module__ldgnoG__profileBar Header-module__ldgnoG__profileBarBlend\">",
+              "target": [
+                ".Header-module__ldgnoG__profileBar"
+              ],
+              "summary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            }
+          ]
+        }
+      ],
+      "incomplete": [],
+      "passes": 39
+    },
+    "dom": {
+      "title": "Design Waterloo",
+      "headings": [
+        "Join the Directory"
+      ],
+      "tables": 0,
+      "links": 13,
+      "bodyWidth": 1440,
+      "viewport": 1440
+    }
+  }
+]

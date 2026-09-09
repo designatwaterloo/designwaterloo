@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef, useCallback, useId } from "react";
 import { DataViewProps, GridColumnsConfig } from "./types";
 import GridView from "./GridView";
 import TableView from "./TableView";
@@ -76,6 +76,7 @@ export default function DataView<T>({
   initialFilters,
   onFiltersChange,
 }: DataViewProps<T>) {
+  const filterId = useId();
   const [preferencesReady, setPreferencesReady] = useState(false);
 
   // View mode state
@@ -326,7 +327,7 @@ export default function DataView<T>({
     <div className="w-full">
       {/* Mobile Filter Panel */}
       {filterConfig.length > 0 && (
-        <FilterPanel
+        <FilterPanel id={`${filterId}-mobile`}
           filters={filterConfig}
           selectedFilters={selectedFilters}
           onFilterChange={handleFilterChange}
@@ -345,7 +346,7 @@ export default function DataView<T>({
         {/* Desktop Filter Panel */}
         {isDesktop && filterConfig.length > 0 && (
           <div className={`${styles.filterPanelWrapper} ${isFilterPanelVisible ? styles.filterPanelWrapperOpen : ""}`}>
-            <FilterPanel
+            <FilterPanel id={`${filterId}-desktop`}
               filters={filterConfig}
               selectedFilters={selectedFilters}
               onFilterChange={handleFilterChange}
@@ -380,6 +381,8 @@ export default function DataView<T>({
                       setIsMobileFilterOpen(!isMobileFilterOpen);
                     }
                   }}
+                  aria-expanded={isDesktop ? isFilterPanelVisible : isMobileFilterOpen}
+                  aria-controls={`${filterId}-${isDesktop ? "desktop" : "mobile"}`}
                   variant="small"
                   icon="/filter.svg"
                 >
@@ -399,6 +402,8 @@ export default function DataView<T>({
             {filterConfig.length > 0 && (
               <Button
                 onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                aria-expanded={isMobileFilterOpen}
+                aria-controls={`${filterId}-mobile`}
                 variant="small"
                 icon="/filter.svg"
               >
@@ -438,6 +443,7 @@ export default function DataView<T>({
                       return (
                         <button
                           key={`${filterKey}-${val}`}
+                          aria-label={`Remove ${cfg?.label || filterKey} filter: ${display}`}
                           className={styles.activeFilterPill}
                           onClick={() => handleFilterChange(filterKey, values.filter((v) => v !== val))}
                         >
@@ -461,6 +467,9 @@ export default function DataView<T>({
             </div>
           )}
 
+          <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+            {filteredItems.length} of {items.length} members found.
+          </p>
           {/* Grid or Table View */}
           {viewMode === "grid" ? (
             <GridView

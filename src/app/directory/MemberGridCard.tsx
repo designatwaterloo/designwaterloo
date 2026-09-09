@@ -33,8 +33,8 @@ export default function MemberGridCard({ member, index = 0 }: MemberGridCardProp
           <p className="text-[var(--foreground)]">
             {member.firstName} {member.lastName}
           </p>
-          <p className="opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300">{member.program}</p>
-          <p className="py-2 opacity-50 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity duration-300">{member.graduatingClass}</p>
+          <p className="text-muted-text [@media(hover:hover)]:group-hover:text-foreground transition-colors duration-300">{member.program}</p>
+          <p className="py-2 text-muted-text [@media(hover:hover)]:group-hover:text-foreground transition-colors duration-300">{member.graduatingClass}</p>
         </div>
       </Link>
     </ScrollReveal>

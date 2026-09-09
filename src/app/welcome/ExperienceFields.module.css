@@ -1,0 +1,33 @@
+.root { border:0; padding:0; min-width:0; width:100%; text-align:left; color:#faf5ee; }
+.root label { display:flex; flex-direction:column; gap:8px; font-size:14px; color:#d8cec5; }
+.root input:not([type=checkbox]),.root select,.root textarea { width:100%; min-width:0; background:transparent; border:0; border-bottom:1px solid #faf5ee40; border-radius:0; padding:10px 0; color:#faf5ee; font:inherit; font-size:16px; outline:none; }
+.root select { background:#443830; }
+.root input:focus,.root select:focus,.root textarea:focus { border-bottom-color:#faf5ee; }
+.root textarea { resize:vertical; min-height:90px; }
+.root button { cursor:pointer; }
+.root button:disabled { cursor:wait; }
+.root button:focus-visible { outline:2px solid #faf5ee; outline-offset:3px; }
+.paste { padding:20px; background:#5a4b4060; border-radius:16px; }
+.paste textarea { min-height:105px; }
+.actions { display:flex; flex-wrap:wrap; gap:12px; padding-top:16px; }
+.actions button { border:1px solid #faf5ee50; border-radius:999px; min-height:38px; padding:8px 14px; font-size:14px; color:#faf5ee; }
+.actions button:hover { background:#faf5ee15; }
+.root .message { font-size:14px; line-height:1.5; padding:14px 0; max-width:none; }
+.positions { list-style:none; margin:0; padding:0; }
+.position { border-bottom:1px solid #faf5ee25; animation:appear .22s var(--entry-delay) both; }
+.summary { width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; padding:18px 0; text-align:left; }
+.summary>span:first-child { display:flex; flex-direction:column; gap:4px; min-width:0; overflow-wrap:anywhere; }
+.summary strong { font-weight:500; font-size:17px; }
+.summary span span,.summary>span:last-child { color:#d8cec5; font-size:14px; }
+.summary:hover>span:last-child { color:#faf5ee; }
+.editor { display:flex; flex-direction:column; gap:18px; padding:0 0 20px; }
+.dates { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.root .current { flex-direction:row; align-items:center; gap:10px; min-height:38px; }
+.current input { width:20px; height:20px; accent-color:#faf5ee; }
+@keyframes appear { from {opacity:0;transform:translateY(8px)} to {opacity:1;transform:translateY(0)} }
+@media(max-width:600px) { .root label,.root .message,.actions button,.summary span span {font-size:16px} .actions button {min-height:48px} .paste {padding:16px} }
+@media(prefers-reduced-motion:reduce) { .position {animation:none} }
+
+.mode { color:#d8cec5; font-size:14px; text-decoration:underline; min-height:44px; margin-top:6px; }
+.mode:hover {color:#faf5ee;}
+.logo {width:32px;height:32px;object-fit:contain;border-radius:6px;}
