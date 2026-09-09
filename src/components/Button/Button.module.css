@@ -27,7 +27,7 @@
   border: 2px solid var(--black);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .primary:hover {
     background: var(--black);
     color: var(--white);
@@ -42,7 +42,7 @@
   border: 2px solid var(--black);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .secondary:hover {
     background: var(--hover-bg);
     color: var(--black);
@@ -62,7 +62,7 @@
   font-size: var(--smallest);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .small:hover {
     background: var(--hover-bg);
     color: var(--black);
@@ -83,7 +83,7 @@
   opacity: 0.7;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .icon:hover {
     background: var(--hover-bg);
     opacity: 0.7;

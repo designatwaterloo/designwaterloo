@@ -231,11 +231,12 @@ const server = http.createServer(async (req, res) => {
     member = {...member, member_experiences: body.experiences as []}; saves++; send(null); return;
   }
   if (url.pathname === "/rest/v1/rpc/save_my_profile") {
+    if (failSave) { send({message:"Synthetic save outage"},503); return; }
     if (!token || !tokens.has(token)) {
       send({ message: "No session" }, 401);
       return;
     }
-    member = { ...member, ...(body.profile as object), member_experiences: (body.experiences || member.member_experiences) as [], member_leadership: (body.leadership || member.member_leadership) as [] };
+    member = { ...member, ...(body.profile as object), member_experiences: ((body.experiences || member.member_experiences) as Record<string, unknown>[]).map(position => Object.fromEntries(Object.entries(position).filter(([key]) => key !== "logo_preview"))) as [], member_leadership: (body.leadership || member.member_leadership) as [] };
     saves++;
     send(null);
     return;

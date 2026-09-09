@@ -332,12 +332,13 @@ a {
   text-underline-offset: 0.15em;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   a:hover {
     color: var(--link-hover);
   }
 }
 
+a,
 button {
   -webkit-tap-highlight-color: transparent;
 }

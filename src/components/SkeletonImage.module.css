@@ -1,6 +1,15 @@
 .skeleton {
+  z-index: 1;
   pointer-events: none;
   overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+}
+
+.revealed {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 450ms ease-out, visibility 0s linear 450ms;
 }
 
 .skeleton::after {
@@ -17,6 +26,10 @@
   animation: shimmer 2.4s ease-in-out infinite;
 }
 
+.revealed::after {
+  animation-play-state: paused;
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);
@@ -28,6 +41,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .revealed {
+    transition: none;
+  }
+
   .skeleton::after {
     animation: none;
     display: none;
