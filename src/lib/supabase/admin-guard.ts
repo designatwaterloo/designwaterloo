@@ -1,3 +1,4 @@
+import { hasAdminAccess } from "@/lib/admin-access";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
@@ -14,7 +15,7 @@ export interface AdminCaller {
 // Verify the request is being made by an authenticated admin. Returns the
 // caller's identity on success or a 401/403 NextResponse on failure.  Used
 // at the top of every admin-only API route.
-export async function requireAdmin(): Promise<
+export async function requireAdmin(access: "superadmin" | "review" = "superadmin"): Promise<
   { ok: true; caller: AdminCaller } | { ok: false; response: NextResponse }
 > {
   const supabase = await createClient();
@@ -51,7 +52,7 @@ export async function requireAdmin(): Promise<
     };
   }
 
-  if (!memberRow?.is_admin) {
+  if (!hasAdminAccess(access, memberRow, user)) {
     return {
       ok: false,
       response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
@@ -60,7 +61,7 @@ export async function requireAdmin(): Promise<
 
   return {
     ok: true,
-    caller: { userId: user.id, email: user.email!, memberId: memberRow.id },
+    caller: { userId: user.id, email: user.email!, memberId: memberRow!.id },
   };
 }
 

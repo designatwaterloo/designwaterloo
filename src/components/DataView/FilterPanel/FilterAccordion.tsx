@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useId } from "react";
 import { FilterConfig } from "../types";
 import styles from "./FilterPanel.module.css";
 
@@ -18,6 +18,7 @@ export default function FilterAccordion<T>({
   onFilterChange,
   getCount,
 }: FilterAccordionProps<T>) {
+  const panelId = useId();
   const [isOpen, setIsOpen] = useState(selectedValues.length > 0);
   const prevSelected = useRef(selectedValues.length);
 
@@ -42,15 +43,16 @@ export default function FilterAccordion<T>({
   };
 
   return (
-    <div className={styles.filterAccordion} onClick={() => setIsOpen(!isOpen)}>
-      <div
+    <div className={styles.filterAccordion}>
+      <button type="button"
         className={styles.accordionHeader}
+        onClick={() => setIsOpen(!isOpen)} aria-expanded={isOpen} aria-controls={panelId}
       >
         <span className={styles.accordionTitle}>
           {filter.label}
           {selectedValues.length > 0 && ` (${selectedValues.length})`}
         </span>
-        <svg
+        <svg aria-hidden="true"
           className={`${styles.accordionArrow} ${isOpen ? styles.accordionArrowOpen : ""}`}
           width="16"
           height="16"
@@ -63,8 +65,8 @@ export default function FilterAccordion<T>({
             fill="currentColor"
           />
         </svg>
-      </div>
-      <div className={`${styles.accordionCollapse} ${isOpen ? styles.accordionCollapseOpen : ''}`} onClick={(e) => e.stopPropagation()}>
+      </button>
+      <div id={panelId} inert={!isOpen} aria-hidden={!isOpen} className={`${styles.accordionCollapse} ${isOpen ? styles.accordionCollapseOpen : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className={`${styles.accordionContent} ${isOpen ? styles.accordionContentOpen : ''}`}>
           {selectedValues.length > 0 && (
             <button onClick={clearFilter} className={styles.clearButton}>

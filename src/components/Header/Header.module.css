@@ -311,3 +311,21 @@
 
 .chrome { display: contents; }
 :global(body:has([data-onboarding-intro])) .chrome { display: none; }
+
+.accountHeader { display: none; }
+:global(body:has([data-account-workspace])) .chrome > :not(.accountHeader) { display: none; }
+:global(body:has([data-account-workspace])) .accountHeader { display: flex; align-items: center; padding: 24px max(24px, var(--margin)); }
+.accountLogo { display: inline-flex; height: 48px; min-width: 48px; padding-block: 6px; color: var(--foreground); }
+.accountLogo:focus-visible { outline: 2px solid var(--foreground); outline-offset: 6px; border-radius: 4px; }
+
+.adminNavigation {display:none;}
+:global(body:has([data-admin-workspace])) .chrome > :not(.accountHeader) {display:none;}
+:global(body:has([data-admin-workspace])) .accountHeader {display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px max(24px, var(--margin));color:var(--foreground);}
+:global(body:has([data-admin-workspace])) .adminNavigation {display:flex;align-items:center;gap:8px;font-size:14px;font-weight:400;}
+.adminNavigation a {padding:10px 12px;min-height:44px;display:inline-flex;align-items:center;border-radius:8px;color:var(--muted-text);text-decoration:none;}
+.adminNavigation a[aria-current=page],.adminNavigation a:hover {background:var(--surface);color:var(--foreground);}
+.adminNavigation a:focus-visible {outline:2px solid var(--foreground);outline-offset:2px;}
+@media(max-width:600px) {:global(body:has([data-admin-workspace])) .accountHeader {align-items:flex-start;flex-direction:column;gap:12px;padding:16px 20px;}.adminNavigation {width:100%;flex-wrap:wrap;}.adminNavigation a {padding:8px 10px;min-height:48px;}}
+
+.workspaceSymbol {display:block;width:48px;height:40px;background:currentColor;mask:url("/Design Waterloo Logo.svg") center / contain no-repeat;}
+:global(body:has([data-admin-workspace])) .chrome {display:none;}

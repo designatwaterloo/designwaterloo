@@ -50,12 +50,23 @@ export default function Header() {
 
   return (
     <div className={styles.chrome}>
+      <header className={styles.accountHeader}>
+        <Link href="/dashboard" aria-label="Dashboard" className={styles.accountLogo}>
+          <span className={styles.workspaceSymbol} role="img" aria-label="Design Waterloo" />
+        </Link>
+        <nav className={styles.adminNavigation} aria-label="Admin navigation">
+          <Link href="/admin/members" aria-current={pathname === "/admin/members" ? "page" : undefined}>Members</Link>
+          <Link href="/admin" aria-current={pathname === '/admin' ? 'page' : undefined}>Submissions</Link>
+          <Link href="/admin/data-issues" aria-current={pathname === '/admin/data-issues' ? 'page' : undefined}>Data issues</Link>
+          <Link href="/dashboard">Your dashboard ↗</Link>
+        </nav>
+      </header>
       {/* Sticky Header Grid Container */}
       <header className={styles.headerContainer}>
         <div className={styles.headerInner}>
           {/* Desktop: 12-col grid, wordmark spans 2 cols | Mobile: 4-col grid, each spans 1 col (handled by CSS) */}
           <Link href="/" className={`${styles.headerLogo} col-start-1 col-span-2`}>
-            <Wordmark variant="stacked" className="h-full w-auto" />
+            <Wordmark interactive={false} variant="stacked" className="h-full w-auto" />
           </Link>
           <Link href="/" className={`${styles.headerLogo} col-start-3 col-span-1`}>
             <Image
@@ -71,7 +82,7 @@ export default function Header() {
       </header>
 
       {/* Profile button — no blend mode, renders photo normally */}
-      <div className={[styles.profileBar, isNavOpen ? styles.profileBarHidden : '', hasProfile && member?.profile_image_url ? '' : styles.profileBarBlend].filter(Boolean).join(' ')}>
+      <nav aria-label="Account" className={[styles.profileBar, isNavOpen ? styles.profileBarHidden : '', hasProfile && member?.profile_image_url ? '' : styles.profileBarBlend].filter(Boolean).join(' ')}>
         <Link
           href={
             hasProfile
@@ -89,13 +100,16 @@ export default function Header() {
             loading="eager"
           />
         </Link>
-      </div>
+      </nav>
 
       {/* Menu button — separate element so blend mode composites against the page */}
       <button
         onClick={() => { triggerHaptic(); setIsNavOpen(!isNavOpen); }}
         className={`${styles.menuButton} ${isNavOpen ? styles.menuButtonOpen : ''}`}
-        aria-label={isNavOpen ? "Close navigation" : "Open navigation"}
+        aria-label="Open navigation"
+        aria-expanded={isNavOpen}
+        aria-controls="site-navigation"
+        aria-haspopup="dialog"
       >
         <div className={`${styles.menuIcon} ${isNavOpen ? styles.menuIconOpen : ''}`}>
           <span></span>
@@ -104,6 +118,7 @@ export default function Header() {
         </div>
       </button>
 
+      <noscript><nav aria-label="Main" className="px-[var(--margin)] flex gap-4"><Link href="/">Home</Link><Link href="/directory">Directory</Link><Link href="/about">About</Link></nav></noscript>
       {/* Full-screen Overlay Navigation */}
       <OverlayNav isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />
     </div>

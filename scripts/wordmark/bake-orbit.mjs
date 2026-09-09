@@ -59,7 +59,9 @@ const smooth = (v) => {
   function renderer(angle) {
     const oz = 0.914 * Math.sin(angle),
       ox = 0.914 * Math.cos(angle),
-      release = smooth(Math.hypot(ox - 0.914, oz) / 0.8),
+      // Reconnect at both rest poses, exchanging the identical lobes.
+      release = smooth(Math.hypot(Math.abs(ox) - 0.914, oz) / 0.8),
+      swap = (1 - Math.cos(angle)) / 2,
       k = 0.001 + 0.479 * release,
       r = 0.95,
       za = -oz,
@@ -77,8 +79,9 @@ const smooth = (v) => {
           free = sample(side * (0.914 + Math.abs(qx)), qy, 0);
         return joined + (free - joined) * release;
       }
-      const da = profile(ax, ay, -1),
-        db = profile(bx, by, 1);
+      const mix = (a, b) => a + (b - a) * swap;
+      const da = mix(profile(ax, ay, -1), profile(ax, ay, 1)),
+        db = mix(profile(bx, by, 1), profile(bx, by, -1));
       let z = -100;
       if (da <= 0) z = Math.max(z, za + Math.sqrt(-da / r));
       if (db <= 0) z = Math.max(z, zb + Math.sqrt(-db / r));
@@ -105,8 +108,8 @@ const smooth = (v) => {
         }
       }
       if (z < -10) return 0;
-      const ca = inner(ax - 0.914, ay),
-        cb = inner(bx + 0.914, by);
+      const ca = mix(inner(ax - 0.914, ay), inner(ax + 0.914, ay)),
+        cb = mix(inner(bx + 0.914, by), inner(bx - 0.914, by));
       return Math.max(
         da > 0 && db > 0 ? 1 : 0,
         da <= 0 ? smooth((ca + 2.4 / W) / (4.8 / W)) : 0,
@@ -195,12 +198,12 @@ const smooth = (v) => {
   const result = [];
   for (let frame = 0; frame < frames; frame++) {
     const t = frame / (frames - 1),
-      render = renderer(smooth(t) * Math.PI * 2),
+      render = renderer(t * Math.PI),
       field = new Float32Array((W + 1) * (H + 1));
     for (let y = 0; y <= H; y++)
       for (let x = 0; x <= W; x++)
         field[y * (W + 1) + x] = render((x / W - 0.5) * 4.8, (0.5 - y / H) * 3);
-    // The final full turn must be byte-identical to the first frame.
+    // The final half turn must be byte-identical to the first frame.
     result.push(frame === frames - 1 ? result[0] : trace(field, render));
     if (frame % 30 === 0) console.log(`Baked ${frame}/${frames - 1}`);
   }

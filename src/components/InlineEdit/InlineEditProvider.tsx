@@ -17,6 +17,12 @@ import type { ReviewStatus } from "@/types/database";
 // ---------- Types ----------
 
 export interface ExperienceEntry {
+  end_month?: string | null;
+  end_year?: string | null;
+  description?: string | null;
+  location?: string | null;
+  employment_type?: string | null;
+
   id?: string;
   positionTitle: string | null;
   company: string;
@@ -227,13 +233,14 @@ export function InlineEditProvider({
 
       const { error: saveError } = await supabase.rpc("save_my_profile", {
         profile: updatePayload,
-        experiences: experiences.map(e => ({ position_title: e.positionTitle, company: e.company,
+        experiences: experiences.map(e => ({ end_month: e.end_month ?? null, end_year: e.end_year ?? null, description: e.description ?? null, location: e.location ?? null, employment_type: e.employment_type ?? null, position_title: e.positionTitle, company: e.company,
           start_month: e.startMonth, start_year: e.startYear, is_current: e.isCurrent, link: e.link ?? null })),
         leadership: leadership.map(l => ({ position_title: l.positionTitle, organization: l.org,
           start_month: l.startMonth, start_year: l.startYear, is_current: l.isCurrent, link: l.link ?? null })),
-        submit,
+        submit: false,
       });
       if (saveError) throw new Error(saveError.message);
+      if (submit) {const response=await fetch("/api/profile/submit",{method:"POST"});if(!response.ok)throw new Error("Your changes were saved, but submission failed. Please try again.");}
 
       // 3. Update saved snapshots
       savedFields.current = { ...fields };
@@ -266,7 +273,7 @@ export function InlineEditProvider({
 
   // DOM handlers pass an event; never expose the RPC submission flag as a handler argument.
   const save = useCallback(() => saveProfile(false), [saveProfile]);
-  const submitForReview = useCallback(() => saveProfile(true), [saveProfile]);
+  const submitForReview = useCallback(async () => {if(window.confirm("Submit your profile for review? We hand-curate students in the directory. Review usually takes about a day, and your profile becomes public once approved.")) await saveProfile(true);}, [saveProfile]);
 
   return (
     <InlineEditContext.Provider

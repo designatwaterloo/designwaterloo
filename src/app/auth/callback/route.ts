@@ -83,14 +83,14 @@ export async function GET(request: NextRequest) {
   } catch {
     console.warn("[auth] account_resolution_failed; session preserved");
     // Auth succeeded but the member init failed/timed out.  Send the user
-    // to /profile/edit where the page can retry rather than booting them
+    // to /welcome where the page can retry rather than booting them
     // back to sign-in with a confusing error.
-    return finish(NextResponse.redirect(`${origin}/profile/edit`));
+    return finish(NextResponse.redirect(`${origin}/welcome`));
   }
 
   if (result.onboardingCompleted) {
     return finish(NextResponse.redirect(`${origin}${explicitNext}`));
   }
 
-  return finish(NextResponse.redirect(`${origin}/profile/edit`));
+  return finish(NextResponse.redirect(`${origin}/welcome`));
 }

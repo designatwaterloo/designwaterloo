@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
 import Footer from "@/components/Footer";
 import { Member } from "@/sanity/types";
 import { decodeTermCode } from "@/lib/termUtils";
@@ -19,12 +18,13 @@ import {
 
 interface DirectoryClientProps {
   members: Member[];
+  initialQuery: string;
 }
 
-export default function DirectoryClient({ members }: DirectoryClientProps) {
-  const searchParams = useSearchParams();
+export default function DirectoryClient({ members, initialQuery }: DirectoryClientProps) {
 
   const initialFilters = useMemo(() => {
+    const searchParams = new URLSearchParams(initialQuery);
     const filters: Record<string, string[]> = {};
 
     // Short params: s=PRD → specialty=["Product Design"], a=1261 → availability=["1261"]
@@ -47,9 +47,11 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
     }
 
     return filters;
-  }, [searchParams]);
+  }, [initialQuery]);
 
   const handleFiltersChange = useCallback((filters: Record<string, string[]>) => {
+    // The directory can remain underneath the sign-in route.
+    if (window.location.pathname !== "/directory") return;
     const params = new URLSearchParams();
 
     // Encode specialties as short codes
@@ -78,7 +80,7 @@ export default function DirectoryClient({ members }: DirectoryClientProps) {
         <section className="w-full px-[var(--margin)] py-12 flex flex-col gap-12">
           <div className="flex justify-between items-center">
             <h1>
-              Directory<sup>{members.length}</sup>
+              Directory<sup aria-label={`${members.length} members`}> {members.length}</sup>
             </h1>
           </div>
 

@@ -13,7 +13,7 @@ const user = {
   email: "session-fixture@uwaterloo.ca",
   email_confirmed_at: "2026-01-01T00:00:00Z",
   created_at: "2026-01-01T00:00:00Z",
-  app_metadata: { provider: "azure", providers: ["azure"] },
+  app_metadata: { design_waterloo_role: null as string | null, provider: "azure", providers: ["azure"] },
   user_metadata: { full_name: "Session Fixture" },
 };
 const original = {
@@ -51,6 +51,7 @@ let member = { ...original },
   refreshes = 0,
   exchanges = 0,
   saves = 0;
+let deletions = 0, failDelete = false;
 const codes = new Map<string, string>(),
   tokens = new Set<string>(),
   refresh = new Set<string>();
@@ -114,6 +115,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/__control") {
     if (body.reset) {
       member = { ...original };
+      deletions = 0; failDelete = false; user.app_metadata.design_waterloo_role = null;
       handles.clear(); handles.add(original.slug);
       failUser = false;
       failMember = false;
@@ -121,15 +123,18 @@ const server = http.createServer(async (req, res) => {
       refreshes = 0;
       exchanges = 0;
       saves = 0;
+
       codes.clear();
       tokens.clear();
       refresh.clear();
     }
+    if ("staffRole" in body) user.app_metadata.design_waterloo_role = body.staffRole as string | null;
+    if ("failDelete" in body) failDelete = Boolean(body.failDelete);
     if ("failUser" in body) failUser = Boolean(body.failUser);
     if ("failMember" in body) failMember = Boolean(body.failMember);
     if ("failSave" in body) failSave = Boolean(body.failSave);
     if (body.member) member = { ...member, ...(body.member as object) };
-    send({ refreshes, exchanges, saves, member });
+    send({ refreshes, exchanges, saves, member, deletions });
     return;
   }
   if (url.pathname === "/auth/v1/authorize") {
@@ -175,6 +180,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   const token = req.headers.authorization?.replace(/^Bearer /, "");
+  if (url.pathname === `/auth/v1/admin/users/${id}` && req.method === 'DELETE') {
+    if (token !== 'synthetic-service-key') { send({message:'Forbidden'},403); return; }
+    if (failDelete) { send({message:'Synthetic deletion outage'},503); return; }
+    deletions++; tokens.clear(); refresh.clear();
+    send({user}); return;
+  }
   if (url.pathname === "/auth/v1/user") {
     if (failUser) {
       send({ msg: "Synthetic auth outage" }, 503);
@@ -213,12 +224,18 @@ const server = http.createServer(async (req, res) => {
     send({ outcome: "linked", slug: member.slug, onboardingCompleted: member.onboarding_completed });
     return;
   }
+  if (url.pathname === "/rest/v1/member_experiences") { send(member.member_experiences); return; }
+  if (url.pathname === "/rest/v1/rpc/save_my_experiences") {
+    if (!token || !tokens.has(token)) { send({message:"No session"},401); return; }
+    if (failSave) { send({message:"Synthetic save outage"},503); return; }
+    member = {...member, member_experiences: body.experiences as []}; saves++; send(null); return;
+  }
   if (url.pathname === "/rest/v1/rpc/save_my_profile") {
     if (!token || !tokens.has(token)) {
       send({ message: "No session" }, 401);
       return;
     }
-    member = { ...member, ...(body.profile as object) };
+    member = { ...member, ...(body.profile as object), member_experiences: (body.experiences || member.member_experiences) as [], member_leadership: (body.leadership || member.member_leadership) as [] };
     saves++;
     send(null);
     return;
@@ -236,15 +253,16 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === "PATCH") {
       if (failSave) { send({ message: "Synthetic save outage" }, 503); return; }
-      if (!token || !tokens.has(token)) {
+      if (!token || (!tokens.has(token) && token !== "synthetic-service-key")) {
         send({ message: "No session" }, 401);
         return;
       }
       const expectedStatus = url.searchParams.get("review_status");
-      if (expectedStatus && expectedStatus !== `eq.${member.review_status}`) { send([]); return; }
+      if (expectedStatus && expectedStatus !== `eq.${member.review_status}`) { send(req.headers.accept?.includes("application/vnd.pgrst.object") ? null : []); return; }
       member = { ...member, ...body };
+      saves++;
       handles.add(member.slug);
-      send([member]);
+      send(req.headers.accept?.includes("application/vnd.pgrst.object") ? member : [member]);
       return;
     }
     const slug = url.searchParams.get("slug"),

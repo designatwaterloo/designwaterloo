@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import { findOrInitMember } from "@/lib/supabase/member-init";
@@ -13,6 +13,11 @@ import { SPECIALTIES } from "@/lib/specialties";
 import Link from "@/components/Link";
 import Footer from "@/components/Footer";
 import styles from "./page.module.css";
+import { useOnboardingFinale } from "@/components/OnboardingFinale";
+import ScheduleFields from "./ScheduleFields";
+import { workSequences } from "@/lib/work-sequences";
+import ExperienceFields from "./ExperienceFields";
+import { ImportedPosition, positionError } from "@/lib/experience-import";
 import StudiesFields from "./StudiesFields";
 import { normalizeLinkedIn, linkedInHandle } from "@/lib/linkedin";
 import { normalizePortfolioUrl } from "@/lib/portfolio-url";
@@ -26,23 +31,54 @@ const descriptions = [
 ];
 const empty = { first_name: "", last_name: "", slug: "", program: "", graduating_class: "", bio: "", portfolio: "", linkedin: "", profile_image_url: "", specialties: [] as string[] };
 
-export default function EditProfilePage() {
+function EditProfileContent() {
   const { user, member, loading, error: authError, refreshMember } = useAuth();
   const router = useRouter();
+  const replay = useSearchParams().get("replay") === "true";
+  const startFinale = useOnboardingFinale();
+  const [finishing, setFinishing] = useState(false);
   const supabase = useMemo(() => createClient(), []);
+  const experienceMemberId = member?.id;
+  const [experiences, setExperiences] = useState<ImportedPosition[]>([]);
+  const [experienceLoadError, setExperienceLoadError] = useState(false);
+  const [experienceRetry, setExperienceRetry] = useState(0);
+  const [experienceLoaded, setExperienceLoaded] = useState(false);
+  useEffect(() => {
+    if (!experienceMemberId) return;
+    let active = true;
+    supabase.from("member_experiences").select("*").eq("member_id", experienceMemberId).then(({ data, error }) => {
+      if (!active) return;
+      if (error) { setExperienceLoadError(true); return; }
+      setExperienceLoadError(false);
+      setExperiences((data || []).map(p => ({ ...p, position_title: p.position_title || "", start_year: p.start_year || "", description: p.description || "", location: p.location || "", employment_type: p.employment_type || "" })));
+      setExperienceLoaded(true);
+    });
+    return () => { active = false; };
+  }, [experienceMemberId, supabase, experienceRetry]);
   const [fields, setFields] = useState(empty);
+  const [editingSchedule, setEditingSchedule] = useState(false);
+  const [schedule, setSchedule] = useState<string[] | null>(null);
+  const scheduleChoices = workSequences(member?.school || "", fields.program, fields.graduating_class);
+  const workSchedule = schedule ?? ((scheduleChoices.find(choice => choice.recommended) || scheduleChoices[0])?.terms || []);
   const [step, setStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [introPhase, setIntroPhase] = useState(1);
   const [introDone, setIntroDone] = useState(false);
   const [canvasStep, setCanvasStep] = useState(0);
   const [nextCanvasStep, setNextCanvasStep] = useState<number | null>(null);
-  const slideLeaving = nextCanvasStep !== null;
+  const slideLeaving = nextCanvasStep !== null || finishing;
 
   function changeCanvasStep(next: number) {
     if (slideLeaving) return;
-    if (canvasStep > 5 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      if (next === 6) { router.push("/dashboard"); return; }
+    if (member && !replay) {
+      try {
+        const key = `dw-onboarding-step:${member.id}`;
+        if (next >= 8) sessionStorage.removeItem(key);
+        else sessionStorage.setItem(key, String(next));
+      } catch { /* Onboarding still works when browser storage is disabled. */ }
+    }
+    if (canvasStep > 7 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (next === 8) { router.push("/dashboard"); return; }
       setCanvasStep(next);
       canvasRef.current?.focus({ preventScroll: true });
     } else {
@@ -53,7 +89,7 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (nextCanvasStep === null) return;
     const timer = window.setTimeout(() => {
-      if (nextCanvasStep === 6) { router.push("/dashboard"); return; }
+      if (nextCanvasStep === 8) { router.push("/dashboard"); return; }
       setCanvasStep(nextCanvasStep);
       setNextCanvasStep(null);
       canvasRef.current?.focus({ preventScroll: true });
@@ -151,15 +187,22 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (loading) return;
     if (!user) { router.replace("/sign-in"); return; }
-    if (member && member.review_status !== "draft" && !inFlight.current && !submitted) {
+    if (member && !replay && (member.onboarding_completed || member.review_status !== "draft") && !inFlight.current && !submitted && !finishing) {
       router.replace("/dashboard"); return;
     }
     if (member && initialized.current !== member.id) {
       initialized.current = member.id;
+      if (!replay && !member.onboarding_completed) {
+        try {
+          const savedStep = Number(sessionStorage.getItem(`dw-onboarding-step:${member.id}`));
+          if (Number.isInteger(savedStep) && savedStep > 0 && savedStep <= 7) { setCanvasStep(savedStep); setIntroDone(true); }
+        } catch { /* Start at the introduction if storage is unavailable. */ }
+      }
+      if (member.work_schedule?.length) setSchedule(member.work_schedule);
       setFields({ first_name: member.first_name || "", last_name: member.last_name || "", slug: member.slug || "", program: member.program || "", graduating_class: member.graduating_class || "", bio: member.bio || "", portfolio: member.portfolio || "", linkedin: member.linkedin || "", profile_image_url: member.profile_image_url || "", specialties: member.specialties || [] });
       setReady(true);
     }
-  }, [loading, user, member, router, submitted]);
+  }, [loading, user, member, router, submitted, replay, finishing]);
 
   async function initialize() {
     if (initializing.current) return;
@@ -219,13 +262,13 @@ export default function EditProfilePage() {
         bio: fields.bio.trim() || null, portfolio: normalizePortfolioUrl(fields.portfolio) || null,
         linkedin: fields.linkedin.trim() || null, profile_image_url: fields.profile_image_url || null,
         slug_confirmed: true,
-        ...(submit ? { onboarding_completed: true, review_status: "pending_review" as const, submitted_at: new Date().toISOString(), is_approved: false } : {}),
+
       }).eq("id", member.id).eq("review_status", "draft").select("id");
       if (writeError) throw new Error(writeError.code === "23505" ? "That username is taken. Choose another one." : "Your changes couldn’t be saved. Please try again.");
       if (!data?.length) throw new Error("Your profile status changed in another tab. Reload to see the latest version.");
       setFields(previous => ({ ...previous, slug }));
       setSaved(true);
-      if (submit) setSubmitted(true);
+      if (submit) {const response=await fetch("/api/profile/submit",{method:"POST"});if(!response.ok)throw new Error("Your draft was saved, but submission failed. Please try again.");setSubmitted(true);}
       // The write has succeeded even if refreshing the shared header is unavailable.
       await refreshMember().catch(() => {});
       return true;
@@ -250,12 +293,14 @@ export default function EditProfilePage() {
 
   async function advance(event: React.FormEvent) {
     event.preventDefault();
+    if (step === 2 && !window.confirm("Submit your profile for review? We hand-curate students in the directory. Review usually takes about a day, and your profile becomes public once approved.")) return;
     if (await save(step === 2)) { if (step < 2) setStep(step + 1); }
   }
 
   async function saveName(event: React.FormEvent) {
     event.preventDefault();
     if (!member || inFlight.current || slideLeaving) return;
+    if (replay) { changeCanvasStep(2); return; }
     const firstName = fields.first_name.trim();
     const lastName = fields.last_name.trim();
     if (!firstName || !lastName) { setError("Add your first and last name to continue."); return; }
@@ -280,8 +325,21 @@ export default function EditProfilePage() {
   async function saveCanvasDetails(event: React.FormEvent) {
     event.preventDefault();
     if (!member || inFlight.current || uploading || slideLeaving) return;
+    if (canvasStep === 6 && positionError(experiences)) { setError(positionError(experiences)); return; }
+    if (replay) {
+      if (canvasStep === 7) {
+        setFinishing(true);
+        startFinale(Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []));
+      } else changeCanvasStep(canvasStep + 1);
+      return;
+    }
     inFlight.current = true; setBusy(true); setError(null);
     try {
+      if (canvasStep === 6) {
+        const saved = await supabase.rpc("save_my_experiences", { experiences: experiences.map(p => ({ position_title:p.position_title, company:p.company, start_month:p.start_month, start_year:p.start_year, end_month:p.is_current?null:p.end_month, end_year:p.is_current?null:p.end_year, is_current:p.is_current, description:p.description, location:p.location, employment_type:p.employment_type, link:p.link })) });
+        if (saved.error) throw new Error("We couldn’t save your positions. Please try again.");
+        changeCanvasStep(7); return;
+      }
       const username = validateUsername(fields.slug);
       if (canvasStep === 2) {
         if (!username.ok) throw new Error(username.error);
@@ -295,9 +353,10 @@ export default function EditProfilePage() {
         if (normalizeLinkedIn(fields.linkedin) === null) throw new Error("Enter a LinkedIn username or profile link.");
         if (normalizePortfolioUrl(fields.portfolio) === null) throw new Error("Enter a valid portfolio website, like yourname.com.");
       }
-      if (canvasStep === 5 && (!fields.specialties.length || fields.specialties.length > 3)) throw new Error("Pick one to three top skills.");
-      const patch = canvasStep === 5 ? { specialties: fields.specialties } : canvasStep === 2
+      if (canvasStep === 7 && (!fields.specialties.length || fields.specialties.length > 5)) throw new Error("Pick one to five top skills.");
+      const patch = canvasStep === 7 ? { specialties: fields.specialties, onboarding_completed: true } : canvasStep === 2
         ? { slug: username.normalized, slug_confirmed: true }
+        : canvasStep === 5 ? { work_schedule: workSchedule }
         : canvasStep === 3 ? { profile_image_url: fields.profile_image_url || null }
         : { program: fields.program.trim() || null, graduating_class: fields.graduating_class || null, portfolio: normalizePortfolioUrl(fields.portfolio) || null, linkedin: normalizeLinkedIn(fields.linkedin) || null };
       const result = await supabase.from("members").update(patch).eq("id", member.id).eq("review_status", "draft").select("id");
@@ -305,29 +364,37 @@ export default function EditProfilePage() {
       if (!result.data?.length) throw new Error("Your profile changed in another tab. Reload to continue.");
       if (canvasStep === 2) setFields(previous => ({ ...previous, slug: username.normalized }));
       if (canvasStep === 4) setFields(previous => ({ ...previous, portfolio: normalizePortfolioUrl(previous.portfolio) || "", linkedin: normalizeLinkedIn(previous.linkedin) || "" }));
+      if (canvasStep === 7) {
+        const selected = Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []);
+        setFinishing(true);
+        startFinale(selected);
+      } else changeCanvasStep(canvasStep + 1);
       await refreshMember().catch(() => {});
-      changeCanvasStep(canvasStep + 1);
     } catch (err) { setError(err instanceof Error ? err.message : "We couldn’t save your details."); }
     finally { inFlight.current = false; setBusy(false); }
   }
 
   const usernameReady = validateUsername(fields.slug).ok && checkedUsername === validateUsername(fields.slug).normalized;
-  const canvasNotReady = (canvasStep === 2 && !usernameReady) || (canvasStep === 5 && (!fields.specialties.length || fields.specialties.length > 3));
+  const canvasNotReady = (canvasStep === 6 && !experienceLoaded) || (canvasStep === 2 && !usernameReady) || (canvasStep === 7 && (!fields.specialties.length || fields.specialties.length > 5));
   const usernameTone = usernameReady ? "good" : usernameStatus && usernameStatus !== "Checking availability…" ? "bad" : "neutral";
   const missing = [!fields.profile_image_url && "a photo", !fields.bio.trim() && "a short bio", !fields.specialties.length && "your creative interests"].filter(Boolean);
   const name = `${fields.first_name} ${fields.last_name}`.trim();
   const school = member?.school || "";
 
+  if (!replay && !finishing && (loading || (member && (member.onboarding_completed || member.review_status !== "draft")))) {
+    return <main data-account-workspace aria-busy="true" className="min-h-screen" />;
+  }
+
   if (introDone) {
-    return <main ref={canvasRef} tabIndex={-1} aria-label="Next onboarding step" data-onboarding-intro className={styles.onboardingCanvas}>
+    return <main ref={canvasRef} tabIndex={-1} aria-label="Next onboarding step" data-account-workspace data-onboarding-intro data-finishing={finishing} className={styles.onboardingCanvas}>
       {canvasStep > 0 && <button type="button" className={styles.canvasBack} aria-label="Previous slide" disabled={busy || uploading || slideLeaving} onClick={() => { setError(null); changeCanvasStep(Math.max(0, canvasStep - 1)); canvasRef.current?.focus({ preventScroll: true }); }}><ArrowLeftIcon className="size-6 fill-current" aria-hidden="true" /></button>}
-      <ol className={styles.storyProgress} role="list" aria-label={`Onboarding step ${canvasStep + 1} of 6`}>
-        {[0, 1, 2, 3, 4, 5].map(index => <li key={index} aria-current={canvasStep === index ? "step" : undefined}><span className="sr-only">Step {index + 1}</span></li>)}
+      <ol className={styles.storyProgress} role="list" aria-label={`Onboarding step ${canvasStep + 1} of 8`}>
+        {[0, 1, 2, 3, 4, 5, 6, 7].map(index => <li key={index} aria-current={canvasStep === index ? "step" : undefined}><span className="sr-only">Step {index + 1}</span></li>)}
       </ol>
       {canvasStep === 0 ? <>
         <section key="welcome" data-leaving={slideLeaving} className={styles.welcomeCopy} aria-labelledby="welcome-heading">
           <h1 id="welcome-heading">{fields.first_name.trim() ? `Welcome, ${fields.first_name.trim()}.` : "Welcome to Design Waterloo."}</h1>
-          <p>A home for the things you make and the people you’ll make them with. Let’s introduce you to the community.</p>
+          <p>Welcome to Design Waterloo. We made this space to help creative people at Waterloo and Laurier find each other, share their work, and make things together.</p>
         </section>
       </> : canvasStep === 1 ? <>
         <section key="name" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="name-heading">
@@ -369,25 +436,45 @@ export default function EditProfilePage() {
             </> : <>
               <StudiesFields school={school} program={fields.program} year={fields.graduating_class} onProgram={value => change("program", value)} onYear={value => change("graduating_class", value)} />
               <div className={`${styles.linkField} ${styles.inputChip}`}><label htmlFor="onboarding-portfolio">Portfolio</label><input id="onboarding-portfolio" type="text" inputMode="url" autoComplete="url" autoCapitalize="none" spellCheck={false} onBlur={() => { const normalized = normalizePortfolioUrl(fields.portfolio); if (normalized !== null) change("portfolio", normalized); }} onPaste={event => { const normalized = normalizePortfolioUrl(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("portfolio", normalized); } }} maxLength={2048} placeholder="https://your-work.com" value={fields.portfolio} onChange={e => change("portfolio", e.target.value)} /></div>
-              <div className={`${styles.linkField} ${styles.inputChip}`}><label htmlFor="onboarding-linkedin">LinkedIn</label><div className={styles.linkedinEntry}><span id="linkedin-prefix">linkedin.com/in/</span><input id="onboarding-linkedin" aria-describedby="linkedin-prefix" type="text" autoComplete="url" autoCapitalize="none" spellCheck={false} maxLength={2048} placeholder="username" onBlur={() => change("linkedin", linkedInHandle(fields.linkedin))} onPaste={event => { const normalized = normalizeLinkedIn(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("linkedin", linkedInHandle(normalized)); } }} value={linkedInHandle(fields.linkedin)} onChange={e => change("linkedin", e.target.value)} /></div></div>
+              <div className={`${styles.linkField} ${styles.inputChip}`}><label id="onboarding-linkedin-label" htmlFor="onboarding-linkedin">LinkedIn</label><div className={styles.linkedinEntry}><label id="linkedin-prefix" htmlFor="onboarding-linkedin">linkedin.com/in/</label><input id="onboarding-linkedin" aria-labelledby="onboarding-linkedin-label" aria-describedby="linkedin-prefix" type="text" autoComplete="url" autoCapitalize="none" spellCheck={false} maxLength={2048} placeholder="username" onBlur={() => change("linkedin", linkedInHandle(fields.linkedin))} onPaste={event => { const normalized = normalizeLinkedIn(event.clipboardData.getData("text")); if (normalized) { event.preventDefault(); change("linkedin", linkedInHandle(normalized)); } }} value={linkedInHandle(fields.linkedin)} onChange={e => change("linkedin", e.target.value)} /></div></div>
             </>}
           </fieldset>
           {error && <p className={styles.nameError} role="alert">{error}</p>}
         </form>
-      </section> : canvasStep === 5 ? <section key="skills" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="skills-heading">
+      </section> : canvasStep === 5 ? <section key="schedule" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy} ${styles.scheduleSlide}`} aria-labelledby="schedule-heading">
+        <h1 id="schedule-heading">{scheduleChoices.length ? "Does this schedule look right?" : "When do you plan to work?"}</h1>
+        <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
+          <fieldset disabled={busy || slideLeaving} className={styles.scheduleFields}>
+            <legend className="sr-only">Work terms</legend>
+            <ScheduleFields editing={editingSchedule || !scheduleChoices.length} choices={scheduleChoices} year={fields.graduating_class} value={workSchedule} onChange={setSchedule} />
+          </fieldset>
+          {error && <p className={styles.nameError} role="alert">{error}</p>}
+        </form>
+      </section> : canvasStep === 6 ? <section key="experience" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy} ${styles.experienceSlide}`} aria-labelledby="experience-heading">
+        <h1 id="experience-heading">What have you been working on?</h1>
+        <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
+          {experienceLoadError && <p className={styles.nameError} role="alert">We couldn’t load your positions. <button type="button" onClick={() => setExperienceRetry(v => v + 1)}>Try again</button></p>}
+          <ExperienceFields value={experiences} onChange={setExperiences} disabled={busy || !experienceLoaded} />
+          {error && <p className={styles.nameError} role="alert">{error}</p>}
+        </form>
+      </section> : canvasStep === 7 ? <section key="skills" data-leaving={slideLeaving} className={`${styles.welcomeCopy} ${styles.nextSlideCopy}`} aria-labelledby="skills-heading">
         <h1 id="skills-heading">What are your top skills?</h1>
-        <p>Pick up to three. You can always edit these—and any of your answers—later.</p>
+        <p>You can edit these later.</p>
         <form id="onboarding-details" className={styles.nameForm} onSubmit={saveCanvasDetails}>
           <fieldset disabled={busy || slideLeaving} className={styles.skillChoices}>
             <legend className="sr-only">Top skills</legend>
-            {Array.from(new Set([...SPECIALTIES, ...fields.specialties])).map(skill => <label key={skill}><input type="checkbox" checked={fields.specialties.includes(skill)} disabled={!fields.specialties.includes(skill) && fields.specialties.length >= 3} onChange={event => change("specialties", event.target.checked ? [...fields.specialties, skill] : fields.specialties.filter(value => value !== skill))} /><span>{skill}</span></label>)}
+            {Array.from(new Set([...SPECIALTIES, ...fields.specialties])).map(skill => <label key={skill}><input type="checkbox" checked={fields.specialties.includes(skill)} disabled={!fields.specialties.includes(skill) && fields.specialties.length >= 5} onChange={event => change("specialties", event.target.checked ? [...fields.specialties, skill] : fields.specialties.filter(value => value !== skill))} /><span>{skill}</span></label>)}
           </fieldset>
-          <small className={styles.skillCount} role="status">{fields.specialties.length} / 3 selected</small>
+          <small className={styles.skillCount} role="status">{fields.specialties.length} / 5 selected</small>
           {error && <p className={styles.nameError} role="alert">{error}</p>}
         </form>
       </section> : <div aria-label="Next step canvas" />}
-      <div className={styles.canvasAction} style={canvasStep > 5 ? { visibility: "hidden" } : undefined}>
-        <button type={canvasStep > 0 ? "submit" : "button"} form={canvasStep === 1 ? "onboarding-name" : canvasStep > 1 ? "onboarding-details" : undefined} className={styles.settleNext} aria-label="Continue" aria-busy={busy || uploading} data-unready={canvasNotReady} disabled={busy || uploading || slideLeaving || canvasStep > 5 || canvasNotReady} onClick={event => { if (canvasStep === 0) { event.preventDefault(); changeCanvasStep(1); canvasRef.current?.focus({ preventScroll: true }); } }}><span className={styles.settleArrow}><ArrowRightIcon className="size-6 shrink-0 fill-current" aria-hidden="true" /></span></button>
+      <div className={styles.canvasAction} data-schedule-action={canvasStep === 5 || undefined} data-stream-picker={canvasStep === 5 || undefined} style={canvasStep > 7 ? { visibility: "hidden" } : undefined}>
+        {canvasStep === 5 && scheduleChoices.length > 1 && <div className={styles.scheduleStreams} role="group" aria-label="Co-op sequence">
+          {scheduleChoices.map((choice, index) => <button key={choice.label} type="button" style={{ "--choice-delay": `${850 + index * 65}ms` } as React.CSSProperties} disabled={busy || slideLeaving} aria-pressed={workSchedule.join() === choice.terms.join()} onClick={() => { setSchedule(choice.terms); }}><span className={styles.streamCheck} aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="m4 8 2.5 2.5L12 5" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" /></svg></span><span>{choice.label}{choice.recommended ? " (default)" : ""}</span></button>)}
+        </div>}
+        {canvasStep === 5 && scheduleChoices.length > 0 && <button type="button" className={styles.editScheduleButton} aria-pressed={editingSchedule} disabled={busy || slideLeaving} onClick={() => setEditingSchedule(value => !value)}>{editingSchedule ? "Done editing" : "Edit schedule"}</button>}
+        <button type={canvasStep > 0 ? "submit" : "button"} form={canvasStep === 1 ? "onboarding-name" : canvasStep > 1 ? "onboarding-details" : undefined} className={styles.settleNext} aria-label={canvasStep === 5 ? "Confirm schedule" : "Continue"} aria-busy={busy || uploading} data-unready={canvasNotReady} disabled={busy || uploading || slideLeaving || canvasStep > 7 || canvasNotReady} onClick={event => { if (canvasStep === 0) { event.preventDefault(); changeCanvasStep(1); canvasRef.current?.focus({ preventScroll: true }); } }}><span className={styles.settleArrow}><ArrowRightIcon className="size-6 shrink-0 fill-current" aria-hidden="true" /></span></button>
       </div>
     </main>;
   }
@@ -416,7 +503,7 @@ export default function EditProfilePage() {
   }
 
   return <>
-    <main className={styles.page}>
+    <main data-account-workspace className={styles.page}>
       {!ready ? <div className={styles.loading}>
         <h1>Let’s get you settled.</h1>
         {error || authError ? <><p role="alert">{error || "We couldn’t load your profile."}</p><button type="button" className={styles.primary} onClick={initialize}>Try again</button></> : <p role="status">Loading your profile…</p>}
@@ -484,4 +571,8 @@ export default function EditProfilePage() {
       </div>}
     </main><Footer />
   </>;
+}
+
+export default function EditProfilePage() {
+  return <Suspense fallback={<main data-account-workspace aria-busy="true" className="min-h-screen" />}><EditProfileContent /></Suspense>;
 }

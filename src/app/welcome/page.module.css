@@ -104,7 +104,7 @@
 @keyframes settleShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .settleLine { transition: none; transform: none; } .settleVisible:first-child { animation: none; background: none; -webkit-text-fill-color: currentColor; color: var(--foreground); } }
 
-.settleNext { width: 96px; height: 56px; display: grid; place-items: center; padding: 0; border: none; border-radius: 999px; background: #0e0e0e; color: #fff; cursor: pointer; transition: background-color .22s ease-out, scale .16s ease-out; animation: settleButtonEnter .6s cubic-bezier(.22, 1, .36, 1) both; }
+.settleNext { width: min(320px, calc(100vw - 48px)); height: 56px; display: grid; place-items: center; padding: 0; border: none; border-radius: 999px; background: #0e0e0e; color: #fff; cursor: pointer; transition: background-color .22s ease-out, scale .16s ease-out; animation: settleButtonEnter .6s cubic-bezier(.22, 1, .36, 1) both; }
 @keyframes settleButtonEnter {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -144,11 +144,11 @@
 .welcomeCopy { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; min-width: 0; width: 100%; animation: welcomeCopyEnter .7s .65s ease-out both; }
 .nextSlideCopy { animation: none; }
 .nextSlideCopy > h1, .nextSlideCopy > p { animation: welcomeCopyEnter .7s ease-out both; }
-.nextSlideCopy > form { animation: welcomeCopyEnter .7s .35s ease-out both; }
-.welcomeCopy h1 { margin: 0; font-size: clamp(36px, 4.5vw, 64px); font-weight: 500; letter-spacing: -.035em; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
+.nextSlideCopy > form { animation: welcomeCopyEnter .35s .35s ease-out both; }
+.welcomeCopy h1 { margin: 0; font-size: clamp(28px, 3vw, 32px); font-weight: 500; letter-spacing: -.035em; max-width: 100%; overflow-wrap: anywhere; text-wrap: balance; }
 .welcomeCopy p { margin: 0; max-width: 42ch; font-size: 18px; font-weight: 400; line-height: 1.6; color: #d8cec5; text-wrap: pretty; }
 .canvasAction { align-self: end; }
-.canvasAction .settleNext { width: min(240px, calc(100vw - 48px)); background: #faf5ee; color: #0e0e0e; animation: canvasButtonEnter .7s cubic-bezier(.22, 1, .36, 1) both; }
+.canvasAction .settleNext { width: min(320px, calc(100vw - 48px)); background: #faf5ee; color: #0e0e0e; animation: canvasButtonEnter .7s cubic-bezier(.22, 1, .36, 1) both; }
 .canvasAction .settleNext:focus-visible { outline-color: #faf5ee; }
 @keyframes progressEnter { from { opacity: 0; transform: translateY(calc(-100% - 48px)); } to { opacity: 1; transform: translateY(0); } }
 @keyframes canvasButtonEnter { from { opacity: 0; transform: translateY(calc(100% + 48px)); } to { opacity: 1; transform: translateY(0); } }
@@ -243,7 +243,7 @@
 .cameraCorners i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
 .cameraCorners i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
 .linkedinEntry { display: flex; align-items: baseline; min-width: 0; font-size: 18px; font-weight: 400; }
-.linkedinEntry > span { flex-shrink: 0; color: #d8cec5; }
+.linkedinEntry > label { flex-shrink: 0; color: #d8cec5; font: inherit; cursor: text; }
 .linkedinEntry input { flex: 1; min-width: 0; }
 .skillChoices { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-width: 0; padding: 0; border: 0; margin: 0; }
 .skillChoices label { position: relative; cursor: pointer; }
@@ -256,3 +256,76 @@
 @media (max-height: 850px) { .onboardingCanvas:has(.skillChoices) { grid-template-rows: 40px auto 80px; gap: 24px; } }
 @media (prefers-reduced-motion: reduce) { .skillChoices span { transition: none; } }
 @media (max-width: 600px) { .skillChoices { gap: 8px; } .skillChoices span { padding: 10px 14px; font-size: 14px; } }
+
+.onboardingCanvas[data-finishing="true"] .skillChoices input:checked + span { visibility: hidden; }
+
+.scheduleFields { border: 0; padding: 0; margin: 0; display: grid; gap: 16px; }
+.welcomeCopy .scheduleHint { font-size: 14px; line-height: 1.5; max-width: none; color: #d8cec5; }
+.scheduleGrid { display: grid; grid-template-columns: 48px repeat(3, minmax(0, 1fr)); gap: 8px; align-items: center; }
+.scheduleGrid button, .scheduleStreams button { min-height: 44px; border-radius: 10px; border: 1px solid transparent; background: #5a4b40; color: #faf5ee; cursor: pointer; font: inherit; }
+.scheduleGrid button[aria-pressed=true] { background: #faf5ee; color: #443830; }
+.scheduleGrid button:focus-visible, .scheduleStreams button:focus-visible, .scheduleTools button:focus-visible { outline: 2px solid #faf5ee; outline-offset: 3px; }
+.scheduleSeason, .scheduleYear { font-size: 14px; color: #d8cec5; }
+.scheduleStreams, .scheduleTools { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.scheduleStreams button { padding: 8px 20px; }
+.scheduleTools button { background: none; border: 0; padding: 8px; color: #d8cec5; font-size: 14px; text-decoration: underline; cursor: pointer; }
+
+.scheduleSlide { max-height: 100%; overflow-y: auto; overscroll-behavior: contain; padding-block: 16px; scrollbar-width: thin; }
+.scheduleSlide > * { flex-shrink: 0; }
+
+
+.scheduleGrid { position: relative; }
+.scheduleGrid button { animation: termReveal .24s var(--term-delay) ease-out backwards; }
+@keyframes termReveal { from { opacity: 0; transform: translateY(6px) scale(.97); } }
+.termMarker { position: absolute; pointer-events: none; width: 2px; background: #ff9c83; z-index: 1; opacity: 0; }
+.termMarker::before { content: ""; position: absolute; width: 7px; height: 7px; background: #ff9c83; border-radius: 50%; top: -3px; left: -2.5px; }
+.termMarker span { position: absolute; bottom: calc(100% + 4px); left: 0; white-space: nowrap; font-size: 10px; color: #ffb39f; background: #443830; padding: 2px 4px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { .scheduleGrid button { animation: none; } }
+
+.onboardingCanvas:has(.canvasAction[data-stream-picker]) { grid-template-rows: 56px minmax(0, 1fr) auto; row-gap: 16px; }
+.canvasAction[data-stream-picker] { display: flex; flex-direction: column; align-items: center; gap: 20px; width: min(100%, 560px); }
+.canvasAction .scheduleStreams button { animation: streamChoiceEnter .28s var(--choice-delay) ease-out both; }
+.scheduleSeason { animation: seasonLabelEnter .25s var(--axis-delay) ease-out both; }
+.scheduleYear { animation: yearLabelEnter .25s var(--axis-delay) ease-out both; }
+@keyframes streamChoiceEnter { from { opacity: 0; transform: translateY(10px); } }
+@keyframes seasonLabelEnter { from { opacity: 0; transform: translateX(-8px); } }
+@keyframes yearLabelEnter { from { opacity: 0; transform: translateY(-8px); } }
+@media (prefers-reduced-motion: reduce) { .canvasAction .scheduleStreams button, .scheduleSeason, .scheduleYear { animation: none; } }
+
+.scheduleSlide { gap: 40px; }
+.canvasAction[data-schedule-action] { width: min(100%, 320px); }
+.canvasAction[data-schedule-action] .settleNext { width: 100%; }
+.canvasAction[data-stream-picker] .scheduleStreams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+.canvasAction[data-stream-picker] .scheduleStreams button { min-width: 0; height: 56px; padding: 0 16px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 10px; background: #5a4b40; color: #d8cec5; border-width: 2px; transition: color .18s ease, border-color .18s ease; }
+.canvasAction[data-stream-picker] .scheduleStreams button[aria-pressed=true] { color: #faf5ee; border-color: #faf5ee; }
+.streamCheck { width: 20px; height: 20px; flex-shrink: 0; border: 2px solid #a99b8f; border-radius: 50%; display: grid; place-items: center; position: relative; isolation: isolate; transition: border-color .18s ease; }
+.streamCheck::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; background: currentColor; transform: scale(0); transition: transform .22s cubic-bezier(.22, 1, .36, 1); z-index: -1; }
+.streamCheck svg { width: 16px; height: 16px; color: #5a4b40; opacity: 0; transform: scale(.75); transition: none; }
+.scheduleStreams button[aria-pressed=true] .streamCheck { border-color: currentColor; }
+.scheduleStreams button[aria-pressed=true] .streamCheck::before { transform: scale(1); }
+.scheduleStreams button[aria-pressed=true] .streamCheck svg { opacity: 1; transform: scale(1); }
+
+@media (hover: hover) {
+  .canvasAction[data-stream-picker] .scheduleStreams button:not(:disabled):hover { color: #faf5ee; }
+  .canvasAction .scheduleStreams button[aria-pressed=true]:not(:disabled):hover { border-color: #faf5ee; }
+  .scheduleStreams button:not(:disabled):hover .streamCheck { border-color: #faf5ee; }
+}
+@media (prefers-reduced-motion: reduce) { .canvasAction[data-stream-picker] .scheduleStreams button, .streamCheck, .streamCheck::before, .streamCheck svg, .scheduleStreams button[aria-pressed=true] .streamCheck svg { transition: none; } }
+
+.scheduleGrid button { position: relative; }
+
+.scheduleGrid button:disabled { cursor: default; }
+.editScheduleButton { width: 100%; min-height: 56px; border: 2px solid transparent; border-radius: 999px; background: #5a4b40; color: #d8cec5; font: inherit; cursor: pointer; }
+.editScheduleButton:hover, .editScheduleButton[aria-pressed=true] { color: #faf5ee; border-color: #faf5ee; }
+.editScheduleButton:focus-visible { outline: 2px solid #faf5ee; outline-offset: 3px; }
+
+.experienceSlide { align-self:start; padding:36px 0; }
+.onboardingCanvas:has(.experienceSlide) { grid-template-rows:56px auto 80px; row-gap:24px; }
+
+.scheduleGrid[data-animated=false] .scheduleSeason { text-align: center; }
+.scheduleGrid[data-animated=false] .scheduleSeason,
+.scheduleGrid[data-animated=false] .scheduleYear { font-weight: 400; }
+.scheduleGrid[data-animated=false] button,
+.scheduleGrid[data-animated=false] .scheduleSeason,
+.scheduleGrid[data-animated=false] .scheduleYear { animation: none; }
+.scheduleGrid[data-animated=false] .termMarker { opacity: 1; }

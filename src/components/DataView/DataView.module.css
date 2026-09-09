@@ -84,7 +84,7 @@
 }
 
 .resultsCount {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: inherit;
 }
 

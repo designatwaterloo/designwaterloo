@@ -9,6 +9,7 @@ async function setup() {
   const db = new PGlite();
   await db.exec(readFileSync('tests/database-fixture.sql','utf8'));
   await db.exec(readFileSync('supabase/migrations/20260906010000_account_lifecycle.sql','utf8'));
+  await db.exec(readFileSync('supabase/migrations/20260907010000_experience_import.sql','utf8'));
   await db.query<Row>(`insert into auth.users values ($1,'audit@uwaterloo.ca',now(),'{"full_name":"Audit Person"}'),($2,'other@uwaterloo.ca',now(),'{}')`,[uid,other]);
   await db.query<Row>(`select set_config('request.jwt.claim.sub',$1,false),set_config('request.jwt.claim.email','audit@uwaterloo.ca',false),set_config('request.jwt.claim.role','authenticated',false)`,[uid]);
   await db.exec('set role authenticated');
@@ -69,5 +70,17 @@ test('service-role review and ordinary-user resubmission keep approval state con
   await db.exec(`reset role; set role authenticated; select set_config('request.jwt.claim.role','authenticated',false);`);
   await db.query('select public.save_my_profile($1,$2,$3,true)',[{specialties:[],work_schedule:[]},[],[]]);
   assert.equal((await db.query<{is_approved:boolean}>('select is_approved from public.members')).rows[0].is_approved,false);
+ }finally{await db.close();}
+});
+
+test('experience-only imports are atomic and leave profile details intact',async()=>{
+ const db=await setup();try{
+  await db.exec(`select public.ensure_member(); update public.members set bio='Keep me' where auth_user_id=auth.uid();`);
+  const entries=[{position_title:'Designer',company:'Studio',start_year:'2024',end_year:'2025',description:'Built things'}];
+  await db.query('select public.save_my_experiences($1)',[entries]);
+  assert.equal((await db.query<{description:string}>('select description from public.member_experiences')).rows[0].description,'Built things');
+  assert.equal((await db.query<{bio:string}>('select bio from public.members where auth_user_id=auth.uid()')).rows[0].bio,'Keep me');
+  await assert.rejects(db.query('select public.save_my_experiences($1)',[[{company:'Missing title'}]]));
+  assert.equal((await db.query<{n:number}>('select count(*)::int n from public.member_experiences')).rows[0].n,1);
  }finally{await db.close();}
 });

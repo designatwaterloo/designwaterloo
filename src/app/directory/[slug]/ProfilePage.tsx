@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Footer from "@/components/Footer";
 import Link from "@/components/Link";
 import styles from "./page.module.css";
@@ -88,7 +89,7 @@ export default async function PersonDetail({
         .select("is_admin")
         .eq("auth_user_id", user.id)
         .maybeSingle()) as { data: { is_admin: boolean } | null };
-      isAdmin = viewer?.is_admin ?? false;
+      isAdmin = !!viewer?.is_admin || (user.app_metadata?.design_waterloo_role === "admin" && member.review_status === "pending_review");
     }
     if (!isOwner && !isAdmin) {
       notFound();
@@ -122,6 +123,12 @@ export default async function PersonDetail({
 
   const initialExperiences: ExperienceEntry[] = member.member_experiences.map((exp) => ({
     id: exp.id,
+    end_month: exp.end_month,
+    end_year: exp.end_year,
+    description: exp.description,
+    location: exp.location,
+    employment_type: exp.employment_type,
+
     positionTitle: exp.position_title,
     company: exp.company,
     startMonth: exp.start_month,
@@ -144,8 +151,9 @@ export default async function PersonDetail({
     <div>
       <main className="w-full">
         {member.is_approved && (
-          <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton}>
-            ← Back to {isAdminPreview ? "admin" : "directory"}
+          <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton} aria-label={isAdminPreview ? "Back to admin" : "Back to directory"}>
+            <ArrowLeftIcon aria-hidden="true" />
+            <span>{isAdminPreview ? "Admin" : "Directory"}</span>
           </Link>
         )}
         <ProfileContent

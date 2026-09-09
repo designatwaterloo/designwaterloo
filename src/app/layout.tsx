@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import skipLinkStyles from "./SkipLink.module.css";
 import { Analytics } from "@vercel/analytics/react";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
 import Header from "@/components/Header";
+import OnboardingFinale from "@/components/OnboardingFinale";
 import InitialEntrance from "@/components/InitialEntrance";
 import { AuthRecovery } from "@/components/auth/AuthRecovery";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -42,8 +44,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
+  auth,
 }: Readonly<{
   children: React.ReactNode;
+  auth: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -54,11 +58,15 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
+          <OnboardingFinale>
           <ImpersonationBanner />
           <ConsoleEasterEgg />
           <InitialEntrance />
+          <a href="#main-content" className={skipLinkStyles.link}>Skip to main content</a>
           <Header />
-          <AuthRecovery>{children}</AuthRecovery>
+          <div id="main-content" tabIndex={-1}><AuthRecovery>{children}</AuthRecovery></div>
+          {auth}
+          </OnboardingFinale>
         </AuthProvider>
         <Analytics />
       </body>

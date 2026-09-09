@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "@/components/Link";
 import Button from "@/components/Button";
 import {
@@ -93,17 +93,15 @@ function EditableRow({
 }
 
 function ProfileContentInner({
-  memberSlug,
   firstName,
   lastName,
   school,
   publicEmail,
-  reviewStatus: serverReviewStatus,
   rejectionFeedback,
   nextAvailableTerm,
   programSuggestions,
 }: ProfileContentProps) {
-  const { isOwner, editMode, setEditMode, fields, reviewStatus, submitForReview } = useInlineEdit();
+  const { isOwner, editMode, fields, reviewStatus, submitForReview } = useInlineEdit();
   const [socialModalOpen, setSocialModalOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
@@ -111,34 +109,13 @@ function ProfileContentInner({
 
   // Use live reviewStatus from context (updates after actions)
   const effectiveStatus = reviewStatus;
-  const isDraftOrRejected = effectiveStatus === "draft" || effectiveStatus === "rejected";
 
   // Auto-enable edit mode for draft owners; show welcome only on first visit
-  useEffect(() => {
-    if (isOwner && effectiveStatus === "draft") {
-      setEditMode(true);
-      const key = `dw-welcome-seen-${memberSlug}`;
-      if (!localStorage.getItem(key)) {
-        setShowWelcome(true);
-        localStorage.setItem(key, "1");
-      }
-    }
-  }, [isOwner, effectiveStatus, setEditMode, memberSlug]);
-
-  // Auto-enable edit mode for rejected owners
-  useEffect(() => {
-    if (isOwner && effectiveStatus === "rejected") {
-      setEditMode(true);
-    }
-  }, [isOwner, effectiveStatus, setEditMode]);
-
-  // Auto-enable edit mode when linked from dashboard "Edit profile"
   const searchParams = useSearchParams();
+  const router = useRouter();
   useEffect(() => {
-    if (isOwner && searchParams.get("edit") === "true") {
-      setEditMode(true);
-    }
-  }, [isOwner, searchParams, setEditMode]);
+    if (isOwner && searchParams.get("edit") === "true") router.replace("/dashboard");
+  }, [isOwner, searchParams, router]);
 
   const handleSubmitForReview = () => {
     setShowSubmitConfirm(true);
@@ -173,22 +150,21 @@ function ProfileContentInner({
 
   return (
     <>
-      <section className={`${styles.section} ${editMode ? styles.editMode : ""}`}>
+      <section data-account-workspace={isOwner && editMode ? true : undefined} className={`${styles.section} ${editMode ? styles.editMode : ""}`}>
         {/* Name Row */}
         <div className={styles.nameRow}>
           <h1 className={styles.name}>
             {firstName} {lastName}
           </h1>
           {isOwner && !editMode && (
-            <button
-              type="button"
+            <Link
+              href="/dashboard"
               className={styles.editButton}
-              onClick={() => setEditMode(true)}
               aria-label="Edit profile"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/pencil.svg" alt="" />
-            </button>
+            </Link>
           )}
         </div>
 
@@ -291,7 +267,7 @@ function ProfileContentInner({
 
         {/* Next Available */}
         {nextAvailableTerm && publicEmail && (
-          <div className={styles.nextAvailable}>
+          <dl className={styles.nextAvailable}>
             <dt className={styles.label}>Next available</dt>
             <dd>
               <Button
@@ -302,13 +278,7 @@ function ProfileContentInner({
                 {nextAvailableTerm}
               </Button>
             </dd>
-          </div>
-        )}
-
-        {isOwner && effectiveStatus === "draft" && (
-          <p className="py-4">
-            Your profile is still a draft. <Link href="/profile/edit" className="underline">Continue setup and submit for review</Link>
-          </p>
+          </dl>
         )}
 
         {/* Rejection banner for owners */}
@@ -327,21 +297,21 @@ function ProfileContentInner({
             {(school || isOwner) && (
               editMode ? (
                 <div className={editStyles.disabledRow}>
-                  <div className={styles.infoRow}>
+                  <dl className={styles.infoRow}>
                     <dt className={styles.label}>School</dt>
                     <dd>{school ?? "—"}</dd>
-                  </div>
+                  </dl>
                 </div>
               ) : (
-                <div className={styles.infoRow}>
+                <dl className={styles.infoRow}>
                   <dt className={styles.label}>School</dt>
                   <dd>{school ?? "—"}</dd>
-                </div>
+                </dl>
               )
             )}
             {(program || isOwner) && (
               <EditableRow active={editMode}>
-                <div className={styles.infoRow}>
+                <dl className={styles.infoRow}>
                   <dt className={styles.label}>Program</dt>
                   <dd>
                     <EditableText
@@ -350,12 +320,12 @@ function ProfileContentInner({
                       suggestions={programSuggestions}
                     />
                   </dd>
-                </div>
+                </dl>
               </EditableRow>
             )}
             {(graduatingClass || isOwner) && (
               <EditableRow active={editMode}>
-                <div className={styles.infoRow}>
+                <dl className={styles.infoRow}>
                   <dt className={styles.label}>Class</dt>
                   <dd>
                     <EditableText
@@ -363,7 +333,7 @@ function ProfileContentInner({
                       placeholder="Click to add year..."
                     />
                   </dd>
-                </div>
+                </dl>
               </EditableRow>
             )}
           </div>
@@ -372,7 +342,7 @@ function ProfileContentInner({
           {(specialties.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
               <EditableRow active={editMode}>
-                <div className={styles.infoRow}>
+                <dl className={styles.infoRow}>
                   <dt className={styles.label}>Specialties</dt>
                   <dd>
                     <PillInput
@@ -382,7 +352,7 @@ function ProfileContentInner({
                       placeholder="Type to add a specialty..."
                     />
                   </dd>
-                </div>
+                </dl>
               </EditableRow>
             </div>
           )}
@@ -391,12 +361,12 @@ function ProfileContentInner({
           {(workSchedule.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
               <EditableRow active={editMode}>
-                <div className={styles.infoRow}>
+                <dl className={styles.infoRow}>
                   <dt className={styles.label}>Work terms</dt>
                   <dd>
                     <TermChartPicker />
                   </dd>
-                </div>
+                </dl>
               </EditableRow>
             </div>
           )}
@@ -405,7 +375,7 @@ function ProfileContentInner({
           {(bio || isOwner) && (
             <div className={styles.rowGroup}>
               <EditableRow active={editMode}>
-                <div className={styles.infoRow}>
+                <dl className={styles.infoRow}>
                   <dt className={styles.label}>Bio</dt>
                   <dd>
                     <EditableText
@@ -415,7 +385,7 @@ function ProfileContentInner({
                       maxLength={2000}
                     />
                   </dd>
-                </div>
+                </dl>
               </EditableRow>
             </div>
           )}

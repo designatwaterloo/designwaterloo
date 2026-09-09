@@ -6,6 +6,7 @@ import styles from "./TableView.module.css";
  */
 export default function SortableHeader({
   label,
+  sortable,
   field,
   active,
   direction,
@@ -21,14 +22,14 @@ export default function SortableHeader({
   const hideClass = hideOnMobile ? styles.hideOnMobile : "";
 
   return (
-    <div
+    <th scope="col" aria-sort={active ? (direction === "asc" ? "ascending" : "descending") : undefined}
       className={`${styles.headerColumn} ${spanClass} ${mobileSpanClass} ${hideClass} ${alignClass}`}
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
       data-column={field}
     >
-      {label} {active && (direction === "asc" ? "↑" : "↓")}
-    </div>
+      {sortable ? <button type="button" className={styles.sortButton} onClick={onClick}>
+        {label} <span aria-hidden="true">{active && (direction === "asc" ? "↑" : "↓")}</span>
+      </button> : label}
+    </th>
   );
 }
 

@@ -45,10 +45,10 @@ html {
   /* Semantic tokens */
   --border: rgba(14, 14, 14, 0.15);
   --surface: rgba(14, 14, 14, 0.03);
-  --muted-text: #7f7f7f;
-  --muted-light: #b5b5b5;
+  --muted-text: #6b6b6b;
+  --muted-light: #737373;
   --hover-bg: rgba(14, 14, 14, 0.05);
-  --focus-ring: var(--orange);
+  --focus-ring: #b84800;
   --error: #dc2626;
   --error-bg: #fef2f2;
   --error-border: #fecaca;
@@ -193,7 +193,7 @@ h1:has(sup) {
 }
 
 h1 sup {
-  color: var(--muted);
+  color: var(--muted-text);
 }
 
 h1 .char {
@@ -242,7 +242,7 @@ h4 {
 /* Section label */
 .section-label {
   font-size: 20px;
-  color: var(--muted);
+  color: var(--muted-text);
 }
 
 /* Section divider */
@@ -439,3 +439,32 @@ button {
 input[autocomplete="username"] {
   font-feature-settings: 'liga' 1, 'calt' 1, 'ss01' 1, 'ss02' 1, 'ss07' 1;
 }
+
+/* Account workspace: driven by rendered edit state, including inline profile editing.
+   Tokens live on body so dialogs/portals share the palette; public views restore automatically. */
+body:has([data-account-workspace]),
+body:has([data-admin-workspace]) {
+  --background: #443830;
+  --foreground: #faf5ee;
+  --muted: #d8cec5;
+  --muted-text: #d8cec5;
+  --muted-light: #c2b4a8;
+  --border: rgb(250 245 238 / 22%);
+  --surface: #5a4b40;
+  --hover-bg: #635246;
+  --link-hover: #ffffff;
+  --focus-ring: #faf5ee;
+  --error: #ffaaa0;
+  --error-bg: rgb(255 170 160 / 10%);
+  --error-border: rgb(255 170 160 / 35%);
+  --success: #a4d5a2;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100svh;
+}
+body:has([data-account-workspace]) [data-site-footer],
+body:has([data-admin-workspace]) [data-site-footer] { display: none; }
+
+/* Admin has an in-flow header, not the public landing-page offset. */
+body:has([data-admin-workspace]) main > section:first-child {padding-top:48px;}
+@media(max-width:600px) {body:has([data-admin-workspace]) main > section:first-child {padding-top:24px;}}
