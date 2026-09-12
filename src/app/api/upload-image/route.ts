@@ -89,12 +89,21 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (updateError) {
-        console.error("Failed to update member profile_image_url:", updateError);
-      } else {
-        slug = updatedMember?.slug ?? null;
+        throw updateError;
       }
+      if (!updatedMember) {
+        return NextResponse.json(
+          { error: "Your photo couldn't be saved to your profile. Refresh the page and try again." },
+          { status: 409 }
+        );
+      }
+      slug = updatedMember.slug;
     } catch (err) {
-      console.error("Unexpected error updating member profile_image_url:", err);
+      console.error("Failed to save profile image:", err);
+      return NextResponse.json(
+        { error: "Your photo couldn't be saved to your profile. Please try again." },
+        { status: 500 }
+      );
     }
 
     if (slug) {
