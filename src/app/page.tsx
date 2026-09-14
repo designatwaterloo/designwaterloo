@@ -1,4 +1,4 @@
-import { HomeRecruitmentSlot } from "@/components/RecruitmentBanner";
+import RecruitmentBanner from "@/components/RecruitmentBanner";
 import Wordmark from "@/components/Wordmark";
 import styles from "./Home.module.css";
 import Footer from "@/components/Footer";
@@ -37,7 +37,7 @@ export default async function Home() {
 
       {/* Main Content */}
       <main className="w-full">
-        <HomeRecruitmentSlot className={styles.recruitment} />
+        <div data-recruitment-top className={styles.recruitment}><RecruitmentBanner /></div>
         {/* Hero Section */}
         <section className="w-full px-[var(--margin)] pb-12 sm:pb-0 flex flex-col gap-8 sm:gap-12">
           {/* Wordmark */}
