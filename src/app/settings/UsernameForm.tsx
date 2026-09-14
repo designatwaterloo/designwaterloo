@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { validateUsername } from '@/lib/usernames';
+import { formatUsernameInput, validateUsername } from '@/lib/usernames';
 import { profilePath } from '@/lib/profile-urls';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useUnsavedChanges } from "@/components/UnsavedChanges";
@@ -72,7 +72,7 @@ export default function UsernameForm({ currentUsername, compact = false }: { cur
         <input id="username" name="username" type="text" value={value} maxLength={41}
           autoComplete="username" autoCapitalize="none" spellCheck={false} disabled={saving}
           aria-describedby="username-help username-status" aria-invalid={changed && !check.ok}
-          onChange={e => { setValue(e.target.value); setError(''); setSaved(false); }} />
+          onChange={e => { setValue(formatUsernameInput(e.target.value)); setError(''); setSaved(false); }} />
       </div>
       <p id="username-help">3–40 letters, numbers, or hyphens.</p>
       <p id="username-status" role="status">{status}</p>

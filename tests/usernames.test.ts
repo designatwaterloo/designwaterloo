@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
-import { validateUsername } from '../src/lib/usernames';
+import { formatUsernameInput, validateUsername } from '../src/lib/usernames';
 import { profileDestination } from '../src/lib/profile-urls';
 
 const first = '11111111-1111-4111-8111-111111111111';
@@ -28,6 +28,9 @@ async function value<T>(db: PGlite, sql: string, params: unknown[] = []) {
 
 test('username syntax is explicit and profile redirects preserve query parameters safely', () => {
   assert.deepEqual(validateUsername(' @BMP '), { ok: true, normalized: 'bmp' });
+  assert.deepEqual(validateUsername('foo bar'), { ok: true, normalized: 'foo-bar' });
+  assert.equal(formatUsernameInput('Jane Doe'), 'jane-doe');
+  assert.equal(formatUsernameInput('jane '), 'jane-');
   for (const input of ['ab', 'admin', 'work', 'a'.repeat(41), 'a.b', 'a_b', 'a--b', '-abc', 'abc-', '../bmp']) {
     assert.equal(validateUsername(input).ok, false, input);
   }

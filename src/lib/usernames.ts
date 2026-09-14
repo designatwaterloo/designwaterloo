@@ -34,8 +34,13 @@ export interface UsernameCheck {
   error?: string;
 }
 
+/** Live input: lowercase, drop a leading @, and turn spaces into hyphens. */
+export function formatUsernameInput(raw: string): string {
+  return raw.replace(/^@+/, "").toLowerCase().replace(/\s+/g, "-");
+}
+
 export function validateUsername(raw: string): UsernameCheck {
-  const normalized = raw.trim().replace(/^@/, "").toLowerCase();
+  const normalized = formatUsernameInput(raw.trim());
 
   if (normalized.length < MIN) {
     return { ok: false, normalized, error: `Use at least ${MIN} characters.` };

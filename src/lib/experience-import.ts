@@ -88,11 +88,19 @@ export function parseExperience(text: string): { positions: ImportedPosition[]; 
   const unsupported=anchors.length!==positions.length || lines.some(s=>/\d{4}\s*[-–—]\s*(?:[A-Za-z]+\s+)?\d{4}/.test(s)&&!range.test(s));
   return { positions: sortPositions(positions), warning: !positions.length ? 'No positions found. Include the title, company, and date range, or add a position manually.' : unsupported ? 'Some dates couldn’t be read. Check the imported positions and add any missing ones manually.' : incomplete ? 'Some details need checking. Open the incomplete positions below.' : null };
 }
+export function positionIncomplete(p: ImportedPosition) {
+  return !p.company.trim()||!p.position_title.trim()||!/^\d{4}$/.test(p.start_year);
+}
+export function positionFieldError(p: ImportedPosition, leadership=false) {
+  if(positionIncomplete(p)) return leadership?'Add a title, organization, and start year.':'Add a title, company, and start year.';
+  if(!p.is_current && p.end_year && (!/^\d{4}$/.test(p.end_year) || Number(p.end_year+(p.end_month||'12')) < Number(p.start_year+(p.start_month||'01')))) return 'An end date cannot come before its start date.';
+  return null;
+}
 export function positionError(entries: ImportedPosition[]) {
   if(entries.length>50) return 'Keep up to 50 positions.';
   for(const p of entries) {
-    if(!p.company.trim()||!p.position_title.trim()||!/^\d{4}$/.test(p.start_year)) return 'Add a title, company, and start year for each position.';
-    if(!p.is_current && p.end_year && (!/^\d{4}$/.test(p.end_year) || Number(p.end_year+(p.end_month||'12')) < Number(p.start_year+(p.start_month||'01')))) return 'An end date cannot come before its start date.';
+    const field=positionFieldError(p);
+    if(field) return positionIncomplete(p)?'Add a title, company, and start year for each position.':field;
   }
   return null;
 }

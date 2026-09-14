@@ -123,6 +123,8 @@ for (const width of [817, 390]) {
     await expect(username).toHaveValue("");
     await expect(username).toHaveAttribute("placeholder", "username");
     await expect(username).toHaveAttribute("maxlength", "40");
+    await username.fill("jane doe");
+    await expect(username).toHaveValue("jane-doe");
     await username.fill("admin");
     await expect(page.locator("#username-status")).toContainText("reserved");
     await expect(next).toBeDisabled();

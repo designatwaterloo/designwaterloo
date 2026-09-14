@@ -233,6 +233,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   if (url.pathname === "/rest/v1/member_experiences") { send(member.member_experiences); return; }
+  if (url.pathname === "/rest/v1/member_leadership") { send(member.member_leadership); return; }
   if (url.pathname === "/rest/v1/rpc/save_my_experiences") {
     if (!token || !tokens.has(token)) { send({message:"No session"},401); return; }
     if (failSave) { send({message:"Synthetic save outage"},503); return; }

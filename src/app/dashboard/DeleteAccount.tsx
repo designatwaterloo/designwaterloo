@@ -20,7 +20,7 @@ export default function DeleteAccount({ fullName }: { fullName: string }) {
       window.location.replace('/directory');
     } catch (failure) { setError(failure instanceof Error ? failure.message : 'Please try again.'); setBusy(false); }
   }
-  return <section className={styles.section}>
+  return <section className={`${styles.section} ${styles.deleteAccount}`}>
     <div className={styles.sectionTitle}><h2>Delete account</h2></div>
     <div className={styles.sectionBody}>
       <p>Permanently delete your account, profile, and work history. This cannot be undone.</p>

@@ -19,6 +19,10 @@ test('year only, empty, malformed and oversized pastes',()=>{
  const p=parseExperience('Designer\nStudio\n2020 – 2022').positions[0];assert.equal(p.start_month,null);assert.equal(p.end_year,'2022');
  assert.ok(parseExperience('').warning);assert.ok(parseExperience('junk').warning);assert.ok(parseExperience('a'.repeat(100001)).warning);
  assert.ok(positionError([{...p,end_year:'2019'}]));
+ assert.equal(positionError([{...p,position_title:''}]),'Add a title, company, and start year for each position.');
+ assert.equal(positionError([{...p,company:''}]),'Add a title, company, and start year for each position.');
+ assert.equal(positionError([{...p,start_year:''}]),'Add a title, company, and start year for each position.');
+ assert.equal(positionError([{...p,start_year:'20'}]),'Add a title, company, and start year for each position.');
 });
 test('grouped roles preserve the employer and individual descriptions',()=>{
  const {positions}=parseExperience('Acme logo\nAcme\nFull-time · 3 yrs\nSenior Designer\nJan 2024 - Present\nLed design\nDesigner\nJan 2023 - Dec 2023\nMade things');

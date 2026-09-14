@@ -1,21 +1,42 @@
+.pageBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 100px var(--margin) 32px;
+  min-height: 44px;
+}
+
+.pageBar:not(:has(.backButton)) {
+  justify-content: flex-end;
+}
+
 /* Back button */
-.backButton {
+.backButton,
+.editButton {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   min-height: 44px;
-  margin: 100px var(--margin) 32px;
-  padding: 10px 14px 10px 10px;
+  height: 44px;
+  padding: 10px 14px;
   border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
   border-radius: 999px;
   font-size: 14px;
   line-height: 20px;
   color: var(--foreground);
   text-decoration: none;
+  flex-shrink: 0;
+}
+.backButton {
+  padding-left: 10px;
 }
 .backButton svg { width: 18px; height: 18px; flex-shrink: 0; }
-.backButton:hover { background: color-mix(in srgb, var(--foreground) 5%, transparent); }
-.backButton:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+.backButton:hover,
+.editButton:hover { background: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.backButton:focus-visible,
+.editButton:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
 
 
 .section {
@@ -85,31 +106,6 @@
   font-variation-settings: 'opsz' 14;
   min-width: 0;
   overflow-wrap: anywhere;
-}
-
-.editButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--biggest);
-  height: var(--biggest);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  flex-shrink: 0;
-  opacity: 0.35;
-  transition: opacity 0.15s ease;
-}
-
-.editButton img {
-  width: 50%;
-  height: 50%;
-}
-
-@media (hover: hover) {
-  .editButton:hover {
-    opacity: 0.6;
-  }
 }
 
 .nextAvailable {
@@ -190,11 +186,6 @@
   .identity {
     min-width: 0;
     flex: 1;
-  }
-
-  .editButton {
-    width: var(--big);
-    height: var(--big);
   }
 
   .nextAvailable {

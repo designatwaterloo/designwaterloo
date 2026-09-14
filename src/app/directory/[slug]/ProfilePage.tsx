@@ -77,11 +77,12 @@ export default async function PersonDetail({
     notFound();
   }
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const isOwner = Boolean(user && member.auth_user_id === user.id);
+
   // Only allow the member themselves or an admin to view unapproved / non-approved profiles
   let isAdminPreview = false;
   if (!member.is_approved) {
-    const { data: { user } } = await supabase.auth.getUser();
-    const isOwner = user && member.auth_user_id === user.id;
     let isAdmin = false;
     if (user && !isOwner) {
       const { data: viewer } = (await supabase
@@ -150,11 +151,20 @@ export default async function PersonDetail({
   return (
     <div>
       <main className="w-full">
-        {member.is_approved && (
-          <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton} aria-label={isAdminPreview ? "Back to admin" : "Back to directory"}>
-            <ArrowLeftIcon aria-hidden="true" />
-            <span>{isAdminPreview ? "Admin" : "Directory"}</span>
-          </Link>
+        {(member.is_approved || isOwner) && (
+          <div className={styles.pageBar}>
+            {member.is_approved && (
+              <Link href={isAdminPreview ? "/admin" : "/directory"} className={styles.backButton} aria-label={isAdminPreview ? "Back to admin" : "Back to directory"}>
+                <ArrowLeftIcon aria-hidden="true" />
+                <span>{isAdminPreview ? "Admin" : "Directory"}</span>
+              </Link>
+            )}
+            {isOwner && (
+              <Link href="/dashboard" className={styles.editButton}>
+                Edit Profile
+              </Link>
+            )}
+          </div>
         )}
         <ProfileContent
           memberId={member.id}

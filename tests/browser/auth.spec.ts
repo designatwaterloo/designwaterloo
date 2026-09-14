@@ -194,6 +194,8 @@ test('profile edits persist through reload without losing the session', async ({
 test('username settings save and retain both old URL formats across rename and reclaim', async ({ page, request }) => {
   await login(page, '/settings');
   const input = page.getByRole('textbox', { name: 'Username', exact: true });
+  await input.fill('jane doe');
+  await expect(input).toHaveValue('jane-doe');
   await input.fill('taken-name');
   await expect(page.getByText('Already taken or reserved.')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save username' })).toBeDisabled();
@@ -256,7 +258,7 @@ for (const width of [390, 1440]) {
     await login(page);
     const checkWorkspace = async () => {
       await expect(page.locator("body")).toHaveCSS("background-color", "rgb(68, 56, 48)");
-      await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Home", exact: true })).toBeVisible();
       await expect(page.getByRole("button", { name: "Open navigation" })).toBeHidden();
       await expect(page.locator("[data-site-footer]")).toBeHidden();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -270,6 +272,6 @@ for (const width of [390, 1440]) {
     await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
     await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
     await expect(page.locator("[data-site-footer]").filter({visible:true})).toBeVisible();
-    await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toBeHidden();
+    await expect(page.getByRole("link", { name: "Home", exact: true })).toBeHidden();
   });
 }

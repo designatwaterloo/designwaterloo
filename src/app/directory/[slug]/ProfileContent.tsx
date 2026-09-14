@@ -160,16 +160,6 @@ function ProfileContentInner({
               <span>@{memberSlug}</span>
             </p>
           </div>
-          {isOwner && !editMode && (
-            <Link
-              href="/dashboard"
-              className={styles.editButton}
-              aria-label="Edit profile"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/pencil.svg" alt="" />
-            </Link>
-          )}
         </div>
 
         {/* Image + Trading Card */}

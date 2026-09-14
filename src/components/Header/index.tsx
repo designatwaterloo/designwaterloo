@@ -51,8 +51,8 @@ export default function Header() {
   return (
     <div className={styles.chrome}>
       <header className={styles.accountHeader}>
-        <Link href="/dashboard" aria-label="Dashboard" className={styles.accountLogo}>
-          <span className={styles.workspaceSymbol} role="img" aria-label="Design Waterloo" />
+        <Link href="/" aria-label="Home" className={styles.accountLogo}>
+          <span className={styles.workspaceSymbol} aria-hidden="true" />
         </Link>
         <nav className={styles.adminNavigation} aria-label="Admin navigation">
           <Link href="/admin/members" aria-current={pathname === "/admin/members" ? "page" : undefined}>Members</Link>

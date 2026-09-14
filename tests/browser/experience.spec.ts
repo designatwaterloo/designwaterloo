@@ -9,7 +9,7 @@ for(const width of [1440,390]) test(`experience paste, edits and save at ${width
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.goto('/sign-in');await page.getByRole('button',{name:'Sign in with LEARN'}).click();
  await page.goto('/dashboard#experience');
- await page.getByRole('button',{name:'Edit experience',exact:true}).click();
+ await page.getByRole('button',{name:'Paste from LinkedIn',exact:true}).click();
  const next=page.getByRole('button',{name:'Save changes',exact:true});
  await page.emulateMedia({reducedMotion:'no-preference'});
  const box=page.getByLabel('Copy your LinkedIn Experience section');
@@ -23,11 +23,17 @@ for(const width of [1440,390]) test(`experience paste, edits and save at ${width
  await page.screenshot({path:`test-results/experience-${width}.png`,fullPage:true,animations:"disabled"});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.getByRole('button',{name:'+ Add position',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Back to experience',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Close',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Delete',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:/^Edit /})).toHaveCount(11);
+ await next.click();
+ await expect(page.locator('[class*="positions"] [role=alert]')).toContainText('title, company, and start year');
+ await expect(page.locator('main[data-account-workspace] > div > p[role=alert]')).toHaveCount(0);
  await page.getByLabel('Title',{exact:true}).fill('Designer');
  await page.getByLabel('Company',{exact:true}).fill('New studio');
  await page.getByLabel('Start year',{exact:true}).fill('2026');
  await page.getByLabel('I currently work here').check();
- await page.getByRole('button',{name:'Done',exact:true}).click();
  await request.post(CONTROL,{data:{failSave:true}});await next.click();
  await expect(page.locator('p[role=alert]')).toContainText('Couldn’t save');
  await expect(page.locator('[class*="positions"] > li')).toHaveCount(12);
@@ -35,15 +41,14 @@ for(const width of [1440,390]) test(`experience paste, edits and save at ${width
  await expect(page.getByRole('status')).toContainText('Experience saved.');
  const saved=(await(await request.get(CONTROL)).json()).member.member_experiences;
  expect(saved).toHaveLength(12);expect(saved.find((p:{company:string})=>p.company==='Datacurve').description).toContain('first design hire');
- await page.getByRole('button',{name:'Edit experience',exact:true}).click();
- await expect(page.locator('[class*="positions"] > li')).toHaveCount(12);
+ await expect(page.locator('[class*="experienceRow"]')).toHaveCount(12);
 });
 test('optional HTML paste extracts roles without executing pasted markup',async({page,request,context})=>{
  await context.route('**/*',r=>['localhost','127.0.0.1'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
  await request.post(CONTROL,{data:{reset:true,member:{onboarding_completed:true,review_status:'draft',is_approved:false}}});
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/sign-in');await page.getByRole('button',{name:'Sign in with LEARN'}).click();
  await page.goto('/dashboard#experience');
- await page.getByRole('button',{name:'Edit experience',exact:true}).click();
+ await page.getByRole('button',{name:'Paste from LinkedIn',exact:true}).click();
  await page.getByRole('button',{name:'Try HTML paste (experimental)'}).click();
  const html=process.env.DW_HTML_FIXTURE?readFileSync(process.env.DW_HTML_FIXTURE,'utf8'):'<script>window.pasteExecuted=true</script><a href="https://www.linkedin.com/company/123/"><img alt="Studio logo" src="https://media.licdn.com/logo.png" onerror="window.pasteExecuted=true"></a><p>Designer</p><p>Studio · Internship</p><p>May 2025 - Aug 2025</p><p>Built things</p>';
  await page.getByLabel('Paste Experience HTML').fill(html);await page.getByRole('button',{name:'Import text'}).click();

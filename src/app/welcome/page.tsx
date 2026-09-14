@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import { findOrInitMember } from "@/lib/supabase/member-init";
-import { validateUsername } from "@/lib/usernames";
+import { formatUsernameInput, validateUsername } from "@/lib/usernames";
 import { PROGRAMS } from "@/data/programs";
 import { SPECIALTIES } from "@/lib/specialties";
 import Link from "@/components/Link";
@@ -397,7 +397,7 @@ function EditProfileContent() {
             <legend className="sr-only">{canvasStep === 2 ? "Username" : canvasStep === 3 ? "Profile photo" : "Studies"}</legend>
             {canvasStep === 2 ? <>
               <div className={styles.usernameField}>
-                <div className={styles.inputChip}><label htmlFor="onboarding-username">Username</label><div className={styles.usernameEntry}><span aria-hidden="true">@</span><input id="onboarding-username" placeholder="username" value={fields.slug} onChange={e => change("slug", e.target.value.toLowerCase())} required minLength={3} maxLength={40} pattern="[a-z0-9]+(-[a-z0-9]+)*" autoComplete="username" autoCapitalize="none" spellCheck={false} aria-describedby="username-rules username-status" /></div></div>
+                <div className={styles.inputChip}><label htmlFor="onboarding-username">Username</label><div className={styles.usernameEntry}><span aria-hidden="true">@</span><input id="onboarding-username" placeholder="username" value={fields.slug} onChange={e => change("slug", formatUsernameInput(e.target.value))} required minLength={3} maxLength={40} pattern="[a-z0-9]+(-[a-z0-9]+)*" autoComplete="username" autoCapitalize="none" spellCheck={false} aria-describedby="username-rules username-status" /></div></div>
                 <span id="username-rules" className="sr-only">3–40 characters. Letters, numbers, and single hyphens.</span>
                 <small id="username-status" role="status" data-tone={usernameTone} className={styles.usernameStatus}>{usernameStatus}</small>
                 {usernameCheckFailed && <button type="button" className={styles.retryUsername} onClick={() => setUsernameRetry(count => count + 1)}>Retry check</button>}
@@ -510,7 +510,7 @@ function EditProfileContent() {
                   <div className={styles.field}><label htmlFor="program">Program <span>(optional)</span></label><input id="program" name="program" list="programs" placeholder="Find or enter your program" value={fields.program} onChange={e => change("program", e.target.value)} /><datalist id="programs">{(PROGRAMS[school] || []).map(p => <option key={p} value={p} />)}</datalist></div>
                   <div className={styles.field}><label htmlFor="year">Graduating year <span>(optional)</span></label><input id="year" name="graduating-year" type="number" min="2020" max={new Date().getFullYear() + 6} placeholder="2030" value={fields.graduating_class} onChange={e => change("graduating_class", e.target.value)} /></div>
                 </div>
-                <div className={styles.field}><label htmlFor="username">Your profile link</label><div className={styles.username}><span>designwaterloo.com/@</span><input id="username" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} value={fields.slug} onChange={e => change("slug", e.target.value.toLowerCase())} required aria-describedby="username-hint" /></div><p id="username-hint" className={styles.hint}>We’ve picked a username for you. Make it yours, or keep this one.</p></div>
+                <div className={styles.field}><label htmlFor="username">Your profile link</label><div className={styles.username}><span>designwaterloo.com/@</span><input id="username" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} value={fields.slug} onChange={e => change("slug", formatUsernameInput(e.target.value))} required aria-describedby="username-hint" /></div><p id="username-hint" className={styles.hint}>We’ve picked a username for you. Make it yours, or keep this one.</p></div>
               </>}
               {step === 1 && <>
                 <div className={styles.photoRow}>
