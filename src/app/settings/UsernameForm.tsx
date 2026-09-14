@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { validateUsername } from '@/lib/usernames';
 import { profilePath } from '@/lib/profile-urls';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useUnsavedChanges } from "@/components/UnsavedChanges";
 import Link from '@/components/Link';
 import styles from './page.module.css';
 
@@ -20,6 +21,7 @@ export default function UsernameForm({ currentUsername, compact = false }: { cur
   const { refreshMember } = useAuth();
   const check = validateUsername(value);
   const changed = check.normalized !== current;
+  useUnsavedChanges(changed || saving);
 
   useEffect(() => { setCurrent(currentUsername); setValue(currentUsername); }, [currentUsername]);
 

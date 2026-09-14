@@ -329,3 +329,6 @@
 
 .workspaceSymbol {display:block;width:48px;height:40px;background:currentColor;mask:url("/Design Waterloo Logo.svg") center / contain no-repeat;}
 :global(body:has([data-admin-workspace])) .chrome {display:none;}
+
+/* Keep all three fixed navigation surfaces below the homepage announcement. */
+:global(body:has([data-recruitment-top])) :is(.headerContainer, .profileBar, .menuButton) { translate: 0 64px; }

@@ -1,7 +1,9 @@
+import type { CoreTeamApplication, Answers } from "@/lib/core-team";
 export interface Database {
   public: {
     Views: Record<string, never>;
     Functions: {
+      save_core_team_application: { Args: { draft_answers: Answers; expected_revision: number; submit_application: boolean }; Returns: CoreTeamApplication };
       username_available: { Args: { candidate: string }; Returns: boolean };
       change_my_username: { Args: { new_username: string; expected_username: string }; Returns: string };
       resolve_username: { Args: { requested_username: string }; Returns: string | null };
@@ -12,6 +14,7 @@ export interface Database {
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
     Tables: {
+      core_team_applications: { Row: CoreTeamApplication; Insert: never; Update: never; Relationships: [] };
       members: {
         Row: {
           id: string;

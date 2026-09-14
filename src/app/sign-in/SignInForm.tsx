@@ -114,7 +114,7 @@ export default function SignInForm() {
 
     try {
       const result = await findOrInitMember(supabase);
-      if (result.onboardingCompleted) {
+      if (result.onboardingCompleted || safeRedirect(redirectTo) === "/apply") {
         window.location.assign(safeRedirect(redirectTo, `/@${result.slug}`));
       } else {
         window.location.assign("/welcome");
@@ -128,10 +128,9 @@ export default function SignInForm() {
 
   return (
     <div className={styles.content}>
-      <h1 id="sign-in-title" className={styles.title}>Your work belongs here.</h1>
+      <h1 id="sign-in-title" className={styles.title}>{redirectTo === "/apply" ? "Sign in to apply" : "Sign in to Design Waterloo"}</h1>
       <p id="sign-in-description" className={styles.description}>
-        Join the directory of creatives at Waterloo and Laurier. Connect your
-        university account, make a short profile, and submit it for review.
+        Use your Waterloo or Laurier account to continue.
       </p>
 
       {error === "invalid-email" && (

@@ -3,7 +3,8 @@ import { termCode, type WorkSequence } from "@/lib/work-sequences";
 import { getCurrentTermCode } from "@/lib/termUtils";
 import styles from "./page.module.css";
 
-export default function ScheduleFields({ choices, year, value, onChange, editing, animated = true }: {
+export default function ScheduleFields({ choices, year, value, onChange, editing, animated = true, termLinks = {} }: {
+  termLinks?: Record<string, { href: string; label: string; alternatives?: { href: string; label: string }[] }>;
   animated?: boolean; editing: boolean; choices: WorkSequence[]; year: string; value: string[]; onChange: (terms: string[]) => void;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -26,7 +27,7 @@ export default function ScheduleFields({ choices, year, value, onChange, editing
     const grid = gridRef.current;
     const marker = markerRef.current;
     if (!grid || !marker) return;
-    const buttons = Array.from(grid.querySelectorAll<HTMLButtonElement>("button[data-term]"));
+    const buttons = Array.from(grid.querySelectorAll<HTMLElement>("[data-term]"));
     const target = buttons.find(button => button.dataset.term === currentTerm);
     if (!target) { marker.style.display = "none"; return; }
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -69,6 +70,12 @@ export default function ScheduleFields({ choices, year, value, onChange, editing
         if (!selected && !knownOff) academicIndex++;
         const label = activeSequence ? (selected ? "Work" : activeSequence.studyTerms[code] || inferredLabel) : inferredLabel;
         const index = (y - start) * 3 + i - (/^\d{4}$/.test(year) ? 2 : 0);
+        const termLink = !editing && selected ? termLinks[code] : undefined;
+        if (termLink?.alternatives) return <details key={code} className={styles.scheduleTermChoices} data-term={code}>
+          <summary aria-label={`${["Winter", "Spring", "Fall"][i]} ${y}: Choose a position`}>{label}<span aria-hidden="true">↗</span></summary>
+          <div>{termLink.alternatives.map(target => <a key={target.href} href={target.href} onClick={event => event.currentTarget.closest("details")?.removeAttribute("open")}>{target.label}</a>)}</div>
+        </details>;
+        if (termLink) return <a key={code} className={styles.scheduleTermLink} data-term={code} href={termLink.href} aria-label={`${["Winter", "Spring", "Fall"][i]} ${y}: ${termLink.label}`} aria-current={code === currentTerm ? "date" : undefined}><span>{label}</span><span aria-hidden="true">↗</span></a>;
         return <button disabled={!editing} data-term={code} style={{ "--term-delay": `${700 + index * 35}ms` } as CSSProperties} key={code} type="button" aria-label={`${["Winter", "Spring", "Fall"][i]} ${y}`} aria-pressed={selected} aria-current={code === currentTerm ? "date" : undefined} onClick={() => changeTerms(selected ? value.filter(term => term !== code) : [...value, code].sort())}><span className={styles.termLabel}>{label}</span></button>;
       })}</Fragment>)}
       <span ref={markerRef} className={styles.termMarker} aria-hidden="true"><span>Now</span></span>

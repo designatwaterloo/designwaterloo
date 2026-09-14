@@ -3,6 +3,7 @@ import "./globals.css";
 import skipLinkStyles from "./SkipLink.module.css";
 import { Analytics } from "@vercel/analytics/react";
 import ConsoleEasterEgg from "@/components/ConsoleEasterEgg";
+import UnsavedChangesProvider from "@/components/UnsavedChanges";
 import Header from "@/components/Header";
 import OnboardingFinale from "@/components/OnboardingFinale";
 import InitialEntrance from "@/components/InitialEntrance";
@@ -58,6 +59,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
+          <UnsavedChangesProvider>
           <OnboardingFinale>
           <ImpersonationBanner />
           <ConsoleEasterEgg />
@@ -67,6 +69,7 @@ export default function RootLayout({
           <div id="main-content" tabIndex={-1}><AuthRecovery>{children}</AuthRecovery></div>
           {auth}
           </OnboardingFinale>
+          </UnsavedChangesProvider>
         </AuthProvider>
         <Analytics />
       </body>

@@ -20,6 +20,7 @@ export default function AdminLayout({children}:{children:ReactNode}) {
       <nav id="admin-sidebar-navigation" aria-label="Admin navigation">{[
         {href:'/admin/members',label:'Members',Icon:UsersIcon},
         {href:'/admin',label:'Submissions',Icon:InboxStackIcon},
+        {href:'/admin/core-team',label:'Core team',Icon:UsersIcon},
         {href:'/admin/data-issues',label:'Data issues',Icon:WrenchScrewdriverIcon},
       ].filter(item=>member?.is_admin || item.href==='/admin').map(({href,label,Icon})=><Link key={href} href={href} aria-label={label} title={collapsed?label:undefined} aria-current={pathname===href?'page':undefined}><Icon aria-hidden="true"/><span className={styles.label}>{label}</span></Link>)}</nav>
       <div className={styles.bottom}><Link href="/dashboard#profile" aria-label="Your profile" title={collapsed?'Your profile':undefined}><UserCircleIcon aria-hidden="true"/><span className={styles.label}>Your profile</span></Link><Link href="/directory" aria-label="Back to site" title={collapsed?'Back to site':undefined}><ArrowLeftIcon aria-hidden="true"/><span className={styles.label}>Back to site</span></Link></div>

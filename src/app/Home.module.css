@@ -9,3 +9,8 @@
   .heroActions > a { padding: 8px 20px; }
   .heroActions > a > span { font-size: 24px; }
 }
+
+.recruitment { height: calc(64px + max(100px, calc(var(--margin) * 2 + 48px))); }
+.recruitment > aside { position: fixed; inset: 8px 8px auto; z-index: 45; height: 48px; min-height: 48px; padding: 4px 12px; border-radius: 6px; box-sizing: border-box; font-size: 14px; flex-wrap: nowrap; }
+.recruitment > aside a { min-height: 40px; }
+@media (min-width: 1024px) { .recruitment > aside { left: 88px; right: 88px; } }

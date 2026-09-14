@@ -1,4 +1,6 @@
 /** Loopback-only synthetic Supabase protocol fixture. Never deploy this server. */
+import { parseAnswers, applicationErrors, profileRequirements, APPLICATION_ROUND, type CoreTeamApplication } from '../../src/lib/core-team';
+import type { Member } from '../../src/types/database';
 import http from "node:http";
 import { createHash, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
@@ -83,9 +85,13 @@ function session() {
     user,
   };
 }
+let coreApplication: CoreTeamApplication | null = null;
+let coreDelay = 0;
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url!, `http://${HOST}:${PORT}`);
-  res.setHeader("Access-Control-Allow-Origin", APP);
+  const allowedOrigins = [APP, `http://127.0.0.1:${new URL(APP).port}`];
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigins.includes(req.headers.origin ?? "") ? req.headers.origin! : APP);
+  res.setHeader("Vary", "Origin");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "authorization, apikey, content-type, x-client-info, x-supabase-api-version, prefer, range, accept-profile, content-profile",
@@ -115,6 +121,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/__control") {
     if (body.reset) {
       member = { ...original };
+      coreApplication = null; coreDelay = 0;
       deletions = 0; failDelete = false; user.app_metadata.design_waterloo_role = null;
       handles.clear(); handles.add(original.slug);
       failUser = false;
@@ -128,19 +135,20 @@ const server = http.createServer(async (req, res) => {
       tokens.clear();
       refresh.clear();
     }
+    if ("coreDelay" in body) coreDelay = Number(body.coreDelay);
     if ("staffRole" in body) user.app_metadata.design_waterloo_role = body.staffRole as string | null;
     if ("failDelete" in body) failDelete = Boolean(body.failDelete);
     if ("failUser" in body) failUser = Boolean(body.failUser);
     if ("failMember" in body) failMember = Boolean(body.failMember);
     if ("failSave" in body) failSave = Boolean(body.failSave);
     if (body.member) member = { ...member, ...(body.member as object) };
-    send({ refreshes, exchanges, saves, member, deletions });
+    send({ refreshes, exchanges, saves, member, deletions, coreApplication });
     return;
   }
   if (url.pathname === "/auth/v1/authorize") {
     const destination = url.searchParams.get("redirect_to");
     if (
-      destination !== `${APP}/auth/callback` ||
+      !([`${APP}/auth/callback`, `http://127.0.0.1:${new URL(APP).port}/auth/callback`].includes(destination ?? "")) ||
       url.searchParams.get("provider") !== "azure"
     ) {
       send({ error: "unexpected OAuth destination" }, 400);
@@ -229,6 +237,25 @@ const server = http.createServer(async (req, res) => {
     if (!token || !tokens.has(token)) { send({message:"No session"},401); return; }
     if (failSave) { send({message:"Synthetic save outage"},503); return; }
     member = {...member, member_experiences: body.experiences as []}; saves++; send(null); return;
+  }
+  if (url.pathname === "/rest/v1/core_team_applications") {
+    if (!token || !tokens.has(token)) { send({ message: "No session" }, 401); return; }
+    const visible = coreApplication && (!url.searchParams.get('status') || url.searchParams.get('status') === `eq.${coreApplication.status}`);
+    send(req.headers.accept?.includes('application/vnd.pgrst.object') ? visible ? coreApplication : null : visible ? [coreApplication] : []); return;
+  }
+  if (url.pathname === "/rest/v1/rpc/save_core_team_application") {
+    if (!token || !tokens.has(token)) { send({ message: 'No session', code: '42501' }, 401); return; }
+    if (coreDelay) await new Promise(resolve => setTimeout(resolve, coreDelay));
+    if (failSave) { send({ message: 'Synthetic outage' }, 503); return; }
+    const answers = parseAnswers(body.draft_answers);
+    const submit = body.submit_application === true;
+    if (!answers) { send({ message: 'Invalid answers', code: '23514' }, 400); return; }
+    if (coreApplication && JSON.stringify(coreApplication.answers) === JSON.stringify(answers) && (!submit || coreApplication.status === 'submitted')) { send(coreApplication); return; }
+    if (coreApplication?.status === 'submitted') { send({message:'Already submitted',code:'55000'},400);return; }
+    if ((coreApplication?.revision ?? 0) !== body.expected_revision) { send({message:'Conflict',code:'40001'},409);return; }
+    if (submit && (Object.keys(applicationErrors(answers)).length || profileRequirements(member as unknown as Member).some(r=>!r.complete))) { send({message:'Incomplete',code:'23514'},400);return; }
+    coreApplication = {id:coreApplication?.id ?? randomUUID(),member_id:member.id,round:APPLICATION_ROUND,answers,revision:(coreApplication?.revision??0)+1,status:submit?'submitted':'draft',created_at:coreApplication?.created_at??new Date().toISOString(),updated_at:new Date().toISOString(),submitted_at:submit?new Date().toISOString():null,profile_snapshot:submit?JSON.parse(JSON.stringify(member)):null};
+    send(coreApplication);return;
   }
   if (url.pathname === "/rest/v1/rpc/save_my_profile") {
     if (failSave) { send({message:"Synthetic save outage"},503); return; }

@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from 'react';
+import { useUnsavedChanges } from "@/components/UnsavedChanges";
 import Image from 'next/image';
 import { ImportedPosition, mergePositions, newPosition, parseExperience, sortPositions } from '@/lib/experience-import';
 import { parseExperienceHtml } from '@/lib/experience-html';
@@ -9,6 +10,7 @@ export default function ExperienceFields({value,onChange,disabled=false,leadersh
   const [htmlMode,setHtmlMode]=useState(false);
   const [paste,setPaste]=useState('');
   const [message,setMessage]=useState('');
+  useUnsavedChanges(paste.length>0);
   const [open,setOpen]=useState<string|null>(null);
   const input=useRef<HTMLTextAreaElement>(null);
   function importText(text:string) {

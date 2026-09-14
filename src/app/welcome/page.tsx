@@ -33,6 +33,7 @@ function EditProfileContent() {
   const { user, member, loading, error: authError, refreshMember } = useAuth();
   const router = useRouter();
   const replay = useSearchParams().get("replay") === "true";
+  const destination = useSearchParams().get("redirectTo") === "/apply" ? "/apply" : "/dashboard";
   const startFinale = useOnboardingFinale();
   const [finishing, setFinishing] = useState(false);
   const supabase = useMemo(() => createClient(), []);
@@ -59,7 +60,7 @@ function EditProfileContent() {
       } catch { /* Onboarding still works when browser storage is disabled. */ }
     }
     if (canvasStep > 6 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      if (next === 7) { router.push("/dashboard"); return; }
+      if (next === 7) { router.push(destination); return; }
       setCanvasStep(next);
       canvasRef.current?.focus({ preventScroll: true });
     } else {
@@ -70,13 +71,13 @@ function EditProfileContent() {
   useEffect(() => {
     if (nextCanvasStep === null) return;
     const timer = window.setTimeout(() => {
-      if (nextCanvasStep === 7) { router.push("/dashboard"); return; }
+      if (nextCanvasStep === 7) { router.push(destination); return; }
       setCanvasStep(nextCanvasStep);
       setNextCanvasStep(null);
       canvasRef.current?.focus({ preventScroll: true });
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [nextCanvasStep, router]);
+  }, [nextCanvasStep, router, destination]);
   const [usernameStatus, setUsernameStatus] = useState("");
   const [checkedUsername, setCheckedUsername] = useState<string | null>(null);
   const [usernameRetry, setUsernameRetry] = useState(0);
@@ -170,7 +171,7 @@ function EditProfileContent() {
     if (loading) return;
     if (!user) { router.replace("/sign-in"); return; }
     if (member && !replay && (member.onboarding_completed || member.review_status !== "draft") && !inFlight.current && !submitted && !finishing) {
-      router.replace("/dashboard"); return;
+      router.replace(destination); return;
     }
     if (member && initialized.current !== member.id) {
       initialized.current = member.id;
@@ -184,7 +185,7 @@ function EditProfileContent() {
       setFields({ first_name: member.first_name || "", last_name: member.last_name || "", slug: member.slug_confirmed ? member.slug || "" : "", program: member.program || "", graduating_class: member.graduating_class || "", bio: member.bio || "", portfolio: member.portfolio || "", linkedin: member.linkedin || "", profile_image_url: member.profile_image_url || "", specialties: member.specialties || [] });
       setReady(true);
     }
-  }, [loading, user, member, router, submitted, replay, finishing]);
+  }, [loading, user, member, router, submitted, replay, finishing, destination]);
 
   async function initialize() {
     if (initializing.current) return;
@@ -311,7 +312,7 @@ function EditProfileContent() {
     if (replay) {
       if (canvasStep === 6) {
         setFinishing(true);
-        startFinale(Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []));
+        startFinale(Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []), destination);
       } else changeCanvasStep(canvasStep + 1);
       return;
     }
@@ -344,7 +345,7 @@ function EditProfileContent() {
       if (canvasStep === 6) {
         const selected = Array.from(canvasRef.current?.querySelectorAll<HTMLElement>('input[type="checkbox"]:checked + span') || []);
         setFinishing(true);
-        startFinale(selected);
+        startFinale(selected, destination);
       } else changeCanvasStep(canvasStep + 1);
       await refreshMember().catch(() => {});
     } catch (err) { setError(err instanceof Error ? err.message : "We couldn’t save your details."); }
@@ -532,7 +533,7 @@ function EditProfileContent() {
               {step > 0 && <button type="button" className={styles.secondary} disabled={busy || uploading} onClick={() => { setStep(step - 1); setError(null); }}>Back</button>}
               <button type="submit" className={styles.primary} disabled={busy || uploading}>{busy ? (step === 2 ? "Submitting…" : "Saving…") : step === 0 ? "Continue to creative profile" : step === 1 ? "Preview your profile" : "Submit for review"}</button>
             </div>
-            <div className={styles.saveRow}><button type="button" className={styles.textButton} disabled={busy || uploading} onClick={async () => { if (form.current?.reportValidity() && await save()) router.push("/dashboard"); }}>Save and finish later</button><p className={styles.hint} role="status">{saved ? "Changes saved." : "Your progress saves when you continue."}</p></div>
+            <div className={styles.saveRow}><button type="button" className={styles.textButton} disabled={busy || uploading} onClick={async () => { if (form.current?.reportValidity() && await save()) router.push(destination); }}>Save and finish later</button><p className={styles.hint} role="status">{saved ? "Changes saved." : "Your progress saves when you continue."}</p></div>
           </form>
         </section>
       </div>}

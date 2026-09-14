@@ -248,13 +248,13 @@
   border: 1px solid rgba(68, 56, 48, .12);
   border-radius: 20px;
   padding: 64px 32px 32px;
-  background: #faf7f2;
-  color: #443830;
-  --background: #faf7f2;
-  --foreground: #443830;
-  --muted-text: #746b63;
-  --border: #d9d1c7;
-  --surface: #eee8df;
+  background: #ffffff;
+  color: #111111;
+  --background: #ffffff;
+  --foreground: #111111;
+  --muted-text: #666666;
+  --border: #dddddd;
+  --surface: #f2f2f2;
   box-shadow: 0 24px 80px rgba(30, 24, 20, .2);
 }
 .modal::backdrop { background: rgba(35, 29, 25, .45); backdrop-filter: blur(5px); }

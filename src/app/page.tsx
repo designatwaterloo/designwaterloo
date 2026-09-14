@@ -1,3 +1,4 @@
+import RecruitmentBanner from "@/components/RecruitmentBanner";
 import Wordmark from "@/components/Wordmark";
 import styles from "./Home.module.css";
 import Footer from "@/components/Footer";
@@ -36,6 +37,7 @@ export default async function Home() {
 
       {/* Main Content */}
       <main className="w-full">
+        <div data-recruitment-top className={styles.recruitment}><RecruitmentBanner /></div>
         {/* Hero Section */}
         <section className="w-full px-[var(--margin)] pb-12 sm:pb-0 flex flex-col gap-8 sm:gap-12">
           {/* Wordmark */}
@@ -48,7 +50,7 @@ export default async function Home() {
               The home for design talent at Waterloo, and where to find them.
             </h1>
             <div className={styles.heroActions}>
-              <Button href="https://docs.google.com/forms/d/e/1FAIpQLSe39IpLj1jdWg54ZTnOlKrcDbitAfCq3G1Y7r7YPoFL1vyJCw/viewform?usp=sharing&ouid=111313787204079300834" variant="secondary" target="_blank">Get involved</Button>
+              <Button href="/apply" variant="secondary" target="_blank">Get involved</Button>
               <Button href="/directory" variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
             </div>
           </div>

@@ -72,3 +72,11 @@ test('academic labels follow school terms and skip work terms and spring breaks'
   const dd = get('Business Administration & Computer Science','2030')[0];
   assert.equal(dd.studyTerms['1305'], '5B');
 });
+
+test('new-grad term follows the final winter of the graduation year', async () => {
+  const { newGradTerm } = await import('../src/lib/work-sequences');
+  assert.equal(newGradTerm('2027'), '1275');
+  assert.equal(newGradTerm('2028'), '1285');
+  assert.equal(newGradTerm(''), null);
+  assert.equal(newGradTerm('unknown'), null);
+});

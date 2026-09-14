@@ -277,9 +277,9 @@
 .scheduleGrid { position: relative; }
 .scheduleGrid button { animation: termReveal .24s var(--term-delay) ease-out backwards; }
 @keyframes termReveal { from { opacity: 0; transform: translateY(6px) scale(.97); } }
-.termMarker { position: absolute; pointer-events: none; width: 2px; background: #ff9c83; z-index: 1; opacity: 0; }
-.termMarker::before { content: ""; position: absolute; width: 7px; height: 7px; background: #ff9c83; border-radius: 50%; top: -3px; left: -2.5px; }
-.termMarker span { position: absolute; bottom: calc(100% + 4px); left: 0; white-space: nowrap; font-size: 10px; color: #ffb39f; background: #443830; padding: 2px 4px; border-radius: 3px; }
+.termMarker { position: absolute; pointer-events: none; width: 2px; background: #e02b16; z-index: 1; opacity: 0; }
+.termMarker::before { content: ""; position: absolute; width: 7px; height: 7px; background: #e02b16; border-radius: 50%; top: -3px; left: -2.5px; }
+.termMarker span { position: absolute; bottom: calc(100% + 4px); left: 0; white-space: nowrap; font-size: 10px; color: #fff; background: #e02b16; padding: 3px 5px; border-radius: 3px; }
 @media (prefers-reduced-motion: reduce) { .scheduleGrid button { animation: none; } }
 
 .onboardingCanvas:has(.canvasAction[data-stream-picker]) { grid-template-rows: 56px minmax(0, 1fr) auto; row-gap: 16px; }
@@ -329,3 +329,17 @@
 .scheduleGrid[data-animated=false] .scheduleSeason,
 .scheduleGrid[data-animated=false] .scheduleYear { animation: none; }
 .scheduleGrid[data-animated=false] .termMarker { opacity: 1; }
+
+.scheduleTermLink { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 10px; background: #faf5ee; color: #443830; text-decoration: none; }
+.scheduleTermLink > span:last-child { position: absolute; right: 12px; font-size: 12px; }
+.scheduleTermLink:hover { outline: 1px solid currentColor; outline-offset: 3px; }
+.scheduleTermLink:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+.scheduleTermChoices { position: relative; min-width: 0; }
+.scheduleTermChoices summary { position: relative; display: flex; align-items: center; justify-content: center; min-height: 48px; background: var(--foreground); color: var(--background); border-radius: 10px; cursor: pointer; list-style: none; font-size: 14px; }
+.scheduleTermChoices summary::-webkit-details-marker { display: none; }
+.scheduleTermChoices summary > span { position: absolute; right: 12px; font-size: 12px; }
+.scheduleTermChoices summary:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+.scheduleTermChoices > div { position: absolute; z-index: 10; top: calc(100% + 8px); left: 0; width: min(320px, 70vw); padding: 6px; background: var(--background); color: var(--foreground); border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent); border-radius: 10px; }
+.scheduleTermChoices > div a { display: block; padding: 12px; text-decoration: none; font-size: 14px; line-height: 1.4; }
+.scheduleTermChoices > div a:hover, .scheduleTermChoices > div a:focus-visible { background: color-mix(in srgb, var(--foreground) 8%, transparent); }

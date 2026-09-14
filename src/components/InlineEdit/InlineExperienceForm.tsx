@@ -1,8 +1,10 @@
 "use client";
 
+import PositionDetails from "@/components/PositionDetails";
+
 import { useState, useEffect, useRef } from "react";
 import { useInlineEdit, ExperienceEntry, LeadershipEntry } from "./InlineEditProvider";
-import { ensureHttps } from "@/lib/urlUtils";
+import { useUnsavedChanges } from "@/components/UnsavedChanges";
 import styles from "./InlineEdit.module.css";
 import pageStyles from "@/app/directory/[slug]/page.module.css";
 
@@ -53,6 +55,7 @@ function EntryForm({
   const [draft, setDraft] = useState<Entry>(() => ({ ...entry }));
   const [showError, setShowError] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  useUnsavedChanges(JSON.stringify(draft) !== JSON.stringify(entry));
   const orgLabel = type === "experience" ? "Company" : "Organization";
   const org = getOrg(draft);
 
@@ -244,16 +247,14 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
   };
 
   const tryClose = () => {
+    // Keep unfinished drafts open; navigation is handled by the shared guard.
+    if (isDirty) return;
     // Auto-delete blank entries on click-out
     if (editingIndex !== null && editingIndex < entries.length && isEntryBlank(entries[editingIndex])) {
       setEntries(entries.filter((_, i) => i !== editingIndex));
       setIsDirty(false);
       setEditingIndex(null);
       return;
-    }
-    if (isDirty) {
-      const discard = window.confirm("You have unsaved changes. Discard them?");
-      if (!discard) return;
     }
     setIsDirty(false);
     setEditingIndex(null);
@@ -347,26 +348,7 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
       <dl className={pageStyles.experienceGroup}>
         <dt className={pageStyles.label}>{label}</dt>
         <dd className={pageStyles.experienceList}>
-          {sorted.map(({ entry }, i) => {
-            const Tag = entry.link ? "a" : "div";
-            const linkProps = entry.link
-              ? { href: ensureHttps(entry.link), target: "_blank", rel: "noopener noreferrer" }
-              : {};
-            return (
-            <Tag key={i} className={pageStyles.experienceItem} {...linkProps}>
-              <div className={pageStyles.experienceInfo}>
-                {entry.positionTitle && <p className={pageStyles.jobTitle}>{entry.positionTitle}</p>}
-                <p className={pageStyles.companyName}>{getOrg(entry)}</p>
-              </div>
-              {(entry.isIncoming || entry.startYear) && (
-                <span className={pageStyles.year}>
-                  {entry.isIncoming ? `Incoming ${entry.startYear ?? ""}`.trim() : entry.startYear}
-                  {!entry.isIncoming && entry.isCurrent ? " - Present" : ""}
-                </span>
-              )}
-            </Tag>
-            );
-          })}
+          {sorted.map(({ entry }, i) => <PositionDetails key={entry.id ?? i} entry={entry} type={type} />)}
         </dd>
       </dl>
     );

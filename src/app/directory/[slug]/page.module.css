@@ -80,15 +80,9 @@
   color: color-mix(in srgb, var(--foreground) 65%, var(--background));
 }
 
-.usernameIcon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  background-color: currentColor;
-  mask: url('/Design Waterloo Logo.svg') center / contain no-repeat;
-}
-
 .username span {
+  font-optical-sizing: none;
+  font-variation-settings: 'opsz' 14;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -575,3 +569,16 @@ a.experienceItem {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Availability is a first-class part of the profile, like in the editor. */
+.scheduleOverview { grid-column: 1 / 9; grid-row: 2; min-width: 0; padding-right: var(--smaller); padding-bottom: 24px; }
+@media (max-width: 768px) {
+  .scheduleOverview { grid-column: 1; grid-row: 3; padding: 0 0 24px; }
+  .imageContainer { grid-row: 2; margin-bottom: 8px; }
+  .content { grid-row: 4; }
+}
+
+.experienceItem { scroll-margin-top: 120px; }
+.experienceItem:target { background: color-mix(in srgb, var(--foreground) 7%, var(--background)); outline: 1px solid color-mix(in srgb, var(--foreground) 22%, transparent); border-radius: 8px; }
+
+.experienceList:has(> details) { row-gap: 0; }

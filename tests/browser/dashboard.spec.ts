@@ -17,7 +17,7 @@ for(const width of [1440,390])test(`account workspace editing at ${width}`,async
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.getByRole('button',{name:'Edit bio'}).click();
  await page.getByRole('textbox',{name:'Bio',exact:true}).fill('Discard this');
- await expect(page.getByRole('navigation',{name:'Account workspace'}).getByRole('button',{name:'Experience'})).toBeDisabled();
+ await expect(page.getByRole('navigation',{name:'Account workspace'}).getByRole('button',{name:'Experience'})).toBeEnabled();
  await page.getByRole('button',{name:'Cancel',exact:true}).click();
  await expect(page.getByText('Discard this')).toHaveCount(0);
  await page.getByRole('button',{name:'Edit bio'}).click();await page.getByRole('textbox',{name:'Bio',exact:true}).fill('Building useful things.');

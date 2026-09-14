@@ -10,6 +10,7 @@ import {
   useMemo,
   ReactNode,
 } from "react";
+import { useUnsavedChanges } from "@/components/UnsavedChanges";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import type { ReviewStatus } from "@/types/database";
@@ -150,27 +151,13 @@ export function InlineEditProvider({
     };
   }, []);
 
-  // Dirty check — deep compare current vs saved (defined here so the
-  // beforeunload effect below can depend on it).
+  // Dirty check — deep compare current vs saved.
   const isDirty =
     JSON.stringify(fields) !== JSON.stringify(savedFields.current) ||
     JSON.stringify(experiences) !== JSON.stringify(savedExperiences.current) ||
     JSON.stringify(leadership) !== JSON.stringify(savedLeadership.current);
 
-  // Native browser warning if the user tries to close/refresh/leave with
-  // unsaved profile changes. Only handles browser-level navigation —
-  // internal <Link> navigation is unaffected.
-  useEffect(() => {
-    if (!isDirty) return;
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      // returnValue is required for Chrome to show the prompt; the actual
-      // string is ignored by modern browsers, which show a generic dialog.
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isDirty]);
+  useUnsavedChanges(isOwner && (isDirty || saving));
 
   const setField = useCallback(
     <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => {

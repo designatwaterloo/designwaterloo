@@ -1,3 +1,4 @@
+import { requestOrigin } from "@/lib/auth/request-origin";
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { isValidStudentEmail } from '@/lib/supabase/auth-utils';
@@ -8,7 +9,7 @@ const protectedPath = (path: string) => /^\/(welcome|profile|pending-approval|da
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const redirect = (path: string) => {
-    const result = NextResponse.redirect(new URL(path, request.url));
+    const result = NextResponse.redirect(new URL(path, requestOrigin(request)));
     response.cookies.getAll().forEach(cookie => result.cookies.set(cookie));
     result.headers.set('Cache-Control', 'private, no-store');
     return result;
@@ -74,5 +75,5 @@ export async function middleware(request: NextRequest) {
 // Public pages with anonymous clients need no auth request. Profile/claim server
 // renders use a session, so refresh their cookies before the render starts.
 export const config = {
-  matcher: ['/welcome', '/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
+  matcher: ['/apply', '/welcome', '/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
 };

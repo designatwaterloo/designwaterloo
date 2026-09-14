@@ -1,3 +1,4 @@
+import { requestOrigin } from "@/lib/auth/request-origin";
 import { createRouteClient } from "@/lib/supabase/route-client";
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidStudentEmail } from "@/lib/supabase/auth-utils";
@@ -20,14 +21,15 @@ const ALLOWED_ERROR_CODES = new Set([
 // An OAuth cancellation must not destroy an existing session.
 function errorRedirect(request: Request, reason: string): NextResponse {
   const safeReason = ALLOWED_ERROR_CODES.has(reason) ? reason : "auth-failed";
-  const origin = new URL(request.url).origin;
+  const origin = requestOrigin(request);
   const response = NextResponse.redirect(`${origin}/sign-in?error=${safeReason}`);
 
   return response;
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = requestOrigin(request);
 
   // Microsoft (and Supabase OAuth in general) returns ?error=... when the
   // user cancels, the tenant denies, or upstream exchange fails. Handle
@@ -88,7 +90,7 @@ export async function GET(request: NextRequest) {
     return finish(NextResponse.redirect(`${origin}/welcome`));
   }
 
-  if (result.onboardingCompleted) {
+  if (result.onboardingCompleted || explicitNext === "/apply") {
     return finish(NextResponse.redirect(`${origin}${explicitNext}`));
   }
 

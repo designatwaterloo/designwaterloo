@@ -72,6 +72,18 @@ const PERSONAS: Record<string, Persona> = {
     isApproved: false,
     isAdmin: false,
   },
+  "onboarding-waterloo-sep12": {
+    email: (d) => `onboarding-waterloo-sep12@${d}`,
+    firstName: "Jamie",
+    lastName: "Onboarding",
+    school: "University of Waterloo",
+    program: null,
+    bio: null,
+    reviewStatus: "draft",
+    onboardingCompleted: false,
+    isApproved: false,
+    isAdmin: false,
+  },
   "admin-waterloo": {
     email: (d) => `admin-waterloo@${d}`,
     firstName: "Alex",

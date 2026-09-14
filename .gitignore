@@ -53,3 +53,7 @@ docs/superpowers/
 # Regenerated offline wordmark distance fields
 scripts/wordmark/contours.f32
 scripts/wordmark/contours-size.json
+
+# Local preview overrides and generated Next builds
+/.next-*/
+/.local-*.json

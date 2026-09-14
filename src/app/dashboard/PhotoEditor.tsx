@@ -1,9 +1,11 @@
 "use client";
 import {useEffect,useRef,useState} from 'react';
+import { useUnsavedChanges } from "@/components/UnsavedChanges";
 import styles from './page.module.css';
 export default function PhotoEditor({url,onSave,onCancel}:{url:string;onSave:(url:string)=>Promise<void>;onCancel:()=>void}){
  const [ready,setReady]=useState(false);
  const [source,setSource]=useState(url),[zoom,setZoom]=useState(1),[x,setX]=useState(50),[y,setY]=useState(50),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ useUnsavedChanges(source!==url || zoom!==1 || x!==50 || y!==50);
  const canvas=useRef<HTMLCanvasElement>(null),loaded=useRef<HTMLImageElement|null>(null);
  const dialog=useRef<HTMLDialogElement>(null);
  useEffect(()=>{dialog.current?.showModal();},[]);

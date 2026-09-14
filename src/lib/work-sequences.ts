@@ -28,6 +28,10 @@ const stream4Late = [1, 3, 5, 7, 10, 12];
 const stream8 = [2, 4, 6, 8, 10, 11];
 const stream8Late = [2, 4, 6, 8, 10, 12];
 export function termCode(year: number, season: number) { return `1${String(year).slice(-2)}${season}`; }
+/** The schedule's graduation year ends after Winter; new-grad availability starts in Spring. */
+export function newGradTerm(graduation: string): string | null {
+  return /^(20\d{2})$/.test(graduation) ? termCode(Number(graduation), 5) : null;
+}
 function termsFromOffsets(entry: number, offsets: number[]) {
   return offsets.map(offset => termCode(entry + Math.floor((offset + 2) / 3), [9, 1, 5][offset % 3]));
 }

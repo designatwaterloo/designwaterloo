@@ -6,7 +6,7 @@ import BloomingLogo from "../BloomingLogo";
 import styles from "./OnboardingFinale.module.css";
 
 type Skill = { name: string; left: number; top: number; width: number; height: number; fontSize: string };
-const FinaleContext = createContext<(elements: HTMLElement[]) => void>(() => {});
+const FinaleContext = createContext<(elements: HTMLElement[], destination?: "/dashboard" | "/apply") => void>(() => {});
 export const useOnboardingFinale = () => useContext(FinaleContext);
 
 /** Lives in the root layout so navigation can finish behind the closing curtain. */
@@ -18,9 +18,11 @@ export default function OnboardingFinale({ children }: { children: React.ReactNo
   const [logoFinished, setLogoFinished] = useState(false);
   const overlay = useRef<HTMLDivElement>(null);
   const running = useRef(false);
-  const start = (elements: HTMLElement[]) => {
+  const destination = useRef<"/dashboard" | "/apply">("/dashboard");
+  const start = (elements: HTMLElement[], next: "/dashboard" | "/apply" = "/dashboard") => {
     if (running.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { router.push("/dashboard"); return; }
+    destination.current = next;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { router.push(destination.current); return; }
     running.current = true;
     setPhase("gather");
     setLogoFinished(false);
@@ -28,7 +30,7 @@ export default function OnboardingFinale({ children }: { children: React.ReactNo
       const rect = el.getBoundingClientRect();
       return { name: el.textContent || "", left: rect.left, top: rect.top, width: rect.width, height: rect.height, fontSize: getComputedStyle(el).fontSize };
     }));
-    router.prefetch("/dashboard");
+    router.prefetch(destination.current);
   };
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function OnboardingFinale({ children }: { children: React.ReactNo
       ], { duration: 550, easing: "cubic-bezier(.65,0,.8,.35)" })));
       if (cancelled) return;
       setPhase("logo");
-      router.push("/dashboard");
+      router.push(destination.current);
     };
     void run().catch(() => { /* Cleanup cancels outstanding animations. */ });
     return () => { cancelled = true; animations.forEach(animation => animation.cancel()); };
@@ -88,7 +90,7 @@ export default function OnboardingFinale({ children }: { children: React.ReactNo
   }, [phase]);
 
   useEffect(() => {
-    if (logoFinished && pathname === "/dashboard") setPhase("drop");
+    if (logoFinished && pathname === destination.current) setPhase("drop");
   }, [logoFinished, pathname]);
 
   const finish = () => {
