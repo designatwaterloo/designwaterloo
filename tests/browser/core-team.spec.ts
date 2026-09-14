@@ -55,12 +55,10 @@ test('preview supports the exact loopback IP sign-in address',async({page})=>{
  await expect(page.getByRole('status')).toHaveText('All changes saved');
 });
 
-test('recruitment banner clears the header at the reported viewport',async({page})=>{
+test('recruitment banner stays off the homepage',async({page})=>{
  await page.setViewportSize({width:868,height:964});await page.goto('/');
- const banner=page.getByRole('complementary',{name:'Core team recruitment'});
- const bounds=await banner.boundingBox();const header=await page.locator('header:visible').boundingBox();
- expect(bounds!.y).toBe(8);expect(bounds!.x).toBe(32);expect(bounds!.width).toBe(804);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(header!.y);
- await page.waitForTimeout(2500);await page.screenshot({path:'test-results/recruitment-home.png'});
+ await expect(page.getByRole('complementary',{name:'Core team recruitment'})).toHaveCount(0);
+ await page.screenshot({path:'test-results/recruitment-home.png'});
  await page.goto('/apply');await page.screenshot({path:'test-results/recruitment-entry.png'});
  await page.getByRole('link',{name:'Sign in or create an account'}).click();
  await expect(page.getByRole('heading',{name:'Sign in to apply'})).toBeVisible();
