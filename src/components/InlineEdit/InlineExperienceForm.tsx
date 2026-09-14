@@ -1,10 +1,9 @@
 "use client";
 
-import PositionDetails from "@/components/PositionDetails";
-
 import { useState, useEffect, useRef } from "react";
 import { useInlineEdit, ExperienceEntry, LeadershipEntry } from "./InlineEditProvider";
 import { useUnsavedChanges } from "@/components/UnsavedChanges";
+import { ensureHttps } from "@/lib/urlUtils";
 import styles from "./InlineEdit.module.css";
 import pageStyles from "@/app/directory/[slug]/page.module.css";
 
@@ -348,7 +347,26 @@ export default function InlineExperienceForm({ type, label }: InlineExperienceFo
       <dl className={pageStyles.experienceGroup}>
         <dt className={pageStyles.label}>{label}</dt>
         <dd className={pageStyles.experienceList}>
-          {sorted.map(({ entry }, i) => <PositionDetails key={entry.id ?? i} entry={entry} type={type} />)}
+          {sorted.map(({ entry }, i) => {
+            const Tag = entry.link ? "a" : "div";
+            const linkProps = entry.link
+              ? { href: ensureHttps(entry.link), target: "_blank", rel: "noopener noreferrer" }
+              : {};
+            return (
+            <Tag key={i} className={pageStyles.experienceItem} {...linkProps}>
+              <div className={pageStyles.experienceInfo}>
+                {entry.positionTitle && <p className={pageStyles.jobTitle}>{entry.positionTitle}</p>}
+                <p className={pageStyles.companyName}>{getOrg(entry)}</p>
+              </div>
+              {(entry.isIncoming || entry.startYear) && (
+                <span className={pageStyles.year}>
+                  {entry.isIncoming ? `Incoming ${entry.startYear ?? ""}`.trim() : entry.startYear}
+                  {!entry.isIncoming && entry.isCurrent ? " - Present" : ""}
+                </span>
+              )}
+            </Tag>
+            );
+          })}
         </dd>
       </dl>
     );

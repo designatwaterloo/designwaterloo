@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "@/components/Link";
-import ProfileSchedule from "@/components/ProfileSchedule";
+import Button from "@/components/Button";
 import {
   InlineEditProvider,
   DynamicIslandToast,
@@ -97,10 +97,12 @@ function ProfileContentInner({
   firstName,
   lastName,
   school,
+  publicEmail,
   rejectionFeedback,
+  nextAvailableTerm,
   programSuggestions,
 }: ProfileContentProps) {
-  const { isOwner, editMode, fields, experiences, reviewStatus, submitForReview } = useInlineEdit();
+  const { isOwner, editMode, fields, reviewStatus, submitForReview } = useInlineEdit();
   const [socialModalOpen, setSocialModalOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
@@ -259,10 +261,20 @@ function ProfileContentInner({
           </div>
         </div>
 
-        {!editMode && workSchedule.length > 0 && (
-          <div className={styles.scheduleOverview}>
-            <ProfileSchedule experiences={experiences} terms={workSchedule} email={fields.public_email} school={school} program={program} graduation={graduatingClass} />
-          </div>
+        {/* Next Available */}
+        {nextAvailableTerm && publicEmail && (
+          <dl className={styles.nextAvailable}>
+            <dt className={styles.label}>Next available</dt>
+            <dd>
+              <Button
+                variant="secondary"
+                href={`mailto:${publicEmail}`}
+                icon="/mail.svg"
+              >
+                {nextAvailableTerm}
+              </Button>
+            </dd>
+          </dl>
         )}
 
         {/* Rejection banner for owners */}
@@ -342,7 +354,7 @@ function ProfileContentInner({
           )}
 
           {/* Work Terms */}
-          {editMode && (workSchedule.length > 0 || isOwner) && (
+          {(workSchedule.length > 0 || isOwner) && (
             <div className={styles.rowGroup}>
               <EditableRow active={editMode}>
                 <dl className={styles.infoRow}>
