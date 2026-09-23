@@ -15,7 +15,7 @@ for (const width of [1475, 390]) {
     for (const [review_status, label] of [['pending_review', 'Under review'], ['draft', 'Unpublished'], ['rejected', 'Needs changes']] as const) {
       await request.post(control, { data: { member: { review_status, is_approved: false, submitted_at: null } } });
       await page.reload();
-      await expect(page.locator('header').getByText(label, { exact: true }).filter({ visible: true })).toBeVisible();
+      await expect(page.getByRole('complementary').getByText(label, { exact: true }).filter({ visible: true })).toBeVisible();
       await expect(page.getByRole('link', { name: 'View public profile' })).toHaveCount(0);
       const help = page.getByRole('button', { name: 'About profile visibility' });
       await help.focus();

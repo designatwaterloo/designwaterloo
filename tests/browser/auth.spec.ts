@@ -204,14 +204,20 @@ test('username settings save and retain both old URL formats across rename and r
   await page.getByRole('button', { name: 'Save username' }).click();
   await expect(page.getByText('Username saved.', { exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'designwaterloo.com/@bmp' })).toBeVisible();
-  for (const path of ['/directory/session-fixture?edit=true', '/@session-fixture?edit=true', '/@BMP?edit=true']) {
+  for (const path of ['/directory/session-fixture', '/@session-fixture', '/@BMP']) {
     await page.goto(path);
-    await expect(page).toHaveURL(`${APP}/@bmp?edit=true`);
+    await expect(page).toHaveURL(`${APP}/@bmp`);
     await expect(page.getByRole('heading', { name: 'Session Fixture', exact: true })).toBeVisible();
   }
-  await page.goto('/%40bmp?edit=true');
+  await page.goto('/%40bmp');
   await expect(page.getByRole('heading', { name: 'Session Fixture', exact: true })).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://designwaterloo.com/@bmp');
+  // Legacy edit links now lead to the account workspace, not inline editing.
+  for (const path of ['/directory/session-fixture?edit=true', '/@BMP?edit=true']) {
+    await page.goto(path);
+    await expect(page).toHaveURL(`${APP}/dashboard`);
+    await expect(page.getByRole('heading', { name: 'Your profile', exact: true })).toBeVisible();
+  }
   await page.goto('/settings');
   await input.fill('session-fixture');
   await expect(page.getByText('Available.', { exact: true })).toBeVisible();

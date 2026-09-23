@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 const app = `http://localhost:${process.env.DW_TEST_APP_PORT || 3100}`;
 export default defineConfig({
   testDir: "./tests/browser",
+  reporter: process.env.CI ? "list" : "line",
   fullyParallel: false,
   workers: 1,
   timeout: 60000,
