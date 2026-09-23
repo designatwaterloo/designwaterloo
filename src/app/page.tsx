@@ -40,7 +40,7 @@ export default async function Home() {
         <section className="w-full px-[var(--margin)] pb-12 sm:pb-0 flex flex-col gap-8 sm:gap-12">
           {/* Wordmark */}
           <div className="w-full">
-            <Wordmark className="w-full h-auto" />
+            <Wordmark className="w-full h-auto" autoplayOnTouch />
           </div>
 
           <div className={styles.heroIntro}>
@@ -48,7 +48,7 @@ export default async function Home() {
               The home for design talent at Waterloo, and where to find them.
             </h1>
             <div className={styles.heroActions}>
-              <Button href="https://docs.google.com/forms/d/e/1FAIpQLSe39IpLj1jdWg54ZTnOlKrcDbitAfCq3G1Y7r7YPoFL1vyJCw/viewform?usp=sharing&ouid=111313787204079300834" variant="secondary" target="_blank">Get involved</Button>
+              <Button href="/apply" variant="secondary" target="_blank">Get involved</Button>
               <Button href="/directory" variant="primary" icon="/Search.svg" iconAlt="Search">Find talent</Button>
             </div>
           </div>
@@ -86,7 +86,7 @@ export default async function Home() {
             {members.map((member, index) => (
               <ScrollReveal key={member.id} index={index}>
                 <Link
-                  href={`/directory/${member.slug}`}
+                  href={`/@${member.slug}`}
                   className="group block p-[calc(var(--gap)/2)]"
                   underline={false}
                 >

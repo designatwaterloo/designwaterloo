@@ -59,7 +59,7 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
               <p className={styles.userEmail}>{user.email}</p>
             </div>
             <div className={styles.divider} />
-            <Link href={`/directory/${member.slug}`} className={styles.menuItem} onClick={onClose}>
+            <Link href={`/@${member.slug}`} className={styles.menuItem} onClick={onClose}>
               View Profile
             </Link>
             <button

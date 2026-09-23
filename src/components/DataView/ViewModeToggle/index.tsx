@@ -30,6 +30,7 @@ export default function ViewModeToggle({
           icon="/Grid.svg"
           iconAlt="Grid view"
           active={mode === "grid"}
+          aria-pressed={mode === "grid"}
         />
       </span>
       <span>
@@ -39,6 +40,7 @@ export default function ViewModeToggle({
           icon="/List.svg"
           iconAlt="Table view"
           active={mode === "table"}
+          aria-pressed={mode === "table"}
         />
       </span>
     </div>

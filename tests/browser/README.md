@@ -46,3 +46,28 @@ persistence. Do not claim these external checks based on synthetic suite results
 
 CI runs the unit/database suite, lint, and these browser checks on PRs and main.
 For a suspected timing regression, repeat with `npm run test:browser -- --repeat-each=3`.
+
+## Guided profile setup
+
+The onboarding suite covers the welcome sequence, expansion from the measured
+button bounds, the centered welcome screen and compact progress markers on desktop and mobile, keyboard focus,
+hidden navigation, and reduced motion. Opening the canvas leaves the account
+as an unsubmitted draft. The second step confirms a prefilled Waterloo name or collects a Laurier name.
+Tests cover saving, retry after failure, back navigation, and keeping the profile
+in draft status. Username and photo each have their own step, followed by program, graduation year,
+and links. Tests cover reserved/taken usernames, availability, photo selection with
+a mocked upload, the temporary photo-skip path, draft persistence, and save retries. The final skills step saves up to three specialties and returns to the dashboard
+without submitting the draft. Studies checks cover the
+custom keyboard-accessible program picker, compact abbreviations, year-first
+entry, and LinkedIn handle/URL normalization.
+No live student records are changed.
+
+If the default ports are occupied, run an isolated instance:
+
+```sh
+DW_TEST_APP_PORT=3101 DW_TEST_DB_PORT=54330 NEXT_BUILD_DIR=.next-onboarding npm run test:browser
+```
+
+Real Microsoft/Laurier delivery and Sanity photo uploads still need a preview
+smoke check with an authorized account; the synthetic suite cannot establish
+those external integrations.

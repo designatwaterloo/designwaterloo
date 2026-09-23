@@ -1,2 +1,2 @@
 import { redirect } from 'next/navigation';
-export default function ClaimPage() { redirect('/profile/edit'); }
+export default function ClaimPage() { redirect('/welcome'); }

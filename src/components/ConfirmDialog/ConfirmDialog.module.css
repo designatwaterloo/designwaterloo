@@ -3,7 +3,12 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   z-index: 2500;
-  display: flex;
+  border: 0;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
   align-items: center;
   justify-content: center;
   padding: var(--margin);
@@ -106,3 +111,7 @@
     transform: translateY(0);
   }
 }
+
+.overlay[open] { display: flex; }
+.overlay::backdrop { background: transparent; }
+.modal { max-height: 90dvh; overflow-y: auto; }

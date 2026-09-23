@@ -1,13 +1,20 @@
+import type { CoreTeamApplication, Answers } from "@/lib/core-team";
 export interface Database {
   public: {
     Views: Record<string, never>;
     Functions: {
+      save_core_team_application: { Args: { draft_answers: Answers; expected_revision: number; submit_application: boolean }; Returns: CoreTeamApplication };
+      username_available: { Args: { candidate: string }; Returns: boolean };
+      change_my_username: { Args: { new_username: string; expected_username: string }; Returns: string };
+      resolve_username: { Args: { requested_username: string }; Returns: string | null };
       ensure_member: { Args: Record<string, never>; Returns: { slug: string; onboardingCompleted: boolean; outcome: "linked" | "created" } };
+      save_my_experiences: { Args: { experiences: Record<string, unknown>[] }; Returns: undefined };
       save_my_profile: { Args: { profile: Record<string, unknown>; experiences: Record<string, unknown>[]; leadership: Record<string, unknown>[]; submit?: boolean }; Returns: undefined };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
     Tables: {
+      core_team_applications: { Row: CoreTeamApplication; Insert: never; Update: never; Relationships: [] };
       members: {
         Row: {
           id: string;
@@ -121,6 +128,12 @@ export interface Database {
       };
       member_experiences: {
         Row: {
+          end_month: string | null;
+          end_year: string | null;
+          description: string | null;
+          location: string | null;
+          employment_type: string | null;
+
           id: string;
           member_id: string;
           position_title: string | null;
@@ -132,6 +145,12 @@ export interface Database {
           created_at: string;
         };
         Insert: {
+          end_month?: string | null;
+          end_year?: string | null;
+          description?: string | null;
+          location?: string | null;
+          employment_type?: string | null;
+
           id?: string;
           member_id: string;
           position_title?: string | null;
@@ -142,6 +161,12 @@ export interface Database {
           link?: string | null;
         };
         Update: {
+          end_month?: string | null;
+          end_year?: string | null;
+          description?: string | null;
+          location?: string | null;
+          employment_type?: string | null;
+
           id?: string;
           member_id?: string;
           position_title?: string | null;

@@ -10,6 +10,7 @@ import {
   useMemo,
   ReactNode,
 } from "react";
+import { useUnsavedChanges } from "@/components/UnsavedChanges";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { createClient } from "@/lib/supabase/client";
 import type { ReviewStatus } from "@/types/database";
@@ -17,6 +18,12 @@ import type { ReviewStatus } from "@/types/database";
 // ---------- Types ----------
 
 export interface ExperienceEntry {
+  end_month?: string | null;
+  end_year?: string | null;
+  description?: string | null;
+  location?: string | null;
+  employment_type?: string | null;
+
   id?: string;
   positionTitle: string | null;
   company: string;
@@ -98,6 +105,7 @@ const InlineEditContext = createContext<InlineEditContextType | null>(null);
 // ---------- Provider ----------
 
 interface ProviderProps {
+  memberId: string;
   memberSlug: string;
   initialFields: EditableFields;
   initialExperiences: ExperienceEntry[];
@@ -107,6 +115,7 @@ interface ProviderProps {
 }
 
 export function InlineEditProvider({
+  memberId,
   memberSlug,
   initialFields,
   initialExperiences,
@@ -117,7 +126,7 @@ export function InlineEditProvider({
   const { member, refreshMember } = useAuth();
   const supabase = useMemo(() => createClient(), []);
 
-  const isOwner = !!member && member.slug === memberSlug;
+  const isOwner = !!member && member.id === memberId;
   const reviewStatus: ReviewStatus = (member?.review_status as ReviewStatus) ?? initialReviewStatus;
 
   // Snapshot of the last-saved state (updated after successful save)
@@ -142,27 +151,13 @@ export function InlineEditProvider({
     };
   }, []);
 
-  // Dirty check — deep compare current vs saved (defined here so the
-  // beforeunload effect below can depend on it).
+  // Dirty check — deep compare current vs saved.
   const isDirty =
     JSON.stringify(fields) !== JSON.stringify(savedFields.current) ||
     JSON.stringify(experiences) !== JSON.stringify(savedExperiences.current) ||
     JSON.stringify(leadership) !== JSON.stringify(savedLeadership.current);
 
-  // Native browser warning if the user tries to close/refresh/leave with
-  // unsaved profile changes. Only handles browser-level navigation —
-  // internal <Link> navigation is unaffected.
-  useEffect(() => {
-    if (!isDirty) return;
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      // returnValue is required for Chrome to show the prompt; the actual
-      // string is ignored by modern browsers, which show a generic dialog.
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isDirty]);
+  useUnsavedChanges(isOwner && (isDirty || saving));
 
   const setField = useCallback(
     <K extends keyof EditableFields>(key: K, value: EditableFields[K]) => {
@@ -225,13 +220,14 @@ export function InlineEditProvider({
 
       const { error: saveError } = await supabase.rpc("save_my_profile", {
         profile: updatePayload,
-        experiences: experiences.map(e => ({ position_title: e.positionTitle, company: e.company,
+        experiences: experiences.map(e => ({ end_month: e.end_month ?? null, end_year: e.end_year ?? null, description: e.description ?? null, location: e.location ?? null, employment_type: e.employment_type ?? null, position_title: e.positionTitle, company: e.company,
           start_month: e.startMonth, start_year: e.startYear, is_current: e.isCurrent, link: e.link ?? null })),
         leadership: leadership.map(l => ({ position_title: l.positionTitle, organization: l.org,
           start_month: l.startMonth, start_year: l.startYear, is_current: l.isCurrent, link: l.link ?? null })),
-        submit,
+        submit: false,
       });
       if (saveError) throw new Error(saveError.message);
+      if (submit) {const response=await fetch("/api/profile/submit",{method:"POST"});if(!response.ok)throw new Error("Your changes were saved, but submission failed. Please try again.");}
 
       // 3. Update saved snapshots
       savedFields.current = { ...fields };
@@ -264,7 +260,7 @@ export function InlineEditProvider({
 
   // DOM handlers pass an event; never expose the RPC submission flag as a handler argument.
   const save = useCallback(() => saveProfile(false), [saveProfile]);
-  const submitForReview = useCallback(() => saveProfile(true), [saveProfile]);
+  const submitForReview = useCallback(async () => {if(window.confirm("Submit your profile for review? We hand-curate students in the directory. Review usually takes about a day, and your profile becomes public once approved.")) await saveProfile(true);}, [saveProfile]);
 
   return (
     <InlineEditContext.Provider

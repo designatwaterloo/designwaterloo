@@ -15,7 +15,7 @@
 
 .searchIcon {
   flex-shrink: 0;
-  color: var(--muted);
+  color: var(--muted-text);
 }
 
 /* Search Input Styles */
@@ -31,10 +31,7 @@
   color: var(--foreground);
 }
 
-.searchInput:focus {
-  outline: none;
-}
 
 .searchInput::placeholder {
-  color: var(--muted);
+  color: var(--muted-text);
 }

@@ -8,15 +8,20 @@
 }
 
 .title {
-  font-size: 48px;
+  max-width: 100%;
+  font-size: var(--small);
+  line-height: 100%;
   letter-spacing: -0.025em;
   margin: 0;
+  clip-path: none;
 }
 
 .description {
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.5;
+  margin: 0;
+  color: var(--muted-text);
+  font-size: var(--smallest);
+  line-height: 114%;
+  letter-spacing: -0.01em;
 }
 
 .error {
@@ -24,35 +29,45 @@
   border: 1px solid var(--error-border);
   color: var(--error);
   padding: var(--tinier) var(--smallest);
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--radius-large);
+  font-size: var(--smallest);
   width: 100%;
 }
 
-.microsoftButton {
+.microsoftButton,
+.sendButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--tinier);
-  background: var(--foreground);
-  color: var(--background);
-  border: none;
-  padding: var(--tiny) var(--smaller);
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 8px;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  background: var(--black);
+  color: var(--white);
+  border: 2px solid var(--black);
+  padding: var(--tinier) 20px;
+  font: inherit;
+  font-size: var(--smallest);
+  letter-spacing: -0.025em;
+  border-radius: var(--radius-full);
   cursor: pointer;
+  text-decoration: none;
   transition: opacity 0.2s ease;
+}
+
+.microsoftButton {
   margin-top: var(--tinier);
 }
 
-@media (hover: hover) {
-  .microsoftButton:hover {
-    opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .microsoftButton:hover,
+  .sendButton:hover {
+    opacity: 0.8;
   }
 }
 
-.microsoftButton:disabled {
+.microsoftButton:disabled,
+.sendButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -62,8 +77,8 @@
   align-items: center;
   width: 100%;
   gap: var(--smaller);
-  color: var(--muted);
-  font-size: 14px;
+  color: var(--muted-text);
+  font-size: var(--smallest);
 }
 
 .divider::before,
@@ -71,27 +86,30 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: var(--muted);
 }
 
 .laurierButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  min-height: 44px;
   background: transparent;
-  color: var(--foreground);
-  border: 1px solid var(--border);
-  padding: var(--tiny) var(--smaller);
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 8px;
+  color: var(--black);
+  border: 2px solid var(--black);
+  padding: var(--tinier) 20px;
+  font: inherit;
+  font-size: var(--smallest);
+  letter-spacing: -0.025em;
+  border-radius: var(--radius-full);
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .laurierButton:hover {
-    background: var(--surface);
+    background: var(--hover-bg);
   }
 }
 
@@ -104,8 +122,9 @@
 }
 
 .otpHint {
-  color: var(--muted);
-  font-size: 14px;
+  color: var(--muted-text);
+  font-size: var(--smallest);
+  line-height: 114%;
   margin: 0;
 }
 
@@ -113,39 +132,40 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 300px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--background);
-  overflow: hidden;
-  transition: border-color 0.2s ease;
+  min-height: 44px;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-full);
+  background: transparent;
 }
 
 .emailInputGroup:focus-within {
-  border-color: var(--foreground);
+  outline: none;
 }
 
 .emailInput {
   flex: 1;
   min-width: 0;
-  padding: var(--tiny) var(--smallest);
+  padding: var(--tinier) 20px;
   padding-right: 2px;
-  font-size: 16px;
+  font: inherit;
+  font-size: var(--smallest);
   border: none;
   background: transparent;
   color: var(--foreground);
   text-align: right;
+  caret-color: var(--foreground);
 }
 
-.emailInput:focus {
+.emailInput:focus,
+.emailInput:focus-visible {
   outline: none;
 }
 
 .emailDomain {
-  padding: var(--tiny) var(--smallest);
+  padding: var(--tinier) 20px;
   padding-left: 0;
-  font-size: 16px;
-  color: var(--muted);
+  font-size: var(--smallest);
+  color: var(--muted-text);
   white-space: nowrap;
   user-select: none;
 }
@@ -153,6 +173,8 @@
 .otpBoxes {
   display: flex;
   gap: 8px;
+  width: 100%;
+  justify-content: center;
   position: relative;
   cursor: text;
 }
@@ -165,72 +187,123 @@
 }
 
 .otpDigit {
+  flex: 1;
+  min-width: 0;
+  max-width: 44px;
   width: 44px;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: 600;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  font-size: var(--smaller);
+  letter-spacing: -0.025em;
+  border: 2px solid var(--muted);
+  border-radius: var(--radius-large);
   background: var(--background);
   color: var(--foreground);
   transition: border-color 0.15s ease;
 }
 
-.otpDigitActive {
-  border-color: var(--foreground);
-}
-
+.otpDigitActive,
 .otpDigitFilled {
-  border-color: var(--muted);
+  border-color: var(--black);
 }
 
 .sendButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--foreground);
-  color: var(--background);
-  border: none;
-  padding: var(--tiny) var(--smaller);
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  width: 100%;
-}
-
-@media (hover: hover) {
-  .sendButton:hover {
-    opacity: 0.9;
-  }
-}
-
-.sendButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-top: var(--tiniest);
 }
 
 .backLink {
   background: none;
   border: none;
-  color: var(--muted);
-  font-size: 14px;
+  color: var(--muted-text);
+  font: inherit;
+  font-size: var(--smallest);
   cursor: pointer;
   text-decoration: underline;
+  text-underline-offset: 0.15em;
   padding: 0;
+  margin-top: calc(var(--smaller) - var(--tinier));
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .backLink:hover {
-    color: var(--foreground);
+    color: var(--link-hover);
   }
 }
 
 .hint {
-  color: var(--muted);
-  font-size: 14px;
+  color: var(--muted-text);
+  font-size: var(--smallest);
+}
+
+.modal {
+  position: fixed;
+  margin: auto;
+  width: min(480px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: none;
+  border-radius: 16px;
+  padding: 56px 32px 32px;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.2s ease;
+}
+
+.modal::backdrop {
+  background: rgba(14, 14, 14, 0.6);
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .close:hover {
+    background: var(--hover-bg);
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: var(--smaller);
+  }
+}
+
+@media (max-width: 420px) {
+  .modal {
+    padding: 52px 24px 28px;
+  }
 }

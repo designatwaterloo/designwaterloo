@@ -1,12 +1,43 @@
+.pageBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 100px var(--margin) 32px;
+  min-height: 44px;
+}
+
+.pageBar:not(:has(.backButton)) {
+  justify-content: flex-end;
+}
+
 /* Back button */
-.backButton {
-  display: inline-block;
-  margin: 100px var(--smaller) 100px var(--smaller);
-  padding: 36px 48px 36px 6px;
-  font-size: var(--smallest);
+.backButton,
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  height: 44px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--foreground);
   text-decoration: none;
+  flex-shrink: 0;
 }
+.backButton {
+  padding-left: 10px;
+}
+.backButton svg { width: 18px; height: 18px; flex-shrink: 0; }
+.backButton:hover,
+.editButton:hover { background: color-mix(in srgb, var(--foreground) 5%, transparent); }
+.backButton:focus-visible,
+.editButton:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+
 
 .section {
   display: grid;
@@ -39,29 +70,42 @@
   margin: 0;
 }
 
-.editButton {
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.identity .name {
+  margin: 0;
+}
+
+.identity .username {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: var(--biggest);
-  height: var(--biggest);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  flex-shrink: 0;
-  opacity: 0.35;
-  transition: opacity 0.15s ease;
+  align-self: flex-start;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--background));
+  margin: 0;
+  font-family: InterVariable, Inter, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  font-optical-sizing: none;
+  font-variation-settings: 'opsz' 14;
+  font-feature-settings: 'liga' 0, 'calt' 0, 'ss02' 1, 'zero' 1, 'ss07' 1;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--foreground) 65%, var(--background));
 }
 
-.editButton img {
-  width: 50%;
-  height: 50%;
-}
-
-@media (hover: hover) {
-  .editButton:hover {
-    opacity: 0.6;
-  }
+.username span {
+  font-optical-sizing: none;
+  font-variation-settings: 'opsz' 14;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .nextAvailable {
@@ -132,16 +176,16 @@
     grid-row: 1;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: var(--smaller);
+    margin-bottom: 0;
   }
 
   .name {
-    margin-bottom: var(--smaller);
+    margin-bottom: 0;
   }
 
-  .editButton {
-    width: var(--big);
-    height: var(--big);
+  .identity {
+    min-width: 0;
+    flex: 1;
   }
 
   .nextAvailable {
@@ -516,4 +560,3 @@ a.experienceItem {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-

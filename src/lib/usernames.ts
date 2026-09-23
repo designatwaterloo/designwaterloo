@@ -20,6 +20,9 @@ const RESERVED = new Set([
   "members",
   "new",
   "edit",
+  "work",
+  "designwaterloo",
+  "support",
 ]);
 
 const MIN = 3;
@@ -31,18 +34,22 @@ export interface UsernameCheck {
   error?: string;
 }
 
+/** Live input: lowercase, drop a leading @, and turn spaces into hyphens. */
+export function formatUsernameInput(raw: string): string {
+  return raw.replace(/^@+/, "").toLowerCase().replace(/\s+/g, "-");
+}
+
 export function validateUsername(raw: string): UsernameCheck {
-  const normalized = raw
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+  const normalized = formatUsernameInput(raw.trim());
 
   if (normalized.length < MIN) {
     return { ok: false, normalized, error: `Use at least ${MIN} characters.` };
   }
   if (normalized.length > MAX) {
     return { ok: false, normalized, error: `Use at most ${MAX} characters.` };
+  }
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(normalized)) {
+    return { ok: false, normalized, error: "Use letters, numbers, and single hyphens between words." };
   }
   if (RESERVED.has(normalized)) {
     return { ok: false, normalized, error: "That username is reserved." };

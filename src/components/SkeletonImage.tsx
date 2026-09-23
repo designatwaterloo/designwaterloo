@@ -55,16 +55,14 @@ export default function SkeletonImage({
 
   return (
     <div
-      className={`relative overflow-hidden ${wrapperClassName ?? ""}`}
+      className={`relative isolate overflow-hidden ${wrapperClassName ?? ""}`}
       style={{ aspectRatio }}
     >
-      {/* A soft sweep makes the pending image visible without flashing. */}
-      {!loaded && (
-        <div
-          aria-hidden="true"
-          className={`absolute inset-0 ${styles.skeleton} ${skeletonClassName ?? "bg-skeleton"}`}
-        />
-      )}
+      {/* Keep the placeholder above the decoded image and fade it away. */}
+      <div
+        aria-hidden="true"
+        className={`absolute inset-0 ${styles.skeleton} ${loaded ? styles.revealed : ""} ${skeletonClassName ?? "bg-skeleton"}`}
+      />
 
       <Image
         {...props}

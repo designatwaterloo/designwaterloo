@@ -20,7 +20,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
   const mobileMb = variant === "menu" ? "mb-[var(--smaller)]" : "mb-[var(--big)]";
 
   return (
-    <footer className={`w-full ${sidePadding} ${topPadding} ${mobileBottomPad} ${bgColor} ${textColor} flex flex-col ${mobileGap} sm:gap-0 items-center`}>
+    <footer data-site-footer className={`w-full ${sidePadding} ${topPadding} ${mobileBottomPad} ${bgColor} ${textColor} flex flex-col ${mobileGap} sm:gap-0 items-center`}>
       {/* Mobile: Stacked layout, Desktop: 12-column grid */}
       <div className={`w-full flex flex-col ${mobileGap} sm:grid sm:grid-cols-12 sm:gap-[var(--gap)] ${mobileMb}`}>
 

@@ -72,6 +72,18 @@ const PERSONAS: Record<string, Persona> = {
     isApproved: false,
     isAdmin: false,
   },
+  "onboarding-waterloo-sep12": {
+    email: (d) => `onboarding-waterloo-sep12@${d}`,
+    firstName: "Jamie",
+    lastName: "Onboarding",
+    school: "University of Waterloo",
+    program: null,
+    bio: null,
+    reviewStatus: "draft",
+    onboardingCompleted: false,
+    isApproved: false,
+    isAdmin: false,
+  },
   "admin-waterloo": {
     email: (d) => `admin-waterloo@${d}`,
     firstName: "Alex",
@@ -186,6 +198,7 @@ export async function GET(request: NextRequest) {
     bio: persona.bio,
     review_status: persona.reviewStatus,
     onboarding_completed: persona.onboardingCompleted,
+    slug_confirmed: persona.onboardingCompleted,
     is_approved: persona.isApproved,
     is_admin: persona.isAdmin,
   };

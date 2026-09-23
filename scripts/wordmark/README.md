@@ -2,8 +2,10 @@
 
 The site plays `src/components/Wordmark/orbit-frames.json` by updating one SVG
 path for a 1.2-second hover orbit. Clicks on the left/right of the oo add
-angular momentum in that direction. Playback converts angles back into the
-eased bake timeline and settles on a complete turn. The 121 frames are loaded
+angular momentum in that direction. Playback maps signed angles into one uniformly sampled half-orbit, forward
+or backward, and settles every 180 degrees. The bake reconnects the original
+bridge at both ends, smoothly exchanging each lobe’s source contour and counter
+as they orbit. The 121 frames are loaded
 on the first hover and shared by all wordmarks. The original SVG is retained at
 rest and for reduced motion. No canvas, WebGL, or contour texture ships in the
 wordmark rendering path.

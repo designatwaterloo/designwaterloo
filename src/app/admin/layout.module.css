@@ -1,0 +1,26 @@
+.workspace {display:flex;min-height:100dvh;}
+.sidebar {width:220px;flex:0 0 220px;position:sticky;top:0;height:100dvh;border-right:1px solid var(--border);padding:28px 16px 20px;display:flex;flex-direction:column;gap:24px;}
+.brand {display:flex;align-items:center;gap:14px;padding:0 10px;font-size:16px;}
+.logo {display:block;width:36px;height:32px;background:var(--foreground);mask:url('/Design Waterloo Logo.svg') center/contain no-repeat;}
+.sidebar nav {display:flex;flex-direction:column;gap:6px;}
+.sidebar nav a,.bottom a,.toggle {display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 12px;border-radius:8px;color:var(--muted-text);text-decoration:none;font-size:14px;font-weight:400;white-space:nowrap;}
+.sidebar svg {width:20px;height:20px;flex-shrink:0;}
+.sidebar a:hover,.toggle:hover,.sidebar a[aria-current=page] {background:var(--surface);color:var(--foreground);}
+.sidebar a:focus-visible,.toggle:focus-visible {outline:2px solid var(--focus-ring);outline-offset:2px;}
+.toggle {border:0;background:none;cursor:pointer;width:100%;}
+.bottom {margin-top:auto;}
+.content {flex:1;min-width:0;}
+.workspace[data-collapsed=true] .sidebar {width:76px;flex-basis:76px;}
+.workspace[data-collapsed=true] .label {display:none;}
+.workspace[data-collapsed=true] .brand {padding:0 4px;}
+@media(max-width:700px){
+.sidebar {z-index:20;background:var(--background);padding:20px 12px;}
+.workspace[data-collapsed=false] .sidebar {width:220px;flex-basis:220px;margin-right:-144px;box-shadow:12px 0 32px rgb(0 0 0 / 18%);}
+.workspace[data-collapsed=true] .sidebar {width:76px;flex-basis:76px;}
+}
+.toggle {width:44px;justify-content:center;}
+.bottom {display:flex;flex-direction:column;gap:6px;}
+.brand {padding:0;gap:10px;}
+.brand .toggle {margin-left:auto;flex-shrink:0;}
+.workspace[data-collapsed=true] .brand {flex-direction:column;padding:0;gap:8px;}
+.workspace[data-collapsed=true] .brand .toggle {margin-left:0;}

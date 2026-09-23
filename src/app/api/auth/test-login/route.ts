@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({
     ok: true,
-    redirectTo: body.redirectTo || "/profile/edit",
+    redirectTo: body.redirectTo || "/welcome",
   });
   for (const { name, value, options } of toForward) {
     response.cookies.set(name, value, options);

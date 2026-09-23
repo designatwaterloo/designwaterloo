@@ -11,7 +11,7 @@ const route = ts.transpileModule(
   { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } },
 ).outputText;
 
-type SaveResult = { data: { slug: string } | null; error: Error | null };
+type SaveResult = { data: { slug: string | null } | null; error: Error | null };
 
 async function upload(save: () => Promise<SaveResult>) {
   const revalidated: string[] = [];
@@ -23,7 +23,7 @@ async function upload(save: () => Promise<SaveResult>) {
       assert.equal(value, 'fixture-user');
       return this;
     },
-    select() { return this; },
+    select(columns: string) { assert.equal(columns, 'slug'); return this; },
     maybeSingle: save,
   };
   const dependencies: Record<string, unknown> = {
@@ -58,6 +58,8 @@ async function upload(save: () => Promise<SaveResult>) {
   data.set('file', new File(['fixture'], 'avatar.png', { type: 'image/png' }));
   const response = await exported.POST!({ formData: async () => data });
   assert.equal(updates.length, 1);
+  assert.equal((updates[0] as { profile_image_url: string }).profile_image_url,
+    'https://cdn.sanity.io/images/fixture/test/fixture-20x20.png');
   return { response, body: await response.json(), revalidated };
 }
 
@@ -66,13 +68,14 @@ test('avatar upload succeeds only after the member update succeeds', async () =>
   assert.equal(response.status, 200);
   assert.equal(body.success, true);
   assert.equal(body.imageUrl, 'https://cdn.sanity.io/images/fixture/test/fixture-20x20.png');
-  assert.deepEqual(revalidated, ['/directory/designer', '/directory']);
+  assert.deepEqual(revalidated, ['/directory/designer', '/@designer', '/directory']);
 });
 
 test('avatar upload reports a conflict when no member row is saved', async () => {
   const { response, body, revalidated } = await upload(async () => ({ data: null, error: null }));
   assert.equal(response.status, 409);
   assert.equal(body.success, undefined);
+  assert.equal(body.imageUrl, undefined);
   assert.match(body.error, /couldn't be saved/);
   assert.deepEqual(revalidated, []);
 });
@@ -86,8 +89,17 @@ for (const mode of ['returned', 'thrown'] as const) {
     });
     assert.equal(response.status, 500);
     assert.equal(body.success, undefined);
+    assert.equal(body.imageUrl, undefined);
     assert.match(body.error, /couldn't be saved/);
     assert.doesNotMatch(body.error, /private database detail/);
     assert.deepEqual(revalidated, []);
   });
 }
+
+// A saved row without a public slug is still a successful profile write.
+test('avatar upload succeeds for a member without a public slug', async () => {
+  const { response, body, revalidated } = await upload(async () => ({ data: { slug: null }, error: null }));
+  assert.equal(response.status, 200);
+  assert.equal(body.success, true);
+  assert.deepEqual(revalidated, []);
+});

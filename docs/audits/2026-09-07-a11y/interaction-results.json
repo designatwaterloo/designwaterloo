@@ -1,0 +1,193 @@
+{
+  "table": {
+    "tables": 0,
+    "buttons": [
+      "",
+      "Filters ",
+      "",
+      ""
+    ],
+    "headers": [
+      {
+        "tag": "DIV",
+        "role": null,
+        "tabIndex": -1,
+        "text": "Name "
+      },
+      {
+        "tag": "DIV",
+        "role": null,
+        "tabIndex": -1,
+        "text": "Program "
+      },
+      {
+        "tag": "DIV",
+        "role": null,
+        "tabIndex": -1,
+        "text": "Class "
+      },
+      {
+        "tag": "DIV",
+        "role": null,
+        "tabIndex": -1,
+        "text": "Brayden Petersen"
+      },
+      {
+        "tag": "DIV",
+        "role": null,
+        "tabIndex": -1,
+        "text": "Systems Design Engineering"
+      },
+      {
+        "tag": "DIV",
+        "role": null,
+        "tabIndex": -1,
+        "text": "2027"
+      }
+    ]
+  },
+  "tabs": [
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    },
+    {
+      "tag": "INPUT",
+      "type": "checkbox",
+      "label": "",
+      "inFilter": true,
+      "visible": false
+    }
+  ],
+  "nav": {
+    "dialogs": 0,
+    "expanded": null,
+    "mainInTree": true,
+    "focusAfterEscape": {
+      "tag": "BODY",
+      "label": null
+    }
+  },
+  "profile": {
+    "path": "/@bmp",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "count": 36,
+        "examples": [
+          {
+            "html": "<dt class=\"page-module__Yz8LXW__label\">School</dt>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<dt class=\"page-module__Yz8LXW__label\">Program</dt>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4 (foreground color: #7f7f7f, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "dlitem",
+        "count": 12,
+        "examples": [
+          {
+            "html": "<dt class=\"page-module__Yz8LXW__label\">School</dt>",
+            "summary": "Fix any of the following:\n  Description list item does not have a <dl> parent element"
+          },
+          {
+            "html": "<dd>University of Waterloo</dd>",
+            "summary": "Fix any of the following:\n  Description list item does not have a <dl> parent element"
+          }
+        ]
+      }
+    ]
+  },
+  "nojs": [
+    {
+      "path": "/",
+      "mainTextLength": 649,
+      "profileLinks": 24
+    },
+    {
+      "path": "/directory",
+      "mainTextLength": 0,
+      "profileLinks": 0
+    },
+    {
+      "path": "/@bmp",
+      "mainTextLength": 1187,
+      "profileLinks": 0
+    }
+  ],
+  "mobile": [
+    {
+      "path": "/",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "path": "/directory",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "path": "/about",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "path": "/sign-in",
+      "width": 390,
+      "scrollWidth": 390
+    },
+    {
+      "path": "/@bmp",
+      "width": 390,
+      "scrollWidth": 390
+    }
+  ]
+}

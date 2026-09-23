@@ -181,6 +181,7 @@ export interface TableViewProps<T> {
  * Props for SortableHeader component
  */
 export interface SortableHeaderProps {
+  sortable: boolean;
   label: string;
   field: string;
   active: boolean;
@@ -196,6 +197,7 @@ export interface SortableHeaderProps {
  * Props for FilterPanel component
  */
 export interface FilterPanelProps<T> {
+  id: string;
   filters: FilterConfig<T>[];
   selectedFilters: Record<string, string[]>;
   onFilterChange: (filterKey: string, values: string[]) => void;

@@ -46,9 +46,14 @@ docs/superpowers/
 
 # Isolated browser-test build and artifacts
 /.next-e2e/
+/.next-onboarding/
 /playwright-report/
 /test-results/
 
 # Regenerated offline wordmark distance fields
 scripts/wordmark/contours.f32
 scripts/wordmark/contours-size.json
+
+# Local preview overrides and generated Next builds
+/.next-*/
+/.local-*.json

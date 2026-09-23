@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { createStaticClient } from "@/lib/supabase/static";
 import { Member } from "@/sanity/types";
 import { Member as SupabaseMember } from "@/types/database";
@@ -20,7 +19,13 @@ export const metadata: Metadata = {
 
 export const revalidate = 30;
 
-export default async function DirectoryPage() {
+export default async function DirectoryPage({ searchParams }: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    for (const item of Array.isArray(value) ? value : value === undefined ? [] : [value]) query.append(key, item);
+  }
   const supabase = createStaticClient();
 
   const { data } = await supabase
@@ -57,5 +62,5 @@ export default async function DirectoryPage() {
     workSchedule: m.work_schedule,
   }));
 
-  return <Suspense fallback={<main className="min-h-screen" aria-label="Loading directory" />}><DirectoryClient members={members} /></Suspense>;
+  return <DirectoryClient members={members} initialQuery={query.toString()} />;
 }

@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "@/components/Link";
 import styles from "./Button.module.css";
-import { ReactNode } from "react";
+import { ReactNode, AriaAttributes } from "react";
 
-interface ButtonProps {
+interface ButtonProps extends AriaAttributes {
   children?: ReactNode;
   variant?: "primary" | "secondary" | "icon" | "small";
   icon?: string;
@@ -23,6 +23,7 @@ export default function Button({
   onClick,
   href,
   target,
+  ...aria
 }: ButtonProps) {
   const variantClass = variant === "primary"
     ? styles.primary
@@ -51,7 +52,7 @@ export default function Button({
       return <Link href={href} className={className}>{iconContent}</Link>;
     }
     
-    return <button className={className} onClick={onClick}>{iconContent}</button>;
+    return <button type="button" {...aria} className={className} onClick={onClick}>{iconContent}</button>;
   }
   
   const content = (
@@ -87,7 +88,7 @@ export default function Button({
   }
 
   return (
-    <button
+    <button type="button" {...aria}
       className={className}
       onClick={onClick}
     >

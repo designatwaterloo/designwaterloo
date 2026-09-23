@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
     if (slug) {
       try {
         revalidatePath(`/directory/${slug}`);
+        revalidatePath(`/@${slug}`);
         revalidatePath("/directory");
       } catch {}
     }

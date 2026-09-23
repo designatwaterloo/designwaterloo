@@ -88,10 +88,11 @@
   height: 100%;
 }
 
-/* Mobile: Keep logo at top left (0-768px) */
+/* Mobile: center the logo within the same header row as the controls. */
 @media (max-width: 768px) {
   .logoSection {
     flex: 0 0 auto;
+    justify-content: center;
   }
 }
 
@@ -106,6 +107,17 @@
 .opening .logo {
   opacity: 1;
   transition-delay: 0.725s;
+}
+
+/* Signed-in users see their name on desktop and the logo on mobile. */
+.authenticatedLogo {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .authenticatedLogo {
+    display: block;
+  }
 }
 
 .closing .logo {
@@ -181,10 +193,9 @@
 .navItem.navItemOpening {
   opacity: 1;
   transform: translateY(0);
-  /* Stagger: anchored after columns settle. --stagger-index set on the
-     element; mobile bumps the base via media query below. */
-  --stagger-base: 0.65s;
-  --stagger-step: 0.08s;
+  /* Begin revealing links as the curtain settles, with a short stagger. */
+  --stagger-base: 0.35s;
+  --stagger-step: 0.05s;
   transition-delay:
     calc(var(--stagger-base) + var(--stagger-index, 0) * var(--stagger-step)),
     calc(var(--stagger-base) + var(--stagger-index, 0) * var(--stagger-step)),
@@ -193,7 +204,7 @@
 
 @media (max-width: 768px) {
   .navItem.navItemOpening {
-    --stagger-base: 0.85s;
+    --stagger-base: 0.45s;
   }
 }
 
@@ -203,7 +214,7 @@
   transition-duration: 0.2s, 0.2s, 0.6s, 0.6s;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .navItem:hover {
     background-color: var(--white);
     color: var(--black);
@@ -391,7 +402,7 @@
   transition: color 0.15s ease;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .userLink:hover {
     color: var(--white);
   }
@@ -442,3 +453,7 @@
     transition-delay: 0s !important;
   }
 }
+
+.overlay { margin: 0; border: 0; padding: 0; width: 100%; height: 100dvh; max-width: none; max-height: none; color: var(--white); --muted-text: #b5b5b5; --muted-light: #b5b5b5; }
+.overlay::backdrop { background: transparent; }
+.overlay:not([open]) { display: none; }
