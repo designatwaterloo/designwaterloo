@@ -16,7 +16,7 @@ const user = {
   email_confirmed_at: "2026-01-01T00:00:00Z",
   created_at: "2026-01-01T00:00:00Z",
   app_metadata: { design_waterloo_role: null as string | null, provider: "azure", providers: ["azure"] },
-  user_metadata: { full_name: "Session Fixture" },
+  user_metadata: { full_name: "Session Fixture" } as Record<string, unknown>,
 };
 const original = {
   id: "22222222-2222-4222-8222-222222222222",
@@ -96,7 +96,7 @@ const server = http.createServer(async (req, res) => {
     "Access-Control-Allow-Headers",
     "authorization, apikey, content-type, x-client-info, x-supabase-api-version, prefer, range, accept-profile, content-profile",
   );
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,HEAD,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,HEAD,OPTIONS");
   res.setHeader("Access-Control-Expose-Headers", "content-range");
   const send = (data: unknown, status = 200) => {
     res.writeHead(status, { "Content-Type": "application/json" });
@@ -108,7 +108,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   let body: Record<string, unknown> = {};
-  if (["POST", "PATCH"].includes(req.method!)) {
+  if (["POST", "PUT", "PATCH"].includes(req.method!)) {
     let raw = "";
     for await (const chunk of req) raw += chunk;
     try {
@@ -121,6 +121,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/__control") {
     if (body.reset) {
       member = { ...original };
+      user.user_metadata = { full_name: "Session Fixture" };
       coreApplication = null; coreDelay = 0;
       deletions = 0; failDelete = false; user.app_metadata.design_waterloo_role = null;
       handles.clear(); handles.add(original.slug);
@@ -142,7 +143,7 @@ const server = http.createServer(async (req, res) => {
     if ("failMember" in body) failMember = Boolean(body.failMember);
     if ("failSave" in body) failSave = Boolean(body.failSave);
     if (body.member) member = { ...member, ...(body.member as object) };
-    send({ refreshes, exchanges, saves, member, deletions, coreApplication });
+    send({ refreshes, exchanges, saves, member, deletions, coreApplication, userMetadata: user.user_metadata });
     return;
   }
   if (url.pathname === "/auth/v1/authorize") {
@@ -202,6 +203,10 @@ const server = http.createServer(async (req, res) => {
     if (!token || !tokens.has(token)) {
       send({ code: "session_not_found", msg: "No session" }, 401);
       return;
+    }
+    if (req.method === 'PUT') {
+      if (failSave) { send({msg:'Synthetic save outage'},503); return; }
+      user.user_metadata = { ...user.user_metadata, ...(body.data as object) };
     }
     send(user);
     return;
@@ -335,6 +340,7 @@ server.listen(PORT, HOST, () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "synthetic-anon-key",
         SUPABASE_SERVICE_ROLE_KEY: "synthetic-service-key",
         TEST_LOGIN_ENABLED: "false",
+        CORE_TEAM_APPLICATIONS_OPEN: process.env.DW_TEST_APPLICATIONS_OPEN ?? "true",
         NEXT_TELEMETRY_DISABLED: "1",
         SANITY_API_TOKEN: "",
         NEXT_PUBLIC_SANITY_PROJECT_ID: "synthetic",

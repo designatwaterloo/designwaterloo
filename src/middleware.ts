@@ -75,5 +75,5 @@ export async function middleware(request: NextRequest) {
 // Public pages with anonymous clients need no auth request. Profile/claim server
 // renders use a session, so refresh their cookies before the render starts.
 export const config = {
-  matcher: ['/apply', '/welcome', '/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
+  matcher: ['/apply/:path*', '/welcome', '/sign-in', '/onboarding', '/dashboard/:path*', '/profile/:path*', '/pending-approval/:path*', '/admin/:path*', '/claim', '/directory/:slug', '/settings/:path*', '/:handle(@[^/]+)', '/:handle(%40[^/]+)'],
 };

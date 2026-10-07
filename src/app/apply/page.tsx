@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import Link from '@/components/Link';
 import ApplicationEditor from './ApplicationEditor';
@@ -6,6 +7,7 @@ import styles from './page.module.css';
 export const metadata = { title: 'Apply to Design Waterloo', robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
 export default async function ApplyPage() {
+  if (process.env.CORE_TEAM_APPLICATIONS_OPEN !== 'true') redirect('/apply/updates');
   const db = await createClient();
   const { data: { user }, error } = await db.auth.getUser();
   if (error && error.name !== 'AuthSessionMissingError' && error.status !== 401 && error.status !== 403) {

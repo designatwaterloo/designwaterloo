@@ -4,6 +4,7 @@ import { createRouteClient } from '@/lib/supabase/route-client';
 import { applicationErrors, parseAnswers, profileRequirements, APPLICATION_ROUND } from '@/lib/core-team';
 
 export async function GET(request: NextRequest) {
+  if (process.env.CORE_TEAM_APPLICATIONS_OPEN !== 'true') return NextResponse.json({ error: 'Applications aren’t open yet. Sign up for updates.', updatesUrl: '/apply/updates' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
   const { client, applyCookies } = createRouteClient(request);
   const reply = (body: unknown, status = 200) => applyCookies(NextResponse.json(body, { status }));
   const { data: { user }, error: authError } = await client.auth.getUser();
@@ -17,6 +18,7 @@ export async function GET(request: NextRequest) {
 }
 
 async function write(request: NextRequest, submit: boolean) {
+  if (process.env.CORE_TEAM_APPLICATIONS_OPEN !== 'true') return NextResponse.json({ error: 'Applications aren’t open yet. Sign up for updates.', updatesUrl: '/apply/updates' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
   const { client, applyCookies } = createRouteClient(request);
   const reply = (body: unknown, status = 200) => applyCookies(NextResponse.json(body, { status }));
   if (request.headers.get('origin') !== requestOrigin(request)) return reply({ error: 'Please use the application page to save.' }, 403);

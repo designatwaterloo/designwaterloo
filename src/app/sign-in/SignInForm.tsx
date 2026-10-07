@@ -114,7 +114,7 @@ export default function SignInForm() {
 
     try {
       const result = await findOrInitMember(supabase);
-      if (result.onboardingCompleted || safeRedirect(redirectTo) === "/apply") {
+      if (result.onboardingCompleted || ["/apply", "/apply/updates"].includes(safeRedirect(redirectTo))) {
         window.location.assign(safeRedirect(redirectTo, `/@${result.slug}`));
       } else {
         window.location.assign("/welcome");

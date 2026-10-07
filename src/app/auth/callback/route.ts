@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     return finish(NextResponse.redirect(`${origin}/welcome`));
   }
 
-  if (result.onboardingCompleted || explicitNext === "/apply") {
+  if (result.onboardingCompleted || ["/apply", "/apply/updates"].includes(explicitNext)) {
     return finish(NextResponse.redirect(`${origin}${explicitNext}`));
   }
 
