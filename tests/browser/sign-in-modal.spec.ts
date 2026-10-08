@@ -9,7 +9,7 @@ for(const width of [1440,390])test(`sign-in opens over directory and restores it
  await page.goto('/directory');
  const opener=page.getByRole('link',{name:'Sign in',exact:true}).filter({visible:true});
  await opener.click();
- const dialog=page.getByRole('dialog',{name:'Your work belongs here.'});
+ const dialog=page.getByRole('dialog',{name:'Sign in to Design Waterloo'});
  await expect(dialog).toBeVisible();
  await expect(page).toHaveURL(/\/sign-in$/);
  await expect(page.locator('body')).toHaveCSS('overflow','hidden');
@@ -37,10 +37,10 @@ test('navigation menu sign-in opens one active modal and keeps the page locked',
  await page.goto('/');
  await page.getByRole('button',{name:'Open navigation'}).click();
  await page.getByRole('dialog',{name:'Site navigation'}).getByRole('link',{name:'Sign in',exact:true}).click();
- await expect(page.getByRole('dialog',{name:'Your work belongs here.'})).toBeVisible();
+ await expect(page.getByRole('dialog',{name:'Sign in to Design Waterloo'})).toBeVisible();
  await expect(page.getByRole('dialog',{name:'Site navigation'})).toBeHidden();
  await expect(page.locator('body')).toHaveCSS('overflow','hidden');
  await page.getByRole('button',{name:'Close sign in'}).click();
  await expect(page).toHaveURL(/\/$/);
- await expect(page.getByRole('dialog',{name:'Your work belongs here.'})).toHaveCount(0);
+ await expect(page.getByRole('dialog',{name:'Sign in to Design Waterloo'})).toHaveCount(0);
 });

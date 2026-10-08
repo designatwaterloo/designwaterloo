@@ -30,9 +30,9 @@ for(const width of [1440,390]) test(`experience paste, edits and save at ${width
  await next.click();
  await expect(page.locator('[class*="positions"] [role=alert]')).toContainText('title, company, and start year');
  await expect(page.locator('main[data-account-workspace] > div > p[role=alert]')).toHaveCount(0);
- await page.getByLabel('Title',{exact:true}).fill('Designer');
- await page.getByLabel('Company',{exact:true}).fill('New studio');
- await page.getByLabel('Start year',{exact:true}).fill('2026');
+ await page.getByRole('textbox',{name:'Title',exact:true}).fill('Designer');
+ await page.getByRole('textbox',{name:'Company',exact:true}).fill('New studio');
+ await page.getByRole('textbox',{name:'Start year',exact:true}).fill('2026');
  await page.getByLabel('I currently work here').check();
  await request.post(CONTROL,{data:{failSave:true}});await next.click();
  await expect(page.locator('p[role=alert]')).toContainText('Couldn’t save');

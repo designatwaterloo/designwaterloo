@@ -23,6 +23,10 @@ Coverage:
 - Cross-tab sign-out and protected-route rejection.
 - Persistent browser profile across shutdown/relaunch.
 - Profile edit, Publish, and reload with the saved value and session intact.
+- Photo-save errors keep the crop editor open without changing the member; a
+  successful retry persists the photo and survives reload. Upload responses are
+  mocked here; `tests/upload-image.test.ts` exercises the real upload route with
+  isolated Sanity/database doubles.
 
 The fixture replaces Microsoft/Supabase *services*, not the app's auth code.
 It intentionally does not model all GoTrue/PostgREST behavior or validate real
