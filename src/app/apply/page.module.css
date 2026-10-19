@@ -42,3 +42,10 @@
 }
 
 .entry { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; text-align: center; padding: 120px 24px; box-sizing: border-box; }
+
+.updates { gap: 32px; }
+.updates > div { width: 100%; }
+.updates p { margin: 0 auto; line-height: 1.65; text-wrap: pretty; overflow-wrap: anywhere; }
+.updates .eyebrow { margin-bottom: 16px; }
+.updates h1 { margin-bottom: 20px; line-height: 1.2; }
+.updates .hint { margin: 12px auto 24px; }
