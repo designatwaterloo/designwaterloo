@@ -10,7 +10,7 @@ export default async function CoreTeamUpdatesPage() {
   const db = await createClient();
   const { data: { user }, error } = await db.auth.getUser();
   const unavailable = error && error.name !== 'AuthSessionMissingError' && error.status !== 401 && error.status !== 403;
-  return <main className={`${styles.page} ${styles.entry}`}>
+  return <main className={`${styles.page} ${styles.entry} ${styles.updates}`}>
     <div><p className={styles.eyebrow}>Our first core team</p><h1>Be the first to know.</h1><p>We’re getting ready to open core team applications.</p></div>
     {unavailable ? <div role="alert"><p>We couldn’t check your account. Please try again.</p><Link href="/apply/updates">Try again</Link></div>
       : user?.email ? <UpdatesSignup email={user.email} initialSubscribed={hasCoreTeamUpdates(user.user_metadata)} />
